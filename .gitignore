@@ -1,0 +1,29 @@
+# Ignorar todo por defecto
+*
+# Mantener archivos esenciales
+!.gitignore
+!CNAME
+!*.html
+!*.css
+!*.js
+!manifest.webmanifest
+!robots.txt
+!sitemap.xml
+!_headers
+!VERSION
+# Permitir carpeta de imágenes
+!img/
+!img/*
+!img/avatars/
+!img/avatars/*
+# Migraciones locales de Supabase: viven en Supabase, no en este repo
+supabase/
+# Herramientas de validación
+!scripts/
+!scripts/*
+# Ignorar documentación
+*.md
+# El mapa del proyecto y el changelog se versionan
+!AGENTS.md
+!CHANGELOG.md
+!llms.txt

@@ -1,0 +1,17 @@
+# LaGochaGaming
+> Sitio oficial de La Gocha (Stefany), streamer de Kick y creadora de contenido.
+> Comunidad con chat, puntos y rangos, galería, sorteos y GochiWatch (cine sincronizado).
+
+## Páginas
+- [Inicio](https://lagochagaming.com/): directos, clips, redes y muro de saludos.
+- [Comunidad](https://lagochagaming.com/comunidad): chat, ranking, tienda y perfil.
+- [Galería](https://lagochagaming.com/galeria): fotos de la comunidad y likes.
+- [Sorteo](https://lagochagaming.com/sorteo): sorteos en vivo y modo manual.
+- [GochiWatch](https://lagochagaming.com/cine): cine sincronizado con la streamer.
+
+## Redes
+- Kick: https://kick.com/lagochagaming
+- TikTok: https://www.tiktok.com/@lagochagaming11
+- Instagram: https://www.instagram.com/oscurostefany
+- YouTube: https://www.youtube.com/@lagochagaming
+- Discord: https://discord.com/invite/svrteKBbeh

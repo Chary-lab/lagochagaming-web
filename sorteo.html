@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
+    <meta name="theme-color" content="#ff66b2">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GochiSorteo | LaGochaGaming</title>
+    <meta name="description" content="Sorteos de La Gocha con premios increíbles: el modo streamer sortea en el servidor y el manual gira en tu navegador.">
+    <link rel="canonical" href="https://lagochagaming.com/sorteo">
+    <meta property="og:title" content="GochiSorteo | LaGochaGaming">
+    <meta property="og:description" content="Participa en los sorteos de La Gocha y gana premios increíbles.">
+    <meta property="og:image" content="https://lagochagaming.com/img/1.jpg">
+    <meta property="og:image:alt" content="Sorteos de LaGochaGaming">
+    <meta property="og:url" content="https://lagochagaming.com/sorteo">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="LaGochaGaming">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GochiSorteo | LaGochaGaming">
+    <meta name="twitter:description" content="Sorteos de La Gocha con premios increíbles: el modo streamer sortea en el servidor y el manual gira en tu navegador.">
+    <meta name="twitter:image" content="https://lagochagaming.com/img/1.jpg">
+    <meta name="twitter:image:alt" content="Sorteos de LaGochaGaming">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="style.css?v=1.28.1">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://kick.com">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Inicio",
+      "item": "https://lagochagaming.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Sorteo",
+      "item": "https://lagochagaming.com/sorteo"
+    }
+  ]
+}
+    </script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="181add5a-5f78-4d10-a199-4d2460d443a8" data-domains="lagochagaming.com"></script>
+</head>
+<body>
+
+<div class="page-shell">
+    <a href="#contenido" class="skip-link">Saltar al contenido</a>
+
+    <header id="global-header">
+        <nav class="navbar navbar-expand-lg" x-data="{ }" x-on:resize.window="if (window.innerWidth >= 1101) $store.ui.menuAbierto = false">
+            <div class="logo navbar-brand">LAGOCHA<span>GAMING</span></div>
+            <button type="button" class="mobile-menu-toggle-btn navbar-toggler" aria-label="Abrir menú"
+                    x-bind:aria-expanded="$store.ui.menuAbierto"
+                    x-bind:aria-label="$store.ui.menuAbierto ? 'Cerrar menú' : 'Abrir menú'"
+                    x-on:click="$store.ui.menuAbierto = !$store.ui.menuAbierto"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg></button>
+            <div class="nav-links navbar-nav" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
+                <a href="./" class="nav-link">Inicio</a>
+                <a href="./#stream" class="nav-link">Directo</a>
+                <a href="./#clips" class="nav-link">Clips</a>
+                <a href="cine" class="nav-link">🍿 GochiWatch</a>
+                <a href="sorteo" class="nav-link nav-active" aria-current="page">🎁 Sorteo</a>
+                <a href="galeria" class="nav-link">📸 Galería</a>
+                <a href="comunidad" class="nav-link">💬 Comunidad</a>
+            </div>
+            <div class="nav-right">
+                <button type="button" id="btn-toggle-tema" class="btn-tema-nav" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
+                <div id="nav-user-info"></div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- TOAST DE STREAM EN VIVO se inserta dinámicamente desde main.js -->
+
+    <div class="sorteo-layout page-layout" id="contenido" tabindex="-1">
+        <h1 class="visually-hidden">GochiSorteo</h1>
+        <!-- SECCIÓN IZQUIERDA: HISTORIAL Y GANADORES -->
+        <div class="sidebar-ganadores">
+            <h2><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-trophy"></use></svg> &Uacute;ltimos Ganadores</h2>
+            <p class="sidebar-ganadores-lead">
+                Registro histórico con los últimos ganadores afortunados de los sorteos oficiales de la comunidad.
+            </p>
+            <div id="top-ganadores-grid" x-data="{ }">
+                <template x-for="g in $store.sorteo.ganadores" :key="g.nombre + g.created_at">
+                    <div class="ganador-card-side">
+                        <div class="ganador-nombre" x-text="'🎉 ' + (g.nombre || '')"></div>
+                        <div class="ganador-fecha" x-text="g.fechaTexto"></div>
+                    </div>
+                </template>
+                <div class="ganadores-empty" x-bind:hidden="$store.sorteo.ganadoresEstado !== 'inicial'">Cargando ganadores oficiales...</div>
+                <div class="ganadores-empty" x-bind:hidden="$store.sorteo.ganadoresEstado !== 'lista' || $store.sorteo.ganadores.length > 0">Sin ganadores registrados.</div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN CENTRAL: CONTROLES DEL SORTEO -->
+        <div class="sorteo-container">
+            <div class="mode-tabs" role="tablist" aria-label="Modos del sorteo">
+                <button type="button" id="tab-manual" class="tab-btn" data-action="tab-manual" role="tab" aria-selected="false" aria-controls="sec-modo-manual"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-pen-to-square"></use></svg> Modo Manual</button>
+                <button type="button" id="tab-streamer" class="tab-btn" data-action="tab-streamer" role="tab" aria-selected="false" aria-controls="sec-modo-streamer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> Modo Streamer (Exclusivo)</button>
+            </div>
+
+            <div id="banner-estado-sorteo">
+                <div class="banner-sorteo-cerrado">
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> El GochiSorteo está cerrado en este momento.
+                </div>
+            </div>
+
+            <!-- MODO MANUAL -->
+            <div id="sec-modo-manual" class="sorteo-panel-manual" role="tabpanel" aria-labelledby="tab-manual" x-data="{ }">
+                <h2 class="sorteo-page-title">✍️ App de Sorteos Manual</h2>
+                <p class="sorteo-lead">
+                    Función para la comunidad y moderadores: Agrega nombres personalizados de participantes de forma local y haz girar la ruleta de prueba con efectos de confeti.
+                </p>
+
+                <div class="form-group form-group-tight">
+                    <input type="text" id="nombre-input-publico" aria-label="Nombre del participante" placeholder="Nombre (ej. CarlosGamer)" autocomplete="off">
+                    <button type="button" class="btn-primary sorteo-add-btn" data-action="add-public">Agregar</button>
+                    <button type="button" class="btn-primary btn-muted sorteo-add-btn" data-action="clear-public">Limpiar</button>
+                </div>
+                <div id="feedback-manual" class="feedback-msg"></div>
+
+                <div class="ruleta-box">
+                    <div class="ruleta-title">🎲 Estado del Sorteo 🎲</div>
+                    <div class="ruleta-nombre" id="ruleta-display-publico">¡Sorteo Listo!</div>
+                </div>
+                <canvas id="confetti-canvas-publico" aria-hidden="true"></canvas>
+
+                <div class="sorteo-spin-wrap">
+                    <button type="button" class="btn-sortear" data-action="spin-public">🎰 ¡Girar Ruleta!</button>
+                </div>
+
+                <div class="participants-box">
+                    <h3 class="participants-title">Participantes (<span x-text="$store.sorteo.manual.length">0</span>)</h3>
+                    <ul id="lista-participantes-publico" class="participants-list">
+                        <template x-for="(p, index) in $store.sorteo.manual" :key="p">
+                            <li class="tag-participante">
+                                <span x-text="'@' + p"></span>
+                                <button type="button" class="btn-copiar-enlace" x-bind:data-user="'@' + p" aria-label="Copiar usuario" title="Copiar usuario"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-link"></use></svg></button>
+                                <button type="button" x-on:click="$store.sorteo.manual.splice(index, 1)" aria-label="Quitar participante" title="Quitar participante"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-xmark"></use></svg></button>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- MODO STREAMER -->
+            <div id="sec-modo-streamer" class="sorteo-panel-streamer" role="tabpanel" aria-labelledby="tab-streamer">
+                <div class="sorteo-admin-intro">
+                    <p class="admin-panel-title">🔐 Panel Exclusivo GochiSorteo</p>
+                    <p class="sorteo-admin-lead">
+                        Controla el estado de las inscripciones en vivo, añade participantes con peso especial o vacía registros anteriores.
+                    </p>
+                    <div class="admin-toolbar admin-toolbar-center">
+                        <button type="button" id="btn-toggle-sorteo" data-action="toggle-draw" class="btn-primary btn-success btn-sm">🟢 ABRIR SORTEO EN VIVO</button>
+                        <button type="button" data-action="empty-tombola" class="btn-primary btn-danger btn-sm">🗑️ Limpiar Tómbola</button>
+                        <button type="button" data-action="logout-admin" class="btn-logout btn-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-from-bracket"></use></svg> Cerrar Sesión Admin</button>
+                        <button type="button" data-action="exit-streamer" class="btn-primary btn-muted btn-sm">Salir</button>
+                    </div>
+
+                    <!-- HERRAMIENTA BONUS PARTICIPANTES ADMIN -->
+                    <div class="admin-bonus-card">
+                        <p class="admin-bonus-title">⭐ Asignar Tickets Extra (Mayor Probabilidad)</p>
+                        <div class="form-group admin-bonus-form">
+                            <input type="text" id="input-usuario-admin" class="admin-bonus-input" aria-label="Usuario para asignar peso" placeholder="Usuario (ej. Juan)" autocomplete="off">
+                            <select id="select-peso-admin" class="admin-bonus-select" aria-label="Peso del usuario">
+                                <option value="1">1x (Normal)</option>
+                                <option value="2">2x (Doble Suerte 🔥)</option>
+                                <option value="3">3x (Triple Suerte âš¡)</option>
+                                <option value="5">5x (Mega Suerte 👑)</option>
+                            </select>
+                            <button type="button" data-action="add-bonus" class="btn-primary">Añadir</button>
+                        </div>
+                    </div>
+
+                    <div id="feedback-streamer-direct" class="feedback-msg"></div>
+                </div>
+
+                <div class="ruleta-box">
+                    <div class="ruleta-title">🎲 Ruleta Oficial GochiSorteo 🎲</div>
+                    <div class="ruleta-nombre" id="ruleta-display-streamer">¡Sorteo Listo!</div>
+                </div>
+                <canvas id="confetti-canvas-streamer" aria-hidden="true"></canvas>
+
+                <div class="sorteo-spin-wrap">
+                    <button type="button" class="btn-sortear" data-action="spin-streamer">🎰 ¡Girar Ruleta Oficial!</button>
+                </div>
+
+                <div class="participants-box" x-data="{}">
+                    <h3 class="participants-title">Participantes Registrados Online (<span id="count-streamer" x-text="$store.sorteo.participantes.length">0</span>)</h3>
+                    <ul id="lista-participantes-streamer" class="participants-list">
+                        <template x-for="p in $store.sorteo.participantes" :key="p.id || p.username">
+                            <li class="tag-participante">
+                                <span x-text="'@' + p.username"></span>
+                                <template x-if="Number(p.peso) > 1">
+                                    <span class="peso-tag" x-text="Number(p.peso) + 'x'"></span>
+                                </template>
+                                <button type="button" class="btn-copiar-enlace" :data-user="'@' + p.username" aria-label="Copiar usuario" title="Copiar usuario"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-link"></use></svg></button>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DERECHA: REGLAS E INFORMACIÓN -->
+        <div class="sidebar-info">
+            <h3><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-gift"></use></svg> Reglas del Sorteo</h3>
+            <p class="sidebar-info-text">
+                • El GochiSorteo se activa automáticamente cuando La Gocha abre las inscripciones en directo. Los espectadores pueden registrarse con su usuario de Kick.<br><br>
+                • ¡Mucha suerte a todos! 🍀
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal de Inicio de Sesión -->
+    <div id="modal-pin" class="gochi-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-sorteo-titulo">
+        <div class="gochi-modal-box">
+            <h3 id="modal-sorteo-titulo">🔒 ACCESO EXCLUSIVO GOCHA</h3>
+            <p>Ingresa tus datos de acceso:</p>
+
+            <form id="form-login-sorteo" novalidate>
+                <input type="email" id="streamer-email" class="gochi-modal-input" placeholder="Correo electrónico" aria-label="Correo electrónico" autocomplete="email">
+                <input type="password" id="streamer-password" class="gochi-modal-input" placeholder="Contraseña" aria-label="Contraseña" autocomplete="current-password">
+
+                <div id="feedback-pin" class="feedback-msg gochi-modal-feedback" role="status" aria-live="polite"></div>
+
+                <div class="gochi-modal-actions">
+                    <button type="submit" id="btn-entrar-sorteo" class="btn-primary">Entrar</button>
+                    <button type="button" data-action="close-login" class="btn-primary btn-muted">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+    <script>
+        let sorteoAbierto = false;
+        let modoManualAbierto = false;
+        let streamerAutenticado = false;
+        let ruletaGirando = false;
+
+        document.addEventListener('alpine:init', () => {
+            window.Alpine.store('sorteo', { participantes: [], manual: [], ganadores: [], ganadoresEstado: 'inicial' });
+        });
+
+        function obtenerStoreSorteo() {
+            return window.Alpine && typeof window.Alpine.store === 'function'
+                ? window.Alpine.store('sorteo')
+                : null;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!window.Alpine || !window.Alpine.store('sorteo')) {
+                const lista = document.getElementById('lista-participantes-streamer');
+                const count = document.getElementById('count-streamer');
+
+                if (lista) {
+                    const aviso = document.createElement('li');
+                    aviso.className = 'tag-participante';
+                    aviso.textContent = 'Lista no disponible. Recarga la página.';
+                    lista.appendChild(aviso);
+                }
+
+                if (count) count.textContent = '—';
+            }
+
+            cargarEstadoSorteo();
+            cargarParticipantesOnline();
+            cargarTopGanadores();
+
+            if (window.supabase) {
+                try {
+                    const adminOk = await window.esAdminActual?.();
+                    if (adminOk) {
+                        streamerAutenticado = true;
+                        cambiarTab('streamer');
+                    } else {
+                        cambiarTab('manual');
+                    }
+                } catch (e) {
+                    console.error('Error obteniendo sesión:', e);
+                }
+            } else {
+                mostrarToast('Supabase no está disponible en este entorno', true);
+            }
+
+            try {
+                supabase
+                    .channel('realtime_sorteo_total')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'participantes_en_vivo' }, () => { cargarParticipantesOnline(); })
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'config_sorteo' }, (payload) => { 
+                        if (payload.new) {
+                            sorteoAbierto = payload.new.abierto;
+                            actualizarUIEstadoSorteo();
+                        }
+                    })
+                    .subscribe();
+            } catch(e) { console.log('Modo local detectado'); }
+
+            document.getElementById('form-login-sorteo')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                confirmarLoginStreamer();
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            const trigger = e.target.closest('[data-action]');
+            if (!trigger) return;
+
+            const index = Number(trigger.dataset.index);
+            switch (trigger.dataset.action) {
+                case 'tab-manual': cambiarTab('manual'); break;
+                case 'tab-streamer': cambiarTab('streamer'); break;
+                case 'add-public': agregarParticipantePublico(); break;
+                case 'clear-public': limpiarListaPublica(); break;
+                case 'spin-public': girarRuletaPublica(); break;
+                case 'toggle-draw': toggleEstadoSorteo(); break;
+                case 'empty-tombola': vaciarTombolaOnline(); break;
+                case 'logout-admin': window.cerrarSesionAdminGlobal?.(); break;
+                case 'exit-streamer': salirModoStreamer(); break;
+                case 'add-bonus': agregarParticipanteAdminBonus(); break;
+                case 'spin-streamer': girarRuletaStreamer(); break;
+                case 'close-login': cerrarModalPin(); break;
+                case 'join-draw': enviarParticipacionTemporal(); break;
+            }
+        });
+
+        // Delegación para botones copiar usuario (data-user)
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-copiar-enlace[data-user]');
+            if (!btn) return;
+            e.stopPropagation();
+            const user = btn.dataset.user;
+            if (user) {
+                window.copiarEnlace(user, '¡Usuario copiado!');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            if (e.target.id === 'nombre-input-publico') {
+                e.preventDefault();
+                agregarParticipantePublico();
+            } else if (e.target.id === 'input-usuario-temporal') {
+                e.preventDefault();
+                enviarParticipacionTemporal();
+            }
+        });
+
+        function mostrarFeedback(elementId, mensaje, esError = false) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.innerText = mensaje;
+            el.classList.remove('feedback-error', 'feedback-success');
+            el.classList.add(esError ? 'feedback-error' : 'feedback-success');
+            setTimeout(() => {
+                if (el) el.innerText = '';
+            }, 3500);
+        }
+
+        function cambiarTab(tab) {
+            const secManual = document.getElementById('sec-modo-manual');
+            const secStreamer = document.getElementById('sec-modo-streamer');
+            const btnManual = document.getElementById('tab-manual');
+            const btnStreamer = document.getElementById('tab-streamer');
+
+            if (tab === 'manual') {
+                // Los botones muestran/ocultan paneles, nunca alternan: el panel manual queda visible al hacer clic
+                secManual.style.display = 'block';
+                secStreamer.style.display = 'none';
+                btnManual.classList.add('active');
+                btnStreamer.classList.remove('active');
+                btnManual.setAttribute('aria-selected', 'true');
+                btnStreamer.setAttribute('aria-selected', 'false');
+            } else if (tab === 'streamer') {
+                if (!streamerAutenticado) {
+                    document.getElementById('feedback-pin').innerText = '';
+                    document.getElementById('modal-pin').style.display = 'flex';
+                    if (window.activarTrampaFoco) {
+                        window.activarTrampaFoco(
+                            document.getElementById('modal-pin'),
+                            document.getElementById('streamer-email')
+                        );
+                    } else {
+                        document.getElementById('streamer-email').focus();
+                    }
+                } else {
+                    secManual.style.display = 'none';
+                    secStreamer.style.display = 'block';
+                    btnManual.classList.remove('active');
+                    btnStreamer.classList.add('active');
+                    btnManual.setAttribute('aria-selected', 'false');
+                    btnStreamer.setAttribute('aria-selected', 'true');
+                }
+            }
+        }
+
+        function cerrarModalPin() {
+            document.getElementById('modal-pin').style.display = 'none';
+            document.getElementById('streamer-email').value = '';
+            document.getElementById('streamer-password').value = '';
+            document.getElementById('feedback-pin').innerText = '';
+            window.desactivarTrampaFoco?.(true);
+        }
+
+        async function confirmarLoginStreamer() {
+            const email = document.getElementById('streamer-email').value.trim();
+            const password = document.getElementById('streamer-password').value.trim();
+            const btnEntrar = document.getElementById('btn-entrar-sorteo');
+
+            if (!window.supabase) {
+                mostrarFeedback('feedback-pin', '❌ No se pudo conectar con el servidor', true);
+                return;
+            }
+
+            if (!email || !password) {
+                mostrarFeedback('feedback-pin', 'Rellena todos los campos', true);
+                return;
+            }
+
+            if (btnEntrar) btnEntrar.disabled = true;
+            try {
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+                if (error) {
+                    mostrarFeedback('feedback-pin', '❌ Credenciales incorrectas', true);
+                    return;
+                }
+
+                window.refrescarCacheAdmin?.();
+                const adminOk = await window.esAdminActual?.();
+                if (!adminOk) {
+                    await supabase.auth.signOut().catch(() => {});
+                    window.refrescarCacheAdmin?.();
+                    streamerAutenticado = false;
+                    mostrarFeedback('feedback-pin', '❌ Esta cuenta no es de streamer', true);
+                    return;
+                }
+
+                streamerAutenticado = true;
+                cerrarModalPin();
+                document.getElementById('sec-modo-manual').style.display = 'none';
+                document.getElementById('sec-modo-streamer').style.display = 'block';
+                document.getElementById('tab-manual').classList.remove('active');
+                document.getElementById('tab-streamer').classList.add('active');
+                document.getElementById('tab-manual').setAttribute('aria-selected', 'false');
+                document.getElementById('tab-streamer').setAttribute('aria-selected', 'true');
+            } catch (e) {
+                mostrarFeedback('feedback-pin', '❌ No se pudo iniciar sesión', true);
+            } finally {
+                if (btnEntrar) btnEntrar.disabled = false;
+            }
+        }
+
+        function salirModoStreamer() {
+            document.getElementById('sec-modo-streamer').style.display = 'none';
+            document.getElementById('sec-modo-manual').style.display = 'block';
+            document.getElementById('tab-streamer').classList.remove('active');
+            document.getElementById('tab-manual').classList.add('active');
+            document.getElementById('tab-manual').setAttribute('aria-selected', 'true');
+            document.getElementById('tab-streamer').setAttribute('aria-selected', 'false');
+        }
+
+        async function toggleEstadoSorteo() {
+            if (!(await validarSesionStreamer())) {
+                streamerAutenticado = false;
+                salirModoStreamer();
+                mostrarFeedback('feedback-streamer-direct', '❌ Sesión expirada.', true);
+                return;
+            }
+
+            const nuevoEstado = !sorteoAbierto;
+            try {
+                const { error } = await supabase
+                    .from('config_sorteo')
+                    .upsert({ id: 1, abierto: nuevoEstado });
+                if (error) throw error;
+                sorteoAbierto = nuevoEstado;
+                actualizarUIEstadoSorteo();
+            } catch (e) {
+                console.error('No se pudo cambiar el estado del sorteo:', e);
+                mostrarFeedback('feedback-streamer-direct', '❌ No se pudo cambiar el estado del sorteo.', true);
+            }
+        }
+
+        async function cargarEstadoSorteo() {
+            try {
+                const { data, error } = await supabase.from('config_sorteo').select('abierto').eq('id', 1).single();
+                if (!error && data) {
+                    sorteoAbierto = data.abierto;
+                }
+            } catch (err) { console.error('Error:', err); }
+            actualizarUIEstadoSorteo();
+        }
+
+        function actualizarUIEstadoSorteo() {
+            const btnToggle = document.getElementById('btn-toggle-sorteo');
+            const bannerArea = document.getElementById('banner-estado-sorteo');
+
+            if (btnToggle) {
+                if (sorteoAbierto) {
+                    btnToggle.innerText = "🔴 CERRAR SORTEO EN VIVO";
+                    btnToggle.classList.add('btn-danger');
+                    btnToggle.classList.remove('btn-success');
+                } else {
+                    btnToggle.innerText = "🟢 ABRIR SORTEO EN VIVO";
+                    btnToggle.classList.add('btn-success');
+                    btnToggle.classList.remove('btn-danger');
+                }
+            }
+
+            if (bannerArea) {
+                if (sorteoAbierto) {
+                    const registradoUser = localStorage.getItem('gochi_registrado_user');
+
+                    if (registradoUser) {
+                        bannerArea.innerHTML = `
+                            <div class="banner-sorteo-registrado">
+                                <h2 class="banner-title">
+                                    ✅ ¡YA ESTÁS PARTICIPANDO EN EL GOCHISORTEO!
+                                </h2>
+                                <p class="banner-text">
+                                    Inscrito con el usuario: <strong class="banner-user">@${escapeHtml(registradoUser)}</strong>
+                                </p>
+                                <p class="banner-hint">
+                                    Permanece atento a la transmisión para conocer al ganador. ¡Mucha suerte! 🍀
+                                </p>
+                            </div>
+                        `;
+                    } else {
+                        bannerArea.innerHTML = `
+                            <div class="banner-sorteo-activo">
+                                <h2 class="banner-title">
+                                    🎉 ¡GochiSorteo Oficial ABIERTO! 🎉
+                                </h2>
+                                <p class="banner-text-lead">
+                                    Ingresa tu nombre de usuario exacto de Kick para participar en directo:
+                                </p>
+                                <div class="form-group form-group-flush">
+                                    <input type="text" id="input-usuario-temporal" placeholder="Tu usuario de Kick..." autocomplete="off">
+                                    <button type="button" class="btn-primary btn-join-draw" data-action="join-draw">
+                                        🎁 ¡Unirme al GochiSorteo!
+                                    </button>
+                                </div>
+                                <div id="feedback-publico-temporal" class="feedback-msg"></div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // El sorteo cerrado libera el bloqueo "ya te registraste":
+                    // si no, el participante ve el banner del sorteo anterior
+                    // y no puede volver a registrarse al reabrir.
+                    localStorage.removeItem('gochi_registrado_user');
+                    bannerArea.innerHTML = `
+                        <div class="banner-sorteo-cerrado">
+                            <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> El GochiSorteo está cerrado en este momento.
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Verificación del handle contra la API pública de Kick.
+        // Solo bloquea ante un 404 explícito (el usuario no existe): si la API
+        // falla o va lenta, el sorteo nunca se bloquea por un problema externo.
+        const CACHE_KICK_KEY = 'gochi_kick_cache';
+        const CACHE_KICK_TTL = 30 * 60 * 1000;
+
+        function leerCacheKick() {
+            try {
+                const raw = sessionStorage.getItem(CACHE_KICK_KEY);
+                const c = raw ? JSON.parse(raw) : {};
+                return (c && typeof c === 'object') ? c : {};
+            } catch (e) { return {}; }
+        }
+
+        function guardarCacheKick(handle, data) {
+            try {
+                const c = leerCacheKick();
+                c[handle.toLowerCase()] = { ts: Date.now(), data };
+                sessionStorage.setItem(CACHE_KICK_KEY, JSON.stringify(c));
+            } catch (e) { /* cache no disponible */ }
+        }
+
+        async function verificarHandleKick(username) {
+            const clave = String(username).toLowerCase();
+            const cache = leerCacheKick();
+            const hit = cache[clave];
+            if (hit && (Date.now() - hit.ts) < CACHE_KICK_TTL) {
+                return hit.data;
+            }
+
+            let resultado = { ok: true, username, kickUserId: null };
+            try {
+                const res = await fetch(`https://kick.com/api/v2/channels/${encodeURIComponent(username)}`);
+                if (res.status === 404) {
+                    resultado = { ok: false, error: 'usuario_no_existe' };
+                } else if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.user) {
+                        resultado = { ok: true, username: data.user.username, kickUserId: data.user.id };
+                    }
+                }
+            } catch (e) {
+                // Red caída: se permite el registro (el sorteo no se bloquea).
+                resultado = { ok: true, username, kickUserId: null };
+            }
+
+            // Solo se cachean las verificaciones reales: un fallo de red no
+            // debe dejar el handle "verificado" durante media hora.
+            if (resultado.kickUserId) guardarCacheKick(clave, resultado);
+            return resultado;
+        }
+
+        async function enviarParticipacionTemporal() {
+            const input = document.getElementById('input-usuario-temporal');
+            if (!input) return;
+            const username = input.value.trim().replace(/^@/, '');
+
+            if (!username) {
+                mostrarFeedback('feedback-publico-temporal', 'Por favor escribe tu usuario de Kick.', true);
+                return;
+            }
+
+            const check = await verificarHandleKick(username);
+            if (!check.ok) {
+                mostrarFeedback('feedback-publico-temporal', '❌ Ese usuario de Kick no existe. Revisa el nombre.', true);
+                return;
+            }
+
+            registrarUsuarioEnLista(check.username, 'feedback-publico-temporal', check.kickUserId ?? null);
+        }
+
+        async function registrarUsuarioEnLista(username, feedbackId, kickUserId = null) {
+            const store = obtenerStoreSorteo();
+            if (!store) {
+                mostrarFeedback(feedbackId, '❌ La lista no está disponible. Recarga la página.', true);
+                return;
+            }
+
+            const yaRegistrado = store.participantes.some(
+                u => String(u.username ?? u).toLowerCase() === username.toLowerCase()
+            );
+            if (yaRegistrado) {
+                mostrarFeedback(feedbackId, '⚠️ ¡Este usuario ya está registrado!', true);
+                return;
+            }
+
+            store.participantes.push({ username: username, peso: 1 });
+
+            try {
+                const { data: resultado, error } = await supabase.rpc('registrar_participante_sorteo', {
+                    p_username: username, p_kick_user_id: kickUserId
+                });
+                if (error) throw error;
+                if (!resultado || !resultado.ok) {
+                    throw new Error(resultado ? resultado.error : 'error_desconocido');
+                }
+            } catch (err) {
+                console.error('No se pudo registrar en Supabase:', err);
+                store.participantes = store.participantes.filter(
+                    u => String(u.username ?? u).toLowerCase() !== username.toLowerCase()
+                );
+                const msg = err.message === 'sorteo_cerrado' ? 'El sorteo está cerrado en este momento.'
+                    : err.message === 'ya_registrado' ? '⚠️ ¡Este usuario ya está registrado!'
+                    : err.message === 'lleno' ? '⚠️ El sorteo está lleno.'
+                    : err.message === 'rate_limited' ? '⏳ Demasiados registros desde esta conexión. Espera unos minutos.'
+                    : err.message === 'usuario_invalido' ? '❌ Usuario inválido (solo letras, números y _).'
+                    : '❌ No se pudo completar el registro. Inténtalo de nuevo.';
+                mostrarFeedback(feedbackId, msg, true);
+                return;
+            }
+
+            localStorage.setItem('gochi_registrado_user', username);
+            actualizarUIEstadoSorteo();
+        }
+
+        function agregarParticipantePublico() {
+            const store = obtenerStoreSorteo();
+            const input = document.getElementById('nombre-input-publico');
+            if (!store || !input) return;
+            const nombre = input.value.trim().replace('@', '');
+            if (!nombre) return;
+
+            if (store.manual.some((p) => p.toLowerCase() === nombre.toLowerCase())) {
+                mostrarFeedback('feedback-manual', '⚠️ Este participante ya está en la lista.', true);
+                return;
+            }
+
+            store.manual.push(nombre);
+            input.value = '';
+            input.focus();
+            mostrarFeedback('feedback-manual', `✅ @${nombre} agregado a la lista.`);
+        }
+
+        function limpiarListaPublica() {
+            const store = obtenerStoreSorteo();
+            if (store) store.manual = [];
+            const display = document.getElementById('ruleta-display-publico');
+            if (display) display.innerText = '¡Sorteo Listo!';
+            mostrarFeedback('feedback-manual', '🧹 Lista de participantes limpiada.');
+        }
+
+        // Indice aleatorio con crypto.getRandomValues y rejection sampling
+        // (evita el sesgo de Math.random y permite auditar el sorteo).
+        function indiceAleatorioSeguro(max) {
+            if (!Number.isFinite(max) || max <= 0) return 0;
+            if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+                const rango = 0x100000000;
+                const limite = rango - (rango % max);
+                const buffer = new Uint32Array(1);
+                do {
+                    window.crypto.getRandomValues(buffer);
+                } while (buffer[0] >= limite);
+                return buffer[0] % max;
+            }
+            return Math.floor(Math.random() * max);
+        }
+
+        function girarRuletaPublica() {
+            if (ruletaGirando) return;
+            const store = obtenerStoreSorteo();
+            const lista = store ? store.manual : [];
+            if (lista.length === 0) {
+                mostrarFeedback('feedback-manual', '⚠️ Agrega al menos un participante antes de girar.', true);
+                return;
+            }
+            ruletaGirando = true;
+            let display = document.getElementById('ruleta-display-publico');
+            let counter = 0;
+            let intervalo = setInterval(() => {
+                let randomIndex = indiceAleatorioSeguro(lista.length);
+                display.innerText = `@${escapeHtml(lista[randomIndex])}`;
+                counter++;
+                if (counter > 25) {
+                    clearInterval(intervalo);
+                    let ganadorFinal = lista[indiceAleatorioSeguro(lista.length)];
+                    display.innerHTML = `🎉 ¡@${escapeHtml(ganadorFinal)}! 🎉`;
+                    lanzarConfetti('confetti-canvas-publico');
+                    ruletaGirando = false;
+                }
+            }, 50);
+        }
+
+        async function agregarParticipanteAdminBonus() {
+            const input = document.getElementById('input-usuario-admin');
+            const selectPeso = document.getElementById('select-peso-admin');
+            const username = input.value.trim().replace(/^@/, '');
+            const peso = parseInt(selectPeso.value);
+
+            if (!username) {
+                mostrarFeedback('feedback-streamer-direct', '❌ Escribe un usuario.', true);
+                return;
+            }
+
+            try {
+                // La RPC actualiza el peso si el usuario ya existe: el bono
+                // reemplaza en vez de crear una fila nueva (ni sumar tickets).
+                const { data: resultado, error } = await supabase.rpc('asignar_peso_sorteo', {
+                    p_username: username, p_peso: peso
+                });
+                if (error) throw error;
+                if (!resultado || !resultado.ok) {
+                    throw new Error(resultado ? resultado.error : 'error_desconocido');
+                }
+                mostrarFeedback('feedback-streamer-direct', `✅ @${username} añadido con ${peso}x de probabilidad.`);
+                input.value = '';
+                cargarParticipantesOnline();
+            } catch (err) {
+                console.error('Error:', err);
+                const msg = err.message === 'usuario_invalido'
+                    ? '❌ Usuario inválido (solo letras, números y _).'
+                    : err.message === 'sin_permiso'
+                    ? '❌ Tu sesión no tiene permiso para hacer eso.'
+                    : '❌ Error al agregar participante.';
+                mostrarFeedback('feedback-streamer-direct', msg, true);
+            }
+        }
+
+        async function cargarParticipantesOnline() {
+            const store = obtenerStoreSorteo();
+            if (!store) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('participantes_en_vivo')
+                    .select('username, peso')
+                    .order('created_at', { ascending: true });
+                
+                if (!error && data) {
+                    store.participantes = data;
+                }
+            } catch (err) { console.error('Error:', err); }
+        }
+
+        async function vaciarTombolaOnline() {
+            const store = obtenerStoreSorteo();
+            if (!store) {
+                mostrarFeedback('feedback-streamer-direct', '❌ La lista no está disponible. Recarga la página.', true);
+                return;
+            }
+
+            if (!(await validarSesionStreamer())) {
+                streamerAutenticado = false;
+                salirModoStreamer();
+                mostrarFeedback('feedback-streamer-direct', '❌ Sesión expirada.', true);
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('participantes_en_vivo')
+                    .delete()
+                    .gt('id', 0);
+                if (error) throw error;
+
+                store.participantes = [];
+                localStorage.removeItem('gochi_registrado_user');
+                actualizarUIEstadoSorteo();
+                mostrarFeedback('feedback-streamer-direct', '🧹 Tómbola vaciada y registros limpiados.');
+            } catch (err) {
+                console.error('Error vaciando la tómbola:', err);
+                mostrarFeedback('feedback-streamer-direct', '❌ No se pudo vaciar la tómbola.', true);
+            }
+        }
+
+        async function girarRuletaStreamer() {
+            if (ruletaGirando) return;
+
+            const store = obtenerStoreSorteo();
+            if (!store) {
+                mostrarFeedback('feedback-streamer-direct', '❌ La lista no está disponible. Recarga la página.', true);
+                return;
+            }
+
+            if (store.participantes.length === 0) {
+                mostrarFeedback('feedback-streamer-direct', '⚠️ No hay participantes inscritos.', true);
+                return;
+            }
+            if (!(await validarSesionStreamer())) {
+                streamerAutenticado = false;
+                salirModoStreamer();
+                mostrarFeedback('feedback-streamer-direct', '❌ Sesión expirada.', true);
+                return;
+            }
+
+            ruletaGirando = true;
+            mostrarFeedback('feedback-streamer-direct', '🎲 Sorteando en el servidor...');
+
+            // El resultado se decide SIEMPRE en el servidor. La animacion es
+            // solo cosmetica. Si el servidor falla no se inventa un ganador:
+            // un ganador local no registrado confundiria al publico.
+            let ganadorFinal = null;
+            try {
+                const { data, error } = await supabase.rpc('sortear_ganador_sorteo');
+                if (error) throw error;
+                if (data && data.ok && data.ganador) {
+                    ganadorFinal = data.ganador;
+                } else if (data && data.error === 'sin_participantes') {
+                    ruletaGirando = false;
+                    mostrarFeedback('feedback-streamer-direct', '⚠️ No hay participantes en la tombola.', true);
+                    return;
+                } else if (data && data.error === 'sin_permiso') {
+                    ruletaGirando = false;
+                    mostrarFeedback('feedback-streamer-direct', '❌ Tu sesión no tiene permiso para sortear.', true);
+                    return;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+
+            if (!ganadorFinal) {
+                ruletaGirando = false;
+                mostrarFeedback('feedback-streamer-direct', '❌ No se pudo sortear en el servidor. Intenta de nuevo.', true);
+                return;
+            }
+
+            const participantesAnimacion = store.participantes.slice();
+            const display = document.getElementById('ruleta-display-streamer');
+            let counter = 0;
+            let intervalo = setInterval(() => {
+                if (participantesAnimacion.length === 0) {
+                    clearInterval(intervalo);
+                    ruletaGirando = false;
+                    return;
+                }
+                const idx = indiceAleatorioSeguro(participantesAnimacion.length);
+                display.innerText = `@${escapeHtml(participantesAnimacion[idx].username)}`;
+                counter++;
+                if (counter > 25) {
+                    clearInterval(intervalo);
+                    display.innerHTML = `🎉 ¡@${escapeHtml(ganadorFinal)}! 🎉`;
+                    lanzarConfetti('confetti-canvas-streamer');
+                    // sortear_ganador_sorteo ya inserto el ganador en ganadores_sorteo.
+                    cargarTopGanadores();
+                    ruletaGirando = false;
+                }
+            }, 50);
+        }
+
+        async function cargarTopGanadores() {
+            try {
+                const { data, error } = await supabase.from('ganadores_sorteo').select('nombre, created_at').order('created_at', { ascending: false }).limit(20);
+                if (error) throw error;
+                const store = obtenerStoreSorteo();
+                if (!store) return;
+                store.ganadores = (data || []).map((g) => Object.assign({}, g, {
+                    fechaTexto: new Date(g.created_at).toLocaleString('es-ES', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    })
+                }));
+                store.ganadoresEstado = 'lista';
+            } catch (err) {
+                console.error('Error:', err);
+                const store = obtenerStoreSorteo();
+                if (store) store.ganadoresEstado = 'lista';
+            }
+        }
+
+        // El confeti se lanza con window.lanzarConfetti (main.js).
+    </script>
+
+</div>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-social-icons">
+                <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer" class="social-icon kick-icon" title="Kick">K</a>
+                <a href="https://www.tiktok.com/@lagochagaming11" target="_blank" rel="noopener noreferrer" class="social-icon" title="TikTok"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-tiktok"></use></svg></a>
+                <a href="https://www.instagram.com/oscurostefany" target="_blank" rel="noopener noreferrer" class="social-icon" title="Instagram"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-instagram"></use></svg></a>
+                <a href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer" class="social-icon" title="Discord"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-discord"></use></svg></a>
+                <a href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer" class="social-icon" title="YouTube"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-youtube"></use></svg></a>
+            </div>
+            <p class="footer-copyright">&copy; 2026 LAGOCHAGAMING - ALL RIGHTS RESERVED</p>
+        </div>
+    </footer>
+
+    <script src="main.js?v=1.28.1" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
+            integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
+            crossorigin="anonymous"></script>
+</body>
+</html>

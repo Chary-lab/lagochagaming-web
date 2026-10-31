@@ -1,0 +1,661 @@
+# Changelog - LaGochaGaming
+
+Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
+El historial anterior a 1.5.0 está en los commits `v1.4.x`.
+
+## [1.28.1] - 2026-10-31
+
+### Documentación
+
+- `AGENTS.md` actualizado: SEO/AEO, sprite de iconos y pruebas nuevas.
+- Eliminados `beta.md` y `seo.md`; lo vigente vive en `AGENTS.md`.
+
+## [1.28.0] - 2026-10-31
+
+### Hero fusionado e iconos SVG
+
+- El hero añade una línea de contenido (TikTok shorts, reels, clips, comunidad,
+  GochiWatch) y una fila de redes; sin sección nueva ni página extra.
+- Fuera Font Awesome: sprite local `img/icons.svg` con 53 símbolos (Font Awesome
+  Free 6.6.0, CC BY 4.0), `.icon` en CSS y `<use>` en el markup.
+- Iconos dinámicos migrados: tema claro/OLED, enlaces de perfil, redes de
+  comunidad y estados de cine.
+- CSP sin `cdnjs.cloudflare.com`.
+
+## [1.27.1] - 2026-10-31
+
+### Vuelta al reproductor de YouTube
+
+- Se retira la fachada click-to-load: vuelve el iframe de la lista como antes.
+- Se mantiene el `preload` del hero.
+
+## [1.27.0] - 2026-10-31
+
+### Rendimiento: YouTube bajo demanda
+
+- Fachada click-to-load para la lista de YouTube: el iframe no se crea hasta
+  que el usuario pulsa (menos red y JS de terceros al cargar).
+- `preload` de la imagen del hero (`fono.webp`, 68 KB) con `fetchpriority=high`.
+
+## [1.26.1] - 2026-10-31
+
+### FAQ después del muro
+
+- La sección de preguntas frecuentes pasa después del muro de saludos.
+- Respuesta “¿Quién es La Gocha?” ampliada: TikTok shorts, reels de IG,
+  directos, clips, comunidad y cine.
+
+## [1.26.0] - 2026-10-31
+
+### Analítica Umami
+
+- Script de Umami (`cloud.umami.is`) en las 5 páginas y en el 404, limitado
+  a `lagochagaming.com` con `data-domains`.
+- CSP de `_headers` actualizada con `cloud.umami.is` en `script-src` y
+  `connect-src`.
+
+## [1.25.1] - 2026-10-31
+
+### Limpieza SEO
+
+- Fuera el `dns-prefetch` de `juicer.io` (servicio retirado) y la variable
+  muerta `paginaActualMuro`.
+
+## [1.25.0] - 2026-10-31
+
+### SEO P1: FAQ y H1 de galería
+
+- FAQ visible en la home con 6 preguntas y enlaces internos.
+- `FAQPage` en JSON-LD (contenido visible, sin datos inventados).
+- H1 de galería → “Galería de la comunidad”.
+
+## [1.24.0] - 2026-10-31
+
+### SEO P0: entidad, schema y rastreo
+
+- JSON-LD `Person` + `WebSite` en la home (con `sameAs` a Kick, TikTok,
+  Instagram, YouTube y Discord).
+- `BreadcrumbList` en comunidad, galería, sorteo y cine.
+- `llms.txt` con resumen y URLs para motores de IA.
+- `404.html` con diseño propio y `noindex`.
+- `og:image` y `twitter:image` propias por página, con `alt`.
+- `scripts/check.js` ignora `application/ld+json` (antes lo validaba como JS).
+
+## [1.23.4] - 2026-10-31
+
+### Auditoría y limpieza
+
+- CSS muerto fuera: editor de perfil viejo (~127 líneas), panel de pendientes,
+  `social-feed-box`, `leyenda-brillo`, `shop-card`, `canal-title`, `yt-player`
+  y `body.modal-perfil-open`.
+- `main.js`: quitado `panelPendientes` y el alias `cerrarModalPerfil`.
+- Comunidad: quitado el alias `actualizarFlechasTienda`.
+- `_headers`: CSP con `instagram.com` y `tiktok.com` en `frame-src`; fuera
+  `juicer.io`.
+- `sitemap.xml` con `lastmod` al día; `beta.md` marcado como histórico.
+- Auditoría de consola: 0 errores/excepciones en las 5 páginas.
+
+## [1.23.3] - 2026-10-31
+
+### Botón “Cargar más saludos” visible
+
+- `.btn-cargar-mas` nace con `display: none` y el JS antiguo lo mostraba;
+  al pasar a Alpine quedó oculto. Regla `#btn-cargar-mas-muro:not([hidden])
+  { display: inline-block; }` para mostrarlo cuando `hayMas` es true.
+
+## [1.23.2] - 2026-10-31
+
+### Muro sin scroll interno
+
+- Quitado `max-height: 600px` y `overflow-y: auto` de `.muro-grid`: las
+  tarjetas crecen y scrollea la página, sin scrollbar anidado.
+- “Cargar más saludos” sigue paginando de 12 en 12.
+
+## [1.23.1] - 2026-10-31
+
+### Scroll horizontal y rangos del muro
+
+- Reset global `box-sizing: border-box`: elimina el desborde de 27 px que
+  provocaban `width: 100%` + padding (form del muro y hero) en desktop y móvil.
+- El muro pide el rango actual de los autores verificados y deja de mostrar la
+  instantánea vieja del saludo (McChary vuelve a Polvo Cósmico).
+- `AGENTS.md`: nota de overflow a 1400/390.
+
+## [1.23.0] - 2026-10-31
+
+### Sorteo completo en Alpine
+
+- Lista manual con `x-for` y store (`sorteo.manual`): agregar, quitar y limpiar.
+- Ganadores oficiales con `x-for` (`sorteo.ganadores`), estado de carga y vacío.
+- La ruleta manual lee la lista del store; fuera el render con `innerHTML`.
+- Corregido `:hidden` con `.length` numérico: un `0` mantenía ocultos los
+  estados vacíos del muro y de ganadores.
+
+## [1.22.0] - 2026-10-31
+
+### Subida de galería en Alpine y auditoría
+
+- Subida con el store `subida`: título, autor admin, drag & drop, validación,
+  magic bytes, Storage, RPC y feedback reactivo.
+- Eliminados el render manual y las funciones sin uso del muro; quitadas
+  constantes muertas de cine.
+- AGENTS: política “Alpine primero”, stores por página y reglas de visibilidad,
+  modales y datos.
+
+## [1.21.0] - 2026-10-31
+
+### Muro completo y cine en Alpine
+
+- Muro con `x-for`: tarjetas, autor con rango, enlace al perfil, reacciones,
+  burbuja rápida, borrado admin, paginación y estado vacío desde el store.
+- Realtime de saludos y reacciones escribe en el store (sin reconstruir DOM).
+- Cine con store `cine` para overlay, estado, fuente, botones de unirse,
+  enlace a YouTube y espectadores. El motor de sincronización no cambia.
+- Galería: lightbox y panel admin ya eran Alpine; sin cambios funcionales.
+
+## [1.20.0] - 2026-10-31
+
+### Toasts y muro en Alpine
+
+- Toasts con el store `toast`: mensaje, variante de error y auto-cierre a los
+  3 s sin timers globales.
+- Formulario del muro con el store `muro`: `x-model` en autor/mensaje,
+  feedback de éxito/error, bloqueo mientras envía y puntos.
+- El render de tarjetas y el realtime del muro siguen en JS; pasarlos a
+  `x-for` queda para otra fase.
+
+## [1.19.0] - 2026-10-31
+
+### Modal de perfil y menú móvil en Alpine
+
+- Modal de perfil reescrito sobre el store Alpine `perfil`: pestañas, avatar,
+  género, bio, redes, guardado y perfil público sin `innerHTML` ni listeners a
+  mano.
+- Foco atrapado con `x-trap.noscroll`; visibilidad con `:hidden`.
+- Menú móvil con el store `ui`: apertura/cierre, `aria-expanded`, Escape y
+  cierre al cambiar a escritorio.
+- `@alpinejs/focus` cargado en las 5 páginas.
+
+## [1.18.0] - 2026-10-31
+
+### Sin Bootstrap y Alpine en todas las páginas
+
+- Retirado Bootstrap 6 alpha de las 5 páginas. Las utilidades que se usaban
+  (`.nav-right`, `.visually-hidden`) son CSS propio.
+- Alpine + `@alpinejs/focus` cargados con `defer` en index y cine; ya están en
+  todas las páginas.
+- El modal de fotos/vídeos de los feeds pasa a `$store.media`: `x-trap`,
+  cierre con Escape/fondo/botón, foco devuelto y sin manipulación de `iframe`
+  a mano.
+- Visibilidad con `:hidden` + `[hidden]`; `x-show` no es fiable con
+  `display: flex` en este build.
+
+## [1.17.1] - 2026-10-31
+
+### Perfil público sin pestañas de ajustes
+
+- Regla global `[hidden] { display: none !important; }`: el `display: flex` de
+  `.modal-perfil-tabs` ya no pisa el atributo `hidden`.
+- El perfil público de otro usuario no muestra Perfil/Ajustes ni permite abrir
+  sus ajustes.
+
+## [1.17.0] - 2026-10-30
+
+### Miembro desde y perfil desde la galería
+
+- Nueva columna `usuarios_comunidad.creado_en` con backfill desde el primer
+  chat/muro o la última actividad; lectura pública.
+- El perfil propio y el público muestran “Miembro desde <mes año>”.
+- El autor de cada foto de la galería abre su perfil público (clic o Enter).
+
+## [1.16.0] - 2026-10-30
+
+### Perfiles públicos y editor de redes minimalista
+
+- El editor de enlaces queda solo con Instagram, Discord, TikTok y Kick; fuera
+  X/Twitter, YouTube, Twitch y Web.
+- Perfil propio más limpio: chips de rango, puntos y género; sin botones
+  duplicados.
+- Nuevo perfil público de otros usuarios desde el ranking, usuarios en línea,
+  el chat y el muro: avatar, rango, puntos, género, bio y redes. Sin ajustes.
+- `genero` pasa a ser columna pública de solo lectura.
+- Eliminado el botón inferior “Editar perfil y ajustes” del panel de Comunidad;
+  queda el lápiz del panel y el acceso desde el navbar.
+
+## [1.15.1] - 2026-10-30
+
+### Perfil, rangos y navbar
+
+- Perfil: fuera los botones “Editar perfil y ajustes” y “Cerrar sesión”; las
+  pestañas ya cambian de vista y el cierre de sesión vive en Ajustes.
+- Perfil: rango y puntos como chips bajo el nombre, con el relieve del rango.
+- Panel de rangos: filas simétricas con columna derecha para puntos y
+  multiplicador; etiquetas TÚ y MÁXIMO integradas sin solaparse.
+- Navbar: chip con icono de rango y puntos junto al avatar; se actualiza al
+  ganar puntos y se oculta en móvil.
+
+## [1.15.0] - 2026-10-30
+
+### Puntos en toda la web
+
+- Nuevo sistema de puntos por acciones: visita diaria (+2), chat (+1), muro
+  (+2), reacciones (+1), likes (+1), subir foto (+3) y tiempo conectado
+  (multiplicador del rango).
+- Topes diarios por rango: 60 / 85 / 120 / 165 / 220 / 300. Además, tope por
+  acción e idempotencia por objetivo para evitar farmeo.
+- Los puntos se otorgan dentro de las RPC existentes (`enviar_mensaje_chat`,
+  `publicar_saludo_muro`, `establecer_reaccion`, `establecer_reaccion_muro`,
+  `incrementar_likes`, `publicar_foto_galeria`, `incrementar_puntos_comunidad`
+  y `validar_sesion_comunidad`). No hay RPC pública para otorgar puntos.
+- Rangos recalibrados: 0–99, 100–399, 400–999, 1000–1999, 2000–3499, 3500+.
+- Tick de tiempo conectado en todas las páginas (`main.js`), excepto Comunidad
+  que mantiene el suyo.
+- Aviso “+N pts” al comentar, publicar en el muro, reaccionar o dar like.
+- Nuevas tablas `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango` y RPC
+  `obtener_puntos_hoy`. El perfil muestra “Hoy: X / Y pts”.
+
+## [1.14.0] - 2026-10-30
+
+### Lightbox de Instagram y TikTok
+
+- Las tarjetas de los feeds abren un reproductor superpuesto en la misma
+  página, sin pestaña nueva.
+- TikTok usa el player oficial `player/v1/<id>`; los reels de Instagram el
+  embed `/p/<shortcode>/embed/`; las fotos se abren en grande.
+- Cierre con X, Esc o clic en el fondo. Al cerrar se destruye el iframe (corta
+  el audio), se libera el scroll y el foco vuelve a la tarjeta.
+- Botón “Abrir en TikTok/Instagram” dentro del modal como respaldo si el embed
+  pide login o está bloqueado.
+- El @usuario aparece junto al título de cada feed, enlazado al perfil con
+  subrayado animado.
+
+## [1.13.2] - 2026-10-30
+
+### Guía de trabajo
+
+- Concretados los pasos 8 y 9 de `AGENTS.md`: skills y MCP preferidos, manejo de
+  tokens en memoria, limpieza de temporales y lectura eficiente del repo.
+
+## [1.13.1] - 2026-10-30
+
+### Simetría de los feeds
+
+- Las tarjetas de Instagram usan la misma proporción que TikTok (4:5). Ambas
+  columnas quedan con 6 tarjetas y la misma altura.
+- Sin cambios en la carga de datos.
+
+## [1.13.0] - 2026-10-30
+
+### Feed de TikTok propio (sin embed)
+
+- Sustituido el embed de TikTok por una rejilla propia servida por la Edge
+  Function `tiktok-feed`: 6 últimos videos con portada, vistas y enlace a
+  TikTok. Sin iframe y sin `overload-protect triggered`.
+- La función obtiene los IDs desde el embed público, extrae portada, título y
+  estadísticas de cada página de video, y cachea el resultado en `tiktok_feed`.
+  Un cron de `pg_cron` la refresca cada 20 minutos.
+- Proxy de imágenes propio (solo hosts `tiktokcdn`) para evitar el bloqueo de
+  hotlink del CDN.
+- Nueva tabla `tiktok_feed` (solo `service_role`).
+
+## [1.12.2] - 2026-10-30
+
+### TikTok bajo demanda
+
+- El embed de TikTok ya no se carga automáticamente: la tarjeta muestra
+  “Ver los últimos videos” y monta el iframe al pulsar. Evita el mensaje
+  `overload-protect triggered` que TikTok devuelve al limitar cargas por IP.
+- Se mantiene el recorte del pie del embed y el enlace al perfil.
+
+## [1.12.1] - 2026-10-30
+
+### TikTok sin pie del embed
+
+- Recortado el iframe del embed de TikTok (400 px + `scrolling="no"`) para
+  ocultar la barra inferior con “TikTok / Política de privacidad / Abrir TikTok”.
+- Se mantiene el enlace “Ver perfil en TikTok” bajo el widget.
+
+## [1.12.0] - 2026-10-30
+
+### Feed de Instagram propio (sin Juicer)
+
+- Sustituido el iframe de Juicer del feed de Instagram por una rejilla propia
+  servida por la Edge Function `instagram-feed`: 6 últimas publicaciones con
+  miniatura, icono de vídeo y likes, enlazadas a Instagram.
+- La función consulta el perfil público de `@oscurostefany`, normaliza los datos
+  y los cachea en la tabla `instagram_feed`; un cron de `pg_cron` la refresca
+  cada 20 minutos. Si Instagram responde 401/429 se devuelve la última copia.
+- Las imágenes pasan por un proxy de la propia función (Instagram envía
+  `cross-origin-resource-policy: same-origin` y el navegador bloqueaba el
+  hotlink); solo se permiten hosts `cdninstagram.com` y `fbcdn.net`.
+- Fallback con enlace al perfil si la función no responde.
+- Nueva tabla `instagram_feed` (solo `service_role`) y extensiones `pg_net` y
+  `pg_cron` habilitadas.
+
+## [1.11.0] - 2026-10-30
+
+### Feed de TikTok
+
+- Sustituido el iframe de Juicer del feed de TikTok (`/lagochagaming/iframe`,
+  devolvía 404) por el embed oficial de creador de TikTok para
+  `@lagochagaming11`, que se actualiza solo con los últimos videos publicados.
+- Nota bajo el widget con enlace directo al perfil.
+- La columna de TikTok usa altura propia (470 px) para no dejar hueco blanco y
+  la rejilla social alinea las tarjetas al inicio.
+- El embed carga con `loading="lazy"` y sin inyectar scripts de terceros en la
+  página.
+- Se retiró la función temporal de sondeo `tiktok-probe` usada para verificar el
+  acceso a TikTok desde Supabase.
+
+## [1.10.0] - 2026-10-30
+
+### Línea de tiempo cósmica de rangos
+
+- Sustituida la escalera Semilla / Gota / Flor / Estrella / Leyenda por seis
+  niveles: Polvo Cósmico (0-49), Protoestrella (50-199), Secuencia Principal
+  (200-499), Gigante Roja (500-749), Supernova (750-999) y Agujero Negro
+  (1000+), cada uno con icono, descripción y multiplicador x1…x6.
+- El rango se calcula con los puntos (tabla canónica en `main.js`), así la UI es
+  correcta aunque la base de datos aún guarde claves antiguas; se aceptan los
+  alias `semilla`, `gota`, `flor`, `estrella` y `leyenda`.
+- Nuevo relieve del nombre según el rango en chat, ranking, usuarios en línea,
+  muro de saludos, navbar y modal de perfil: más resplandor cuanto más alto el
+  rango, con pulso suave en el máximo y respeto de `prefers-reduced-motion`.
+- Badges y fila del rango máximo rediseñados en tonos cósmico/violeta; la
+  escalera muestra ahora la descripción de cada nivel.
+- Se mantienen actualizados el badge, el progreso, el multiplicador y el
+  navbar al subir de rango, incluso al gastar puntos en la tienda.
+- Migración SQL para Supabase (`calcular_rango`, `multiplicador_rango`, trigger
+  de sincronización y recálculo de usuarios existentes).
+
+## [1.9.2] - 2026-10-30
+
+### Reacciones del chat al recargar
+
+- Corregido: las reacciones guardadas en el servidor no se cargaban al abrir
+  Comunidad. `cargarMensajesChat` pintaba los mensajes pero nunca pedía los
+  chips a Supabase ni marcaba el chat como inicializado, así que solo se veían
+  las reacciones que quedaban en `localStorage`.
+- Como cerrar sesión limpia esa caché local, al volver a entrar la reacción
+  seguía guardada en la base de datos pero desaparecía de la interfaz. Ahora la
+  carga inicial (y la de mensajes antiguos) pide las reacciones al servidor.
+- El reconciliador de reacciones cada 30 s ahora sí se activa tras la carga
+  inicial (antes dependía de que llegara un mensaje nuevo).
+- La comparación de `user_id` es tolerante a string/número al marcar la
+  reacción como propia, y al restaurar o crear la sesión se refrescan los chips
+  para marcar las reacciones que ya existen en el servidor.
+
+## [1.9.1] - 2026-10-30
+
+### Footer sin hueco inferior
+
+- Corregido el hueco (negro en modo OLED) que quedaba bajo el footer en
+  Comunidad: `body.comunidad-page` añadía 80px de `padding-bottom` después del
+  footer.
+- Nuevo layout de página con `.page-shell` y `body` en columna flexible: si el
+  contenido es más corto que la pantalla, el footer queda pegado al borde
+  inferior (Cine, Sorteo y Comunidad en pantallas altas) en vez de dejar una
+  banda vacía debajo.
+- Sin cambios en el espaciado interno de las páginas largas ni en las páginas
+  que ya hacían scroll.
+
+## [1.9.0] - 2026-10-30
+
+### Tienda en carrusel
+
+- El catálogo de la tienda de comunidad pasa de rejilla vertical a carrusel
+  horizontal: se navega deslizando con el dedo, la rueda/trackpad o las flechas
+  anterior/siguiente.
+- Flechas circulares superpuestas en los laterales del carrusel, centradas
+  verticalmente, que se ocultan al llegar al extremo correspondiente. Un clic
+  avanza exactamente una tarjeta; los clics rápidos se acumulan.
+- Scroll con snap por tarjeta, foco accesible del carrusel y respeto de
+  `prefers-reduced-motion` (sin desplazamiento animado).
+- Ancho de tarjeta adaptable: una tarjeta completa en el sidebar estrecho de
+  escritorio y ~78% del ancho en móvil para ver parte de la siguiente y evitar
+  el scroll vertical largo.
+- Corregido: el catálogo no se ocultaba al abrir “Mis canjes” porque
+  `.tienda-grid` sobreescribía el atributo `hidden`.
+
+## [1.8.1] - 2026-10-30
+
+### Perfil y tienda
+
+- Perfil minimalista: avatar a la izquierda, nombre/rango/bio/redes a la
+  derecha; acciones abajo a la derecha.
+- Sin placeholders vacíos de “Sin bio” ni “Sin enlaces”.
+- Redes principales: X, Instagram, YouTube y Discord. TikTok, Kick, Twitch y
+  Web quedan en “Más redes” plegable.
+- Enlaces del perfil como iconos compactos con tooltip/aria-label.
+- Tienda móvil en 2 columnas con tarjetas compactas, descripción a 2 líneas y
+  botones reducidos; menos scroll.
+- Botón de cerrar sesión alineado a la derecha en el modal móvil.
+
+## [1.8.0] - 2026-10-30
+
+### Cine 2.0
+
+- Botón “Unirme” persistente en la barra de sala: no desaparece al cargar y
+  arranca el play dentro del gesto del usuario (evita el bloqueo de autoplay).
+- Barra “Ahora en pantalla”: fuente detectada, estado (reproduciendo/pausado/
+  error), espectadores conectados, sincronizar y pantalla completa.
+- Reacciones en vivo con Supabase Broadcast: los emojis flotan en la pantalla
+  de toda la sala; contador de presencia.
+- Soporte de YouTube (watch, shorts, live, embed), Google Drive (file/d,
+  open?id, uc?id, lh3) y video directo MP4/WebM/OGG/OGV/MOV, con tipo MIME
+  correcto y detección automática.
+- Sincronización: heartbeat del streamer cada 8 s, corrección de deriva en
+  cada evento y respaldo de lectura cada 20 s.
+- Errores claros: YouTube 101/150 muestra “no permite reproducción incrustada”
+  y botón “Abrir en YouTube”.
+- Cambio de video en caliente: destruye el reproductor anterior y crea el nuevo
+  (antes reutilizaba el iframe viejo).
+
+### Notas
+
+- `1.8.0` es MINOR: nuevas funciones de sala y contrato de cine ampliado.
+- El video actual `XoNCV9BsU9c` no permite embedding; se muestra error y enlace
+  alternativo. Usar un video con incrustación habilitada para probar el sync.
+
+## [1.7.4] - 2026-10-30
+
+### Avatares de tienda
+
+- Nuevos avatares exclusivos de tienda: `avatar-shop-male.webp` y
+  `avatar-shop-female.webp` (512x512, recorte circular, WebP).
+- Los avatares por defecto (`avatar-male.webp` y `avatar-female.webp`) siguen
+  siendo los gratuitos del perfil.
+- Premios actualizados en Supabase:
+  - `Avatar Cyber Masculino` → `/img/avatars/avatar-shop-male.webp`.
+  - `Avatar Cyber Femenino` → `/img/avatars/avatar-shop-female.webp`.
+
+### Diseño
+
+- Botones de cerrar sesión unificados con `.btn-logout`: fondo transparente,
+  borde y hover rojo suave, mismo alto/radio que los botones primarios.
+- Aplicado en galería, cine, sorteo y modal de perfil.
+
+## [1.7.3] - 2026-10-30
+
+### Correcciones
+
+- Muro de saludos: `btnEliminar` se usaba antes de declararse y rompía el render
+  de todas las tarjetas. Ahora los saludos cargan.
+- Galería: los usuarios sin sesión ven una tarjeta compacta para iniciar sesión
+  en vez del formulario de subida completo; el formulario queda centrado.
+- Cine: la cámara de reacción se oculta cuando el stream está offline y se
+  reduce en móvil; se eliminó el bloque duplicado de instrucciones; el chat
+  vuelve a permitir scroll interno.
+- Comunidad: la tienda se oculta sin sesión; se deduplican usuarios de presencia
+  con varias pestañas; el perfil compacto (avatar) aparece en navbar móvil y de
+  laptops; el modal de perfil incluye “Cerrar sesión”.
+- Se eliminaron restos del helper de copiar enlace y se agregó una guarda en
+  `scripts/check.js`.
+- Se limpiaron las cuentas de prueba `ui_test_172_5057` y `ui_reg_172_8177`
+  junto con sus sesiones y canjes.
+
+### Notas
+
+- `1.7.3` es un PATCH sobre `1.7.2`; no cambia contratos de RPC.
+- Se reparó nuevamente el UTF-8 de los HTML tras un reemplazo masivo con
+  PowerShell; queda documentado en `AGENTS.md` para no repetirlo.
+
+## [1.7.2] - 2026-10-30
+
+### Correcciones
+- Perfil: un único modal global; se elimina el formulario inline y la ambigüedad
+  de `actualizar_perfil_comunidad` (300 Multiple Choices en PostgREST).
+- Registro y login devuelven género, avatar, bio y enlaces; avatar beta según
+  género cuando no hay avatar comprado/subido.
+- Tienda: catálogo y canjes usan las columnas reales (`costo_puntos`, `nombre`,
+  `entregado_at`); se añaden dos avatares beta y se equipa avatar/icono al canjear.
+- Ranking y navbar muestran avatar; aviso para elegir género.
+- Migración local `supabase/migrations/20261031000000_beta_1_7_2_correcciones.sql`.
+- `scripts/check.js` vigila el helper de copiar enlace.
+
+## [1.7.1] - 2026-10-30
+
+### Cambios
+- Refinada ayuda admin en cine (resumen conciso) y galeria (explica ban/shadowban).
+
+## [1.7.0] - 2026-10-30
+
+### Funciones nuevas
+- Género en cuentas de comunidad (`masculino`/`femenino`/`no_definido`) y avatares beta locales.
+- Avatares de tienda (`tipo='avatar'`) con validación de propiedad.
+- Modal global de perfil/ajustes inyectado desde `main.js`.
+- Tienda privada: catálogo exige token de comunidad; pestaña oculta sin sesión.
+- Ayuda plegable en paneles admin de galería y cine.
+
+### Cambios
+- Eliminado "copiar enlace" de muro, chat y galería.
+- `tienda_obtener_catalogo` ahora requiere `p_token`.
+
+## [1.6.0] - 2026-10-30
+
+### Funciones nuevas
+
+- Perfiles de comunidad: avatar en `avatares-comunidad`, bio (160), enlaces
+  whitelist e icono equipado. Nuevo RPC `actualizar_perfil_comunidad`.
+- Tienda de puntos: `tienda_premios`, `tienda_canjes`, catálogo público,
+  canje transaccional con stock, puntos y un icono por usuario.
+- Reacciones del muro: `muro_reactions`, RPCs `establecer_reaccion_muro` y
+  `obtener_reacciones_muro`, realtime y actualización en sitio.
+- Moderación: lista de usuarios, ban temporal, shadowban y auditoría
+  (`admin_audit_log`) desde el panel de galería.
+- Historial de chat por RPC `obtener_chat_historial`; lectura pública sin token
+  y mensajes ocultos visibles solo para su autor.
+- Tema OLED de tres estados y helpers de copiar enlace.
+
+### Seguridad e integridad
+
+- Baneo validado en login, sesión, chat, muro, puntos, likes, reacciones,
+  galería, tienda y perfil; al banear se eliminan las sesiones.
+- `admin_*` exige `es_admin()` y registra ban/shadowban en auditoría.
+- Avatar validado por bucket y carpeta del usuario; enlaces `http/https`.
+- Nuevas tablas internas con RLS y políticas de denegación explícita.
+- Se corrigió XSS en el detalle de auditoría (`formatearDetalle` escapado).
+
+### Correcciones de la implementación
+
+- Galería: el panel unificado no se abría (`panelPendientes` inexistente),
+  las pestañas Usuarios/Auditoría tenían `hidden` fijo y las acciones admin no
+  estaban expuestas en `window`.
+- CSS: la media query de 1200px quedó sin cerrar y metía todo el panel admin
+  dentro de ella; el panel quedaba sin estilos en escritorio.
+- Comunidad: HTML roto en las pestañas (`</butto` y `n>`), tarjeta
+  "Tienda próximamente" duplicada, historial de chat vacío sin sesión y
+  actualización de puntos tras canje usando un RPC de crédito en vez del saldo.
+- Tema: el ciclo de temas usaba una constante y no avanzaba más de una vez.
+- `obtener_chat_historial` y `tienda_*` creados en Supabase; la carpeta local
+  `supabase/` sigue ignorada.
+
+### Notas de migración
+
+- Migraciones aplicadas: columnas de perfil/ban, `muro_reactions`, tienda,
+  admin/auditoría, perfil/chat/baneo, helpers, bucket de avatares, políticas
+  de denegación e índices de FK.
+- El catálogo inicial trae tres iconos (100, 250 y 500 pts). Se puede editar
+  en `tienda_premios`.
+- Los iconos se muestran en perfil y ranking; extenderlos al chat requiere
+  guardar/consultar el icono por autor.
+
+## [1.5.1] - 2026-10-30
+
+### Responsive
+
+- Navbar: el menú hamburguesa entra en `<=1100px` (antes `<=900px`). Entre
+  901 y 1100 los enlaces se partían en dos filas y se solapaban con el hero.
+- `#nav-user-info` se oculta hasta `1399px` para dejar sitio a logo, enlaces y
+  tema sin solapes en tablets y portátiles pequeños; reaparece desde `1400px`.
+- Menú móvil: cierra al rotar/ampliar la pantalla, actualiza `aria-label` y
+  `aria-expanded`, y enlaza `aria-controls` con el panel.
+- Chat de Kick en el home: el layout móvil usaba `flex: 0 0 24%`, que anulaba
+  `height: 350px` y dejaba el iframe en ~152px. Ahora usa `flex: 0 0 auto` y
+  alto `clamp(480px, 60vh, 600px)`.
+- Se quitó `scrolling="no"` del iframe de Kick para permitir el scroll interno.
+- El stream y el chat se apilan hasta `1280px` (antes `1024px`), evitando un
+  chat de ~250px en tablets y portátiles pequeños.
+- El video conserva 16:9 en móvil: se quitó el `min-height: 300px` que lo
+  deformaba a ~335x300 en pantallas de 390px.
+
+## [1.5.0] - 2026-10-29
+
+### Seguridad e integridad
+
+- Likes por usuario: nueva tabla `galeria_likes` con PK `(image_id, usuario_id)`.
+  `incrementar_likes` ahora hace toggle real por cuenta (no acepta incrementos
+  arbitrarios desde el cliente). Nuevo RPC `obtener_likes_galeria` para cargar
+  el estado "me gusta" desde el servidor; se eliminó el estado de likes en
+  `localStorage`.
+- Puntos: el cooldown de 5 minutos pasa a ser por cuenta (`usuarios_comunidad.ultimo_punto`)
+  con `FOR UPDATE`. Ya no se puede multiplicar abriendo varias sesiones.
+- Chat: el rate limit de 2.5 s se valida contra todas las sesiones de la cuenta
+  y se serializa con `FOR UPDATE` sobre el usuario.
+- Reacciones: whitelist de emojis en el servidor y escapado del emoji en el
+  tooltip (evita inyección de HTML).
+- Sorteo: registro limitado a 30 intentos por IP cada 10 minutos; índice único
+  `lower(username)`; `sortear_ganador_sorteo` y `registrar_ganador_sorteo`
+  quedan solo para `authenticated`. El cliente ya no inserta ganadores.
+- Galería: el login de moderación valida `app_metadata.role = "admin"` antes de
+  activar el panel. Se corrigió el clic de like/borrar que abría el lightbox.
+  El clic en acciones ya no se detiene antes del listener delegado.
+- `_headers`: CSP con `wss://*.supabase.co` (Realtime) y `https://www.youtube.com`
+  (IFrame API). Se documentó que GitHub Pages ignora este archivo.
+
+### Correcciones
+
+- Galería: `aria-label` de las tarjetas usaba `{{ }}` dentro de un atributo
+  Alpine; ahora usa una expresión válida.
+- Galería: el realtime de likes ya no recarga toda la galería en cada like.
+- Galería: miniaturas (`thumb_url`) cuando existen; validación de bytes AVIF
+  más estricta; límite de título alineado a 60 caracteres.
+- Comunidad: la lista de presencia muestra "Nadie en línea" al suscribirse sin
+  usuarios (antes quedaba en "Cargando usuarios...").
+- Comunidad: se limpian cachés de reacciones/likes al cerrar sesión o invalidar
+  el token para no heredar estado entre cuentas.
+- Sorteo: los errores al abrir/cerrar o vaciar ya no se ocultan; si el servidor
+  no puede sortear no se inventa un ganador local.
+- Cine: la sincronización MP4 ya no depende de la YouTube IFrame API; se añadió
+  botón "Unirme a la reproducción" para sortear el bloqueo de autoplay.
+- Home: límite del muro alineado a 280 caracteres; typo "mis redes".
+- Confeti respeta `prefers-reduced-motion`.
+
+### Herramientas y documentación
+
+- `AGENTS.md` con reglas de stack, Supabase, seguridad, despliegue, SemVer y
+  checklist de pruebas.
+- `scripts/check.js`: validación estática sin dependencias (sintaxis JS inline,
+  IDs duplicados, recursos locales, SemVer, CSP, mustaches Alpine).
+- Migraciones aplicadas en Supabase; la carpeta local `supabase/` no se versiona.
+
+### Notas de migración
+
+- Los contadores de likes existentes se conservan. El historial por usuario
+  empieza a registrarse desde 1.5.0; no se puede reconstruir el like de cada
+  usuario anterior.
+- Aplicar las migraciones en orden:
+  `20261029213000`, `20261029213100`, `20261029214500`, `20261029215000`,
+  `20261029215500`.
+- Tras desplegar, probar Realtime (chat, galería, sorteo y cine) y los RPCs con
+  una cuenta de comunidad temporal; limpiar los datos de prueba.

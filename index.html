@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
+    <meta name="theme-color" content="#ff66b2">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaGochaGaming | Sitio Oficial</title>
+    <meta name="description" content="LaGochaGaming: stream de Kick, clips, galería de fotos, GochiWatch y comunidad con chat en vivo. Únete a la comunidad y sube de rango.">
+    <link rel="canonical" href="https://lagochagaming.com/">
+
+    <meta property="og:title" content="LaGochaGaming | Sitio Oficial">
+    <meta property="og:description" content="Streamer de Kick y Creadora de contenido. ¡Únete a la comunidad!">
+    <meta property="og:image" content="https://lagochagaming.com/img/3.jpg">
+    <meta property="og:image:alt" content="La Gocha Gaming, streamer de Kick">
+    <meta property="og:url" content="https://lagochagaming.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="LaGochaGaming">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="LaGochaGaming | Sitio Oficial">
+    <meta name="twitter:description" content="Streamer de Kick y Creadora de contenido. ¡Únete a la comunidad!">
+    <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
+    <meta name="twitter:image:alt" content="La Gocha Gaming, streamer de Kick">
+
+    <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="style.css?v=1.28.1">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
+
+    <!-- Conexiones anticipadas a recursos de terceros -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://player.kick.com" crossorigin>
+    <link rel="dns-prefetch" href="https://kick.com">
+    <link rel="dns-prefetch" href="https://www.youtube.com">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://lagochagaming.com/#person",
+      "name": "La Gocha",
+      "alternateName": [
+        "LaGochaGaming",
+        "La Gocha Gaming",
+        "Gochita",
+        "Stefany"
+      ],
+      "url": "https://lagochagaming.com/",
+      "image": "https://lagochagaming.com/img/3.jpg",
+      "jobTitle": "Streamer y creadora de contenido",
+      "sameAs": [
+        "https://kick.com/lagochagaming",
+        "https://www.tiktok.com/@lagochagaming11",
+        "https://www.instagram.com/oscurostefany",
+        "https://www.youtube.com/@lagochagaming",
+        "https://discord.com/invite/svrteKBbeh"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://lagochagaming.com/#website",
+      "name": "LaGochaGaming",
+      "url": "https://lagochagaming.com/",
+      "inLanguage": "es",
+      "publisher": {
+        "@id": "https://lagochagaming.com/#person"
+      }
+    }
+  ]
+}
+    </script>
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "¿Quién es La Gocha?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Stefany, conocida en stream como La Gocha o Gochita. Es streamer en Kick y creadora de contenido: TikTok shorts, reels de IG, directos, clips, comunidad y cine."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Dónde puedo ver los directos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "En Kick, en kick.com/lagochagaming. Los clips y vídeos también se comparten en la web y en YouTube."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cómo entro a la comunidad?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Desde la página de comunidad puedes registrarte con un apodo y un PIN de 4 dígitos. Tendrás chat, puntos, rangos y perfil."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Qué es GochiWatch?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Es el cine de la comunidad: películas y vídeos sincronizados con la reproducción de La Gocha. Está en la sección GochiWatch."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cómo funcionan los sorteos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "La Gocha abre sorteos en directo o manuales desde la web. El ganador se decide en el servidor y se publica en el historial de sorteos."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cómo subo fotos a la galería?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Con tu sesión de comunidad, desde la galería. Cada foto pasa por moderación antes de publicarse."
+      }
+    }
+  ]
+}
+    </script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="181add5a-5f78-4d10-a199-4d2460d443a8" data-domains="lagochagaming.com"></script>
+</head>
+<body id="top">
+
+<div class="page-shell">
+    <a href="#stream" class="skip-link">Saltar al contenido</a>
+
+    <!-- ALERTA VISUAL DE STREAM EN VIVO -->
+    <header id="global-header">
+        <nav class="navbar navbar-expand-lg" x-data="{ }" x-on:resize.window="if (window.innerWidth >= 1101) $store.ui.menuAbierto = false">
+            <div class="logo navbar-brand">LAGOCHA<span>GAMING</span></div>
+            <button type="button" class="mobile-menu-toggle-btn navbar-toggler" aria-label="Abrir menú"
+                    x-bind:aria-expanded="$store.ui.menuAbierto"
+                    x-bind:aria-label="$store.ui.menuAbierto ? 'Cerrar menú' : 'Abrir menú'"
+                    x-on:click="$store.ui.menuAbierto = !$store.ui.menuAbierto"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg></button>
+            <div class="nav-links navbar-nav" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
+                <a href="#top" class="nav-link nav-active" aria-current="page" id="nav-inicio">Inicio</a>
+                <a href="#stream" class="nav-link">Directo</a>
+                <a href="#clips" class="nav-link">Clips</a>
+                <a href="cine" class="nav-link">🍿 GochiWatch</a>
+                <a href="sorteo" class="nav-link">🎁 Sorteo</a>
+                <a href="galeria" class="nav-link">📸 Galería</a>
+                <a href="comunidad" class="nav-link">💬 Comunidad</a>
+            </div>
+            <div class="nav-right">
+                <button type="button" id="btn-toggle-tema" class="btn-tema-nav" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
+                <div id="nav-user-info"></div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- TOAST Y ALERTA DE STREAM EN VIVO se insertan dinámicamente desde main.js -->
+
+    <!-- SECCIÓN HERO -->
+    <header class="hero-section" id="inicio">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="hero-subtitle">— STREAMER DE KICK · CREADORA DE CONTENIDO</span>
+            <h1 class="hero-title">LAGOCHAGAMING</h1>
+            <p class="hero-bio">Me llamo Stefany pero todos o la mayoría me dicen La Gocha o Gochita, a veces parezco esquizofrénica con mis locuras pero soy muy pana. Créeme que siempre que entres a mi stream te vas a reír muchísimo. Me gusta mucho hablar, reírme y hacerlos reír, ¡y también jugar! Todo es humor, pásatela bien y ¡no se te olvide seguirme en todas mis redes sociales y unirte a la comunidad de Discord!</p>
+            <p class="hero-bio hero-bio-extra">Streamer en Kick y creadora de contenido: TikTok shorts, reels de IG, directos, clips, comunidad y GochiWatch.</p>
+            <div class="hero-buttons">
+                <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer" class="btn-primary">ÚNETE AL STREAM</a>
+                <div class="follower-widget">
+                    <span class="kick-dot"></span>
+                    <span id="kick-followers-count">10K</span> followers
+                </div>
+            </div>
+            <div class="hero-socials" aria-label="Redes de La Gocha">
+                <a class="hero-social" href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer"><span class="hero-social-k">K</span> Kick</a>
+                <a class="hero-social" href="https://www.tiktok.com/@lagochagaming11" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-tiktok"></use></svg> TikTok</a>
+                <a class="hero-social" href="https://www.instagram.com/oscurostefany" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-instagram"></use></svg> Instagram</a>
+                <a class="hero-social" href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-youtube"></use></svg> YouTube</a>
+                <a class="hero-social" href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-discord"></use></svg> Discord</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container" id="stream" tabindex="-1">
+        <div class="video-container">
+            <iframe src="https://player.kick.com/lagochagaming?autoplay=true&muted=1" frameborder="0" scrolling="no" allowfullscreen="true" title="Stream de LaGochaGaming en Kick" loading="lazy"></iframe>
+        </div>
+        <aside class="chat-sidebar chat-sidebar-box">
+            <iframe src="https://kick.com/popout/lagochagaming/chat"
+                    frameborder="0"
+                    title="Chat del stream de Kick"
+                    loading="lazy"
+                    class="chat-iframe">
+            </iframe>
+        </aside>
+    </main>
+
+    <!-- 🔥 SECCIÓN TOP CLIPS DE KICK -->
+    <section id="clips" class="content-section clips-section">
+        <h2>🔥 TOP CLIPS 🔥</h2>
+    <div class="youtube-grid">
+        <div class="video-card">
+            <div class="video-thumb clip-thumb clip-thumb-1">
+                <a href="https://kick.com/lagochagaming/clips/clip_01JR9VN6J99XGBBECCH9P7693B" target="_blank" rel="noopener noreferrer" class="clip-overlay">
+                    <div class="clip-play">
+                        <svg class="icon clip-play-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>
+                    </div>
+                </a>
+            </div>
+            <a href="https://kick.com/lagochagaming/clips/clip_01JR9VN6J99XGBBECCH9P7693B" target="_blank" rel="noopener noreferrer" class="watch-btn">Dándole celos a mi novio</a>
+        </div>
+        <div class="video-card">
+            <div class="video-thumb clip-thumb clip-thumb-2">
+                <a href="https://kick.com/lagochagaming/clips/clip_01JQZEQXE9VJH7NTD69YCG5PXT" target="_blank" rel="noopener noreferrer" class="clip-overlay">
+                    <div class="clip-play">
+                        <svg class="icon clip-play-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>
+                    </div>
+                </a>
+            </div>
+            <a href="https://kick.com/lagochagaming/clips/clip_01JQZEQXE9VJH7NTD69YCG5PXT" target="_blank" rel="noopener noreferrer" class="watch-btn">Mamá chiss prendiooo</a>
+        </div>
+        <div class="video-card">
+            <div class="video-thumb clip-thumb clip-thumb-3">
+                <a href="https://kick.com/lagochagaming/clips/clip_01JT26P6TW7CS2CPJJ3TRP9WTY" target="_blank" rel="noopener noreferrer" class="clip-overlay">
+                    <div class="clip-play">
+                        <svg class="icon clip-play-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>
+                    </div>
+                </a>
+            </div>
+            <a href="https://kick.com/lagochagaming/clips/clip_01JT26P6TW7CS2CPJJ3TRP9WTY" target="_blank" rel="noopener noreferrer" class="watch-btn">Será que no me has visto</a>
+        </div>
+    </div>
+    </section>
+
+    <!-- 📱 SECCIÓN SOCIAL -->
+    <section id="social" class="content-section">
+        <h2>📱 Mi Feed Social</h2>
+        <div class="social-grid">
+            <div class="social-column">
+                <h3 class="social-titulo">
+                    <span>📸 Instagram</span>
+                    <a class="social-handle" href="https://www.instagram.com/oscurostefany/" target="_blank" rel="noopener noreferrer" aria-label="Abrir el perfil de Instagram de oscurostefany">@oscurostefany</a>
+                </h3>
+                <div id="ig-feed" class="ig-feed" aria-live="polite">
+                    <div class="ig-feed-cargando">Cargando publicaciones…</div>
+                </div>
+                <p class="social-feed-nota">Se actualiza solo con las últimas publicaciones.</p>
+            </div>
+            <div class="social-column tiktok-col">
+                <h3 class="social-titulo">
+                    <span>🎵 TikTok Shorts</span>
+                    <a class="social-handle" href="https://www.tiktok.com/@lagochagaming11" target="_blank" rel="noopener noreferrer" aria-label="Abrir el perfil de TikTok de lagochagaming11">@lagochagaming11</a>
+                </h3>
+                <div id="tiktok-feed" class="ig-feed tt-feed" aria-live="polite">
+                    <div class="ig-feed-cargando">Cargando videos…</div>
+                </div>
+                <p class="social-feed-nota">Se actualiza solo con los últimos videos publicados.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🎮 SECCIÓN DE VIDEOS DE YOUTUBE -->
+    <section id="youtube" class="content-section">
+        <h2>📺 MI ÚLTIMO VIDEO EN YOUTUBE</h2>
+<div class="social-column youtube-wrapper">
+    <div class="youtube-box-compact">
+        <iframe class="youtube-iframe-compact" id="yt-iframe" src="https://www.youtube.com/embed/videoseries?list=PLdVAlz18ZwEk" title="Lista de reproducción de LaGochaGaming" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <div class="youtube-fallback">
+            <p>Algunos videos no se pueden incrustar directamente en esta página.</p>
+            <a href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer" class="btn-primary">🎬 Ver canal de YouTube</a>
+        </div>
+    </div>
+</div>
+    </section>
+
+
+    <!-- 💬 MURO DE SALUDOS DE LA COMUNIDAD -->
+    <section id="muro" class="content-section" x-data="{ }">
+        <h2>💬 MURO DE SALUDOS DE LA COMUNIDAD</h2>
+        <div class="muro-form-container" x-data="{ }">
+            <form id="muro-form" class="muro-form" x-on:submit.prevent="$store.muro.enviar()">
+                <input type="text" id="muro-autor" aria-label="Tu apodo o nombre" placeholder="Tu apodo o nombre (invitado)" maxlength="30" required autocomplete="name" x-model="$store.muro.autor">
+                <textarea id="muro-mensaje" aria-label="Tu saludo o mensaje" placeholder="Escribe tu saludo o mensaje para La Gocha..." maxlength="280" required x-model="$store.muro.mensaje"></textarea>
+                <button type="submit" id="btn-enviar-muro" class="btn-primary" x-bind:disabled="$store.muro.enviando">ENVIAR SALUDO</button>
+            </form>
+            <div id="muro-feedback" class="muro-feedback"
+                 x-bind:class="{ 'muro-feedback-success': $store.muro.tipo === 'ok', 'muro-feedback-error': $store.muro.tipo === 'error' }"
+                 x-bind:hidden="!$store.muro.feedback" x-text="$store.muro.feedback"></div>
+        </div>
+        <div id="muro-mensajes-container" class="muro-grid">
+            <p class="muro-empty" x-bind:hidden="$store.muro.cargando || $store.muro.mensajes.length > 0">Aún no hay saludos. ¡Sé el primero en escribir uno! 💖</p>
+            <template x-for="msg in $store.muro.mensajes" :key="msg.id">
+                <div class="muro-card" x-bind:id="'muro-card-' + msg.id">
+                    <div class="muro-card-header">
+                        <span class="muro-autor"
+                              x-bind:class="[msg.autorLink ? 'muro-autor-link' : '', msg.rangoClave ? 'rango-texto-' + msg.rangoClave : '']"
+                              x-bind:role="msg.autorLink ? 'button' : null"
+                              x-bind:tabindex="msg.autorLink ? 0 : null"
+                              x-bind:title="msg.autorLink ? 'Ver perfil de ' + msg.autor : null"
+                              x-on:click="msg.autorLink && window.abrirPerfilUsuario?.(msg.autor)"
+                              x-on:keydown.enter.prevent="msg.autorLink && window.abrirPerfilUsuario?.(msg.autor)"
+                              x-on:keydown.space.prevent="msg.autorLink && window.abrirPerfilUsuario?.(msg.autor)">
+                            <span x-text="msg.autor"></span>
+                            <template x-if="msg.rangoEmoji">
+                                <span class="rango-badge rango-solo-icono" x-bind:class="'rango-' + msg.rangoClave"
+                                      x-bind:title="msg.rangoNombre" x-text="msg.rangoEmoji"></span>
+                            </template>
+                        </span>
+                        <div class="muro-card-actions">
+                            <button type="button" class="btn-eliminar-muro" x-bind:data-id="msg.id"
+                                    title="Eliminar saludo" aria-label="Eliminar saludo"
+                                    x-on:click="$store.muro.eliminar(msg.id)">
+                                <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-trash-can"></use></svg>
+                            </button>
+                            <span class="muro-fecha" x-text="msg.fechaTexto"></span>
+                        </div>
+                    </div>
+                    <p class="muro-texto" x-text="msg.mensaje"></p>
+                    <div class="muro-reacciones">
+                        <template x-for="r in ($store.muro.reacciones[msg.id] || [])" :key="r.emoji">
+                            <span class="reaccion-badge" x-bind:class="{ mia: r.mia }" role="button" tabindex="0"
+                                  x-bind:aria-label="'Reaccionar con ' + r.emoji + ', ' + r.count + ' reacciones'"
+                                  x-on:click.stop="$store.muro.reaccionar(msg.id, r.emoji)"
+                                  x-on:keydown.enter.prevent.stop="$store.muro.reaccionar(msg.id, r.emoji)"
+                                  x-on:keydown.space.prevent.stop="$store.muro.reaccionar(msg.id, r.emoji)">
+                                <span class="emoji" x-text="r.emoji"></span><span class="count" x-text="r.count"></span>
+                            </span>
+                        </template>
+                    </div>
+                    <div class="muro-msg-burbuja" role="group" aria-label="Reacciones rápidas">
+                        <template x-for="emoji in $store.muro.emojis" :key="emoji">
+                            <button type="button" class="btn-burbuja" x-bind:title="emoji"
+                                    x-bind:aria-label="'Reaccionar con ' + emoji"
+                                    x-on:click.stop="$store.muro.reaccionar(msg.id, emoji)" x-text="emoji"></button>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </div>
+        
+        <div class="cargar-mas-container">
+            <button type="button" id="btn-cargar-mas-muro" class="btn-primary btn-cargar-mas"
+                    x-bind:hidden="!$store.muro.hayMas" x-on:click="$store.muro.cargarMas()">
+                <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-chevron-down"></use></svg> Cargar más saludos
+            </button>
+        </div>
+    </section>
+
+    <!-- ❓ PREGUNTAS FRECUENTES -->
+    <section id="faq" class="content-section faq-section">
+        <h2>Preguntas frecuentes</h2>
+        <div class="faq-list">
+            <details class="faq-item">
+                <summary>¿Quién es La Gocha?</summary>
+                <p>Stefany, conocida en stream como La Gocha o Gochita. Es streamer en Kick y creadora de contenido: TikTok shorts, reels de IG, directos, clips, comunidad y cine.</p>
+            </details>
+            <details class="faq-item">
+                <summary>¿Dónde puedo ver los directos?</summary>
+                <p>En Kick, en <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">kick.com/lagochagaming</a>. Los clips y vídeos también se comparten en la web y en YouTube.</p>
+            </details>
+            <details class="faq-item">
+                <summary>¿Cómo entro a la comunidad?</summary>
+                <p>Desde la <a href="comunidad">página de comunidad</a> puedes registrarte con un apodo y un PIN de 4 dígitos. Tendrás chat, puntos, rangos y perfil.</p>
+            </details>
+            <details class="faq-item">
+                <summary>¿Qué es GochiWatch?</summary>
+                <p>Es el cine de la comunidad: películas y vídeos sincronizados con la reproducción de La Gocha. Está en la <a href="cine">sección GochiWatch</a>.</p>
+            </details>
+            <details class="faq-item">
+                <summary>¿Cómo funcionan los sorteos?</summary>
+                <p>La Gocha abre sorteos en directo o manuales desde la web. El ganador se decide en el servidor y se publica en el <a href="sorteo">historial de sorteos</a>.</p>
+            </details>
+            <details class="faq-item">
+                <summary>¿Cómo subo fotos a la galería?</summary>
+                <p>Con tu sesión de comunidad, desde la <a href="galeria">galería</a>. Cada foto pasa por moderación antes de publicarse.</p>
+            </details>
+        </div>
+    </section>
+
+    <!-- MODAL DE VIDEOS (Instagram / TikTok) -->
+    <div id="media-modal" class="media-modal" x-data="{ }" x-cloak
+         :hidden="!$store.media.abierto"
+         @keydown.escape.window="$store.media.cerrar()">
+        <div class="media-modal-backdrop" @click="$store.media.cerrar()"></div>
+        <div class="media-modal-card" role="dialog" aria-modal="true" aria-labelledby="media-modal-titulo"
+             x-trap.noscroll="$store.media.abierto">
+            <button type="button" class="media-modal-cerrar" @click="$store.media.cerrar()" aria-label="Cerrar reproductor">
+                <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-xmark"></use></svg>
+            </button>
+            <div class="media-modal-marco" :class="$store.media.marcoClase">
+                <template x-if="$store.media.tipo === 'tiktok'">
+                    <iframe :src="$store.media.src" title="Video de TikTok"
+                            allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                </template>
+                <template x-if="$store.media.tipo === 'ig-video'">
+                    <iframe :src="$store.media.src" :title="$store.media.titulo || 'Reel de Instagram'"
+                            allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                </template>
+                <template x-if="$store.media.tipo === 'foto'">
+                    <img :src="$store.media.imagen" :alt="$store.media.titulo || 'Publicación de Instagram'">
+                </template>
+            </div>
+            <div class="media-modal-pie">
+                <span class="media-modal-titulo" id="media-modal-titulo" x-text="$store.media.titulo"></span>
+                <a class="media-modal-enlace" :href="$store.media.enlace" target="_blank" rel="noopener noreferrer"
+                   x-text="$store.media.textoEnlace"></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+</div>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-social-icons">
+                <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer" class="social-icon kick-icon" title="Kick">K</a>
+                <a href="https://www.tiktok.com/@lagochagaming11" target="_blank" rel="noopener noreferrer" class="social-icon" title="TikTok"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-tiktok"></use></svg></a>
+                <a href="https://www.instagram.com/oscurostefany" target="_blank" rel="noopener noreferrer" class="social-icon" title="Instagram"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-instagram"></use></svg></a>
+                <a href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer" class="social-icon" title="Discord"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-discord"></use></svg></a>
+                <a href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer" class="social-icon" title="YouTube"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-youtube"></use></svg></a>
+            </div>
+            <p class="footer-copyright">&copy; 2026 LAGOCHAGAMING - ALL RIGHTS RESERVED</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
+
+    <script src="main.js?v=1.28.1" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
+    <script>
+        // Navegación Inicio: scroll al top
+        document.addEventListener('DOMContentLoaded', () => {
+            const navInicio = document.getElementById('nav-inicio');
+            if (navInicio) {
+                navInicio.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Actualizar clase activa
+                    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('nav-active'));
+                    navInicio.classList.add('nav-active');
+                    navInicio.setAttribute('aria-current', 'page');
+                });
+            }
+        });
+    </script>
+    <script>
+        const LIMITE_POR_PAGINA = 12;
+        let adminAutenticado = false;
+
+        // Los saludos guardan una instantánea del rango (puede ser una clave
+        // antigua). Se normaliza a la escalera cósmica de main.js.
+        function infoRangoMuro(clave) {
+            if (!window.RANGOS_COMUNIDAD || !window.claveRango) return null;
+            const normalizada = window.claveRango(clave);
+            return window.RANGOS_COMUNIDAD.find(r => r.clave === normalizada) || null;
+        }
+
+        // === FEED DE INSTAGRAM Y TIKTOK (Edge Functions propias, sin Juicer) ===
+        const IG_FEED_URL = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/instagram-feed?limit=6';
+        const IG_IMG_URL = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/instagram-feed?img=';
+        const TT_FEED_URL = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/tiktok-feed?limit=6';
+        const TT_IMG_URL = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/tiktok-feed?img=';
+
+        function formatearNumeroFeed(n) {
+            const v = Number(n) || 0;
+            if (v >= 1000000) return (v / 1000000).toFixed(1).replace('.', ',') + 'M';
+            if (v >= 1000) return (v / 1000).toFixed(1).replace('.', ',') + 'K';
+            return String(v);
+        }
+
+        async function cargarFeedInstagram() {
+            const cont = document.getElementById('ig-feed');
+            if (!cont) return;
+            try {
+                const resp = await fetch(IG_FEED_URL, { headers: { Accept: 'application/json' } });
+                if (!resp.ok) throw new Error('ig_' + resp.status);
+                const data = await resp.json();
+                if (!data || !data.ok || !Array.isArray(data.posts) || data.posts.length === 0) {
+                    throw new Error('sin_publicaciones');
+                }
+                cont.textContent = '';
+                data.posts.forEach((post) => {
+                    const enlace = document.createElement('a');
+                    enlace.className = 'ig-card';
+                    enlace.href = post.url;
+                    enlace.target = '_blank';
+                    enlace.rel = 'noopener noreferrer';
+                    const desc = String(post.texto || '').replace(/\s+/g, ' ').trim().slice(0, 90);
+                    enlace.setAttribute('aria-label', desc ? 'Publicación de Instagram: ' + desc : 'Abrir publicación de Instagram');
+                    enlace.dataset.mediaTipo = post.esVideo ? 'ig-video' : 'ig-foto';
+                    enlace.dataset.mediaId = post.shortcode || '';
+                    enlace.dataset.mediaUrl = post.url || '';
+                    enlace.dataset.mediaTitulo = desc;
+                    if (!post.esVideo) enlace.dataset.mediaImagen = IG_IMG_URL + encodeURIComponent(post.imagen);
+
+                    const img = document.createElement('img');
+                    img.src = IG_IMG_URL + encodeURIComponent(post.imagen);
+                    img.alt = desc || 'Publicación de Instagram de La Gocha';
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                    enlace.appendChild(img);
+
+                    if (post.esVideo) {
+                        const play = document.createElement('span');
+                        play.className = 'ig-card-play';
+                        play.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>';
+                        enlace.appendChild(play);
+                    }
+                    if (Number(post.likes) > 0) {
+                        const likes = document.createElement('span');
+                        likes.className = 'ig-card-likes';
+                        likes.textContent = '❤ ' + formatearNumeroFeed(post.likes);
+                        enlace.appendChild(likes);
+                    }
+                    cont.appendChild(enlace);
+                });
+            } catch (e) {
+                cont.textContent = '';
+                const p = document.createElement('p');
+                p.className = 'ig-feed-error';
+                p.textContent = 'No se pudo cargar el feed. ';
+                const link = document.createElement('a');
+                link.href = 'https://www.instagram.com/oscurostefany/';
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = 'Ver perfil en Instagram';
+                p.appendChild(link);
+                cont.appendChild(p);
+            }
+        }
+
+        async function cargarFeedTikTok() {
+            const cont = document.getElementById('tiktok-feed');
+            if (!cont) return;
+            try {
+                const resp = await fetch(TT_FEED_URL, { headers: { Accept: 'application/json' } });
+                if (!resp.ok) throw new Error('tt_' + resp.status);
+                const data = await resp.json();
+                if (!data || !data.ok || !Array.isArray(data.videos) || data.videos.length === 0) {
+                    throw new Error('sin_videos');
+                }
+                cont.textContent = '';
+                data.videos.forEach((video) => {
+                    const enlace = document.createElement('a');
+                    enlace.className = 'ig-card';
+                    enlace.href = video.url;
+                    enlace.target = '_blank';
+                    enlace.rel = 'noopener noreferrer';
+                    const desc = String(video.titulo || '').replace(/\s+/g, ' ').trim().slice(0, 90);
+                    enlace.setAttribute('aria-label', desc ? 'Video de TikTok: ' + desc : 'Abrir video de TikTok');
+                    enlace.dataset.mediaTipo = 'tiktok';
+                    enlace.dataset.mediaId = video.id || '';
+                    enlace.dataset.mediaUrl = video.url || '';
+                    enlace.dataset.mediaTitulo = desc;
+                    enlace.dataset.mediaImagen = TT_IMG_URL + encodeURIComponent(video.portada);
+
+                    const img = document.createElement('img');
+                    img.src = TT_IMG_URL + encodeURIComponent(video.portada);
+                    img.alt = desc || 'Video de TikTok de La Gocha';
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                    enlace.appendChild(img);
+
+                    const play = document.createElement('span');
+                    play.className = 'ig-card-play';
+                    play.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>';
+                    enlace.appendChild(play);
+
+                    if (Number(video.vistas) > 0) {
+                        const vistas = document.createElement('span');
+                        vistas.className = 'ig-card-likes';
+                        vistas.textContent = '▶ ' + formatearNumeroFeed(video.vistas);
+                        enlace.appendChild(vistas);
+                    }
+                    cont.appendChild(enlace);
+                });
+            } catch (e) {
+                cont.textContent = '';
+                const p = document.createElement('p');
+                p.className = 'ig-feed-error';
+                p.textContent = 'No se pudo cargar el feed. ';
+                const link = document.createElement('a');
+                link.href = 'https://www.tiktok.com/@lagochagaming11';
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = 'Ver perfil en TikTok';
+                p.appendChild(link);
+                cont.appendChild(p);
+            }
+        }
+
+        // === MODAL DE VIDEOS (Instagram / TikTok) ===
+        // Estado en Alpine: apertura, iframe, scroll y foco los gestiona $store.media.
+        document.addEventListener('alpine:init', () => {
+            window.Alpine.store('media', {
+                abierto: false,
+                tipo: '',
+                titulo: '',
+                src: '',
+                imagen: '',
+                enlace: '#',
+                textoEnlace: 'Abrir',
+                get marcoClase() {
+                    if (this.tipo === 'tiktok') return 'video-tiktok';
+                    if (this.tipo === 'ig-video') return 'video-instagram';
+                    return 'foto';
+                },
+                abrir(datos) {
+                    const tipo = datos.mediaTipo || 'ig-foto';
+                    this.titulo = datos.mediaTitulo || '';
+                    this.tipo = tipo === 'tiktok' ? 'tiktok' : (tipo === 'ig-video' ? 'ig-video' : 'foto');
+                    this.src = '';
+                    this.imagen = '';
+                    if (tipo === 'tiktok') {
+                        this.src = 'https://www.tiktok.com/player/v1/' + encodeURIComponent(datos.mediaId) + '?autoplay=1';
+                        this.enlace = datos.mediaUrl || 'https://www.tiktok.com/@lagochagaming11';
+                        this.textoEnlace = 'Abrir en TikTok';
+                    } else if (tipo === 'ig-video') {
+                        this.src = 'https://www.instagram.com/p/' + encodeURIComponent(datos.mediaId) + '/embed/';
+                        this.enlace = datos.mediaUrl || 'https://www.instagram.com/oscurostefany/';
+                        this.textoEnlace = 'Abrir en Instagram';
+                    } else {
+                        this.imagen = datos.mediaImagen || '';
+                        this.enlace = datos.mediaUrl || 'https://www.instagram.com/oscurostefany/';
+                        this.textoEnlace = 'Abrir en Instagram';
+                    }
+                    this.abierto = true;
+                },
+                cerrar() {
+                    this.abierto = false;
+                    this.tipo = '';
+                    this.src = '';
+                    this.imagen = '';
+                }
+            });
+        });
+
+        // === MURO DE SALUDOS (composer Alpine) ===
+        document.addEventListener('alpine:init', () => {
+            window.Alpine.store('muro', {
+                autor: '',
+                mensaje: '',
+                enviando: false,
+                feedback: '',
+                tipo: '',
+                _timer: null,
+                aviso(texto, tipo) {
+                    clearTimeout(this._timer);
+                    this.feedback = texto;
+                    this.tipo = tipo;
+                    if (tipo === 'ok') this._timer = setTimeout(() => { this.feedback = ''; }, 4000);
+                },
+                async enviar() {
+                    if (this.enviando) return;
+                    const token = localStorage.getItem('comunidad_session_token');
+                    const autor = this.autor.trim();
+                    const mensaje = this.mensaje.trim();
+                    if (!mensaje) {
+                        this.aviso('❌ Escribe un mensaje.', 'error');
+                        return;
+                    }
+                    if (!autor && !token) {
+                        this.aviso('❌ Escribe tu nombre para publicar.', 'error');
+                        return;
+                    }
+                    const ERRORES_MURO = {
+                        sin_sesion: 'Tu sesión de Comunidad expiró. Inicia sesión para publicar con tu rango.',
+                        autor_invalido: 'Nombre no válido. Usa solo letras, números, espacios, guion y guion bajo.',
+                        nombre_reservado: 'Ese nombre ya pertenece a un miembro de la comunidad.',
+                        mensaje_invalido: 'El mensaje es demasiado largo o está vacío.',
+                        frecuencia: 'Espera un momento antes de enviar otro saludo.',
+                        limite_hora: 'Has alcanzado el límite de saludos por hora.',
+                        muro_lleno: 'El muro está completo por ahora. Vuelve luego.'
+                    };
+                    this.enviando = true;
+                    try {
+                        const { data: resultado, error } = await window.supabase.rpc('publicar_saludo_muro', {
+                            p_autor: autor, p_mensaje: mensaje, p_token: token
+                        });
+                        if (error) throw error;
+                        if (!resultado || !resultado.ok) {
+                            this.aviso('❌ ' + (ERRORES_MURO[resultado?.error] || 'No se pudo publicar el saludo.'), 'error');
+                            return;
+                        }
+                        this.mensaje = '';
+                        this.aviso(token ? '✅ ¡Saludo publicado con tu rango!' : '✅ ¡Tu saludo ha sido publicado! 💖', 'ok');
+                        window.avisarPuntos?.(resultado.ganados);
+                        this.cargar(true);
+                    } catch (err) {
+                        console.error('Error:', err);
+                        this.aviso('❌ Error al enviar el saludo. Intenta de nuevo.', 'error');
+                    } finally {
+                        this.enviando = false;
+                    }
+                }
+            });
+        });
+
+        // === MURO: LISTA, REACCIONES Y PAGINACIÓN (Alpine) ===
+        document.addEventListener('alpine:init', () => {
+            const muro = window.Alpine.store('muro');
+            if (!muro) return;
+            Object.assign(muro, {
+                mensajes: [],
+                reacciones: {},
+                cargando: true,
+                hayMas: false,
+                pagina: 0,
+                emojis: ['👍', '❤️', '😂', '🔥', '😀', '🙏'],
+                preparar(msg) {
+                    const info = (msg.verificado && msg.rango) ? infoRangoMuro(msg.rango) : null;
+                    return Object.assign({}, msg, {
+                        fechaTexto: new Date(msg.created_at).toLocaleString('es-ES', {
+                            day: '2-digit', month: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        }),
+                        rangoClave: info ? info.clave : '',
+                        rangoEmoji: info ? info.emoji : '',
+                        rangoNombre: info ? info.nombre : '',
+                        autorLink: !!(msg.verificado && msg.autor && window.abrirPerfilUsuario)
+                    });
+                },
+                async cargar(reiniciar = false) {
+                    if (!window.supabase) { this.cargando = false; return; }
+                    if (reiniciar) {
+                        this.pagina = 0;
+                        this.mensajes = [];
+                        this.reacciones = {};
+                    }
+                    this.cargando = true;
+                    const desde = this.pagina * LIMITE_POR_PAGINA;
+                    try {
+                        const { data, error } = await window.supabase
+                            .from('muro_saludos')
+                            .select('id, autor, mensaje, created_at, estado, verificado, rango')
+                            .eq('estado', 'aprobado')
+                            .order('created_at', { ascending: false })
+                            .range(desde, desde + LIMITE_POR_PAGINA);
+                        if (error) {
+                            console.error('Error cargando mensajes:', error);
+                            return;
+                        }
+                        const filas = data || [];
+                        this.hayMas = filas.length > LIMITE_POR_PAGINA;
+                        const nuevas = filas.slice(0, LIMITE_POR_PAGINA).map((m) => this.preparar(m));
+                        this.mensajes = reiniciar ? nuevas : this.mensajes.concat(nuevas);
+                        this.pagina += 1;
+                        nuevas.forEach((m) => this.cargarReacciones(m.id));
+                        this.cargarRangosActuales();
+                    } catch (e) {
+                        console.error('Error cargando mensajes:', e);
+                    } finally {
+                        this.cargando = false;
+                    }
+                },
+                cargarMas() {
+                    this.cargar(false);
+                },
+                async cargarReacciones(id) {
+                    try {
+                        const token = localStorage.getItem('comunidad_session_token');
+                        const { data, error } = await window.supabase.rpc('obtener_reacciones_muro', {
+                            p_muro_id: id,
+                            p_token: token || null
+                        });
+                        if (error || !data || !data.ok) return;
+                        this.reacciones[id] = Array.isArray(data.reacciones) ? data.reacciones : [];
+                    } catch (e) {
+                        console.error('Error cargando reacciones muro:', e);
+                    }
+                },
+                async reaccionar(id, emoji) {
+                    const token = localStorage.getItem('comunidad_session_token');
+                    if (!token) {
+                        window.mostrarToast?.('Inicia sesión en la Comunidad para reaccionar', true);
+                        return;
+                    }
+                    try {
+                        const { data, error } = await window.supabase.rpc('establecer_reaccion_muro', {
+                            p_token: token,
+                            p_muro_id: id,
+                            p_emoji: emoji
+                        });
+                        if (error) throw error;
+                        if (!data || !data.ok) {
+                            window.mostrarToast?.(
+                                data?.error === 'sin_sesion' ? 'Sesión expirada. Inicia sesión de nuevo.' : 'No se pudo reaccionar.',
+                                true
+                            );
+                            return;
+                        }
+                        this.cargarReacciones(id);
+                    } catch (e) {
+                        console.error(e);
+                        window.mostrarToast?.('Error al reaccionar.', true);
+                    }
+                },
+                insertar(nuevo) {
+                    if (!nuevo || nuevo.estado !== 'aprobado') return;
+                    if (this.mensajes.some((m) => m.id === nuevo.id)) return;
+                    this.mensajes.unshift(this.preparar(nuevo));
+                    this.cargarReacciones(nuevo.id);
+                    this.cargarRangosActuales();
+                },
+                async cargarRangosActuales() {
+                    if (!window.supabase) return;
+                    const autores = [...new Set(this.mensajes
+                        .filter((m) => m.verificado && m.autor)
+                        .map((m) => m.autor))];
+                    if (!autores.length) return;
+                    try {
+                        const { data, error } = await window.supabase
+                            .from('usuarios_comunidad')
+                            .select('apodo,rango')
+                            .in('apodo', autores);
+                        if (error) return;
+                        const mapa = {};
+                        (data || []).forEach((u) => {
+                            mapa[String(u.apodo).toLowerCase()] = u.rango;
+                        });
+                        this.mensajes.forEach((m) => {
+                            if (!m.verificado) return;
+                            const rango = mapa[String(m.autor || '').toLowerCase()];
+                            if (!rango) return;
+                            const info = infoRangoMuro(rango);
+                            if (!info) return;
+                            m.rangoClave = info.clave;
+                            m.rangoEmoji = info.emoji;
+                            m.rangoNombre = info.nombre;
+                        });
+                    } catch (e) {
+                        console.error('Error cargando rangos del muro:', e);
+                    }
+                },
+                async eliminar(id) {
+                    if (!(await window.validarSesionStreamer?.())) {
+                        window.mostrarToast?.('Tu sesión de administración ha expirado.', true);
+                        setTimeout(() => { window.location.reload(); }, 800);
+                        return;
+                    }
+                    window.mostrarConfirmacionModal?.({
+                        titulo: 'Eliminar saludo',
+                        mensaje: '¿Deseas borrar este saludo del muro?',
+                        textoConfirmar: 'Eliminar',
+                        enConfirmar: async () => {
+                            try {
+                                const { error } = await window.supabase
+                                    .from('muro_saludos')
+                                    .delete()
+                                    .eq('id', id);
+                                if (error) {
+                                    window.mostrarToast?.('Error al borrar el saludo.', true);
+                                    return;
+                                }
+                                this.mensajes = this.mensajes.filter((m) => m.id !== id);
+                                delete this.reacciones[id];
+                                window.mostrarToast?.('Saludo eliminado.');
+                            } catch (e) {
+                                console.error('Error:', e);
+                                window.mostrarToast?.('Error inesperado al borrar el saludo.', true);
+                            }
+                        }
+                    });
+                }
+            });
+            muro.autor = localStorage.getItem('comunidad_session_token')
+                ? (localStorage.getItem('comunidad_nickname') || '')
+                : '';
+            muro.cargar(true);
+        });
+
+document.addEventListener('DOMContentLoaded', async () => {
+    if (window.supabase) {
+        try {
+            adminAutenticado = await window.esAdminActual();
+        } catch (e) {
+            console.error('Error obteniendo sesión:', e);
+        }
+    } else {
+        mostrarToast('Supabase no está disponible en este entorno', true);
+    }
+    if (adminAutenticado) {
+        document.body.classList.add('admin-mode-active');
+    }
+
+        // El polling del stream está centralizado en main.js (iniciarPollingStreamGlobal)
+        iniciarRealtimeMuro();
+        cargarFeedInstagram();
+        cargarFeedTikTok();
+
+        // Lightbox de videos/fotos de los feeds sociales.
+        document.addEventListener('click', (e) => {
+            const tarjeta = e.target.closest('.ig-card[data-media-tipo]');
+            if (!tarjeta) return;
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            e.preventDefault();
+            window.Alpine?.store('media')?.abrir(tarjeta.dataset);
+        });
+        if (window.iniciarRealtimeMuroReacciones) window.iniciarRealtimeMuroReacciones();
+
+        // Prefill del autor: con sesión de Comunidad el apodo canónico del
+        // servidor deja el campo en solo lectura (el nombre real lo pone la BD).
+        const tokenComunidad = localStorage.getItem('comunidad_session_token');
+        const savedApodo = localStorage.getItem('comunidad_nickname');
+        const autorInputInit = document.getElementById('muro-autor');
+        if (autorInputInit) {
+            if (tokenComunidad) {
+                autorInputInit.readOnly = true;
+                autorInputInit.title = savedApodo
+                    ? 'Publicarás como ' + savedApodo
+                    : 'Publicarás con tu cuenta de Comunidad';
+            } else {
+                autorInputInit.placeholder = 'Tu apodo o nombre (invitado)';
+            }
+        }
+    });
+
+        // Las funciones del toast de stream y su listener viven en main.js
+
+        function iniciarRealtimeMuro() {
+            if (!window.supabase) return;
+            try {
+                window.supabase.channel('muro_saludos_realtime')
+                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'muro_saludos' }, (payload) => {
+                        window.Alpine?.store('muro')?.insertar(payload.new);
+                    })
+                    .subscribe();
+            } catch (e) {
+                console.warn('Realtime del muro no disponible:', e);
+            }
+        }
+
+
+
+        // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
+
+        // Detección de fallo de YouTube (timeout) sin depender de contentWindow cross-origin
+        const ytIframe = document.getElementById('yt-iframe');
+        const ytFallback = document.querySelector('.youtube-fallback');
+        if (ytIframe && ytFallback) {
+            let cargado = false;
+            ytIframe.addEventListener('load', () => {
+                cargado = true;
+                ytIframe.style.display = '';
+                ytFallback.style.display = 'none';
+            });
+            ytIframe.addEventListener('error', () => {
+                cargado = true;
+                ytIframe.style.display = 'none';
+                ytFallback.style.display = 'block';
+            });
+            // Timeout: si no se cargó en 10s, muestra fallback
+            setTimeout(() => {
+                if (!cargado) {
+                    ytIframe.style.display = 'none';
+                    ytFallback.style.display = 'block';
+                }
+            }, 10000);
+        }
+    </script>
+</body>
+</html>
