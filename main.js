@@ -79,7 +79,6 @@ if (window.supabase && typeof window.supabase.auth?.onAuthStateChange === 'funct
     window.supabase.auth.onAuthStateChange(() => {
         window.refrescarCacheAdmin();
         window.sincronizarSesionComunidadVinculada?.();
-        window.refrescarNavAdmin?.();
     });
 }
 
@@ -898,86 +897,6 @@ document.addEventListener('click', (event) => {
     if (botonCerrar) botonCerrar.click();
 });
 
-// === ICONOS DE ADMINISTRACIÓN EN EL NAVBAR (todas las páginas) ===
-// Solo se pintan si hay sesión de Supabase Auth con rol admin/owner.
-window.refrescarNavAdmin = async function refrescarNavAdmin() {
-    const navRight = document.querySelector('.nav-right');
-    const existente = document.getElementById('nav-admin');
-
-    if (!window.supabase) {
-        if (existente) existente.remove();
-        return;
-    }
-
-    let session = null;
-    try {
-        const { data } = await window.supabase.auth.getSession();
-        session = data && data.session;
-    } catch (e) {
-        session = null;
-    }
-
-    if (!session) {
-        if (existente) existente.remove();
-        return;
-    }
-
-    const esAdmin = await window.esAdminActual();
-    if (!esAdmin) {
-        if (existente) existente.remove();
-        return;
-    }
-
-    let esOwner = false;
-    try {
-        const { data } = await window.supabase.rpc('es_owner');
-        esOwner = data === true;
-    } catch (e) {
-        esOwner = false;
-    }
-
-    if (!navRight) return;
-
-    let contenedor = existente;
-    if (!contenedor) {
-        contenedor = document.createElement('div');
-        contenedor.id = 'nav-admin';
-        contenedor.className = 'nav-admin';
-        navRight.insertBefore(contenedor, navRight.firstChild);
-    }
-
-    const icono = (nombre) => `<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-${nombre}"></use></svg>`;
-    let html = '';
-    if (esOwner) {
-        html += `<button type="button" class="nav-admin-link" data-admin-tab="buzon" title="Buzón de sugerencias">${icono('envelope')}<span>Buzón</span><span class="nav-admin-badge" id="nav-admin-badge" hidden></span></button>`;
-    }
-    html += `<button type="button" class="nav-admin-link" data-admin-tab="usuarios" title="Usuarios">${icono('users')}<span>Usuarios</span></button>`;
-    html += `<button type="button" class="nav-admin-link" data-admin-tab="auditoria" title="Auditoría">${icono('shield-halved')}<span>Auditoría</span></button>`;
-    contenedor.innerHTML = html;
-    contenedor.querySelectorAll('[data-admin-tab]').forEach((boton) => {
-        boton.addEventListener('click', () => window.abrirAdminPanel(boton.dataset.adminTab));
-    });
-
-    if (esOwner) {
-        try {
-            const { count } = await window.supabase
-                .from('sugerencias')
-                .select('id', { count: 'exact', head: true })
-                .eq('leida', false);
-            const badge = document.getElementById('nav-admin-badge');
-            if (badge && count > 0) {
-                badge.textContent = count > 99 ? '99+' : String(count);
-                badge.hidden = false;
-            }
-        } catch (e) {
-            // El contador es opcional; no bloquea el navbar.
-        }
-    }
-};
-
-// Si hay una sesión de Supabase Auth vinculada a un perfil de comunidad,
-// abre (o reutiliza) su sesión de comunidad para que chat, muro y galería
-// funcionen sin pedir el PIN. No afecta a usuarios sin Auth.
 window.sincronizarSesionComunidadVinculada = async function sincronizarSesionComunidadVinculada() {
     if (!window.supabase) return false;
     if (localStorage.getItem('comunidad_session_token')) return false;
@@ -1350,7 +1269,6 @@ document.addEventListener('alpine:init', () => {
                 this.loginPassword = '';
                 window.refrescarCacheAdmin?.();
                 await this.comprobarSesion(true);
-                await window.refrescarNavAdmin?.();
                 if (this.admin) {
                     this.tab = this.owner ? 'buzon' : 'usuarios';
                     await this.cargarTab();
@@ -1377,7 +1295,6 @@ document.addEventListener('alpine:init', () => {
             localStorage.removeItem('comunidad_session_usuario');
             window.limpiarCachesSesionComunidad?.();
             window.refrescarCacheAdmin?.();
-            window.refrescarNavAdmin?.();
             window.actualizarUsuarioNavComunidad?.();
             this.sesion = false;
             this.admin = false;
@@ -1441,7 +1358,6 @@ document.addEventListener('alpine:init', () => {
                 }
                 sugerencia.leida = leida;
                 this.noLeidas = this.sugerencias.filter(s => !s.leida).length;
-                window.refrescarNavAdmin?.();
             } catch (e) {
                 window.mostrarToast?.('No se pudo actualizar la sugerencia.', true);
             }
@@ -1457,7 +1373,6 @@ document.addEventListener('alpine:init', () => {
                 }
                 this.sugerencias = this.sugerencias.filter(s => s.id !== sugerencia.id);
                 this.noLeidas = this.sugerencias.filter(s => !s.leida).length;
-                window.refrescarNavAdmin?.();
                 window.mostrarToast?.('Sugerencia borrada');
             } catch (e) {
                 window.mostrarToast?.('No se pudo borrar la sugerencia.', true);
@@ -1575,7 +1490,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try { actualizarUsuarioNavComunidad(); } catch (e) { console.error('actualizarUsuarioNavComunidad:', e); }
     try { insertarAccesoAdminFooter(); } catch (e) { console.error('insertarAccesoAdminFooter:', e); }
     try { window.sincronizarSesionComunidadVinculada(); } catch (e) { console.error('sincronizarSesionComunidadVinculada:', e); }
-    try { window.refrescarNavAdmin(); } catch (e) { console.error('refrescarNavAdmin:', e); }
     try { iniciarPuntosGlobal(); } catch (e) { console.error('iniciarPuntosGlobal:', e); }
 });
 

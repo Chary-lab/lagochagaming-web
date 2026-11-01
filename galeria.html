@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/2.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.30.0">
+    <link rel="stylesheet" href="style.css?v=1.30.1">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -98,8 +98,8 @@
             </div>
         </div>
 
-        <!-- PANEL ADMIN UNIFICADO -->
-        <div id="panelAdminUnificado" class="panel-admin-unificado" x-data="{ activeTab: 'moderacion' }" hidden>
+        <!-- PANEL DE MODERACIÓN -->
+        <div id="panelAdminUnificado" class="panel-admin-unificado" x-data="{ }" hidden>
             <details class="panel-ayuda">
                 <summary>¿Cómo funciona la moderación?</summary>
                 <ul>
@@ -107,16 +107,12 @@
                     <li><strong>Aprobar / Rechazar:</strong> publica la foto pendiente o la descarta. El campo autor solo lo cambia un admin.</li>
                     <li><strong>Borrar foto:</strong> elimina una foto publicada de la galería.</li>
                     <li><strong>Subida:</strong> título, autor (admin) y límites (5MB, JPG/PNG/GIF/WEBP/AVIF).</li>
-                    <li><strong>Usuarios, auditoría y buzón:</strong> están en el panel global del navbar (iconos), disponible en todas las páginas.</li>
+                    <li><strong>Usuarios, auditoría y buzón:</strong> están en el panel global, accesible desde “Acceso” en el footer.</li>
                     <li><strong>Cerrar sesión admin:</strong> finaliza la sesión de administrador.</li>
                 </ul>
             </details>
-            <div class="admin-tabs" role="tablist" aria-label="Paneles de administración">
-                <button type="button" class="admin-tab-btn" :class="{ active: activeTab === 'moderacion' }" @click="activeTab = 'moderacion'" role="tab" :aria-selected="activeTab === 'moderacion' ? 'true' : 'false'" aria-controls="tab-moderacion">🛡️ Moderación</button>
-            </div>
 
-            <!-- TAB MODERACIÓN -->
-            <div id="tab-moderacion" class="admin-tab-panel" role="tabpanel" aria-labelledby="tab-moderacion" x-show="activeTab === 'moderacion'">
+            <div id="tab-moderacion" class="admin-tab-panel">
                 <h2><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-clock-rotate-left"></use></svg> Imágenes Pendientes por Aprobar (<span id="cantPendientes" x-text="$store.galeria.pendientesEstado === 'error' ? '?' : $store.galeria.pendientes.length">0</span>)</h2>
                 <div class="gallery-grid" id="gridPendientes">
                     <template x-for="foto in $store.galeria.pendientes" :key="foto.id">
@@ -1205,7 +1201,7 @@
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.30.0" defer></script>
+    <script src="main.js?v=1.30.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

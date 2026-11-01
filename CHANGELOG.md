@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.30.1] - 2026-11-01
+
+### Correcciones
+
+- Eliminados los iconos de administración del navbar, que podían duplicarse
+  al refrescarse la sesión. El panel se abre solo desde el enlace discreto
+  “Acceso” del footer.
+- Galería: eliminada la pestaña “Moderación”; el contenido de fotos pendientes
+  se muestra directamente al abrir el panel.
+
 ## [1.30.0] - 2026-11-01
 
 ### Roles, vínculo Auth-comunidad y panel global

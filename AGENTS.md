@@ -173,7 +173,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.30.0` (roles owner/admin, vínculo Auth-comunidad y panel global de administración; sobre 1.29.0).
+- Versión de esta release: `1.30.1` (panel solo desde “Acceso” y limpieza de la pestaña de moderación; sobre 1.30.0).
 
 ## 9. Pruebas antes de commitear
 
@@ -184,7 +184,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
    - Home: player/clips/feed cargan, muro pinta mensajes, no errores de consola propios.
    - Comunidad: presencia muestra "Nadie en línea" si no hay nadie, chat/ranking cargan, login/registro y reacciones funcionan.
    - Galería: tarjetas abren lightbox; like sin sesión NO abre lightbox y pide login; con sesión alterna like/contador; moderación rechaza cuentas no admin; el panel de galería solo muestra fotos pendientes (aprobar/rechazar).
-   - Panel global: con Auth admin/owner aparecen los iconos del navbar en todas las páginas; owner ve Buzón, admin no; Usuarios y Auditoría cargan y el detalle de auditoría se escapa; cerrar sesión oculta los iconos.
+   - Panel global: se abre solo desde “Acceso” en el footer (sin iconos en el navbar); con Auth admin/owner muestra Usuarios y Auditoría, y el owner además Buzón; el detalle de auditoría se escapa.
    - Galería (subida): sin título muestra toast; archivo que no es imagen o formato no permitido muestra el feedback del store y no sube nada.
    - Comunidad: perfil (bio/links/avatar), tienda (catálogo/canje), icono equipado y reacciones del muro; probar con usuario temporal y borrarlo.
    - Sorteo: modo manual agrega/gira; modo streamer pide login; si no hay sesión admin no muestra panel; errores de red no muestran un ganador falso.

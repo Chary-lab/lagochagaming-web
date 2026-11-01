@@ -5182,18 +5182,9 @@ body.light-mode {
 .admin-global-close { border: 0; background: transparent; color: var(--text-main); font-size: 1.6rem; line-height: 1; cursor: pointer; }
 .admin-global-foot { display: flex; justify-content: flex-end; margin-top: 16px; }
 .admin-global-card .admin-login-card { border: 0; box-shadow: none; background: transparent; padding: 0; }
-.nav-admin { display: inline-flex; align-items: center; gap: 2px; margin-right: 4px; }
-.nav-admin-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid transparent; border-radius: 999px; background: transparent; color: var(--text-muted); font: inherit; font-size: 0.78rem; cursor: pointer; }
-.nav-admin-link:hover, .nav-admin-link:focus-visible { color: var(--accent-color); border-color: var(--border-color); background: var(--card-bg-subtle); }
-.nav-admin-link .icon { width: 14px; height: 14px; }
-.nav-admin-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--accent-color); color: #1b1b28; font-size: 0.62rem; font-weight: 700; }
-.nav-admin-badge[hidden] { display: none; }
 .footer-admin-link { border: 0; background: transparent; color: var(--text-muted); font: inherit; font-size: 0.72rem; cursor: pointer; padding: 0 4px; }
 .footer-admin-link:hover, .footer-admin-link:focus-visible { color: var(--accent-color); }
 .footer-admin-link .icon { width: 11px; height: 11px; vertical-align: -1px; }
-@media (max-width: 1100px) {
-    .nav-admin-link span:not(.nav-admin-badge) { display: none; }
-}
 @media (max-width: 640px) {
     .admin-global-modal { padding: 8px; }
     .admin-global-card { padding: 16px; max-height: 94vh; }
