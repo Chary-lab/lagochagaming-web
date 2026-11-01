@@ -3,6 +3,30 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.31.2] - 2026-11-01
+
+### Versión estable: repo nuevo y Supabase al día
+
+- Migración a un repo limpio (`Chary-lab/lagochagaming-web`) con el historial
+  reconstruido desde 1.28.1 hasta 1.31.1. El repo anterior se borró porque un
+  deployment fantasma de GitHub Pages bloqueaba toda publicación nueva con
+  `400 in progress deployment`; el código nunca estuvo roto.
+- Mismo dominio, mismas rutas y mismo contenido: sin cambios de SEO, canonical,
+  sitemap ni Search Console.
+- Supabase: `registrar_puntos` estaba ejecutable por `anon` y `authenticated`
+  (permitía sumar puntos a cualquier `usuario_id` por REST). Se revocó el
+  `EXECUTE`; solo queda para `service_role` y las funciones `SECURITY DEFINER`
+  que la usan internamente. Verificado: `anon` recibe 401 y una RPC pública
+  normal responde 200.
+- Eliminadas dos RPC sin uso ni referencia: `registrar_ganador_sorteo` y
+  `obtener_rangos`.
+- Limpieza de contenido huérfano: 1 mensaje de prueba en el chat y 2 filas
+  viejas de `auth_rate_limit`.
+- Auditoría: 22 tablas, todas en uso; 36 RPC del cliente presentes con su firma;
+  `admin_listar_usuarios` devuelve `en_linea` y `ultima_actividad`; Edge
+  Functions activas con cron cada 20 min; sin filas huérfanas en likes,
+  reacciones, puntos, canjes ni sesiones.
+
 ## [1.31.1] - 2026-11-01
 
 ### Cierre de sesión de cuentas vinculadas

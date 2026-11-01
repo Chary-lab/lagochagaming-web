@@ -8,7 +8,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - Páginas: `index.html` (inicio), `comunidad.html` (chat/puntos), `galeria.html` (fotos/likes), `sorteo.html` (sorteo), `cine.html` (GochiWatch).
 - Código compartido: `main.js` (tema, toasts, sesión de comunidad, admin, confeti, alertas) y `style.css`.
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
-- Hosting actual: GitHub Pages con dominio `lagochagaming.com` (archivo `CNAME`).
+- Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
 - Versión actual: ver `VERSION` (SemVer). Changelog: `CHANGELOG.md`.
 
 ## 2. Reglas de stack
@@ -116,7 +116,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 
 - Likes: una fila por `(image_id, usuario_id)` en `galeria_likes`; el contador `galeria.likes` se actualiza solo dentro de `incrementar_likes`. No volver a usar contadores basados en `localStorage` ni aceptar incrementos arbitrarios.
 - Puntos: cooldown de 5 minutos por CUENTA en `usuarios_comunidad.ultimo_punto`, con `FOR UPDATE` para evitar carreras entre sesiones. El multiplicador sale del rango actual.
-- Puntos por acciones: `puntos_eventos` es el historial; `registrar_puntos` valida acción, baneo, cooldown, tope por acción (`max_dia`) y tope diario del rango (`puntos_topas_rango`). Idempotencia por `(usuario_id, accion, ref)`. `registrar_puntos` y `otorgar_puntos_accion` no se conceden a `anon`: los puntos se otorgan dentro de las RPC de cada acción.
+- Puntos por acciones: `puntos_eventos` es el historial; `registrar_puntos` valida acción, baneo, cooldown, tope por acción (`max_dia`) y tope diario del rango (`puntos_topas_rango`). Idempotencia por `(usuario_id, accion, ref)`. `registrar_puntos` y `otorgar_puntos_accion` no se conceden a `anon`: los puntos se otorgan dentro de las RPC de cada acción. El `EXECUTE` de `registrar_puntos` se revocó también a `authenticated` (2026-11-01): solo `service_role` y las funciones `SECURITY DEFINER` pueden llamarla.
 - Rangos: umbrales 0 / 100 / 400 / 1000 / 2000 / 3500 y topes diarios 60 / 85 / 120 / 165 / 220 / 300.
 - Chat: rate limit de 2.5 s por CUENTA revisando todas las sesiones del usuario, con `FOR UPDATE` sobre el usuario. El borrado de mensajes es solo por `admin_eliminar_mensaje_chat` (admin/owner, hard delete + auditoría); no habilitar DELETE directo.
 - Presencia: `latido_comunidad` actualiza `ultima_actividad` cada 60 s mientras la pestaña está visible, desde cualquier página. El panel de Usuarios considera `en_linea` si la actividad es de los últimos 2 minutos; no confundir con la presencia Realtime de la columna de Comunidad, que solo cubre esa página.
@@ -149,7 +149,8 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 
 ## 7. Despliegue
 
-- Producción: GitHub Pages (rama publicada, `CNAME`). Los cambios pueden tardar en cachear.
+- Producción: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy con Jekyll, sin workflows). Los cambios pueden tardar en cachear.
+- El repo antiguo quedó bloqueado por un deployment fantasma de Pages (`400 in progress deployment`). Si vuelve a pasar: comprobar `pages/builds` y los deployments del environment `github-pages` antes de tocar código; el contenido no es el problema.
 - No hay service worker. `manifest.webmanifest` debe seguir siendo válido.
 - `robots.txt` y `sitemap.xml` deben mantenerse coherentes con las páginas públicas. Actualizar `lastmod` cuando cambie contenido público.
 - Si se cambia de host, actualizar esta sección y `_headers`.
@@ -175,7 +176,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.31.1` (cierre de sesión completo para cuentas Auth vinculadas; sobre 1.31.0).
+- Versión de esta release: `1.31.2` (estable: repo nuevo, deploy de Pages sano y limpieza de Supabase con revoke de `registrar_puntos`; sobre 1.31.1).
 
 ## 9. Pruebas antes de commitear
 
