@@ -37,6 +37,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 | `404.html` | Página no encontrada (`noindex`) |
 | `llms.txt` | Resumen del sitio y URLs para motores de IA |
 | `img/icons.svg` | Sprite de iconos (Font Awesome Free 6.6.0, CC BY 4.0) |
+| `img/mcchary/` | Ilustraciones del creador: footer, 404 y estados vacíos |
 | `scripts/check.js` | Validaciones estáticas del repo (no se carga en Pages) |
 
 Las migraciones SQL no se versionan en este repo: el historial vive en Supabase. La carpeta local `supabase/` está ignorada.
@@ -104,7 +105,8 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - `instagram_feed` (caché de la Edge Function `instagram-feed`; solo `service_role`, refresco con `pg_cron` cada 20 min).
 - `tiktok_feed` (caché de la Edge Function `tiktok-feed`; solo `service_role`, refresco con `pg_cron` cada 20 min).
 - `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango` (puntos por acción, historial con idempotencia y topes diarios por rango; solo `service_role`, se escriben desde RPC `SECURITY DEFINER`).
-- RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`.
+- `sugerencias` (texto 5–500, `ip_hash`, `leida`, `creada_en`; sin acceso `anon`; el admin lee por política `es_admin()`).
+- RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`.
 
 ### 5.5 Invariantes de integridad
 
@@ -122,6 +124,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - Tienda: el canje descuenta puntos y stock en una transacción con locks; los iconos son uno por usuario (`icono_equipado`) y los avatares se equipan al canjear. Usar las columnas reales de `tienda_canjes` (`nombre`, `costo_puntos`, `entregado_at`); no existe `metadata` ni `puntos_gastados`. No insertar canjes ni premios desde el cliente.
 - Baneo: `baneado_hasta` bloquea login, chat, muro, puntos, likes, reacciones, galería, tienda y perfil. Al banear se borran las sesiones de comunidad. `shadowban` solo oculta los mensajes de chat a terceros (no es un límite de seguridad fuerte).
 - Moderación: `admin_*` exige `es_admin()`; toda acción de ban/shadowban se registra en `admin_audit_log`. No exponer `baneado_hasta`, `baneado_motivo` ni `shadowban` a `anon`.
+- Sugerencias: `enviar_sugerencia` valida 5–500 caracteres y limita a **2 por día por IP** (`md5` de `x-forwarded-for`). La tabla no tiene acceso `anon`; el admin la lee por política. No prometer lectura/respuesta inmediata.
 
 ### 5.6 Realtime
 
@@ -167,7 +170,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.28.1` (documentación: AGENTS actualizado; sobre 1.28.0).
+- Versión de esta release: `1.29.0` (firma del creador y sugerencias; sobre 1.28.1).
 
 ## 9. Pruebas antes de commitear
 
@@ -184,6 +187,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
    - Cine: estado/video cargan, overlay/join no rompe MP4 si YouTube falla, sin errores propios.
    - SEO: JSON-LD válido; FAQ visible coincide con `FAQPage`; `sitemap.xml` y `robots.txt` coherentes; Umami carga una vez.
    - Iconos: ninguna página con huecos; si falta un símbolo, añadirlo a `img/icons.svg`.
+   - Sugerencias: el modal abre y cierra, envía una y la guarda; el tercer intento del día devuelve `limite`; borrar las filas de prueba.
    - Moderación: ban y shadowban sobre usuario temporal; verificar borrado de sesiones, login bloqueado y fila en auditoría; limpiar después.
 5. Cambios de base de datos:
    - Preparar el SQL y probarlo en una transacción con un usuario temporal y `ROLLBACK`.

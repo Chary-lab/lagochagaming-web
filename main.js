@@ -905,6 +905,106 @@ document.addEventListener('DOMContentLoaded', () => {
     try { iniciarPuntosGlobal(); } catch (e) { console.error('iniciarPuntosGlobal:', e); }
 });
 
+// === MODAL DE SUGERENCIAS (firma del creador) ===
+(function () {
+  let modalEl = null;
+  const ERRORES = {
+    texto_invalido: 'Escribe al menos 5 caracteres.',
+    texto_largo: 'Máximo 500 caracteres.',
+    limite: 'Ya enviaste 2 sugerencias hoy. Prueba mañana.',
+    error_interno: 'No se pudo enviar. Inténtalo de nuevo.'
+  };
+
+  function crearModal() {
+    if (modalEl) return modalEl;
+    modalEl = document.createElement('div');
+    modalEl.id = 'modal-sugerencias';
+    modalEl.className = 'modal-sugerencias';
+    modalEl.setAttribute('role', 'dialog');
+    modalEl.setAttribute('aria-modal', 'true');
+    modalEl.setAttribute('aria-labelledby', 'sugerencias-titulo');
+    modalEl.hidden = true;
+    modalEl.setAttribute('x-data', '{ }');
+    modalEl.setAttribute('x-cloak', '');
+    modalEl.setAttribute('x-bind:hidden', '!$store.sugerencias.abierto');
+    modalEl.setAttribute('x-on:keydown.escape.window', '$store.sugerencias.cerrar()');
+    modalEl.innerHTML = `
+      <div class="modal-sugerencias-backdrop" x-on:click="$store.sugerencias.cerrar()"></div>
+      <div class="modal-sugerencias-card" x-trap.noscroll="$store.sugerencias.abierto">
+        <button type="button" class="modal-sugerencias-close" x-on:click="$store.sugerencias.cerrar()" aria-label="Cerrar">&times;</button>
+        <h3 id="sugerencias-titulo">
+          <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lightbulb"></use></svg>
+          Sugerencias
+        </h3>
+        <p class="sugerencias-lead">¿Qué mejorarías del sitio? Se envía al creador. Máximo 2 por día.</p>
+        <textarea maxlength="500" x-model="$store.sugerencias.texto" placeholder="Escribe tu idea..." aria-label="Tu sugerencia"></textarea>
+        <div class="sugerencias-meta" x-text="$store.sugerencias.texto.length + '/500'"></div>
+        <p class="sugerencias-error" role="alert" x-bind:hidden="!$store.sugerencias.error" x-text="$store.sugerencias.error"></p>
+        <div class="sugerencias-actions">
+          <button type="button" class="btn-primary btn-muted" x-on:click="$store.sugerencias.cerrar()">Cancelar</button>
+          <button type="button" class="btn-primary" x-bind:disabled="$store.sugerencias.enviando"
+                  x-on:click="$store.sugerencias.enviar()"
+                  x-text="$store.sugerencias.enviando ? 'Enviando…' : 'Enviar'"></button>
+        </div>
+      </div>`;
+    document.body.appendChild(modalEl);
+    return modalEl;
+  }
+
+  document.addEventListener('alpine:init', () => {
+    window.Alpine.store('sugerencias', {
+      abierto: false,
+      texto: '',
+      enviando: false,
+      error: '',
+      abrir() {
+        crearModal();
+        this.texto = '';
+        this.error = '';
+        this.abierto = true;
+      },
+      cerrar() {
+        this.abierto = false;
+      },
+      async enviar() {
+        if (this.enviando) return;
+        const texto = this.texto.trim();
+        if (texto.length < 5) { this.error = ERRORES.texto_invalido; return; }
+        if (texto.length > 500) { this.error = ERRORES.texto_largo; return; }
+        if (!window.supabase) { this.error = ERRORES.error_interno; return; }
+        this.enviando = true;
+        this.error = '';
+        try {
+          const { data, error } = await window.supabase.rpc('enviar_sugerencia', { p_texto: texto });
+          if (error) throw error;
+          if (!data || !data.ok) {
+            this.error = ERRORES[data?.error] || ERRORES.error_interno;
+            return;
+          }
+          window.mostrarToast?.('¡Gracias por tu sugerencia!');
+          this.texto = '';
+          this.cerrar();
+        } catch (e) {
+          console.error('Error enviando sugerencia:', e);
+          this.error = ERRORES.error_interno;
+        } finally {
+          this.enviando = false;
+        }
+      }
+    });
+  });
+
+  window.abrirSugerencias = function abrirSugerencias() {
+    window.Alpine?.store('sugerencias')?.abrir();
+  };
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-sugerencias]')) return;
+    e.preventDefault();
+    window.abrirSugerencias();
+  });
+})();
+
 // === MODAL DE PERFIL GLOBAL (Alpine) ===
 (function () {
   let modalEl = null;

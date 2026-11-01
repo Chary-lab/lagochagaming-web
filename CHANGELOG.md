@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.29.0] - 2026-10-31
+
+### Firma del creador y sugerencias
+
+- Footer en las 5 páginas: capibara de McChary, “Creado por McChary /
+  Creator Engineer” y botón Sugerencias.
+- 404 con la ilustración de depuración; muro y galería vacíos con el capibara
+  dormido.
+- Modal de sugerencias (5–500 caracteres) con tabla `sugerencias` y RPC
+  `enviar_sugerencia`: máximo 2 por día por IP, lectura solo admin.
+- `creator: McChary` en el schema `WebSite`.
+
 ## [1.28.1] - 2026-10-31
 
 ### Documentación

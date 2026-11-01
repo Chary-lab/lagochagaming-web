@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.28.1">
+    <link rel="stylesheet" href="style.css?v=1.29.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -72,6 +72,10 @@
       "name": "LaGochaGaming",
       "url": "https://lagochagaming.com/",
       "inLanguage": "es",
+      "creator": {
+        "@type": "Person",
+        "name": "McChary"
+      },
       "publisher": {
         "@id": "https://lagochagaming.com/#person"
       }
@@ -301,7 +305,7 @@
                  x-bind:hidden="!$store.muro.feedback" x-text="$store.muro.feedback"></div>
         </div>
         <div id="muro-mensajes-container" class="muro-grid">
-            <p class="muro-empty" x-bind:hidden="$store.muro.cargando || $store.muro.mensajes.length > 0">Aún no hay saludos. ¡Sé el primero en escribir uno! 💖</p>
+            <p class="muro-empty" x-bind:hidden="$store.muro.cargando || $store.muro.mensajes.length > 0"><img class="empty-illustration" src="img/mcchary/empty.webp" alt="" width="150" height="101" loading="lazy" decoding="async">Aún no hay saludos. ¡Sé el primero en escribir uno! 💖</p>
             <template x-for="msg in $store.muro.mensajes" :key="msg.id">
                 <div class="muro-card" x-bind:id="'muro-card-' + msg.id">
                     <div class="muro-card-header">
@@ -433,13 +437,23 @@
                 <a href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer" class="social-icon" title="Discord"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-discord"></use></svg></a>
                 <a href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer" class="social-icon" title="YouTube"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-youtube"></use></svg></a>
             </div>
+            <div class="footer-creator">
+                <img src="img/mcchary/creator.webp" alt="McChary, creador del sitio" width="46" height="42" loading="lazy" decoding="async">
+                <div class="footer-creator-info">
+                    <span class="footer-creator-name">Creado por <strong>McChary</strong></span>
+                    <span class="footer-creator-role">Creator Engineer</span>
+                </div>
+                <button type="button" class="footer-suggestion" data-sugerencias>
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lightbulb"></use></svg> Sugerencias
+                </button>
+            </div>
             <p class="footer-copyright">&copy; 2026 LAGOCHAGAMING - ALL RIGHTS RESERVED</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.28.1" defer></script>
+    <script src="main.js?v=1.29.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script>

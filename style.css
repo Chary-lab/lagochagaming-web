@@ -5120,3 +5120,27 @@ body.light-mode {
 .faq-item[open] summary::after { content: '\2013'; }
 .faq-item p { margin: 10px 0 0; color: var(--text-muted); line-height: 1.6; }
 .faq-item a { color: var(--accent-color); }
+
+
+/* === Crédito del creador y sugerencias === */
+.footer-creator { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 999px; background: var(--card-bg-subtle); box-shadow: var(--glow); }
+.footer-creator img { width: 46px; height: auto; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35)); }
+.footer-creator-info { display: flex; flex-direction: column; line-height: 1.25; text-align: left; }
+.footer-creator-name { font-size: 0.85rem; color: var(--text-main); }
+.footer-creator-name strong { color: var(--accent-color); }
+.footer-creator-role { font-size: 0.68rem; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); }
+.footer-suggestion { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--border-color); border-radius: 999px; background: transparent; color: var(--text-muted); font: inherit; font-size: 0.78rem; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+.footer-suggestion:hover, .footer-suggestion:focus-visible { border-color: var(--accent-color); color: var(--accent-color); }
+.empty-illustration { display: block; width: min(150px, 55%); height: auto; margin: 0 auto 10px; opacity: 0.95; }
+.error-illustration { display: block; width: min(280px, 72vw); height: auto; margin: 0 auto 6px; filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35)); }
+.modal-sugerencias { position: fixed; inset: 0; z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-sugerencias-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.72); }
+.modal-sugerencias-card { position: relative; width: min(520px, 100%); background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--glow); }
+.modal-sugerencias-close { position: absolute; top: 10px; right: 12px; border: 0; background: transparent; color: var(--text-main); font-size: 1.4rem; cursor: pointer; }
+.modal-sugerencias-card h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; color: var(--text-main); }
+.sugerencias-lead { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 14px; }
+.sugerencias-card textarea, .modal-sugerencias-card textarea { width: 100%; min-height: 120px; resize: vertical; background: var(--card-bg-subtle); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-main); font-family: inherit; font-size: 0.95rem; padding: 12px 14px; }
+.modal-sugerencias-card textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: var(--glow); }
+.sugerencias-meta { margin-top: 6px; text-align: right; font-size: 0.75rem; color: var(--text-muted); }
+.sugerencias-error { color: #ff6b6b; font-size: 0.85rem; margin: 8px 0 0; }
+.sugerencias-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
