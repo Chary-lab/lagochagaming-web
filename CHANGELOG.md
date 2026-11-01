@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.30.2] - 2026-11-01
+
+### Moderación del chat
+
+- Nuevo RPC `admin_eliminar_mensaje_chat` para que `admin` y `owner` borren
+  mensajes del chat. El borrado directo desde el cliente queda bloqueado por
+  RLS; la RPC valida `es_admin()` y registra `eliminar_mensaje_chat` en
+  `admin_audit_log`.
+- Botón de eliminar visible en cada mensaje solo con sesión admin/owner, con
+  confirmación. El mensaje desaparece para todos por Realtime.
+
 ## [1.30.1] - 2026-11-01
 
 ### Correcciones

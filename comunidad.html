@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.30.1">
+    <link rel="stylesheet" href="style.css?v=1.30.2">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -159,6 +159,10 @@
                             <span class="chat-msg-meta">
                                  <span class="chat-msg-fecha" x-text="msg.fecha"></span>
                              </span>
+                            <button type="button" class="btn-eliminar-chat" title="Eliminar mensaje" aria-label="Eliminar mensaje del chat"
+                                    @click.stop="window.eliminarMensajeChat?.(msg.id)">
+                                <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-trash-can"></use></svg>
+                            </button>
                         </div>
                         <div class="chat-msg-texto" x-text="msg.mensaje"></div>
                         <div class="reacciones-badges" x-show="$store.reacciones.chips(msg.id).length" x-cloak>
@@ -426,7 +430,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
 
-    <script src="main.js?v=1.30.1" defer></script>
+    <script src="main.js?v=1.30.2" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1032,6 +1036,18 @@ setInterval(actualizarTypingIndicator, 500);
                 }
             } catch (e) { console.warn('No se pudo verificar sesión admin:', e); }
 
+            if (window.supabase && typeof window.supabase.auth?.onAuthStateChange === 'function') {
+                window.supabase.auth.onAuthStateChange(async (evento) => {
+                    if (evento !== 'SIGNED_IN' && evento !== 'SIGNED_OUT') return;
+                    try {
+                        adminAutenticado = !!(await window.esAdminActual?.());
+                    } catch (e) {
+                        adminAutenticado = false;
+                    }
+                    document.body.classList.toggle('admin-mode-active', adminAutenticado);
+                });
+            }
+
              chatMensajes.addEventListener('click', (e) => {
                  // Botón eliminar (solo admin)
                 const btnEliminar = e.target.closest('.btn-eliminar-chat');
@@ -1632,16 +1648,23 @@ setInterval(actualizarTypingIndicator, 500);
                     textoConfirmar: 'Eliminar',
                     enConfirmar: async () => {
                         try {
-                            const { error } = await supabase.from('comunidad_chat').delete().eq('id', Number(msgId));
-                            if (error) {
-                                mostrarToast('Error al eliminar el mensaje.', true);
+                            const { data, error } = await supabase.rpc('admin_eliminar_mensaje_chat', {
+                                p_mensaje_id: Number(msgId)
+                            });
+                            if (error || !data || !data.ok) {
+                                mostrarToast(
+                                    data && data.error === 'sin_permiso'
+                                        ? 'Necesitas sesión de admin u owner.'
+                                        : 'Error al eliminar el mensaje.',
+                                    true
+                                );
                                 return;
                             }
                             const store = obtenerStoreChat();
                             if (store) {
                                 store.mensajes = store.mensajes.filter(m => String(m.id) !== String(msgId));
                             }
-                            mostrarToast('Eliminado.');
+                            mostrarToast('Mensaje eliminado.');
                         } catch (e) {
                             console.error('Error eliminando mensaje:', e);
                             mostrarToast('Error inesperado al eliminar.', true);
@@ -1649,6 +1672,8 @@ setInterval(actualizarTypingIndicator, 500);
                     }
                 });
             }
+
+            window.eliminarMensajeChat = eliminarMensajeChat;
 
             // Sistema de racha de mensajes
             function obtenerStreakData() {
