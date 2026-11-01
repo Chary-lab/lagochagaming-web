@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/2.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.29.0">
+    <link rel="stylesheet" href="style.css?v=1.30.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -107,16 +107,12 @@
                     <li><strong>Aprobar / Rechazar:</strong> publica la foto pendiente o la descarta. El campo autor solo lo cambia un admin.</li>
                     <li><strong>Borrar foto:</strong> elimina una foto publicada de la galería.</li>
                     <li><strong>Subida:</strong> título, autor (admin) y límites (5MB, JPG/PNG/GIF/WEBP/AVIF).</li>
-                    <li><strong>Usuarios:</strong> buscar y filtrar baneados. <strong>Banear</strong> bloquea 7 días y cierra sus sesiones; <strong>Desbanear</strong> lo reactiva.</li>
-                    <li><strong>Shadowban:</strong> sus mensajes de chat solo los ve él mismo. No es un bloqueo de seguridad fuerte.</li>
-                    <li><strong>Auditoría:</strong> historial de ban/shadowban con detalle escapado.</li>
+                    <li><strong>Usuarios, auditoría y buzón:</strong> están en el panel global del navbar (iconos), disponible en todas las páginas.</li>
                     <li><strong>Cerrar sesión admin:</strong> finaliza la sesión de administrador.</li>
                 </ul>
             </details>
             <div class="admin-tabs" role="tablist" aria-label="Paneles de administración">
                 <button type="button" class="admin-tab-btn" :class="{ active: activeTab === 'moderacion' }" @click="activeTab = 'moderacion'" role="tab" :aria-selected="activeTab === 'moderacion' ? 'true' : 'false'" aria-controls="tab-moderacion">🛡️ Moderación</button>
-                <button type="button" class="admin-tab-btn" :class="{ active: activeTab === 'usuarios' }" @click="activeTab = 'usuarios'; window.cargarUsuariosAdmin?.()" role="tab" :aria-selected="activeTab === 'usuarios' ? 'true' : 'false'" aria-controls="tab-usuarios">👥 Usuarios</button>
-                <button type="button" class="admin-tab-btn" :class="{ active: activeTab === 'auditoria' }" @click="activeTab = 'auditoria'; window.cargarAuditAdmin?.()" role="tab" :aria-selected="activeTab === 'auditoria' ? 'true' : 'false'" aria-controls="tab-auditoria">📋 Auditoría</button>
             </div>
 
             <!-- TAB MODERACIÓN -->
@@ -150,73 +146,6 @@
                 <p id="pendientes-no-disponibles" class="gallery-empty" hidden>Moderación no disponible. Recarga la página.</p>
             </div>
 
-            <!-- TAB USUARIOS -->
-            <div id="tab-usuarios" class="admin-tab-panel" role="tabpanel" aria-labelledby="tab-usuarios" x-show="activeTab === 'usuarios'" x-cloak>
-                <div class="admin-usuarios-toolbar">
-                    <input type="text" id="admin-buscar-usuario" class="admin-input" placeholder="Buscar por apodo..." aria-label="Buscar usuario">
-                    <label class="admin-checkbox">
-                        <input type="checkbox" id="admin-filtro-baneados">
-                        <span>Solo baneados</span>
-                    </label>
-                </div>
-                <div class="admin-usuarios-grid" id="adminUsuariosGrid">
-                    <template x-for="u in $store.admin.usuarios" :key="u.id">
-                        <div class="admin-usuario-card" :class="{ baneado: u.baneado_activo, shadowban: u.shadowban }">
-                            <div class="admin-usuario-info">
-                                <span class="admin-usuario-avatar" x-text="u.apodo.charAt(0).toUpperCase()"></span>
-                                <div class="admin-usuario-datos">
-                                    <span class="admin-usuario-apodo" x-text="u.apodo"></span>
-                                    <span class="admin-usuario-meta">
-                                        <span x-text="u.puntos + ' pts'"></span>
-                                        <span class="rango-badge" :class="'rango-' + window.claveRango(u.rango, u.puntos)" x-text="window.etiquetaRango(u.rango, u.puntos)"></span>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="admin-usuario-estado">
-                                <span class="estado-badge" :class="{ activo: !u.baneado_activo && !u.shadowban, baneado: u.baneado_activo, shadowban: u.shadowban }"
-                                      x-text="u.baneado_activo ? '🔴 Baneado' : (u.shadowban ? '🟡 Shadowban' : '🟢 Activo')"></span>
-                                <template x-if="u.baneado_hasta && u.baneado_activo">
-                                    <span class="ban-hasta" x-text="'Hasta: ' + new Date(u.baneado_hasta).toLocaleString('es-ES')"></span>
-                                </template>
-                            </div>
-                            <div class="admin-usuario-acciones">
-                                <button type="button" class="btn-admin-accion btn-ban" @click="toggleBan(u.id, u.baneado_activo)" x-text="u.baneado_activo ? 'Desbanear' : 'Banear'"></button>
-                                <button type="button" class="btn-admin-accion btn-shadowban" @click="toggleShadowban(u.id, u.shadowban)" x-text="u.shadowban ? 'Quitar Shadowban' : 'Shadowban'"></button>
-                            </div>
-                        </div>
-                    </template>
-                    <p class="gallery-empty" x-show="$store.admin.usuariosEstado === 'lista' && !$store.admin.usuarios.length" x-cloak>No hay usuarios.</p>
-                    <p class="gallery-empty" x-show="$store.admin.usuariosEstado === 'error'" x-text="$store.admin.errorUsuarios" x-cloak></p>
-                </div>
-                <div class="admin-paginacion" x-show="$store.admin.totalUsuarios > 50">
-                    <button type="button" class="btn-admin-pag" @click="window.cambiarPaginaUsuarios(-1)" :disabled="$store.admin.paginaUsuarios === 0" x-text="'← Anterior'"></button>
-                    <span class="pag-info" x-text="'Página ' + ($store.admin.paginaUsuarios + 1) + ' de ' + Math.ceil($store.admin.totalUsuarios / 50)"></span>
-                    <button type="button" class="btn-admin-pag" @click="window.cambiarPaginaUsuarios(1)" :disabled="($store.admin.paginaUsuarios + 1) * 50 >= $store.admin.totalUsuarios" x-text="'Siguiente →'"></button>
-                </div>
-            </div>
-
-            <!-- TAB AUDITORÍA -->
-            <div id="tab-auditoria" class="admin-tab-panel" role="tabpanel" aria-labelledby="tab-auditoria" x-show="activeTab === 'auditoria'" x-cloak>
-                <div class="admin-auditoria-lista" id="adminAuditoriaLista">
-                    <template x-for="a in $store.admin.auditLog" :key="a.id">
-                        <div class="auditoria-item">
-                            <div class="auditoria-accion" x-text="a.accion"></div>
-                            <div class="auditoria-detalle" x-html="formatearDetalle(a.detalle)"></div>
-                            <div class="auditoria-meta">
-                                <span x-text="a.admin_apodo || 'Sistema'"></span>
-                                <span x-text="new Date(a.created_at).toLocaleString('es-ES')"></span>
-                            </div>
-                        </div>
-                    </template>
-                    <p class="gallery-empty" x-show="$store.admin.auditEstado === 'lista' && !$store.admin.auditLog.length" x-cloak>Sin registros de auditoría.</p>
-                    <p class="gallery-empty" x-show="$store.admin.auditEstado === 'error'" x-text="$store.admin.errorAudit" x-cloak></p>
-                </div>
-                <div class="admin-paginacion" x-show="$store.admin.totalAudit > 50">
-                    <button type="button" class="btn-admin-pag" @click="window.cambiarPaginaAudit(-1)" :disabled="$store.admin.paginaAudit === 0" x-text="'← Anterior'"></button>
-                    <span class="pag-info" x-text="'Página ' + ($store.admin.paginaAudit + 1) + ' de ' + Math.ceil($store.admin.totalAudit / 50)"></span>
-                    <button type="button" class="btn-admin-pag" @click="window.cambiarPaginaAudit(1)" :disabled="($store.admin.paginaAudit + 1) * 50 >= $store.admin.totalAudit" x-text="'Siguiente →'"></button>
-                </div>
-            </div>
         </div>
 
         <!-- SUBIDA DE IMÁGENES -->
@@ -414,19 +343,6 @@
             errorPendientes: ''
         });
 
-        window.Alpine.store('admin', {
-            usuarios: [],
-            usuariosEstado: 'inicial',
-            errorUsuarios: '',
-            totalUsuarios: 0,
-            paginaUsuarios: 0,
-            auditLog: [],
-            auditEstado: 'inicial',
-            errorAudit: '',
-            totalAudit: 0,
-            paginaAudit: 0
-        });
-
         window.Alpine.store('subida', {
             titulo: '',
             autorAdmin: AUTOR_POR_DEFECTO,
@@ -599,164 +515,6 @@
             }
         }
 
-        // === FUNCIONES ADMIN UNIFICADO ===
-        function obtenerStoreAdmin() {
-            return window.Alpine && typeof window.Alpine.store === 'function'
-                ? window.Alpine.store('admin')
-                : null;
-        }
-
-        async function cargarUsuariosAdmin() {
-            const store = obtenerStoreAdmin();
-            if (!store || !adminAutenticado || !window.supabase) return;
-
-            store.usuariosEstado = 'cargando';
-            store.errorUsuarios = '';
-
-            try {
-                const buscar = document.getElementById('admin-buscar-usuario')?.value || '';
-                const soloBaneados = document.getElementById('admin-filtro-baneados')?.checked || false;
-                const { data, error } = await supabase.rpc('admin_listar_usuarios', {
-                    p_token: localStorage.getItem('comunidad_session_token') || '',
-                    p_buscar: buscar || null,
-                    p_solo_baneados: soloBaneados,
-                    p_limite: 50,
-                    p_offset: (store.paginaUsuarios || 0) * 50
-                });
-                if (error) throw error;
-                if (!data || !data.ok) {
-                    store.errorUsuarios = data?.error || 'Error cargando usuarios';
-                    store.usuariosEstado = 'error';
-                    return;
-                }
-                store.usuarios = data.usuarios || [];
-                store.totalUsuarios = data.total || 0;
-                store.usuariosEstado = 'lista';
-            } catch (e) {
-                console.error('Error cargando usuarios admin:', e);
-                store.errorUsuarios = 'Error inesperado';
-                store.usuariosEstado = 'error';
-            }
-        }
-
-        window.cambiarPaginaUsuarios = function cambiarPaginaUsuarios(delta) {
-            const store = obtenerStoreAdmin();
-            if (!store) return;
-            const nueva = Math.max(0, (store.paginaUsuarios || 0) + delta);
-            if (nueva === store.paginaUsuarios) return;
-            store.paginaUsuarios = nueva;
-            cargarUsuariosAdmin();
-        };
-
-        async function toggleBan(usuarioId, estaBaneado) {
-            if (!(await validarSesionStreamer())) {
-                adminAutenticado = false;
-                aplicarEstadoAdmin();
-                mostrarToast('Tu sesión ha expirado.', true);
-                return;
-            }
-            const duracion = estaBaneado ? 0 : 60 * 24 * 7; // 7 días por defecto al banear
-            try {
-                const { data, error } = await supabase.rpc('admin_ban_usuario', {
-                    p_token: localStorage.getItem('comunidad_session_token') || '',
-                    p_usuario_id: usuarioId,
-                    p_duracion_minutos: estaBaneado ? null : duracion,
-                    p_motivo: estaBaneado ? 'Desbaneado por admin' : 'Baneado por admin'
-                });
-                if (error) throw error;
-                if (!data || !data.ok) {
-                    mostrarToast('Error: ' + (data?.error || 'desconocido'), true);
-                    return;
-                }
-                mostrarToast(estaBaneado ? 'Usuario desbaneado' : 'Usuario baneado por 7 días');
-                cargarUsuariosAdmin();
-            } catch (e) {
-                console.error('Error ban:', e);
-                mostrarToast('Error al banear/desbanear', true);
-            }
-        }
-
-        async function toggleShadowban(usuarioId, estaShadowban) {
-            if (!(await validarSesionStreamer())) {
-                adminAutenticado = false;
-                aplicarEstadoAdmin();
-                mostrarToast('Tu sesión ha expirado.', true);
-                return;
-            }
-            try {
-                const { data, error } = await supabase.rpc('admin_shadowban_usuario', {
-                    p_token: localStorage.getItem('comunidad_session_token') || '',
-                    p_usuario_id: usuarioId,
-                    p_activar: !estaShadowban
-                });
-                if (error) throw error;
-                if (!data || !data.ok) {
-                    mostrarToast('Error: ' + (data?.error || 'desconocido'), true);
-                    return;
-                }
-                mostrarToast(estaShadowban ? 'Shadowban quitado' : 'Shadowban aplicado');
-                cargarUsuariosAdmin();
-            } catch (e) {
-                console.error('Error shadowban:', e);
-                mostrarToast('Error al aplicar/quitar shadowban', true);
-            }
-        }
-
-        // El HTML/Alpine llama estas acciones desde window.
-        window.cargarUsuariosAdmin = cargarUsuariosAdmin;
-        window.cargarAuditAdmin = cargarAuditAdmin;
-        window.toggleBan = toggleBan;
-        window.toggleShadowban = toggleShadowban;
-
-        async function cargarAuditAdmin() {
-            const store = obtenerStoreAdmin();
-            if (!store || !adminAutenticado || !window.supabase) return;
-
-            store.auditEstado = 'cargando';
-            store.errorAudit = '';
-
-            try {
-                const { data, error } = await supabase.rpc('admin_obtener_audit_log', {
-                    p_token: localStorage.getItem('comunidad_session_token') || '',
-                    p_limite: 50,
-                    p_offset: (store.paginaAudit || 0) * 50
-                });
-                if (error) throw error;
-                if (!data || !data.ok) {
-                    store.errorAudit = data?.error || 'Error cargando auditoría';
-                    store.auditEstado = 'error';
-                    return;
-                }
-                store.auditLog = data.log || [];
-                store.totalAudit = data.total || 0;
-                store.auditEstado = 'lista';
-            } catch (e) {
-                console.error('Error cargando audit log:', e);
-                store.errorAudit = 'Error inesperado';
-                store.auditEstado = 'error';
-            }
-        }
-
-        window.cambiarPaginaAudit = function cambiarPaginaAudit(delta) {
-            const store = obtenerStoreAdmin();
-            if (!store) return;
-            const nueva = Math.max(0, (store.paginaAudit || 0) + delta);
-            if (nueva === store.paginaAudit) return;
-            store.paginaAudit = nueva;
-            cargarAuditAdmin();
-        };
-
-        // Formatear detalle de auditoría para mostrar
-        window.formatearDetalle = function formatearDetalle(detalle) {
-            if (!detalle) return '<em>Sin detalles</em>';
-            try {
-                const d = typeof detalle === 'string' ? JSON.parse(detalle) : detalle;
-                return '<pre class="audit-detalle-pre">' + window.escapeHtml(JSON.stringify(d, null, 2)) + '</pre>';
-            } catch (e) {
-                return '<em>Detalle no válido</em>';
-            }
-        };
-
         document.addEventListener('DOMContentLoaded', async () => {
             if (!obtenerStoreGaleria()) {
                 const aviso = document.getElementById('galeria-no-disponible');
@@ -803,29 +561,6 @@
             // Controles de admin (campo de autor) y aviso de sesión de comunidad
             actualizarControlesAdmin();
 
-            // Admin panel: búsqueda de usuarios con debounce
-            const buscarInput = document.getElementById('admin-buscar-usuario');
-            if (buscarInput) {
-                let debounceTimer = null;
-                buscarInput.addEventListener('input', () => {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        const store = obtenerStoreAdmin();
-                        if (store) store.paginaUsuarios = 0;
-                        window.cargarUsuariosAdmin?.();
-                    }, 300);
-                });
-            }
-            const filtroBaneados = document.getElementById('admin-filtro-baneados');
-            if (filtroBaneados) {
-                filtroBaneados.addEventListener('change', () => {
-                    const store = obtenerStoreAdmin();
-                    if (store) store.paginaUsuarios = 0;
-                    window.cargarUsuariosAdmin?.();
-                });
-            }
-
-            // Al aprobarse una foto aparece sola en la galería pública
             iniciarRealtimeGaleria();
         });
 
@@ -1470,7 +1205,7 @@
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.29.0" defer></script>
+    <script src="main.js?v=1.30.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

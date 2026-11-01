@@ -25,11 +25,11 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 
 | Archivo | Responsabilidad |
 |---|---|
-| `main.js` | Utilidades globales, tema, toasts, sesión comunidad, admin Supabase, confeti, alertas de stream; stores Alpine `perfil`, `ui` y `toast` |
+| `main.js` | Utilidades globales, tema, toasts, sesión comunidad, admin Supabase, confeti, alertas de stream; stores Alpine `perfil`, `ui`, `toast` y `adminPanel` (panel global) |
 | `style.css` | Estilos compartidos, variables, componentes, responsive, modo claro |
 | `index.html` | Home, player Kick, clips, feed social, YouTube, muro de saludos (store `muro`) y modal de feeds (store `media`) |
 | `comunidad.html` | Presencia, chat, reacciones, ranking, rangos, login/registro comunidad (stores `chat`, `ranking`, `rangosChat`, `reacciones`, `tienda`) |
-| `galeria.html` | Subida (store `subida`), galería pública y lightbox (store `galeria`), moderación (store `admin`) |
+| `galeria.html` | Subida (store `subida`), galería pública y lightbox (store `galeria`), moderación de fotos pendientes |
 | `sorteo.html` | Modo manual, modo streamer, tómbola online, ganadores (store `sorteo` con `participantes`, `manual` y `ganadores`) |
 | `cine.html` | Sincronización de películas/videos para espectadores y streamer (store `cine`) |
 | `_headers` | Cabeceras para hosts que las soportan (NO en GitHub Pages) |
@@ -49,7 +49,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - Preferir `textContent` y creación de nodos a `innerHTML` cuando sea posible.
 - No usar `eval`, `new Function` ni `document.write`.
 - En Alpine, no usar mustaches `{{ }}` dentro de atributos. Usar bindings (`:aria-label="'...' + variable"`).
-- Stores globales en `main.js` (`perfil`, `ui`, `toast`); por página en su HTML (`media`/`muro` en index, `galeria`/`admin` en galería, `cine`, `chat`/`tienda` en comunidad, `sorteo`).
+- Stores globales en `main.js` (`perfil`, `ui`, `toast`, `adminPanel`); por página en su HTML (`media`/`muro` en index, `galeria`/`subida` en galería, `cine`, `chat`/`tienda` en comunidad, `sorteo`).
 - Alpine va con `defer` y los stores se registran en `alpine:init`. Usar `x-cloak` en lo que deba ocultarse antes de inicializar.
 - Para visibilidad usar `:hidden="!abierto"` con la regla global `[hidden]`; no `x-show` (en este build no vuelve a ocultar elementos con `display: flex`).
 - Cuidado con la propagación de clics: las tarjetas de galería abren el lightbox, pero los botones de acción deben llegar al listener delegado del documento. Usar `window.abrirLightboxDesdeTarjeta($event, foto, $el)` y no `@click.stop` en la zona de acciones.
@@ -60,8 +60,8 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 
 ### 4.1 Alpine: reglas obligatorias
 
-- Stores globales en `main.js`: `perfil` (modal), `ui` (menú móvil) y `toast`.
-- Stores por página: `media`/`muro` (index), `galeria`/`admin`/`subida` (galería), `chat`/`ranking`/`rangosChat`/`reacciones`/`tienda` (comunidad), `sorteo` y `cine`.
+- Stores globales en `main.js`: `perfil` (modal), `ui` (menú móvil), `toast` y `adminPanel` (panel de administración global).
+- Stores por página: `media`/`muro` (index), `galeria`/`subida` (galería), `chat`/`ranking`/`rangosChat`/`reacciones`/`tienda` (comunidad), `sorteo` y `cine`.
 - Listas y tarjetas con `x-for` y `:key`. Formularios con `x-model` (o `:value` + `@input` en objetos anidados). Textos y feedback con `x-text` + `:hidden`.
 - Visibilidad con `:hidden="!abierto"` y la regla global `[hidden]`; `x-cloak` para lo que deba ocultarse antes de inicializar. Evitar `x-show` en elementos con `display: flex` (en este build puede no volver a ocultarlos).
 - Modales con `x-trap.noscroll` y cierre por Escape, fondo o botón; el foco vuelve solo.
@@ -76,7 +76,10 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 
 - La `anon key` es pública y vive en `main.js`; es lo esperado.
 - NUNCA agregar `service_role`, contraseñas, tokens de administrador ni secretos al repositorio ni al cliente.
-- La autenticación de administrador es Supabase Auth + `app_metadata.role = "admin"`. No usar email hardcodeado ni listas en cliente.
+- La autenticación de administrador es Supabase Auth + `app_metadata.role = "admin"` o `"owner"`. No usar email hardcodeado ni listas en cliente.
+- `owner` es el rol superior (McChary); `es_owner()` lo valida y `es_admin()` acepta `admin` y `owner`. El buzón de sugerencias es solo para `owner`.
+- Un perfil de comunidad puede vincularse a un usuario Auth con `usuarios_comunidad.auth_user_id`. La función `sesion_comunidad_vinculada()` abre/reutiliza una sesión de comunidad para ese vínculo; el cliente la sincroniza al cargar y al iniciar sesión. El vínculo no se basa en el apodo.
+- Comunidad: tabla `usuarios_comunidad` con PIN de 4 dígitos (bcrypt) y tokens de sesión de 30 días en `comunidad_sesiones`. `LaGochaGaming` tiene perfil reservado y PIN aleatorio; su acceso es por Auth.
 
 ### 5.2 Modelo de identidad
 
@@ -93,7 +96,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 
 ### 5.4 Tablas y RPC principales
 
-- `usuarios_comunidad` (nunca exponer `pin_hash`; los grants de columna ya lo limitan).
+- `usuarios_comunidad` (nunca exponer `pin_hash` ni `auth_user_id`; los grants de columna ya lo limitan).
 - `comunidad_sesiones` (token, expiración, cooldowns).
 - `comunidad_chat`, `message_reactions` (chat y reacciones).
 - `muro_saludos` + `muro_reactions` (muro del home y sus reacciones).
@@ -105,8 +108,8 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - `instagram_feed` (caché de la Edge Function `instagram-feed`; solo `service_role`, refresco con `pg_cron` cada 20 min).
 - `tiktok_feed` (caché de la Edge Function `tiktok-feed`; solo `service_role`, refresco con `pg_cron` cada 20 min).
 - `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango` (puntos por acción, historial con idempotencia y topes diarios por rango; solo `service_role`, se escriben desde RPC `SECURITY DEFINER`).
-- `sugerencias` (texto 5–500, `ip_hash`, `leida`, `creada_en`; sin acceso `anon`; el admin lee por política `es_admin()`).
-- RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`.
+- `sugerencias` (texto 5–500, `ip_hash`, `leida`, `creada_en`; sin acceso `anon`; solo `owner` lee, marca y borra con `es_owner()` y las RPC `owner_marcar_sugerencia` / `owner_eliminar_sugerencia`).
+- RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `sesion_comunidad_vinculada`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `owner_marcar_sugerencia`, `owner_eliminar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`.
 
 ### 5.5 Invariantes de integridad
 
@@ -170,7 +173,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.29.0` (firma del creador y sugerencias; sobre 1.28.1).
+- Versión de esta release: `1.30.0` (roles owner/admin, vínculo Auth-comunidad y panel global de administración; sobre 1.29.0).
 
 ## 9. Pruebas antes de commitear
 
@@ -180,7 +183,8 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 4. Smoke test mínimo:
    - Home: player/clips/feed cargan, muro pinta mensajes, no errores de consola propios.
    - Comunidad: presencia muestra "Nadie en línea" si no hay nadie, chat/ranking cargan, login/registro y reacciones funcionan.
-   - Galería: tarjetas abren lightbox; like sin sesión NO abre lightbox y pide login; con sesión alterna like/contador; moderación rechaza cuentas no admin; pestañas Usuarios/Auditoría cargan y el detalle de auditoría se escapa.
+   - Galería: tarjetas abren lightbox; like sin sesión NO abre lightbox y pide login; con sesión alterna like/contador; moderación rechaza cuentas no admin; el panel de galería solo muestra fotos pendientes (aprobar/rechazar).
+   - Panel global: con Auth admin/owner aparecen los iconos del navbar en todas las páginas; owner ve Buzón, admin no; Usuarios y Auditoría cargan y el detalle de auditoría se escapa; cerrar sesión oculta los iconos.
    - Galería (subida): sin título muestra toast; archivo que no es imagen o formato no permitido muestra el feedback del store y no sube nada.
    - Comunidad: perfil (bio/links/avatar), tienda (catálogo/canje), icono equipado y reacciones del muro; probar con usuario temporal y borrarlo.
    - Sorteo: modo manual agrega/gira; modo streamer pide login; si no hay sesión admin no muestra panel; errores de red no muestran un ganador falso.
@@ -215,6 +219,8 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - No escribir directo a `comunidad_chat`, `message_reactions`, `muro_saludos`, `galeria_likes` ni `ganadores_sorteo` desde el cliente.
 - No confiar en apodo/puntos/likes/ganador enviados por el cliente.
 - No usar email hardcodeado para decidir admin.
+- No decidir `owner` por apodo ni por nombre de usuario de comunidad; solo por `app_metadata.role` y vínculo `auth_user_id`.
+- No exponer el buzón de sugerencias a `admin`; es exclusivo de `owner`.
 - No usar `innerHTML` con datos de usuario sin escapar.
 - No poner `{{ }}` en atributos Alpine.
 - No usar `@click.stop` en las acciones de la tarjeta de galería (rompe el listener delegado).

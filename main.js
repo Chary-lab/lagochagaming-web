@@ -78,6 +78,8 @@ window.esAdminActual = async function esAdminActual() {
 if (window.supabase && typeof window.supabase.auth?.onAuthStateChange === 'function') {
     window.supabase.auth.onAuthStateChange(() => {
         window.refrescarCacheAdmin();
+        window.sincronizarSesionComunidadVinculada?.();
+        window.refrescarNavAdmin?.();
     });
 }
 
@@ -520,6 +522,7 @@ window.insertarComponentesUIGlobales = function insertarComponentesUIGlobales() 
     }
     insertarToastStream();
     insertarAlertaStream();
+    insertarPanelAdminGlobal();
 };
 
 // Overlay de "en vivo" para las 5 páginas: se inserta una sola vez desde aquí
@@ -895,6 +898,674 @@ document.addEventListener('click', (event) => {
     if (botonCerrar) botonCerrar.click();
 });
 
+// === ICONOS DE ADMINISTRACIÓN EN EL NAVBAR (todas las páginas) ===
+// Solo se pintan si hay sesión de Supabase Auth con rol admin/owner.
+window.refrescarNavAdmin = async function refrescarNavAdmin() {
+    const navRight = document.querySelector('.nav-right');
+    const existente = document.getElementById('nav-admin');
+
+    if (!window.supabase) {
+        if (existente) existente.remove();
+        return;
+    }
+
+    let session = null;
+    try {
+        const { data } = await window.supabase.auth.getSession();
+        session = data && data.session;
+    } catch (e) {
+        session = null;
+    }
+
+    if (!session) {
+        if (existente) existente.remove();
+        return;
+    }
+
+    const esAdmin = await window.esAdminActual();
+    if (!esAdmin) {
+        if (existente) existente.remove();
+        return;
+    }
+
+    let esOwner = false;
+    try {
+        const { data } = await window.supabase.rpc('es_owner');
+        esOwner = data === true;
+    } catch (e) {
+        esOwner = false;
+    }
+
+    if (!navRight) return;
+
+    let contenedor = existente;
+    if (!contenedor) {
+        contenedor = document.createElement('div');
+        contenedor.id = 'nav-admin';
+        contenedor.className = 'nav-admin';
+        navRight.insertBefore(contenedor, navRight.firstChild);
+    }
+
+    const icono = (nombre) => `<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-${nombre}"></use></svg>`;
+    let html = '';
+    if (esOwner) {
+        html += `<button type="button" class="nav-admin-link" data-admin-tab="buzon" title="Buzón de sugerencias">${icono('envelope')}<span>Buzón</span><span class="nav-admin-badge" id="nav-admin-badge" hidden></span></button>`;
+    }
+    html += `<button type="button" class="nav-admin-link" data-admin-tab="usuarios" title="Usuarios">${icono('users')}<span>Usuarios</span></button>`;
+    html += `<button type="button" class="nav-admin-link" data-admin-tab="auditoria" title="Auditoría">${icono('shield-halved')}<span>Auditoría</span></button>`;
+    contenedor.innerHTML = html;
+    contenedor.querySelectorAll('[data-admin-tab]').forEach((boton) => {
+        boton.addEventListener('click', () => window.abrirAdminPanel(boton.dataset.adminTab));
+    });
+
+    if (esOwner) {
+        try {
+            const { count } = await window.supabase
+                .from('sugerencias')
+                .select('id', { count: 'exact', head: true })
+                .eq('leida', false);
+            const badge = document.getElementById('nav-admin-badge');
+            if (badge && count > 0) {
+                badge.textContent = count > 99 ? '99+' : String(count);
+                badge.hidden = false;
+            }
+        } catch (e) {
+            // El contador es opcional; no bloquea el navbar.
+        }
+    }
+};
+
+// Si hay una sesión de Supabase Auth vinculada a un perfil de comunidad,
+// abre (o reutiliza) su sesión de comunidad para que chat, muro y galería
+// funcionen sin pedir el PIN. No afecta a usuarios sin Auth.
+window.sincronizarSesionComunidadVinculada = async function sincronizarSesionComunidadVinculada() {
+    if (!window.supabase) return false;
+    if (localStorage.getItem('comunidad_session_token')) return false;
+    try {
+        const { data: authData } = await window.supabase.auth.getSession();
+        if (!authData || !authData.session) return false;
+        const { data, error } = await window.supabase.rpc('sesion_comunidad_vinculada');
+        if (error || !data || !data.ok || !data.token) return false;
+        const val = await window.supabase.rpc('validar_sesion_comunidad', { p_token: data.token });
+        if (val.error || !val.data || !val.data.ok) return false;
+        const usuario = val.data.usuario;
+        localStorage.setItem('comunidad_session_token', data.token);
+        localStorage.setItem('comunidad_nickname', usuario.apodo);
+        localStorage.setItem('comunidad_user_id', String(usuario.id));
+        localStorage.setItem('comunidad_session_usuario', JSON.stringify(usuario));
+        window.actualizarUsuarioNavComunidad?.();
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
+function insertarAccesoAdminFooter() {
+    document.querySelectorAll('.footer-copyright').forEach((p) => {
+        if (p.querySelector('.footer-admin-link')) return;
+        const boton = document.createElement('button');
+        boton.type = 'button';
+        boton.className = 'footer-admin-link';
+        boton.title = 'Acceso de administración';
+        boton.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> Acceso';
+        boton.addEventListener('click', () => window.abrirAdminPanel('login'));
+        p.appendChild(document.createTextNode(' · '));
+        p.appendChild(boton);
+    });
+}
+
+// === PANEL GLOBAL DE ADMINISTRACIÓN (modal, sin página aparte) ===
+window.abrirAdminPanel = function abrirAdminPanel(tab) {
+    const abrir = () => {
+        const store = window.Alpine && window.Alpine.store ? window.Alpine.store('adminPanel') : null;
+        if (store) store.abrir(tab || 'login');
+    };
+    if (window.Alpine) abrir();
+    else document.addEventListener('alpine:init', abrir, { once: true });
+};
+
+function insertarPanelAdminGlobal() {
+    if (document.getElementById('admin-global-modal')) return;
+    const modal = document.createElement('div');
+    modal.id = 'admin-global-modal';
+    modal.className = 'admin-global-modal';
+    modal.setAttribute('x-data', '{ }');
+    modal.setAttribute('x-show', '$store.adminPanel.abierto');
+    modal.setAttribute('x-cloak', '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'admin-global-title');
+    modal.setAttribute('x-on:keydown.escape.window', '$store.adminPanel.cerrar()');
+    modal.innerHTML = `
+        <div class="admin-global-backdrop" x-on:click="$store.adminPanel.cerrar()"></div>
+        <div class="admin-global-card" x-trap.noscroll="$store.adminPanel.abierto">
+            <header class="admin-global-head">
+                <div>
+                    <h2 id="admin-global-title">Administración</h2>
+                    <p class="admin-page-sub" x-text="$store.adminPanel.sesion ? ('Sesión: ' + $store.adminPanel.email + ($store.adminPanel.owner ? ' · Owner' : ' · Admin')) : 'Acceso de administración'"></p>
+                </div>
+                <button type="button" class="admin-global-close" x-on:click="$store.adminPanel.cerrar()" aria-label="Cerrar panel">&times;</button>
+            </header>
+
+            <p class="gallery-empty" x-show="$store.adminPanel.cargando">Comprobando sesión...</p>
+
+            <template x-if="!$store.adminPanel.cargando && !$store.adminPanel.sesion">
+                <form class="admin-login-card" x-on:submit.prevent="$store.adminPanel.login()" novalidate>
+                    <p>Entra con tu cuenta de administrador. La cuenta de comunidad se vincula automáticamente si está asociada.</p>
+                    <label for="admin-login-email">Email</label>
+                    <input id="admin-login-email" type="email" class="admin-input" autocomplete="username" x-model="$store.adminPanel.loginEmail" required>
+                    <label for="admin-login-password">Contraseña</label>
+                    <input id="admin-login-password" type="password" class="admin-input" autocomplete="current-password" x-model="$store.adminPanel.loginPassword" required>
+                    <p class="admin-login-error" x-show="$store.adminPanel.loginError" x-text="$store.adminPanel.loginError" role="alert" x-cloak></p>
+                    <button type="submit" class="btn-admin-mode" :disabled="$store.adminPanel.loginCargando">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg>
+                        <span x-text="$store.adminPanel.loginCargando ? 'Entrando...' : 'Entrar'"></span>
+                    </button>
+                </form>
+            </template>
+
+            <template x-if="!$store.adminPanel.cargando && $store.adminPanel.sesion && !$store.adminPanel.admin">
+                <div class="admin-login-card">
+                    <h3><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-ban"></use></svg> Sin permisos</h3>
+                    <p>Esta cuenta no tiene rol de administrador.</p>
+                    <p class="admin-login-email" x-text="$store.adminPanel.email"></p>
+                    <button type="button" class="btn-admin-mode" x-on:click="$store.adminPanel.logout()">Cerrar sesión</button>
+                </div>
+            </template>
+
+            <div x-show="!$store.adminPanel.cargando && $store.adminPanel.admin">
+                <p class="admin-vinculo-aviso" x-show="!$store.adminPanel.vinculoOk" x-text="$store.adminPanel.vinculoError" role="status" x-cloak></p>
+
+                <div class="admin-tabs" role="tablist" aria-label="Paneles de administración">
+                    <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'buzon' }" x-on:click="$store.adminPanel.setTab('buzon')" role="tab" :aria-selected="$store.adminPanel.tab === 'buzon' ? 'true' : 'false'" x-show="$store.adminPanel.owner">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-envelope"></use></svg> Buzón
+                        <span class="admin-tab-count" x-show="$store.adminPanel.noLeidas > 0" x-text="$store.adminPanel.noLeidas"></span>
+                    </button>
+                    <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'usuarios' }" x-on:click="$store.adminPanel.setTab('usuarios')" role="tab" :aria-selected="$store.adminPanel.tab === 'usuarios' ? 'true' : 'false'">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-users"></use></svg> Usuarios
+                    </button>
+                    <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'auditoria' }" x-on:click="$store.adminPanel.setTab('auditoria')" role="tab" :aria-selected="$store.adminPanel.tab === 'auditoria' ? 'true' : 'false'">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-shield-halved"></use></svg> Auditoría
+                    </button>
+                </div>
+
+                <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'buzon' && $store.adminPanel.owner" x-cloak>
+                    <div class="buzon-toolbar">
+                        <h2><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-envelope"></use></svg> Sugerencias de la comunidad</h2>
+                        <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarSugerencias()" :disabled="$store.adminPanel.sugEstado === 'cargando'">Actualizar</button>
+                    </div>
+                    <p class="gallery-empty" x-show="$store.adminPanel.sugEstado === 'cargando'">Cargando sugerencias...</p>
+                    <p class="gallery-empty" x-show="$store.adminPanel.sugEstado === 'error'" x-text="$store.adminPanel.errorSug" x-cloak></p>
+                    <div class="buzon-lista" x-show="$store.adminPanel.sugEstado === 'lista'">
+                        <template x-for="s in $store.adminPanel.sugerencias" :key="s.id">
+                            <article class="buzon-item" :class="{ 'no-leida': !s.leida }">
+                                <div class="buzon-item-head">
+                                    <span class="buzon-estado" x-text="s.leida ? 'Leída' : 'Nueva'"></span>
+                                    <time class="buzon-fecha" :datetime="s.creada_en" x-text="$store.adminPanel.fecha(s.creada_en)"></time>
+                                </div>
+                                <p class="buzon-texto" x-text="s.texto"></p>
+                                <div class="buzon-acciones">
+                                    <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.marcarSugerencia(s, !s.leida)" x-text="s.leida ? 'Marcar como nueva' : 'Marcar leída'"></button>
+                                    <button type="button" class="btn-admin-pag btn-peligro" x-on:click="$store.adminPanel.eliminarSugerencia(s)">Borrar</button>
+                                </div>
+                            </article>
+                        </template>
+                        <p class="gallery-empty" x-show="!$store.adminPanel.sugerencias.length">El buzón está vacío. 🎉</p>
+                    </div>
+                </div>
+
+                <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'usuarios'" x-cloak>
+                    <div class="admin-usuarios-toolbar">
+                        <input type="text" class="admin-input" placeholder="Buscar por apodo..." aria-label="Buscar usuario" x-model="$store.adminPanel.buscar" x-on:keydown.enter="$store.adminPanel.cargarUsuarios(0)">
+                        <label class="admin-checkbox">
+                            <input type="checkbox" x-model="$store.adminPanel.soloBaneados" x-on:change="$store.adminPanel.cargarUsuarios(0)">
+                            <span>Solo baneados</span>
+                        </label>
+                        <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarUsuarios(0)">Buscar</button>
+                    </div>
+                    <p class="gallery-empty" x-show="$store.adminPanel.usuariosEstado === 'cargando'">Cargando usuarios...</p>
+                    <p class="gallery-empty" x-show="$store.adminPanel.usuariosEstado === 'error'" x-text="$store.adminPanel.errorUsuarios" x-cloak></p>
+                    <div class="admin-usuarios-grid" x-show="$store.adminPanel.usuariosEstado === 'lista'">
+                        <template x-for="u in $store.adminPanel.usuarios" :key="u.id">
+                            <div class="admin-usuario-card" :class="{ baneado: u.baneado_activo, shadowban: u.shadowban }">
+                                <div class="admin-usuario-info">
+                                    <span class="admin-usuario-avatar" x-text="(u.apodo || '?').charAt(0).toUpperCase()"></span>
+                                    <div class="admin-usuario-datos">
+                                        <span class="admin-usuario-apodo" x-text="u.apodo"></span>
+                                        <span class="admin-usuario-meta">
+                                            <span x-text="u.puntos + ' pts'"></span>
+                                            <span class="rango-badge" :class="'rango-' + window.claveRango(u.rango, u.puntos)" x-text="window.etiquetaRango(u.rango, u.puntos)"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="admin-usuario-estado">
+                                    <span class="estado-badge" :class="{ activo: !u.baneado_activo && !u.shadowban, baneado: u.baneado_activo, shadowban: u.shadowban }"
+                                          x-text="u.baneado_activo ? '🔴 Baneado' : (u.shadowban ? '🟡 Shadowban' : '🟢 Activo')"></span>
+                                    <template x-if="u.baneado_hasta && u.baneado_activo">
+                                        <span class="ban-hasta" x-text="'Hasta: ' + $store.adminPanel.fecha(u.baneado_hasta)"></span>
+                                    </template>
+                                </div>
+                                <div class="admin-usuario-acciones">
+                                    <button type="button" class="btn-admin-accion btn-ban" x-on:click="$store.adminPanel.toggleBan(u)" x-text="u.baneado_activo ? 'Desbanear' : 'Banear'"></button>
+                                    <button type="button" class="btn-admin-accion btn-shadowban" x-on:click="$store.adminPanel.toggleShadowban(u)" x-text="u.shadowban ? 'Quitar Shadowban' : 'Shadowban'"></button>
+                                </div>
+                            </div>
+                        </template>
+                        <p class="gallery-empty" x-show="!$store.adminPanel.usuarios.length">No hay usuarios.</p>
+                    </div>
+                    <div class="admin-paginacion" x-show="$store.adminPanel.totalUsuarios > 50">
+                        <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarUsuarios(-1)" :disabled="$store.adminPanel.paginaUsuarios === 0">← Anterior</button>
+                        <span class="pag-info" x-text="'Página ' + ($store.adminPanel.paginaUsuarios + 1) + ' de ' + Math.ceil($store.adminPanel.totalUsuarios / 50)"></span>
+                        <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarUsuarios(1)" :disabled="($store.adminPanel.paginaUsuarios + 1) * 50 >= $store.adminPanel.totalUsuarios">Siguiente →</button>
+                    </div>
+                </div>
+
+                <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'auditoria'" x-cloak>
+                    <p class="gallery-empty" x-show="$store.adminPanel.auditEstado === 'cargando'">Cargando auditoría...</p>
+                    <p class="gallery-empty" x-show="$store.adminPanel.auditEstado === 'error'" x-text="$store.adminPanel.errorAudit" x-cloak></p>
+                    <div class="admin-auditoria-lista" x-show="$store.adminPanel.auditEstado === 'lista'">
+                        <template x-for="a in $store.adminPanel.auditLog" :key="a.id">
+                            <div class="auditoria-item">
+                                <div class="auditoria-accion" x-text="a.accion"></div>
+                                <div class="auditoria-detalle" x-html="$store.adminPanel.formatearDetalle(a.detalle)"></div>
+                                <div class="auditoria-meta">
+                                    <span x-text="a.admin_apodo || 'Sistema'"></span>
+                                    <span x-text="$store.adminPanel.fecha(a.created_at)"></span>
+                                </div>
+                            </div>
+                        </template>
+                        <p class="gallery-empty" x-show="!$store.adminPanel.auditLog.length">Sin registros de auditoría.</p>
+                    </div>
+                    <div class="admin-paginacion" x-show="$store.adminPanel.totalAudit > 50">
+                        <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarAuditoria(-1)" :disabled="$store.adminPanel.paginaAudit === 0">← Anterior</button>
+                        <span class="pag-info" x-text="'Página ' + ($store.adminPanel.paginaAudit + 1) + ' de ' + Math.ceil($store.adminPanel.totalAudit / 50)"></span>
+                        <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarAuditoria(1)" :disabled="($store.adminPanel.paginaAudit + 1) * 50 >= $store.adminPanel.totalAudit">Siguiente →</button>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="admin-global-foot" x-show="$store.adminPanel.admin">
+                <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.logout()">Cerrar sesión admin</button>
+            </footer>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+document.addEventListener('alpine:init', () => {
+    window.Alpine.store('adminPanel', {
+        abierto: false,
+        cargando: false,
+        sesion: false,
+        admin: false,
+        owner: false,
+        email: '',
+        vinculoOk: true,
+        vinculoError: '',
+        tab: 'usuarios',
+
+        loginEmail: '',
+        loginPassword: '',
+        loginError: '',
+        loginCargando: false,
+
+        usuarios: [],
+        usuariosEstado: 'inicial',
+        errorUsuarios: '',
+        totalUsuarios: 0,
+        paginaUsuarios: 0,
+        buscar: '',
+        soloBaneados: false,
+
+        auditLog: [],
+        auditEstado: 'inicial',
+        errorAudit: '',
+        totalAudit: 0,
+        paginaAudit: 0,
+
+        sugerencias: [],
+        sugEstado: 'inicial',
+        errorSug: '',
+        noLeidas: 0,
+
+        fecha(valor) {
+            if (!valor) return '';
+            const d = new Date(valor);
+            return Number.isNaN(d.getTime()) ? '' : d.toLocaleString('es-ES');
+        },
+
+        formatearDetalle(detalle) {
+            if (!detalle) return '<em>Sin detalles</em>';
+            try {
+                const d = typeof detalle === 'string' ? JSON.parse(detalle) : detalle;
+                return '<pre class="audit-detalle-pre">' + window.escapeHtml(JSON.stringify(d, null, 2)) + '</pre>';
+            } catch (e) {
+                return '<em>Detalle no válido</em>';
+            }
+        },
+
+        async abrir(tab) {
+            this.abierto = true;
+            this.loginError = '';
+            await this.comprobarSesion(true);
+            if (this.admin) {
+                const pedida = (!tab || tab === 'login')
+                    ? (this.owner ? 'buzon' : 'usuarios')
+                    : (tab === 'buzon' && !this.owner ? 'usuarios' : tab);
+                this.tab = pedida;
+                await this.cargarTab();
+            }
+        },
+
+        cerrar() {
+            this.abierto = false;
+        },
+
+        async comprobarSesion(forzarVinculo) {
+            this.cargando = true;
+            this.loginError = '';
+            if (!window.supabase) {
+                this.cargando = false;
+                this.loginError = 'Supabase no está disponible. Recarga la página.';
+                return;
+            }
+            try {
+                const { data } = await window.supabase.auth.getSession();
+                const session = data && data.session;
+                this.sesion = !!session;
+                this.email = session && session.user ? (session.user.email || '') : '';
+                if (!session) {
+                    this.cargando = false;
+                    return;
+                }
+
+                const [adminRes, ownerRes] = await Promise.all([
+                    window.supabase.rpc('es_admin'),
+                    window.supabase.rpc('es_owner')
+                ]);
+                this.admin = adminRes && adminRes.data === true;
+                this.owner = ownerRes && ownerRes.data === true;
+
+                if (this.admin) {
+                    if (forzarVinculo || !localStorage.getItem('comunidad_session_token')) {
+                        await this.vincularComunidad();
+                    }
+                    if (this.tab === 'buzon' && !this.owner) this.tab = 'usuarios';
+                }
+                this.cargando = false;
+            } catch (e) {
+                console.error('Error comprobando sesión admin:', e);
+                this.cargando = false;
+                this.loginError = 'No se pudo comprobar la sesión.';
+            }
+        },
+
+        async vincularComunidad() {
+            this.vinculoOk = true;
+            this.vinculoError = '';
+            try {
+                const { data, error } = await window.supabase.rpc('sesion_comunidad_vinculada');
+                if (error || !data || !data.ok) {
+                    this.vinculoOk = false;
+                    this.vinculoError = 'Tu cuenta de Auth no está vinculada a un perfil de comunidad; los paneles de usuarios y auditoría pueden fallar.';
+                    return false;
+                }
+                const token = data.token;
+                const val = await window.supabase.rpc('validar_sesion_comunidad', { p_token: token });
+                if (val.error || !val.data || !val.data.ok) {
+                    this.vinculoOk = false;
+                    this.vinculoError = 'No se pudo abrir la sesión de comunidad vinculada.';
+                    return false;
+                }
+                const usuario = val.data.usuario;
+                localStorage.setItem('comunidad_session_token', token);
+                localStorage.setItem('comunidad_nickname', usuario.apodo);
+                localStorage.setItem('comunidad_user_id', String(usuario.id));
+                localStorage.setItem('comunidad_session_usuario', JSON.stringify(usuario));
+                window.actualizarUsuarioNavComunidad?.();
+                return true;
+            } catch (e) {
+                this.vinculoOk = false;
+                this.vinculoError = 'No se pudo abrir la sesión de comunidad vinculada.';
+                return false;
+            }
+        },
+
+        async login() {
+            this.loginError = '';
+            if (!this.loginEmail.trim() || !this.loginPassword) {
+                this.loginError = 'Escribe email y contraseña.';
+                return;
+            }
+            this.loginCargando = true;
+            try {
+                const { error } = await window.supabase.auth.signInWithPassword({
+                    email: this.loginEmail.trim(),
+                    password: this.loginPassword
+                });
+                if (error) {
+                    this.loginError = 'No se pudo entrar: ' + (error.message || 'credenciales incorrectas');
+                    return;
+                }
+                this.loginPassword = '';
+                window.refrescarCacheAdmin?.();
+                await this.comprobarSesion(true);
+                await window.refrescarNavAdmin?.();
+                if (this.admin) {
+                    this.tab = this.owner ? 'buzon' : 'usuarios';
+                    await this.cargarTab();
+                }
+            } catch (e) {
+                console.error('Error login admin:', e);
+                this.loginError = 'Error inesperado al entrar.';
+            } finally {
+                this.loginCargando = false;
+            }
+        },
+
+        async logout() {
+            const token = localStorage.getItem('comunidad_session_token');
+            if (window.supabase) {
+                try { await window.supabase.auth.signOut(); } catch (e) {}
+                if (token) {
+                    try { await window.supabase.rpc('cerrar_sesion_comunidad', { p_token: token }); } catch (e) {}
+                }
+            }
+            localStorage.removeItem('comunidad_session_token');
+            localStorage.removeItem('comunidad_nickname');
+            localStorage.removeItem('comunidad_user_id');
+            localStorage.removeItem('comunidad_session_usuario');
+            window.limpiarCachesSesionComunidad?.();
+            window.refrescarCacheAdmin?.();
+            window.refrescarNavAdmin?.();
+            window.actualizarUsuarioNavComunidad?.();
+            this.sesion = false;
+            this.admin = false;
+            this.owner = false;
+            this.email = '';
+            this.tab = 'usuarios';
+            this.usuarios = [];
+            this.auditLog = [];
+            this.sugerencias = [];
+            this.sugEstado = 'inicial';
+            this.usuariosEstado = 'inicial';
+            this.auditEstado = 'inicial';
+        },
+
+        setTab(tab) {
+            if (tab === 'buzon' && !this.owner) return;
+            this.tab = tab;
+            this.cargarTab();
+        },
+
+        cargarTab() {
+            if (this.tab === 'buzon') return this.cargarSugerencias();
+            if (this.tab === 'usuarios') return this.cargarUsuarios(0);
+            if (this.tab === 'auditoria') return this.cargarAuditoria(0);
+        },
+
+        tokenComunidad() {
+            return localStorage.getItem('comunidad_session_token') || '';
+        },
+
+        async cargarSugerencias() {
+            if (!this.owner) return;
+            this.sugEstado = 'cargando';
+            this.errorSug = '';
+            try {
+                const { data, error } = await window.supabase
+                    .from('sugerencias')
+                    .select('id,texto,leida,creada_en')
+                    .order('creada_en', { ascending: false })
+                    .limit(200);
+                if (error) throw error;
+                this.sugerencias = data || [];
+                this.noLeidas = this.sugerencias.filter(s => !s.leida).length;
+                this.sugEstado = 'lista';
+            } catch (e) {
+                console.error('Error cargando sugerencias:', e);
+                this.errorSug = 'No se pudieron cargar las sugerencias.';
+                this.sugEstado = 'error';
+            }
+        },
+
+        async marcarSugerencia(sugerencia, leida) {
+            try {
+                const { data, error } = await window.supabase.rpc('owner_marcar_sugerencia', {
+                    p_id: sugerencia.id,
+                    p_leida: leida
+                });
+                if (error || !data || !data.ok) {
+                    window.mostrarToast?.('No se pudo actualizar la sugerencia.', true);
+                    return;
+                }
+                sugerencia.leida = leida;
+                this.noLeidas = this.sugerencias.filter(s => !s.leida).length;
+                window.refrescarNavAdmin?.();
+            } catch (e) {
+                window.mostrarToast?.('No se pudo actualizar la sugerencia.', true);
+            }
+        },
+
+        async eliminarSugerencia(sugerencia) {
+            if (!window.confirm('¿Borrar esta sugerencia definitivamente?')) return;
+            try {
+                const { data, error } = await window.supabase.rpc('owner_eliminar_sugerencia', { p_id: sugerencia.id });
+                if (error || !data || !data.ok) {
+                    window.mostrarToast?.('No se pudo borrar la sugerencia.', true);
+                    return;
+                }
+                this.sugerencias = this.sugerencias.filter(s => s.id !== sugerencia.id);
+                this.noLeidas = this.sugerencias.filter(s => !s.leida).length;
+                window.refrescarNavAdmin?.();
+                window.mostrarToast?.('Sugerencia borrada');
+            } catch (e) {
+                window.mostrarToast?.('No se pudo borrar la sugerencia.', true);
+            }
+        },
+
+        async cargarUsuarios(delta) {
+            const nueva = Math.max(0, (this.paginaUsuarios || 0) + Number(delta || 0));
+            if (delta === 0) this.paginaUsuarios = 0;
+            else if (nueva === this.paginaUsuarios) return;
+            else this.paginaUsuarios = nueva;
+
+            this.usuariosEstado = 'cargando';
+            this.errorUsuarios = '';
+            try {
+                const { data, error } = await window.supabase.rpc('admin_listar_usuarios', {
+                    p_token: this.tokenComunidad(),
+                    p_buscar: this.buscar.trim() || null,
+                    p_solo_baneados: !!this.soloBaneados,
+                    p_limite: 50,
+                    p_offset: this.paginaUsuarios * 50
+                });
+                if (error) throw error;
+                if (!data || !data.ok) {
+                    this.errorUsuarios = data?.error || 'Error cargando usuarios';
+                    this.usuariosEstado = 'error';
+                    return;
+                }
+                this.usuarios = data.usuarios || [];
+                this.totalUsuarios = data.total || 0;
+                this.usuariosEstado = 'lista';
+            } catch (e) {
+                console.error('Error cargando usuarios admin:', e);
+                this.errorUsuarios = 'Error inesperado';
+                this.usuariosEstado = 'error';
+            }
+        },
+
+        async toggleBan(usuario) {
+            const estaBaneado = !!usuario.baneado_activo;
+            try {
+                const { data, error } = await window.supabase.rpc('admin_ban_usuario', {
+                    p_token: this.tokenComunidad(),
+                    p_usuario_id: usuario.id,
+                    p_duracion_minutos: estaBaneado ? null : 60 * 24 * 7,
+                    p_motivo: estaBaneado ? 'Desbaneado por admin' : 'Baneado por admin'
+                });
+                if (error || !data || !data.ok) {
+                    window.mostrarToast?.('Error: ' + (data?.error || 'desconocido'), true);
+                    return;
+                }
+                window.mostrarToast?.(estaBaneado ? 'Usuario desbaneado' : 'Usuario baneado por 7 días');
+                this.cargarUsuarios(0);
+            } catch (e) {
+                window.mostrarToast?.('Error al banear/desbanear', true);
+            }
+        },
+
+        async toggleShadowban(usuario) {
+            try {
+                const { data, error } = await window.supabase.rpc('admin_shadowban_usuario', {
+                    p_token: this.tokenComunidad(),
+                    p_usuario_id: usuario.id,
+                    p_activar: !usuario.shadowban
+                });
+                if (error || !data || !data.ok) {
+                    window.mostrarToast?.('Error: ' + (data?.error || 'desconocido'), true);
+                    return;
+                }
+                window.mostrarToast?.(usuario.shadowban ? 'Shadowban quitado' : 'Shadowban aplicado');
+                this.cargarUsuarios(0);
+            } catch (e) {
+                window.mostrarToast?.('Error al aplicar/quitar shadowban', true);
+            }
+        },
+
+        async cargarAuditoria(delta) {
+            const nueva = Math.max(0, (this.paginaAudit || 0) + Number(delta || 0));
+            if (delta === 0) this.paginaAudit = 0;
+            else if (nueva === this.paginaAudit) return;
+            else this.paginaAudit = nueva;
+
+            this.auditEstado = 'cargando';
+            this.errorAudit = '';
+            try {
+                const { data, error } = await window.supabase.rpc('admin_obtener_audit_log', {
+                    p_token: this.tokenComunidad(),
+                    p_limite: 50,
+                    p_offset: this.paginaAudit * 50
+                });
+                if (error) throw error;
+                if (!data || !data.ok) {
+                    this.errorAudit = data?.error || 'Error cargando auditoría';
+                    this.auditEstado = 'error';
+                    return;
+                }
+                this.auditLog = data.log || [];
+                this.totalAudit = data.total || 0;
+                this.auditEstado = 'lista';
+            } catch (e) {
+                console.error('Error cargando audit log:', e);
+                this.errorAudit = 'Error inesperado';
+                this.auditEstado = 'error';
+            }
+        }
+    });
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     try { iniciarPollingStreamGlobal(); } catch (e) { console.error('iniciarPollingStreamGlobal:', e); }
     try { insertarComponentesUIGlobales(); } catch (e) { console.error('insertarComponentesUIGlobales:', e); }
@@ -902,6 +1573,9 @@ document.addEventListener('DOMContentLoaded', () => {
     try { inicializarMenuMovil(); } catch (e) { console.error('inicializarMenuMovil:', e); }
     try { inicializarNavLinks(); } catch (e) { console.error('inicializarNavLinks:', e); }
     try { actualizarUsuarioNavComunidad(); } catch (e) { console.error('actualizarUsuarioNavComunidad:', e); }
+    try { insertarAccesoAdminFooter(); } catch (e) { console.error('insertarAccesoAdminFooter:', e); }
+    try { window.sincronizarSesionComunidadVinculada(); } catch (e) { console.error('sincronizarSesionComunidadVinculada:', e); }
+    try { window.refrescarNavAdmin(); } catch (e) { console.error('refrescarNavAdmin:', e); }
     try { iniciarPuntosGlobal(); } catch (e) { console.error('iniciarPuntosGlobal:', e); }
 });
 

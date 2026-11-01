@@ -3,6 +3,27 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.30.0] - 2026-11-01
+
+### Roles, vínculo Auth-comunidad y panel global
+
+- `chary@admin.com` pasa a `owner` (rol superior); `gocha@admin.com` sigue como
+  `admin`. `es_admin()` acepta ambos y se añade `es_owner()`.
+- Vínculo `usuarios_comunidad.auth_user_id`: McChary y LaGochaGaming quedan
+  asociados a sus cuentas de Auth. Se crea el perfil reservado de LaGochaGaming
+  con PIN aleatorio (su acceso es por Auth).
+- `sesion_comunidad_vinculada()` abre o reutiliza una sesión de comunidad para
+  el usuario Auth vinculado; el cliente la sincroniza al cargar y al iniciar
+  sesión, sin pedir PIN.
+- Panel global de administración en modal (sin página nueva): iconos en el
+  navbar de todas las páginas, login Auth, Buzón (solo owner), Usuarios y
+  Auditoría (admin/owner).
+- Buzón de sugerencias: listar, contar no leídas, marcar leída/nueva y borrar
+  con `owner_marcar_sugerencia` y `owner_eliminar_sugerencia`.
+- La galería conserva solo la moderación de fotos pendientes; Usuarios y
+  Auditoría salen de su panel y pasan al panel global.
+- Nuevos iconos del sprite: `envelope`, `users` y `shield-halved`.
+
 ## [1.29.0] - 2026-10-31
 
 ### Firma del creador y sugerencias
