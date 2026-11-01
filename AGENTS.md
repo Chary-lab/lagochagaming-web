@@ -79,6 +79,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - La autenticación de administrador es Supabase Auth + `app_metadata.role = "admin"` o `"owner"`. No usar email hardcodeado ni listas en cliente.
 - `owner` es el rol superior (McChary); `es_owner()` lo valida y `es_admin()` acepta `admin` y `owner`. El buzón de sugerencias es solo para `owner`.
 - Un perfil de comunidad puede vincularse a un usuario Auth con `usuarios_comunidad.auth_user_id`. La función `sesion_comunidad_vinculada()` abre/reutiliza una sesión de comunidad para ese vínculo; el cliente la sincroniza al cargar y al iniciar sesión. El vínculo no se basa en el apodo.
+- Cerrar sesión desde ajustes con una cuenta Auth vinculada cierra también Auth y deja `comunidad_logout_explicito=1` para que la sincronización no reabra la comunidad al recargar. La marca se borra al iniciar sesión Auth o con PIN.
 - Comunidad: tabla `usuarios_comunidad` con PIN de 4 dígitos (bcrypt) y tokens de sesión de 30 días en `comunidad_sesiones`. `LaGochaGaming` tiene perfil reservado y PIN aleatorio; su acceso es por Auth.
 
 ### 5.2 Modelo de identidad
@@ -174,7 +175,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.31.0` (estado en línea en Usuarios con latido global; sobre 1.30.2).
+- Versión de esta release: `1.31.1` (cierre de sesión completo para cuentas Auth vinculadas; sobre 1.31.0).
 
 ## 9. Pruebas antes de commitear
 
@@ -187,6 +188,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
    - Comunidad (moderación): con sesión owner/admin aparece el botón de borrar en cada mensaje; borra con confirmación, desaparece para todos y queda fila `eliminar_mensaje_chat` en auditoría. Sin sesión no aparece y la RPC rechaza.
    - Galería: tarjetas abren lightbox; like sin sesión NO abre lightbox y pide login; con sesión alterna like/contador; moderación rechaza cuentas no admin; el panel de galería solo muestra fotos pendientes (aprobar/rechazar).
    - Panel global: se abre solo desde “Acceso” en el footer (sin iconos en el navbar); con Auth admin/owner muestra Usuarios y Auditoría, y el owner además Buzón; el detalle de auditoría se escapa.
+   - Acceso/Auth: iniciar sesión desde “Acceso”, cerrar sesión desde ajustes y comprobar que también se cierra Auth, no se recrea la sesión de comunidad al recargar y se puede volver a entrar. Limpiar el usuario temporal.
    - Usuarios en línea: con una cuenta en otra página (Inicio/Galería) el latido la marca “En línea”; al cerrar o dejar de latir 2 minutos pasa a “Offline” con la última actividad en el título.
    - Galería (subida): sin título muestra toast; archivo que no es imagen o formato no permitido muestra el feedback del store y no sube nada.
    - Comunidad: perfil (bio/links/avatar), tienda (catálogo/canje), icono equipado y reacciones del muro; probar con usuario temporal y borrarlo.

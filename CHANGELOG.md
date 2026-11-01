@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.31.1] - 2026-11-01
+
+### Cierre de sesión de cuentas vinculadas
+
+- Al cerrar sesión desde ajustes con una cuenta Auth vinculada (owner/admin),
+  también se cierra la sesión de Supabase Auth.
+- Se marca `comunidad_logout_explicito` para que la sincronización automática
+  no vuelva a abrir la sesión de comunidad al recargar.
+- La marca se limpia al iniciar sesión con Auth o con PIN de comunidad.
+- Evita que una sincronización en curso reescriba el token después del cierre.
+
 ## [1.31.0] - 2026-11-01
 
 ### Estado en línea en Usuarios

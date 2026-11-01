@@ -76,7 +76,10 @@ window.esAdminActual = async function esAdminActual() {
 
 // Mantener la caché sincronizada con cambios de sesión (login/logout en otra pestaña/página).
 if (window.supabase && typeof window.supabase.auth?.onAuthStateChange === 'function') {
-    window.supabase.auth.onAuthStateChange(() => {
+    window.supabase.auth.onAuthStateChange((evento) => {
+        if (evento === 'SIGNED_IN') {
+            localStorage.removeItem('comunidad_logout_explicito');
+        }
         window.refrescarCacheAdmin();
         window.sincronizarSesionComunidadVinculada?.();
     });
@@ -414,6 +417,19 @@ window.iniciarRealtimeMuroReacciones = function iniciarRealtimeMuroReacciones() 
 
 window.cerrarSesion = async function cerrarSesion() {
     const token = localStorage.getItem('comunidad_session_token');
+    let teniaAuth = false;
+    if (window.supabase) {
+        try {
+            const { data } = await window.supabase.auth.getSession();
+            teniaAuth = !!(data && data.session);
+        } catch (e) {
+            teniaAuth = false;
+        }
+    }
+
+    // Evita que la sincronización Auth → comunidad vuelva a abrir la sesión
+    // justo después de cerrarla desde ajustes.
+    localStorage.setItem('comunidad_logout_explicito', '1');
     localStorage.removeItem('comunidad_nickname');
     localStorage.removeItem('comunidad_session_token');
     localStorage.removeItem('comunidad_user_id');
@@ -428,7 +444,16 @@ window.cerrarSesion = async function cerrarSesion() {
         }
     }
 
-    mostrarToast('Sesión de comunidad cerrada');
+    if (teniaAuth) {
+        try {
+            await window.supabase.auth.signOut();
+        } catch (e) {
+            // no bloquea el cierre local
+        }
+        window.refrescarCacheAdmin?.();
+    }
+
+    mostrarToast(teniaAuth ? 'Sesión cerrada' : 'Sesión de comunidad cerrada');
     setTimeout(() => { window.location.reload(); }, 800);
 };
 
@@ -925,14 +950,18 @@ document.addEventListener('click', (event) => {
 
 window.sincronizarSesionComunidadVinculada = async function sincronizarSesionComunidadVinculada() {
     if (!window.supabase) return false;
+    if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
     if (localStorage.getItem('comunidad_session_token')) return false;
     try {
         const { data: authData } = await window.supabase.auth.getSession();
         if (!authData || !authData.session) return false;
+        if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
         const { data, error } = await window.supabase.rpc('sesion_comunidad_vinculada');
         if (error || !data || !data.ok || !data.token) return false;
+        if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
         const val = await window.supabase.rpc('validar_sesion_comunidad', { p_token: data.token });
         if (val.error || !val.data || !val.data.ok) return false;
+        if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
         const usuario = val.data.usuario;
         localStorage.setItem('comunidad_session_token', data.token);
         localStorage.setItem('comunidad_nickname', usuario.apodo);
@@ -1282,6 +1311,7 @@ document.addEventListener('alpine:init', () => {
                     this.vinculoError = 'No se pudo abrir la sesión de comunidad vinculada.';
                     return false;
                 }
+                if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
                 const usuario = val.data.usuario;
                 localStorage.setItem('comunidad_session_token', token);
                 localStorage.setItem('comunidad_nickname', usuario.apodo);
