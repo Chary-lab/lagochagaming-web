@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="GochiWatch, cine sincronizado">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.31.2">
+    <link rel="stylesheet" href="style.css?v=1.31.3">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -70,12 +70,10 @@
                     x-on:click="$store.ui.menuAbierto = !$store.ui.menuAbierto"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg></button>
             <div class="nav-links navbar-nav" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
                 <a href="./" class="nav-link">Inicio</a>
-                <a href="./#stream" class="nav-link">Directo</a>
-                <a href="./#clips" class="nav-link">Clips</a>
+                <a href="comunidad" class="nav-link">💬 Comunidad</a>
+                <a href="galeria" class="nav-link">📸 Galería</a>
                 <a href="cine" class="nav-link nav-active" aria-current="page">🍿 GochiWatch</a>
                 <a href="sorteo" class="nav-link">🎁 Sorteo</a>
-                <a href="galeria" class="nav-link">📸 Galería</a>
-                <a href="comunidad" class="nav-link">💬 Comunidad</a>
             </div>
             <div class="nav-right">
                 <button type="button" id="btn-toggle-tema" class="btn-tema-nav" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
@@ -136,6 +134,13 @@
                 <div id="cinePlayerOverlay" class="cine-player-overlay"
                      x-bind:class="{ hide: !$store.cine.overlayVisible, error: $store.cine.overlayError }">
                     <div class="cine-overlay-text">
+                        <button type="button" class="cine-empty-sleeper" x-data="{ despierto: false }"
+                                x-bind:hidden="$store.cine.overlayError"
+                                x-on:click="despierto = true; window.mostrarToast?.('¡Gochi se despertó! Aún no hay peli, pero ya casi 💤'); setTimeout(() => despierto = false, 1400)"
+                                aria-label="Gochi duerme esperando la película. Actívalo para despertarlo">
+                            <img class="cine-empty-illustration" x-bind:class="{ 'is-awake': despierto }"
+                                 src="img/mcchary/empty.webp" alt="" width="300" height="203" loading="lazy" decoding="async">
+                        </button>
                         <svg class="icon" aria-hidden="true"><use x-bind:href="$store.cine.overlayError ? 'img/icons.svg#i-solid-triangle-exclamation' : 'img/icons.svg#i-solid-circle-info'"></use></svg>
                         <span x-text="$store.cine.overlayTexto">Esperando video del streamer…</span>
                         <button type="button" id="cine-join-play" class="btn-primary cine-join-btn" hidden
@@ -238,7 +243,7 @@
     <script src="https://www.youtube.com/iframe_api" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.31.2" defer></script>
+    <script src="main.js?v=1.31.3" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
 

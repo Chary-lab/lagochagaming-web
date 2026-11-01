@@ -3,6 +3,21 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.31.3] - 2026-11-01
+
+### Menú simplificado y estado vacío de GochiWatch
+
+- Menú principal: se quitan "Directo" y "Clips"; el orden queda Inicio,
+  Comunidad, Galería, GochiWatch y Sorteo en las cinco páginas.
+- GochiWatch: sin video, el reproductor muestra al capibara dormido
+  (`img/mcchary/empty.webp`) con animación suave y mensaje al hacer clic.
+  Respeta `prefers-reduced-motion` y se oculta en el estado de error.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.31.3`.
+- Limpieza de CSS muerto: reglas sin uso (`admin-instructions*`, `admin-page*`,
+  `btn-login`, `btn-admin-logout`, `btn-danger-dark`, `mp-meta`, `mp-links-more`,
+  `mp-sr-only`, `nav-user-icon`, `tab-copy`, `media-modal-open`), tokens
+  `--accent-2`/`--accent-3` y reglas duplicadas exactas.
+
 ## [1.31.2] - 2026-11-01
 
 ### Versión estable: repo nuevo y Supabase al día

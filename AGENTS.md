@@ -176,7 +176,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.31.2` (estable: repo nuevo, deploy de Pages sano y limpieza de Supabase con revoke de `registrar_puntos`; sobre 1.31.1).
+- Versión de esta release: `1.31.3` (menú sin Directo/Clips y capibara dormido en el estado vacío de GochiWatch; sobre 1.31.2).
 
 ## 9. Pruebas antes de commitear
 
