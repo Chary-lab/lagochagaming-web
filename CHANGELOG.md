@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.31.0] - 2026-11-01
+
+### Estado en línea en Usuarios
+
+- Nuevo `latido_comunidad`: actualiza `ultima_actividad` cada 60 segundos
+  desde cualquier página, no solo Comunidad.
+- `admin_listar_usuarios` devuelve `ultima_actividad` y `en_linea` (actividad
+  en los últimos 2 minutos).
+- El panel de Usuarios muestra un indicador verde “En línea” o gris “Offline”,
+  con la última actividad en el título. Se actualiza cada 30 segundos mientras
+  el panel está abierto. Ya no usa “Activo” para el estado de sanción.
+
 ## [1.30.2] - 2026-11-01
 
 ### Moderación del chat

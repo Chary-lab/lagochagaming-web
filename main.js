@@ -278,6 +278,32 @@ window.actualizarSesionUsuarioComunidad = function actualizarSesionUsuarioComuni
     return nuevo;
 };
 
+// Latido de actividad: permite saber si una cuenta está activa aunque esté
+// navegando fuera de Comunidad. El panel de Usuarios considera "en línea"
+// a quien haya latido en los últimos 2 minutos.
+window.latidoComunidad = async function latidoComunidad() {
+    if (!window.supabase) return false;
+    const token = localStorage.getItem('comunidad_session_token');
+    if (!token) return false;
+    try {
+        const { data, error } = await window.supabase.rpc('latido_comunidad', { p_token: token });
+        return !error && data && data.ok === true;
+    } catch (e) {
+        return false;
+    }
+};
+
+function iniciarLatidoComunidad() {
+    if (window._latidoComunidadInterval) return;
+    window.latidoComunidad();
+    window._latidoComunidadInterval = setInterval(() => {
+        if (!document.hidden) window.latidoComunidad();
+    }, 60000);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) window.latidoComunidad();
+    });
+}
+
 // Avatar efectivo: el guardado, el beta segun genero o null (inicial).
 window.avatarUsuarioComunidad = function avatarUsuarioComunidad(usuario) {
     const u = usuario || window.obtenerSesionUsuarioComunidad();
@@ -913,6 +939,7 @@ window.sincronizarSesionComunidadVinculada = async function sincronizarSesionCom
         localStorage.setItem('comunidad_user_id', String(usuario.id));
         localStorage.setItem('comunidad_session_usuario', JSON.stringify(usuario));
         window.actualizarUsuarioNavComunidad?.();
+        window.latidoComunidad?.();
         return true;
     } catch (e) {
         return false;
@@ -1055,11 +1082,16 @@ function insertarPanelAdminGlobal() {
                                             <span x-text="u.puntos + ' pts'"></span>
                                             <span class="rango-badge" :class="'rango-' + window.claveRango(u.rango, u.puntos)" x-text="window.etiquetaRango(u.rango, u.puntos)"></span>
                                         </span>
+                                        <span class="admin-usuario-online" :class="{ online: u.en_linea }"
+                                              :title="u.en_linea ? 'En línea ahora' : (u.ultima_actividad ? 'Última actividad: ' + $store.adminPanel.fecha(u.ultima_actividad) : 'Sin actividad reciente')">
+                                            <span class="admin-online-dot" aria-hidden="true"></span>
+                                            <span x-text="u.en_linea ? 'En línea' : 'Offline'"></span>
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="admin-usuario-estado">
                                     <span class="estado-badge" :class="{ activo: !u.baneado_activo && !u.shadowban, baneado: u.baneado_activo, shadowban: u.shadowban }"
-                                          x-text="u.baneado_activo ? '🔴 Baneado' : (u.shadowban ? '🟡 Shadowban' : '🟢 Activo')"></span>
+                                          x-text="u.baneado_activo ? '🔴 Baneado' : (u.shadowban ? '🟡 Shadowban' : 'Sin sanción')"></span>
                                     <template x-if="u.baneado_hasta && u.baneado_activo">
                                         <span class="ban-hasta" x-text="'Hasta: ' + $store.adminPanel.fecha(u.baneado_hasta)"></span>
                                     </template>
@@ -1135,6 +1167,7 @@ document.addEventListener('alpine:init', () => {
         paginaUsuarios: 0,
         buscar: '',
         soloBaneados: false,
+        _refrescoUsuarios: null,
 
         auditLog: [],
         auditEstado: 'inicial',
@@ -1173,11 +1206,24 @@ document.addEventListener('alpine:init', () => {
                     : (tab === 'buzon' && !this.owner ? 'usuarios' : tab);
                 this.tab = pedida;
                 await this.cargarTab();
+                this.iniciarRefrescoUsuarios();
             }
         },
 
         cerrar() {
             this.abierto = false;
+            if (this._refrescoUsuarios) {
+                clearInterval(this._refrescoUsuarios);
+                this._refrescoUsuarios = null;
+            }
+        },
+
+        iniciarRefrescoUsuarios() {
+            if (this._refrescoUsuarios) return;
+            this._refrescoUsuarios = setInterval(() => {
+                if (!this.abierto || !this.admin || this.tab !== 'usuarios' || this.usuariosEstado === 'cargando') return;
+                this.cargarUsuarios(0, true);
+            }, 30000);
         },
 
         async comprobarSesion(forzarVinculo) {
@@ -1242,6 +1288,7 @@ document.addEventListener('alpine:init', () => {
                 localStorage.setItem('comunidad_user_id', String(usuario.id));
                 localStorage.setItem('comunidad_session_usuario', JSON.stringify(usuario));
                 window.actualizarUsuarioNavComunidad?.();
+                window.latidoComunidad?.();
                 return true;
             } catch (e) {
                 this.vinculoOk = false;
@@ -1272,6 +1319,7 @@ document.addEventListener('alpine:init', () => {
                 if (this.admin) {
                     this.tab = this.owner ? 'buzon' : 'usuarios';
                     await this.cargarTab();
+                    this.iniciarRefrescoUsuarios();
                 }
             } catch (e) {
                 console.error('Error login admin:', e);
@@ -1307,6 +1355,10 @@ document.addEventListener('alpine:init', () => {
             this.sugEstado = 'inicial';
             this.usuariosEstado = 'inicial';
             this.auditEstado = 'inicial';
+            if (this._refrescoUsuarios) {
+                clearInterval(this._refrescoUsuarios);
+                this._refrescoUsuarios = null;
+            }
         },
 
         setTab(tab) {
@@ -1379,10 +1431,11 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async cargarUsuarios(delta) {
+        async cargarUsuarios(delta, mantenerPagina = false) {
             const nueva = Math.max(0, (this.paginaUsuarios || 0) + Number(delta || 0));
-            if (delta === 0) this.paginaUsuarios = 0;
-            else if (nueva === this.paginaUsuarios) return;
+            if (delta === 0) {
+                if (!mantenerPagina) this.paginaUsuarios = 0;
+            } else if (nueva === this.paginaUsuarios) return;
             else this.paginaUsuarios = nueva;
 
             this.usuariosEstado = 'cargando';
@@ -1490,6 +1543,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try { actualizarUsuarioNavComunidad(); } catch (e) { console.error('actualizarUsuarioNavComunidad:', e); }
     try { insertarAccesoAdminFooter(); } catch (e) { console.error('insertarAccesoAdminFooter:', e); }
     try { window.sincronizarSesionComunidadVinculada(); } catch (e) { console.error('sincronizarSesionComunidadVinculada:', e); }
+    try { iniciarLatidoComunidad(); } catch (e) { console.error('iniciarLatidoComunidad:', e); }
     try { iniciarPuntosGlobal(); } catch (e) { console.error('iniciarPuntosGlobal:', e); }
 });
 
