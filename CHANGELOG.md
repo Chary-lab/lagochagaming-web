@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.34.2] - 2026-11-02
+
+### Capibara dormido en comunidad
+
+- La vista offline de comunidad usa el capibara dormido de GochiWatch
+  (`img/mcchary/empty.webp`) en vez de la imagen de stream apagado.
+- La imagen se ajusta con `object-fit: contain` para no recortarla.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.34.2`.
+
 ## [1.34.1] - 2026-11-02
 
 ### Carga más ligera
