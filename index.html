@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.32.3">
+    <link rel="stylesheet" href="style.css?v=1.33.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -198,7 +198,12 @@
 
     <main class="main-container" id="stream" tabindex="-1">
         <div class="video-container">
-            <iframe src="https://player.kick.com/lagochagaming?autoplay=true&muted=1" frameborder="0" scrolling="no" allowfullscreen="true" title="Stream de LaGochaGaming en Kick" loading="lazy"></iframe>
+            <div id="stream-offline" class="stream-offline">
+                <img src="img/stream-offline.webp" alt="La Gocha está desconectada. Vuelve pronto." width="1408" height="768" decoding="async">
+                <span class="stream-offline-badge">Desconectada</span>
+                <a class="stream-offline-btn" href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">Seguir en Kick</a>
+            </div>
+            <iframe id="stream-player" data-src="https://player.kick.com/lagochagaming?autoplay=true&muted=1" frameborder="0" scrolling="no" allowfullscreen="true" title="Stream de LaGochaGaming en Kick" loading="lazy" hidden></iframe>
         </div>
         <aside class="chat-sidebar chat-sidebar-box">
             <iframe src="https://kick.com/popout/lagochagaming/chat"
@@ -427,7 +432,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" defer></script>
 
-    <script src="main.js?v=1.32.3" defer></script>
+    <script src="main.js?v=1.33.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script>
@@ -672,6 +677,24 @@
                 cont.appendChild(p);
             }
         }
+
+        // Estado del stream: imagen de desconectada por defecto, player solo en vivo.
+        window.actualizarEstadoStreamPagina = function (data, enVivo) {
+            const offline = document.getElementById('stream-offline');
+            const player = document.getElementById('stream-player');
+            if (!offline || !player) return;
+            if (enVivo) {
+                if (player.src !== player.dataset.src) player.src = player.dataset.src;
+                player.hidden = false;
+                offline.hidden = true;
+            } else {
+                player.hidden = true;
+                if (player.getAttribute('src') && player.getAttribute('src') !== 'about:blank') {
+                    player.src = 'about:blank';
+                }
+                offline.hidden = false;
+            }
+        };
 
         // Reproductor HLS para clips de Kick: su player embebido solo reproduce directos/VOD.
         window.iniciarClipKick = function (video, src) {

@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.33.0] - 2026-11-02
+
+### Estado desconectada en la home
+
+- Cuando el canal no está en vivo, el player de Kick se sustituye por una
+  imagen de la Gocha desconectada sobre un marco oscuro, con etiqueta
+  "Desconectada" y botón "Seguir en Kick".
+- El iframe del player solo se carga al detectar el directo y se descarga al
+  volver a offline, para no dejar vídeo en segundo plano.
+- Nueva imagen `img/stream-offline.webp` (75 KB, 1408x768) convertida desde JPG.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.33.0`.
+
 ## [1.32.3] - 2026-11-02
 
 ### Limpieza de los clips fijos
