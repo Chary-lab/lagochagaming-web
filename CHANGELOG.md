@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.34.3] - 2026-11-02
+
+### Feeds más calientes y menos polling
+
+- Las Edge Functions `instagram-feed`, `tiktok-feed` y `kick-clips` guardan la
+  caché 40 minutos en vez de 25, así el primer visitante tras el cron no paga
+  la recarga.
+- El indicador de "escribiendo" de comunidad pasa de 500 a 1200 ms.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.34.3`.
+
 ## [1.34.2] - 2026-11-02
 
 ### Capibara dormido en comunidad
