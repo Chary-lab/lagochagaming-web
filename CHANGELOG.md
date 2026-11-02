@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.34.0] - 2026-11-02
+
+### Navbar compartida y etiqueta EN VIVO
+
+- La navbar se inyecta desde `main.js` en las 5 páginas: un solo sitio para
+  editar enlaces, orden y estado activo.
+- Nuevo pill `EN VIVO` junto al logo cuando el canal está en directo, además
+  del borde verde pulsante. Se oculta al estar offline.
+- Eliminados los avisos antiguos de directo: overlay superior, toast inferior
+  y su lógica asociada.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.34.0`.
+
 ## [1.33.3] - 2026-11-02
 
 ### Borde blanco del reel

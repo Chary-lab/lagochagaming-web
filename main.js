@@ -531,6 +531,58 @@ window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() 
     }
 };
 
+// === NAVBAR GLOBAL (fuente única: se inyecta en las 5 páginas) ===
+window.NAVBAR_ENLACES = [
+    { id: 'inicio', texto: 'Inicio', href: './' },
+    { id: 'comunidad', texto: '💬 Comunidad', href: 'comunidad' },
+    { id: 'galeria', texto: '📸 Galería', href: 'galeria' },
+    { id: 'cine', texto: '🍿 GochiWatch', href: 'cine' },
+    { id: 'sorteo', texto: '🎁 Sorteo', href: 'sorteo' },
+];
+
+window.paginaActualNavbar = function paginaActualNavbar() {
+    const ruta = window.location.pathname.replace(/\/index\.html$/, '/').replace(/\/+$/, '');
+    if (!ruta) return 'inicio';
+    return ruta.split('/').pop() || 'inicio';
+};
+
+window.insertarNavbar = function insertarNavbar() {
+    const nav = document.getElementById('navbar-root');
+    if (!nav || nav.dataset.montado === '1') return;
+    const pagina = window.paginaActualNavbar();
+    const enlaces = window.NAVBAR_ENLACES.map((enlace) => {
+        const activo = enlace.id === pagina;
+        const href = enlace.id === 'inicio' && pagina === 'inicio' ? '#top' : enlace.href;
+        const clases = 'nav-link' + (activo ? ' nav-active' : '');
+        const aria = activo ? ' aria-current="page"' : '';
+        const id = enlace.id === 'inicio' ? ' id="nav-inicio"' : '';
+        return `<a href="${href}" class="${clases}"${aria}${id}>${enlace.texto}</a>`;
+    }).join('');
+
+    nav.setAttribute('x-data', '{ }');
+    nav.setAttribute('x-on:resize.window', 'if (window.innerWidth >= 1101) $store.ui.menuAbierto = false');
+    nav.innerHTML = `
+        <div class="logo navbar-brand">LAGOCHA<span>GAMING</span></div>
+        <button type="button" class="mobile-menu-toggle-btn navbar-toggler" aria-label="Abrir menú"
+                x-bind:aria-expanded="$store.ui.menuAbierto"
+                x-bind:aria-label="$store.ui.menuAbierto ? 'Cerrar menú' : 'Abrir menú'"
+                x-on:click="$store.ui.menuAbierto = !$store.ui.menuAbierto"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg></button>
+        <div class="nav-links navbar-nav" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
+            ${enlaces}
+        </div>
+        <div class="nav-right">
+            <span id="nav-live-tag" class="nav-live-tag" hidden>
+                <span class="nav-live-dot" aria-hidden="true"></span>EN VIVO
+            </span>
+            <button type="button" id="btn-toggle-tema" class="btn-tema-nav" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
+            <div id="nav-user-info"></div>
+        </div>
+    `;
+    nav.dataset.montado = '1';
+};
+
+window.insertarNavbar();
+
 
 window.validarSesionStreamer = async function validarSesionStreamer() {
     return window.esAdminActual();
@@ -570,45 +622,7 @@ window.insertarComponentesUIGlobales = function insertarComponentesUIGlobales() 
         `;
         document.body.appendChild(modal);
     }
-    insertarToastStream();
-    insertarAlertaStream();
     insertarPanelAdminGlobal();
-};
-
-// Overlay de "en vivo" para las 5 páginas: se inserta una sola vez desde aquí
-// para evitar markup duplicado en cada HTML.
-window.insertarAlertaStream = function insertarAlertaStream() {
-    if (document.getElementById('stream-alert')) return;
-    const alerta = document.createElement('div');
-    alerta.id = 'stream-alert';
-    alerta.className = 'stream-alert-overlay';
-    alerta.setAttribute('aria-live', 'polite');
-    alerta.setAttribute('aria-label', 'Alerta de stream en vivo');
-    alerta.innerHTML = `
-        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-tower-broadcast"></use></svg>
-        <span id="stream-alert-text">¡LA GOCHA ESTÁ EN DIRECTO! 🎉</span>
-    `;
-    document.body.appendChild(alerta);
-};
-
-window.insertarToastStream = function insertarToastStream() {
-    if (document.getElementById('stream-toast')) return;
-    const toast = document.createElement('div');
-    toast.id = 'stream-toast';
-    toast.className = 'stream-toast stream-toast-hidden';
-    toast.innerHTML = `
-        <div class="stream-toast-content">
-            <span class="live-indicator"></span>
-            <span>EN VIVO</span>
-            <button class="stream-toast-close" aria-label="Cerrar notificación">&times;</button>
-        </div>
-        <div class="stream-toast-actions">
-            <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer" class="btn-stream">
-                Ir al stream <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-arrow-right"></use></svg>
-            </a>
-        </div>
-    `;
-    document.body.appendChild(toast);
 };
 
 window.mostrarToast = function mostrarToast(mensaje, esError = false) {
@@ -848,7 +862,7 @@ window.verificarEstadoStream = async function verificarEstadoStream() {
     }
 
     const navbar = document.querySelector('.navbar');
-    const toast = document.getElementById('stream-toast');
+    const liveTag = document.getElementById('nav-live-tag');
 
     // Actualizar contador de followers si existe (solo en index.html)
     const followersCount = data.followers_count ?? data.channel?.followers_count ?? data.user?.followers_count;
@@ -858,16 +872,12 @@ window.verificarEstadoStream = async function verificarEstadoStream() {
         followersEl.title = followersCount.toLocaleString('es-ES') + ' seguidores';
     }
 
-    const yaEnVivo = window._ultimaEstadoEnVivo === true;
     if (enVivo) {
         if (navbar) navbar.classList.add('live-glow');
-        // Toast solo en la transición offline → live
-        if (!yaEnVivo && toast && toast.classList.contains('stream-toast-hidden')) {
-            mostrarToastStream();
-        }
+        if (liveTag) liveTag.hidden = false;
     } else {
         if (navbar) navbar.classList.remove('live-glow');
-        if (toast) toast.classList.add('stream-toast-hidden');
+        if (liveTag) liveTag.hidden = true;
     }
 
     // Notificar a la página actual (paneles específicos) sin duplicar el fetch
@@ -876,23 +886,6 @@ window.verificarEstadoStream = async function verificarEstadoStream() {
     }
 
     window._ultimaEstadoEnVivo = enVivo;
-};
-
-window.mostrarToastStream = function mostrarToastStream() {
-    const toast = document.getElementById('stream-toast');
-    if (!toast) return;
-    toast.classList.remove('stream-toast-hidden');
-
-    // Auto-cerrar después de 10 segundos
-    setTimeout(() => {
-        cerrarToastStream();
-    }, 10000);
-};
-
-window.cerrarToastStream = function cerrarToastStream() {
-    const toast = document.getElementById('stream-toast');
-    if (!toast) return;
-    toast.classList.add('stream-toast-hidden');
 };
 
 // Inicializar polling en todas las páginas
@@ -936,12 +929,8 @@ function iniciarPollingStreamGlobal() {
     });
 }
 
- // Delegación única: cierre del toast de stream y de los modales por clic en el fondo.
+// Delegación única: cierre de los modales por clic en el fondo.
 document.addEventListener('click', (event) => {
-    if (event.target.closest('.stream-toast-close')) {
-        cerrarToastStream();
-    }
-
     if (!event.target.classList.contains('gochi-modal-overlay')) return;
 
     const botonCerrar = event.target.querySelector('[data-action="close-login"], #gochi-confirm-cancelar');

@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.33.3">
+    <link rel="stylesheet" href="style.css?v=1.34.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -63,26 +63,8 @@
 <div class="page-shell">
     <a href="#contenido" class="skip-link">Saltar al contenido</a>
 
-    <!-- ALERTA VISUAL DE STREAM EN VIVO -->
     <header id="global-header">
-        <nav class="navbar navbar-expand-lg" x-data="{ }" x-on:resize.window="if (window.innerWidth >= 1101) $store.ui.menuAbierto = false">
-            <div class="logo navbar-brand">LAGOCHA<span>GAMING</span></div>
-            <button type="button" class="mobile-menu-toggle-btn navbar-toggler" aria-label="Abrir menú"
-                    x-bind:aria-expanded="$store.ui.menuAbierto"
-                    x-bind:aria-label="$store.ui.menuAbierto ? 'Cerrar menú' : 'Abrir menú'"
-                    x-on:click="$store.ui.menuAbierto = !$store.ui.menuAbierto"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg></button>
-            <div class="nav-links navbar-nav" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
-                <a href="./" class="nav-link">Inicio</a>
-                <a href="comunidad" class="nav-link nav-active" aria-current="page">💬 Comunidad</a>
-                <a href="galeria" class="nav-link">📸 Galería</a>
-                <a href="cine" class="nav-link">🍿 GochiWatch</a>
-                <a href="sorteo" class="nav-link">🎁 Sorteo</a>
-            </div>
-            <div class="nav-right">
-                <button type="button" id="btn-toggle-tema" class="btn-tema-nav" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
-                <div id="nav-user-info"></div>
-            </div>
-        </nav>
+        <nav id="navbar-root" class="navbar navbar-expand-lg"></nav>
     </header>
 
     <!-- TOAST DE STREAM EN VIVO se inserta dinámicamente desde main.js -->
@@ -428,7 +410,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
 
-    <script src="main.js?v=1.33.3" defer></script>
+    <script src="main.js?v=1.34.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -614,8 +596,6 @@
 
         // Estado del canal: main.js hace un único fetch y nos pasa los datos,
         // evitando el polling duplicado que existía en esta página.
-        let _ultimoEstadoEnVivoPagina = null;
-
         window.actualizarEstadoStreamPagina = function actualizarEstadoStreamPagina(data, enVivo, error) {
             const estadoDot = document.getElementById('estado-dot');
             const estadoTexto = document.getElementById('estado-texto');
@@ -624,9 +604,6 @@
             const canalPreview = document.getElementById('canal-preview');
             const canalInfo = document.getElementById('canal-info');
             const canalOffline = document.getElementById('canal-offline');
-            // El overlay de "en vivo" lo inserta main.js: se busca de forma perezosa
-            // porque en el momento del parseo todavia no existe en el DOM.
-            const obtenerAlertaStream = () => document.getElementById('stream-alert');
 
             if (error || !data) {
                 if (estadoDot && estadoTexto) {
@@ -674,21 +651,9 @@
                 if (canalInfo) canalInfo.style.display = 'none';
                 if (canalOffline) canalOffline.style.display = 'block';
             }
-
-            // Overlay de alerta solo al pasar de offline a live
-            const alertOverlay = obtenerAlertaStream();
-            if (alertOverlay && _ultimoEstadoEnVivoPagina === false && enVivo) {
-                alertOverlay.classList.add('visible', 'live');
-                setTimeout(() => { alertOverlay.classList.remove('visible'); }, 5000);
-            }
-            _ultimoEstadoEnVivoPagina = enVivo;
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Asegura que el toast y el overlay de "en vivo" existan antes de usarlos
-            // (main.js tambien los inserta, pero su listener se registra despues).
-            try { window.insertarComponentesUIGlobales?.(); } catch (e) { console.warn('insertarComponentesUIGlobales:', e); }
-
             const chatForm = document.getElementById('chat-form');
             const chatMensajes = document.getElementById('chat-mensajes');
             const btnScrollNuevos = document.getElementById('btn-scroll-nuevos');
