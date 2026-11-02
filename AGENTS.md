@@ -177,7 +177,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.32.0` (clips de Kick automáticos: últimos clips con reproductor embebido y fallback estático; sobre 1.31.3).
+- Versión de esta release: `1.32.1` (clips de Kick con reproductor HLS propio; el embed oficial no soporta clips; sobre 1.32.0).
 
 ## 9. Pruebas antes de commitear
 

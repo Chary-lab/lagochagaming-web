@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.32.1] - 2026-11-02
+
+### Corrección del reproductor de clips
+
+- El player embebido de Kick solo reproduce directos y VOD, así que mostraba
+  "LaGochaGaming is offline" al abrir un clip. Ahora el modal reproduce el HLS
+  del clip con `hls.js` (Safari usa su soporte nativo).
+- La Edge Function `kick-clips` devuelve también la URL `video` del clip.
+- Los tres clips fijos de respaldo abren Kick en una pestaña nueva.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.32.1`.
+
 ## [1.32.0] - 2026-11-02
 
 ### Últimos clips de Kick en la home

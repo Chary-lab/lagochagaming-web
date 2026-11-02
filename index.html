@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.32.0">
+    <link rel="stylesheet" href="style.css?v=1.32.1">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -424,8 +424,8 @@
             </button>
             <div class="media-modal-marco" :class="$store.media.marcoClase">
                 <template x-if="$store.media.tipo === 'kick'">
-                    <iframe :src="$store.media.src" :title="$store.media.titulo || 'Clip de Kick'"
-                            allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                    <video class="kick-video" controls playsinline
+                           x-init="window.iniciarClipKick($el, $store.media.video)"></video>
                 </template>
                 <template x-if="$store.media.tipo === 'tiktok'">
                     <iframe :src="$store.media.src" title="Video de TikTok"
@@ -474,8 +474,9 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" defer></script>
 
-    <script src="main.js?v=1.32.0" defer></script>
+    <script src="main.js?v=1.32.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script>
@@ -662,6 +663,7 @@
             enlace.dataset.mediaId = clip.id;
             enlace.dataset.mediaUrl = clip.url;
             enlace.dataset.mediaTitulo = clip.titulo;
+            enlace.dataset.mediaVideo = clip.video || '';
             enlace.setAttribute('aria-label', 'Reproducir clip: ' + clip.titulo);
 
             const play = document.createElement('div');
@@ -679,6 +681,7 @@
             boton.dataset.mediaId = clip.id;
             boton.dataset.mediaUrl = clip.url;
             boton.dataset.mediaTitulo = clip.titulo;
+            boton.dataset.mediaVideo = clip.video || '';
             boton.textContent = clip.titulo;
 
             const meta = document.createElement('p');
@@ -709,6 +712,26 @@
             }
         }
 
+        // Reproductor HLS para clips de Kick: su player embebido solo reproduce directos/VOD.
+        window.iniciarClipKick = function (video, src) {
+            if (!video || !src) return;
+            if (video._hls) { video._hls.destroy(); video._hls = null; }
+            if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = src;
+                video.play().catch(() => {});
+                return;
+            }
+            if (window.Hls && window.Hls.isSupported()) {
+                const hls = new window.Hls({ maxBufferLength: 30 });
+                hls.loadSource(src);
+                hls.attachMedia(video);
+                hls.on(window.Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+                video._hls = hls;
+            } else {
+                video.src = src;
+            }
+        };
+
         // === MODAL DE VIDEOS (Instagram / TikTok / Kick) ===
         // Estado en Alpine: apertura, iframe, scroll y foco los gestiona $store.media.
         document.addEventListener('alpine:init', () => {
@@ -717,6 +740,7 @@
                 tipo: '',
                 titulo: '',
                 src: '',
+                video: '',
                 imagen: '',
                 enlace: '#',
                 textoEnlace: 'Abrir',
@@ -731,13 +755,18 @@
                     this.titulo = datos.mediaTitulo || '';
                     this.tipo = tipo === 'tiktok' ? 'tiktok' : (tipo === 'ig-video' ? 'ig-video' : (tipo === 'kick' ? 'kick' : 'foto'));
                     this.src = '';
+                    this.video = '';
                     this.imagen = '';
                     if (tipo === 'tiktok') {
                         this.src = 'https://www.tiktok.com/player/v1/' + encodeURIComponent(datos.mediaId) + '?autoplay=1';
                         this.enlace = datos.mediaUrl || 'https://www.tiktok.com/@lagochagaming11';
                         this.textoEnlace = 'Abrir en TikTok';
                     } else if (tipo === 'kick') {
-                        this.src = 'https://player.kick.com/lagochagaming?clip=' + encodeURIComponent(datos.mediaId) + '&autoplay=true';
+                        if (!datos.mediaVideo) {
+                            if (datos.mediaUrl) window.open(datos.mediaUrl, '_blank', 'noopener');
+                            return;
+                        }
+                        this.video = datos.mediaVideo;
                         this.enlace = datos.mediaUrl || 'https://kick.com/lagochagaming/clips';
                         this.textoEnlace = 'Abrir en Kick';
                     } else if (tipo === 'ig-video') {
@@ -755,7 +784,13 @@
                     this.abierto = false;
                     this.tipo = '';
                     this.src = '';
+                    this.video = '';
                     this.imagen = '';
+                    const v = document.querySelector('.kick-video');
+                    if (v) {
+                        if (v._hls) { v._hls.destroy(); v._hls = null; }
+                        v.pause();
+                    }
                 }
             });
         });

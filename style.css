@@ -429,6 +429,13 @@ body.light-mode .hero-bio {
 .media-modal-marco.video-kick {
     width: 100%;
     aspect-ratio: 16 / 9;
+    background: #000;
+}
+.media-modal-marco.video-kick .kick-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
 }
 .media-modal-marco iframe {
     width: 100%;
