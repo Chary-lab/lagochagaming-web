@@ -161,7 +161,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - Search Console verificado; `sitemap.xml` enviado y `robots.txt` coherente con las páginas públicas.
 - JSON-LD: `Person` + `WebSite` en la home; `BreadcrumbList` en comunidad, galería, sorteo y cine; `FAQPage` en la home. La FAQ debe seguir siendo visible y coincidir con el schema.
 - `llms.txt` en la raíz y `404.html` con `noindex`.
-- Open Graph/Twitter por página: `img/3.jpg` (home, comunidad, cine), `img/2.jpg` (galería) e `img/1.jpg` (sorteo), con `og:image:alt`.
+- Open Graph/Twitter por página: `img/3.jpg` en todas (home, comunidad, cine, galería y sorteo), con `og:image:alt`.
 - Analítica: Umami (`cloud.umami.is`) en las 5 páginas; no instalar Plausible a la vez.
 - No cambiar `<title>`, meta description ni H1 sin revisar canibalización: una intención por página (home = marca/streamer; comunidad = chat; galería = fotos; sorteo = sorteos; cine = GochiWatch).
 - Al cambiar contenido público, actualizar `lastmod` del sitemap y pedir indexación en GSC.
@@ -177,7 +177,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.34.0` (navbar compartida desde `main.js` con etiqueta EN VIVO y limpieza de los avisos antiguos de directo; sobre 1.33.3).
+- Versión de esta release: `1.34.1` (chat de Kick bajo demanda, `defer` en supabase-js y limpieza de imágenes OG; sobre 1.34.0).
 
 ## 9. Pruebas antes de commitear
 

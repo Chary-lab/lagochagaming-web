@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.34.1] - 2026-11-02
+
+### Carga más ligera
+
+- El chat de Kick ya no se carga al abrir la home ni GochiWatch: se muestra
+  una fachada con botón y el iframe entra al hacer scroll, clic o al terminar
+  la carga de la página.
+- `supabase-js` pasa a `defer` en comunidad, galería y sorteo.
+- Eliminadas `img/1.jpg` e `img/2.jpg`; todas las páginas comparten `img/3.jpg`
+  como imagen Open Graph.
+- La vista offline de comunidad usa `img/stream-offline.webp`.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.34.1`.
+
 ## [1.34.0] - 2026-11-02
 
 ### Navbar compartida y etiqueta EN VIVO

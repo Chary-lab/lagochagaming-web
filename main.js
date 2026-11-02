@@ -1553,7 +1553,73 @@ document.addEventListener('alpine:init', () => {
     });
 });
 
+// Fachada del chat de Kick: el iframe no se carga hasta que hace falta.
+window.prepararFachadaChat = function prepararFachadaChat() {
+    const iframes = document.querySelectorAll('iframe[data-chat-kick]');
+    iframes.forEach((iframe) => {
+        if (iframe.dataset.fachadaLista) return;
+        iframe.dataset.fachadaLista = '1';
+        const host = iframe.parentElement;
+        if (!host) return;
+        host.classList.add('chat-fachada-host');
+
+        const fachada = document.createElement('div');
+        fachada.className = 'chat-fachada';
+        fachada.innerHTML = [
+            '<span class="chat-fachada-k" aria-hidden="true">K</span>',
+            '<p class="chat-fachada-titulo">Chat de Kick</p>',
+            '<div class="chat-fachada-lineas" aria-hidden="true"><span></span><span></span><span></span></div>',
+            '<button type="button" class="chat-fachada-btn">Cargar chat</button>',
+            '<p class="chat-fachada-error" hidden>El chat no cargó. <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">Abrir en Kick</a></p>'
+        ].join('');
+        host.appendChild(fachada);
+
+        const boton = fachada.querySelector('.chat-fachada-btn');
+        const aviso = fachada.querySelector('.chat-fachada-error');
+        let cargado = false;
+        let temporizador = null;
+
+        const cargar = () => {
+            if (cargado) return;
+            const src = iframe.dataset.src;
+            if (!src) return;
+            cargado = true;
+            fachada.classList.add('is-cargando');
+            iframe.addEventListener('load', () => {
+                clearTimeout(temporizador);
+                fachada.classList.add('is-lista');
+                setTimeout(() => fachada.remove(), 260);
+            }, { once: true });
+            temporizador = setTimeout(() => {
+                if (fachada.classList.contains('is-lista')) return;
+                fachada.classList.remove('is-cargando');
+                fachada.classList.add('is-error');
+                aviso.hidden = false;
+                boton.hidden = true;
+            }, 8000);
+            iframe.src = src;
+        };
+
+        boton.addEventListener('click', cargar);
+
+        window.addEventListener('load', () => {
+            if (!('IntersectionObserver' in window)) {
+                setTimeout(cargar, 1200);
+                return;
+            }
+            const observador = new IntersectionObserver((entradas) => {
+                if (entradas.some((e) => e.isIntersecting)) {
+                    observador.disconnect();
+                    cargar();
+                }
+            }, { rootMargin: '200px' });
+            observador.observe(iframe);
+        }, { once: true });
+    });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+    try { prepararFachadaChat(); } catch (e) { console.error('prepararFachadaChat:', e); }
     try { iniciarPollingStreamGlobal(); } catch (e) { console.error('iniciarPollingStreamGlobal:', e); }
     try { insertarComponentesUIGlobales(); } catch (e) { console.error('insertarComponentesUIGlobales:', e); }
     try { initTema(); } catch (e) { console.error('initTema:', e); }
