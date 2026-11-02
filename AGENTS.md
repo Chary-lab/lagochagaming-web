@@ -177,7 +177,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.33.1` (recorte del embed de Instagram para dejar solo el vídeo del reel; sobre 1.33.0).
+- Versión de esta release: `1.33.2` (reel de Instagram en 9:16 a pantalla completa, sin cabecera, pie ni barras laterales; sobre 1.33.1).
 
 ## 9. Pruebas antes de commitear
 

@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.33.2] - 2026-11-02
+
+### Reels de Instagram a pantalla completa
+
+- El marco del reel pasa a 9:16 y el embed se escala y recorta para llenar
+  el modal: fuera la cabecera, el pie y las barras negras laterales.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.33.2`.
+
 ## [1.33.1] - 2026-11-02
 
 ### Reels de Instagram sin marco
