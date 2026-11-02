@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.32.2">
+    <link rel="stylesheet" href="style.css?v=1.32.3">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -213,56 +213,7 @@
     <!-- 🔥 SECCIÓN ÚLTIMOS CLIPS DE KICK -->
     <section id="clips" class="content-section clips-section">
         <h2>🔥 ÚLTIMOS CLIPS 🔥</h2>
-        <div id="kick-clips" class="youtube-grid" aria-live="polite">
-            <div class="video-card">
-                <div class="video-thumb clip-thumb clip-thumb-1">
-                    <a href="https://kick.com/lagochagaming/clips/clip_01JR9VN6J99XGBBECCH9P7693B" target="_blank" rel="noopener noreferrer" class="clip-overlay"
-                       data-media-tipo="kick" data-media-id="clip_01JR9VN6J99XGBBECCH9P7693B"
-                       data-media-url="https://kick.com/lagochagaming/clips/clip_01JR9VN6J99XGBBECCH9P7693B"
-                       data-media-titulo="Dándole celos a mi novio">
-                        <div class="clip-play">
-                            <svg class="icon clip-play-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>
-                        </div>
-                    </a>
-                </div>
-                <a href="https://kick.com/lagochagaming/clips/clip_01JR9VN6J99XGBBECCH9P7693B" target="_blank" rel="noopener noreferrer" class="watch-btn"
-                   data-media-tipo="kick" data-media-id="clip_01JR9VN6J99XGBBECCH9P7693B"
-                   data-media-url="https://kick.com/lagochagaming/clips/clip_01JR9VN6J99XGBBECCH9P7693B"
-                   data-media-titulo="Dándole celos a mi novio">Dándole celos a mi novio</a>
-            </div>
-            <div class="video-card">
-                <div class="video-thumb clip-thumb clip-thumb-2">
-                    <a href="https://kick.com/lagochagaming/clips/clip_01JQZEQXE9VJH7NTD69YCG5PXT" target="_blank" rel="noopener noreferrer" class="clip-overlay"
-                       data-media-tipo="kick" data-media-id="clip_01JQZEQXE9VJH7NTD69YCG5PXT"
-                       data-media-url="https://kick.com/lagochagaming/clips/clip_01JQZEQXE9VJH7NTD69YCG5PXT"
-                       data-media-titulo="Mamá chiss prendiooo">
-                        <div class="clip-play">
-                            <svg class="icon clip-play-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>
-                        </div>
-                    </a>
-                </div>
-                <a href="https://kick.com/lagochagaming/clips/clip_01JQZEQXE9VJH7NTD69YCG5PXT" target="_blank" rel="noopener noreferrer" class="watch-btn"
-                   data-media-tipo="kick" data-media-id="clip_01JQZEQXE9VJH7NTD69YCG5PXT"
-                   data-media-url="https://kick.com/lagochagaming/clips/clip_01JQZEQXE9VJH7NTD69YCG5PXT"
-                   data-media-titulo="Mamá chiss prendiooo">Mamá chiss prendiooo</a>
-            </div>
-            <div class="video-card">
-                <div class="video-thumb clip-thumb clip-thumb-3">
-                    <a href="https://kick.com/lagochagaming/clips/clip_01JT26P6TW7CS2CPJJ3TRP9WTY" target="_blank" rel="noopener noreferrer" class="clip-overlay"
-                       data-media-tipo="kick" data-media-id="clip_01JT26P6TW7CS2CPJJ3TRP9WTY"
-                       data-media-url="https://kick.com/lagochagaming/clips/clip_01JT26P6TW7CS2CPJJ3TRP9WTY"
-                       data-media-titulo="Será que no me has visto">
-                        <div class="clip-play">
-                            <svg class="icon clip-play-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>
-                        </div>
-                    </a>
-                </div>
-                <a href="https://kick.com/lagochagaming/clips/clip_01JT26P6TW7CS2CPJJ3TRP9WTY" target="_blank" rel="noopener noreferrer" class="watch-btn"
-                   data-media-tipo="kick" data-media-id="clip_01JT26P6TW7CS2CPJJ3TRP9WTY"
-                   data-media-url="https://kick.com/lagochagaming/clips/clip_01JT26P6TW7CS2CPJJ3TRP9WTY"
-                   data-media-titulo="Será que no me has visto">Será que no me has visto</a>
-            </div>
-        </div>
+        <div id="kick-clips" class="youtube-grid" aria-live="polite"></div>
         <p class="social-feed-nota">Se actualiza solo con los últimos clips publicados en Kick.</p>
     </section>
 
@@ -476,7 +427,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" defer></script>
 
-    <script src="main.js?v=1.32.2" defer></script>
+    <script src="main.js?v=1.32.3" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script>
@@ -708,7 +659,17 @@
                 cont.textContent = '';
                 cont.appendChild(frag);
             } catch (e) {
-                // Los tres clips fijos del HTML quedan como respaldo.
+                cont.textContent = '';
+                const p = document.createElement('p');
+                p.className = 'ig-feed-error';
+                p.textContent = 'No se pudieron cargar los clips. ';
+                const link = document.createElement('a');
+                link.href = 'https://kick.com/lagochagaming/clips';
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = 'Ver clips en Kick';
+                p.appendChild(link);
+                cont.appendChild(p);
             }
         }
 

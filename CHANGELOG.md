@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.32.3] - 2026-11-02
+
+### Limpieza de los clips fijos
+
+- Se quitaron los tres clips fijos de respaldo de la home: la sección muestra
+  solo los últimos clips de Kick.
+- Si la Edge Function falla, aparece un aviso con enlace a los clips del canal
+  en Kick en vez de tarjetas antiguas.
+- CSS sin las clases `clip-thumb-1/2/3` y caché actualizada a `?v=1.32.3`.
+
 ## [1.32.2] - 2026-11-02
 
 ### Reproducción real de los clips
