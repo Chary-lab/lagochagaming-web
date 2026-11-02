@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.33.3] - 2026-11-02
+
+### Borde blanco del reel
+
+- El iframe del reel se sobredimensiona un ~4% para que el borde blanco del
+  embed de Instagram quede fuera del recorte.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.33.3`.
+
 ## [1.33.2] - 2026-11-02
 
 ### Reels de Instagram a pantalla completa

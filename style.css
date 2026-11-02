@@ -510,10 +510,10 @@ body.light-mode .hero-bio {
 }
 .media-modal-marco .ig-embed-crop iframe {
     position: absolute;
-    top: -54px;
-    left: -21.1%;
-    width: 142.2%;
-    height: calc(100% + 54px);
+    top: -56px;
+    left: -21.9%;
+    width: 148%;
+    height: calc(100% + 58px);
     border: 0;
     display: block;
 }
