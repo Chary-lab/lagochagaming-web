@@ -6,7 +6,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 
 - Sitio estático de La Gocha Gaming: HTML + CSS + JavaScript clásico, sin build, sin bundler y sin dependencias instaladas localmente.
 - Páginas: `index.html` (inicio), `comunidad.html` (chat/puntos), `galeria.html` (fotos/likes), `sorteo.html` (sorteo), `cine.html` (GochiWatch).
-- Código compartido: `main.js` (tema, toasts, sesión de comunidad, admin, confeti, alertas) y `style.css`.
+- Código compartido: `main.js` (navbar inyectada, tema, toasts, sesión de comunidad, admin, confeti, fachada del chat de Kick) y `style.css`.
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
 - Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
 - Versión actual: ver `VERSION` (SemVer). Changelog: `CHANGELOG.md`.
@@ -25,9 +25,9 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 
 | Archivo | Responsabilidad |
 |---|---|
-| `main.js` | Utilidades globales, tema, toasts, sesión comunidad, admin Supabase, confeti, alertas de stream; stores Alpine `perfil`, `ui`, `toast` y `adminPanel` (panel global) |
+| `main.js` | Navbar compartida (`NAVBAR_ENLACES` → `#navbar-root`), utilidades globales, tema, toasts, sesión comunidad, admin Supabase, confeti, fachada del chat de Kick; stores Alpine `perfil`, `ui`, `toast` y `adminPanel` (panel global) |
 | `style.css` | Estilos compartidos, variables, componentes, responsive, modo claro |
-| `index.html` | Home, player Kick, clips, feed social, YouTube, muro de saludos (store `muro`) y modal de feeds (store `media`) |
+| `index.html` | Home, player Kick, últimos clips de Kick (Edge Function `kick-clips`), feed social, YouTube, muro de saludos (store `muro`) y modal de feeds (store `media`) |
 | `comunidad.html` | Presencia, chat, reacciones, ranking, rangos, login/registro comunidad (stores `chat`, `ranking`, `rangosChat`, `reacciones`, `tienda`) |
 | `galeria.html` | Subida (store `subida`), galería pública y lightbox (store `galeria`), moderación de fotos pendientes |
 | `sorteo.html` | Modo manual, modo streamer, tómbola online, ganadores (store `sorteo` con `participantes`, `manual` y `ganadores`) |
@@ -42,6 +42,8 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 
 Las migraciones SQL no se versionan en este repo: el historial vive en Supabase. La carpeta local `supabase/` está ignorada.
 
+La navbar vive en `main.js` (`window.NAVBAR_ENLACES`): cada página solo tiene un `<nav id="navbar-root">` vacío y `insertarNavbar()` pinta enlaces, orden y estado activo. Para cambiar el menú, editar solo `main.js`. El estado EN VIVO (`#nav-live-tag` + `.navbar.live-glow`) lo alterna `verificarEstadoStream()`.
+
 ## 4. Convenciones de JavaScript
 
 - Scripts clásicos, sin módulos ES. Para helpers usados desde HTML/Alpine, exponer en `window` (`window.escapeHtml`, `window.abrirLightboxDesdeTarjeta`, etc.).
@@ -55,6 +57,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - Cuidado con la propagación de clics: las tarjetas de galería abren el lightbox, pero los botones de acción deben llegar al listener delegado del documento. Usar `window.abrirLightboxDesdeTarjeta($event, foto, $el)` y no `@click.stop` en la zona de acciones.
 - No anidar nuevas acciones interactivas dentro de `role="button"` sin revisar propagación de click/teclado y accesibilidad.
 - Respetar `prefers-reduced-motion` en animaciones nuevas (el confeti ya lo hace).
+- Chat de Kick: los iframes llevan `data-chat-kick` + `data-src` (nunca `src`). `prepararFachadaChat()` en `main.js` crea la fachada y carga el iframe al hacer scroll, clic o al terminar la carga; no añadir listeners por elemento.
 - Mantener los textos de UI en español y el tono actual.
 - No usar `Get-Content`/`Set-Content` de PowerShell 5.1 para reemplazos masivos en archivos UTF-8: leen ANSI y rompen acentos/emojis. Usar el editor o Node/Python con UTF-8 explícito.
 
@@ -106,9 +109,9 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - `sync_cine` (estado de reproducción).
 - `tienda_premios`, `tienda_canjes` (tienda de puntos).
 - `admin_audit_log` (auditoría de moderación, solo admin).
-- `instagram_feed` (caché de la Edge Function `instagram-feed`; solo `service_role`, refresco con `pg_cron` cada 20 min).
-- `tiktok_feed` (caché de la Edge Function `tiktok-feed`; solo `service_role`, refresco con `pg_cron` cada 20 min).
-- `kick_clips` (caché de la Edge Function `kick-clips`, una fila JSON con los últimos clips de Kick; solo `service_role`, refresco con `pg_cron` cada 20 min).
+- `instagram_feed` (caché de la Edge Function `instagram-feed`; solo `service_role`, TTL 40 min y refresco con `pg_cron` cada 20 min).
+- `tiktok_feed` (caché de la Edge Function `tiktok-feed`; solo `service_role`, TTL 40 min y refresco con `pg_cron` cada 20 min).
+- `kick_clips` (caché de la Edge Function `kick-clips`, una fila JSON con los últimos clips de Kick; solo `service_role`, TTL 40 min y refresco con `pg_cron` cada 20 min).
 - `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango` (puntos por acción, historial con idempotencia y topes diarios por rango; solo `service_role`, se escriben desde RPC `SECURITY DEFINER`).
 - `sugerencias` (texto 5–500, `ip_hash`, `leida`, `creada_en`; sin acceso `anon`; solo `owner` lee, marca y borra con `es_owner()` y las RPC `owner_marcar_sugerencia` / `owner_eliminar_sugerencia`).
 - RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `sesion_comunidad_vinculada`, `latido_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `owner_marcar_sugerencia`, `owner_eliminar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`, `admin_eliminar_mensaje_chat`.
@@ -185,7 +188,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 2. `node --check main.js`.
 3. Levantar servidor local: `python -m http.server 8765` y probar en `http://127.0.0.1:8765/`.
 4. Smoke test mínimo:
-   - Home: player/clips/feed cargan, muro pinta mensajes, no errores de consola propios.
+   - Home: player, 6 clips de Kick, 6 de Instagram y 6 de TikTok cargan; la fachada del chat aparece y el iframe entra al pulsar; el muro pinta mensajes y no hay errores de consola propios.
    - Comunidad: presencia muestra "Nadie en línea" si no hay nadie, chat/ranking cargan, login/registro y reacciones funcionan.
    - Comunidad (moderación): con sesión owner/admin aparece el botón de borrar en cada mensaje; borra con confirmación, desaparece para todos y queda fila `eliminar_mensaje_chat` en auditoría. Sin sesión no aparece y la RPC rechaza.
    - Galería: tarjetas abren lightbox; like sin sesión NO abre lightbox y pide login; con sesión alterna like/contador; moderación rechaza cuentas no admin; el panel de galería solo muestra fotos pendientes (aprobar/rechazar).
