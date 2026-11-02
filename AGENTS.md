@@ -108,6 +108,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - `admin_audit_log` (auditoría de moderación, solo admin).
 - `instagram_feed` (caché de la Edge Function `instagram-feed`; solo `service_role`, refresco con `pg_cron` cada 20 min).
 - `tiktok_feed` (caché de la Edge Function `tiktok-feed`; solo `service_role`, refresco con `pg_cron` cada 20 min).
+- `kick_clips` (caché de la Edge Function `kick-clips`, una fila JSON con los últimos clips de Kick; solo `service_role`, refresco con `pg_cron` cada 20 min).
 - `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango` (puntos por acción, historial con idempotencia y topes diarios por rango; solo `service_role`, se escriben desde RPC `SECURITY DEFINER`).
 - `sugerencias` (texto 5–500, `ip_hash`, `leida`, `creada_en`; sin acceso `anon`; solo `owner` lee, marca y borra con `es_owner()` y las RPC `owner_marcar_sugerencia` / `owner_eliminar_sugerencia`).
 - RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `sesion_comunidad_vinculada`, `latido_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `owner_marcar_sugerencia`, `owner_eliminar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`, `admin_eliminar_mensaje_chat`.
@@ -176,7 +177,7 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.31.3` (menú sin Directo/Clips y capibara dormido en el estado vacío de GochiWatch; sobre 1.31.2).
+- Versión de esta release: `1.32.0` (clips de Kick automáticos: últimos clips con reproductor embebido y fallback estático; sobre 1.31.3).
 
 ## 9. Pruebas antes de commitear
 

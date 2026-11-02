@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.32.0] - 2026-11-02
+
+### Últimos clips de Kick en la home
+
+- La sección "Top clips" pasa a "Últimos clips" y se alimenta sola con los
+  clips más recientes del canal mediante la Edge Function `kick-clips`
+  (caché de 25 min y refresco con `pg_cron` cada 20 min).
+- Cada tarjeta muestra creador, duración y vistas; si la función falla quedan
+  los tres clips fijos como respaldo.
+- Los clips se reproducen en el modal con el reproductor oficial de Kick.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.32.0`.
+
 ## [1.31.3] - 2026-11-01
 
 ### Menú simplificado y estado vacío de GochiWatch

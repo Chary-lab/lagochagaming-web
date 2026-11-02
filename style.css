@@ -383,6 +383,9 @@ body.light-mode .hero-bio {
     border-radius: 16px;
     box-shadow: var(--glow);
 }
+.media-modal-card.media-modal-card-ancha {
+    max-width: min(94vw, 900px);
+}
 .media-modal-cerrar {
     position: absolute;
     top: -12px;
@@ -422,6 +425,10 @@ body.light-mode .hero-bio {
 .media-modal-marco.video-instagram {
     height: min(74vh, 680px);
     aspect-ratio: 4 / 5;
+}
+.media-modal-marco.video-kick {
+    width: 100%;
+    aspect-ratio: 16 / 9;
 }
 .media-modal-marco iframe {
     width: 100%;
@@ -2363,6 +2370,12 @@ body.light-mode {
             font-size: 1.4rem;
             margin-left: 4px;
             color: #fff;
+        }
+        .clip-meta {
+            margin: 6px 2px 0;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.35;
         }
         .youtube-fallback {
             display: none;
