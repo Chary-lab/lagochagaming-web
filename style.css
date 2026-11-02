@@ -480,8 +480,9 @@ body.light-mode .hero-bio {
     aspect-ratio: 9 / 16;
 }
 .media-modal-marco.video-instagram {
-    height: min(74vh, 680px);
+    height: auto;
     aspect-ratio: 4 / 5;
+    max-height: min(74vh, 680px);
 }
 .media-modal-marco.video-kick {
     width: 100%;
@@ -497,6 +498,23 @@ body.light-mode .hero-bio {
 .media-modal-marco iframe {
     width: 100%;
     height: 100%;
+    border: 0;
+    display: block;
+}
+/* Recorta el marco de Instagram: deja solo el vídeo (sin cabecera ni "View more"). */
+.media-modal-marco .ig-embed-crop {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+}
+.media-modal-marco .ig-embed-crop iframe {
+    position: absolute;
+    top: -54px;
+    left: 0;
+    width: 100%;
+    height: calc(100% + 184px);
     border: 0;
     display: block;
 }
@@ -544,7 +562,7 @@ body.light-mode .hero-bio {
     .media-modal-card { padding: 10px; max-width: 94vw; }
     .media-modal-cerrar { top: 6px; right: 6px; }
     .media-modal-marco.video-tiktok { height: min(70vh, 620px); }
-    .media-modal-marco.video-instagram { height: min(70vh, 560px); }
+    .media-modal-marco.video-instagram { height: auto; aspect-ratio: 4 / 5; max-height: min(70vh, 560px); }
 }
 
 /* Instagram: grid propio con la función instagram-feed (sin Juicer) */

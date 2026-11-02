@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.33.1] - 2026-11-02
+
+### Reels de Instagram sin marco
+
+- El modal recorta la cabecera y el pie del embed de Instagram ("View more
+  on Instagram") y deja solo el vídeo del reel.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.33.1`.
+
 ## [1.33.0] - 2026-11-02
 
 ### Estado desconectada en la home
