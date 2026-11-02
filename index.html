@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.32.1">
+    <link rel="stylesheet" href="style.css?v=1.32.2">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -476,7 +476,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" defer></script>
 
-    <script src="main.js?v=1.32.1" defer></script>
+    <script src="main.js?v=1.32.2" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script>
@@ -716,20 +716,24 @@
         window.iniciarClipKick = function (video, src) {
             if (!video || !src) return;
             if (video._hls) { video._hls.destroy(); video._hls = null; }
-            if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = src;
-                video.play().catch(() => {});
-                return;
-            }
             if (window.Hls && window.Hls.isSupported()) {
                 const hls = new window.Hls({ maxBufferLength: 30 });
                 hls.loadSource(src);
                 hls.attachMedia(video);
                 hls.on(window.Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+                hls.on(window.Hls.Events.ERROR, (_evento, datos) => {
+                    if (datos && datos.fatal) {
+                        hls.destroy();
+                        video._hls = null;
+                        video.src = src;
+                    }
+                });
                 video._hls = hls;
-            } else {
-                video.src = src;
+                return;
             }
+            // Safari y navegadores sin MSE usan HLS nativo.
+            video.src = src;
+            video.play().catch(() => {});
         };
 
         // === MODAL DE VIDEOS (Instagram / TikTok / Kick) ===

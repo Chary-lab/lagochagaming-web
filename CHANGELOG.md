@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.32.2] - 2026-11-02
+
+### Reproducción real de los clips
+
+- Chromium respondía `maybe` a `canPlayType('application/vnd.apple.mpegurl')`,
+  así que se intentaba HLS nativo y el vídeo quedaba en 0:00 con
+  `MEDIA_ERR_SRC_NOT_SUPPORTED`. Ahora se usa `hls.js` siempre que esté
+  soportado y el HLS nativo queda solo como respaldo (Safari).
+- Si `hls.js` falla de forma fatal, se destruye la instancia y se intenta el
+  reproductor nativo.
+- Verificado en Chromium real: el clip carga, muestra duración y reproduce.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.32.2`.
+
 ## [1.32.1] - 2026-11-02
 
 ### Corrección del reproductor de clips
