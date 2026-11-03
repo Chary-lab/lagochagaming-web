@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.40.0">
+    <link rel="stylesheet" href="style.css?v=1.41.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -137,7 +137,10 @@
                                   @keydown.space.prevent="window.abrirPerfilUsuario?.(msg.autor)"
                                   x-text="msg.autor || 'Anónimo'"></span>
                             <template x-for="b in $store.rangosChat.insignias(msg.autor)" :key="b.tipo">
-                                <span class="chat-kick-badge" :class="'kick-badge-' + b.tipo" :title="b.texto" x-text="b.etiqueta"></span>
+                                <span class="chat-kick-badge" :class="'kick-badge-' + b.tipo" :title="b.texto">
+                                    <svg class="icon" aria-hidden="true"><use :href="'img/icons.svg#' + b.icono"></use></svg>
+                                    <span x-text="b.etiqueta"></span>
+                                </span>
                             </template>
                             <span class="chat-msg-meta">
                                  <span class="chat-msg-fecha" x-text="msg.fecha"></span>
@@ -409,7 +412,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.40.0" defer></script>
+    <script src="main.js?v=1.41.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1156,24 +1159,28 @@ setInterval(actualizarTypingIndicator, 1200);
                     await entrarConKickComunidad();
                 }
             }
-            // main.js va con defer: hasta DOMContentLoaded no existe KICK_COMUNIDAD.
-            document.addEventListener('DOMContentLoaded', () => {
-                volverDeKick();
+            // Ya estamos dentro del DOMContentLoaded (main.js va con defer y ya existe
+            // KICK_COMUNIDAD), asi que se arranca aqui mismo: un segundo listener
+            // nunca llegaria a ejecutarse y ?kick=1 solo recargaba la pagina.
+            window.entrarConKickComunidad = entrarConKickComunidad;
+            volverDeKick();
+            {
                 const params = new URLSearchParams(location.search);
                 const accion = params.get('login') === '1' ? 'login'
                     : params.get('registro') === '1' ? 'registro'
                     : params.get('kick') === '1' ? 'kick'
                     : '';
-                if (!accion) return;
-                history.replaceState(null, '', location.pathname + location.hash);
-                if (accion === 'kick') {
-                    entrarConKickComunidad();
-                } else if (accion === 'registro') {
-                    abrirModalRegistro();
-                } else {
-                    abrirModalLogin();
+                if (accion) {
+                    history.replaceState(null, '', location.pathname + location.hash);
+                    if (accion === 'kick') {
+                        entrarConKickComunidad();
+                    } else if (accion === 'registro') {
+                        abrirModalRegistro();
+                    } else {
+                        abrirModalLogin();
+                    }
                 }
-            });
+            }
 
             function guardarSesion(usuario, token) {
                 const u = usuario || {};
@@ -1848,6 +1855,16 @@ setInterval(actualizarTypingIndicator, 1200);
                 verified: 'OK',
                 broadcaster: 'CANAL'
             };
+            const ICONO_INSIGNIA = {
+                moderator: 'i-solid-shield-halved',
+                vip: 'i-solid-gem',
+                subscriber: 'i-solid-sparkles',
+                founder: 'i-solid-crown',
+                sub_gifter: 'i-solid-gift',
+                og: 'i-solid-fire',
+                verified: 'i-solid-check',
+                broadcaster: 'i-solid-tower-broadcast'
+            };
 
             function insigniasKickRecientes(fila) {
                 if (!fila || !Array.isArray(fila.kick_badges) || !fila.kick_badges_at) return [];
@@ -1859,6 +1876,7 @@ setInterval(actualizarTypingIndicator, 1200);
                     .map(b => ({
                         tipo: b.type,
                         etiqueta: ETIQUETA_INSIGNIA[b.type],
+                        icono: ICONO_INSIGNIA[b.type],
                         texto: b.text || b.type
                     }));
             }

@@ -3,6 +3,24 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.41.0] - 2026-11-03
+
+### Pase visual del navbar, Kick arreglado y buzón para admins
+
+- Arreglado "Conectar con Kick": el arranque por `?kick=1` vivía en un segundo
+  `DOMContentLoaded` que nunca se ejecutaba, así que el clic solo recargaba la
+  página. Ahora el flujo arranca dentro del listener principal y
+  `entrarConKickComunidad()` queda expuesta para el navbar.
+- El menú Login se mueve al lado del botón de tema, alineado a la derecha.
+- Navbar con vida: los enlaces y los menús plegables (App y Login) son píldoras
+  con hover, foco visible, pulsación y transiciones; el botón de tema gira al
+  pasar el ratón. Los `<summary>` ya no se quedan sin estilo.
+- Insignias de Kick del chat rediseñadas: píldoras compactas con icono propio,
+  color por tipo y pegadas al nombre del autor.
+- El buzón de sugerencias se abre también para los admins (McChary), no solo
+  para el owner: pestaña, panel y RPCs `owner_*_sugerencia` aceptan `es_admin()`;
+  la política de lectura pasa a `admin lee sugerencias`.
+
 ## [1.40.0] - 2026-11-03
 
 ### Menú Login único y admin por rol de comunidad

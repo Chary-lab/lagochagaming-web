@@ -184,7 +184,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.40.0` (menú Login único en el navbar, Conectar con Kick unificado y panel admin por rol de comunidad; sobre 1.39.0).
+- Versi�n de esta release: `1.41.0` (pase visual del navbar, "Conectar con Kick" arreglado y buz�n abierto a admins; sobre 1.40.0).
 
 ## 9. Pruebas antes de commitear
 

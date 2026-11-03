@@ -362,7 +362,7 @@ window.KICK_COMUNIDAD = (function () {
         const error = params.get('kick_error');
         if (!token && !error) return false;
         const objetivo = sessionStorage.getItem(CLAVE_OBJETIVO) || 'auto';
-        if (objetivo !== 'vincular' && !error) return false;
+        if (objetivo !== 'vincular' && objetivo !== 'entrar' && !error) return false;
         sessionStorage.removeItem(CLAVE_OBJETIVO);
         history.replaceState(null, '', location.pathname + location.search);
         if (error) {
@@ -370,7 +370,11 @@ window.KICK_COMUNIDAD = (function () {
             return false;
         }
         localStorage.setItem('gocha_kick_token', token);
-        return await vincular();
+        if (objetivo === 'vincular') return await vincular();
+        // Entrar con Kick desde una pagina sin chat: el login de comunidad se
+        // completa alli, ya con el token guardado (sin repetir el OAuth).
+        window.location.replace('comunidad?kick=1');
+        return true;
     }
 
     return { vinculado, vincular, abrirOAuth, volverDelHash };
@@ -718,32 +722,38 @@ window.insertarNavbar = function insertarNavbar() {
         <div class="nav-links navbar-nav" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
             ${enlaces}
             ${appMenu}
-            ${loginMenu}
         </div>
         <div class="nav-right">
             <span id="nav-live-tag" class="nav-live-tag" hidden>
                 <span class="nav-live-dot" aria-hidden="true"></span>EN VIVO
             </span>
+            ${loginMenu}
             <button type="button" id="btn-toggle-tema" class="btn-tema-nav" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
             <div id="nav-user-info"></div>
         </div>
     `;
     nav.dataset.montado = '1';
 
-    const appDetalle = nav.querySelector('#nav-app');
-    if (appDetalle) {
-        const cerrarApp = () => appDetalle.removeAttribute('open');
+    // Cierre compartido de los menús plegables del navbar (App y Login).
+    const menusPlegables = nav.querySelectorAll('details.nav-app');
+    if (menusPlegables.length) {
         document.addEventListener('click', (evento) => {
-            if (appDetalle.open && !appDetalle.contains(evento.target)) cerrarApp();
+            menusPlegables.forEach((detalle) => {
+                if (detalle.open && !detalle.contains(evento.target)) detalle.removeAttribute('open');
+            });
         });
         document.addEventListener('keydown', (evento) => {
-            if (evento.key === 'Escape' && appDetalle.open) {
-                cerrarApp();
-                appDetalle.querySelector('summary').focus();
-            }
+            if (evento.key !== 'Escape') return;
+            menusPlegables.forEach((detalle) => {
+                if (!detalle.open) return;
+                detalle.removeAttribute('open');
+                detalle.querySelector('summary')?.focus();
+            });
         });
-        appDetalle.addEventListener('click', (evento) => {
-            if (evento.target.closest('a')) cerrarApp();
+        menusPlegables.forEach((detalle) => {
+            detalle.addEventListener('click', (evento) => {
+                if (evento.target.closest('a, button[data-login-accion]')) detalle.removeAttribute('open');
+            });
         });
     }
 };
@@ -759,7 +769,10 @@ async function conectarKickNavbar() {
         await window.entrarConKickComunidad();
         return;
     }
-    window.location.href = 'comunidad?kick=1';
+    // Sin la pagina de comunidad cargada: arranca el OAuth aqui mismo.
+    // Antes se recargaba con comunidad?kick=1 y, si el arranque fallaba,
+    // el clic solo parecia refrescar la pagina.
+    await window.KICK_COMUNIDAD?.abrirOAuth('entrar');
 }
 
 window.abrirLoginMenu = function abrirLoginMenu(accion) {
@@ -1239,7 +1252,7 @@ function insertarPanelAdminGlobal() {
             <div x-show="!$store.adminPanel.cargando && $store.adminPanel.admin">
 
                 <div class="admin-tabs" role="tablist" aria-label="Paneles de administración">
-                    <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'buzon' }" x-on:click="$store.adminPanel.setTab('buzon')" role="tab" :aria-selected="$store.adminPanel.tab === 'buzon' ? 'true' : 'false'" x-show="$store.adminPanel.owner">
+                    <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'buzon' }" x-on:click="$store.adminPanel.setTab('buzon')" role="tab" :aria-selected="$store.adminPanel.tab === 'buzon' ? 'true' : 'false'" x-show="$store.adminPanel.admin">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-envelope"></use></svg> Buzón
                         <span class="admin-tab-count" x-show="$store.adminPanel.noLeidas > 0" x-text="$store.adminPanel.noLeidas"></span>
                     </button>
@@ -1251,7 +1264,7 @@ function insertarPanelAdminGlobal() {
                     </button>
                 </div>
 
-                <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'buzon' && $store.adminPanel.owner" x-cloak>
+                <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'buzon' && $store.adminPanel.admin" x-cloak>
                     <div class="buzon-toolbar">
                         <h2><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-envelope"></use></svg> Sugerencias de la comunidad</h2>
                         <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarSugerencias()" :disabled="$store.adminPanel.sugEstado === 'cargando'">Actualizar</button>
@@ -1413,8 +1426,8 @@ document.addEventListener('alpine:init', () => {
             await this.comprobarSesion();
             if (this.admin) {
                 const pedida = (!tab || tab === 'login')
-                    ? (this.owner ? 'buzon' : 'usuarios')
-                    : (tab === 'buzon' && !this.owner ? 'usuarios' : tab);
+                    ? 'buzon'
+                    : tab;
                 this.tab = pedida;
                 await this.cargarTab();
                 this.iniciarRefrescoUsuarios();
@@ -1460,7 +1473,6 @@ document.addEventListener('alpine:init', () => {
                 ]);
                 this.admin = adminRes && adminRes.data === true;
                 this.owner = ownerRes && ownerRes.data === true;
-                if (this.admin && this.tab === 'buzon' && !this.owner) this.tab = 'usuarios';
                 this.cargando = false;
             } catch (e) {
                 console.error('Error comprobando sesión admin:', e);
@@ -1499,7 +1511,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         setTab(tab) {
-            if (tab === 'buzon' && !this.owner) return;
+            if (tab === 'buzon' && !this.admin) return;
             this.tab = tab;
             this.cargarTab();
         },
@@ -1515,7 +1527,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async cargarSugerencias() {
-            if (!this.owner) return;
+            if (!this.admin) return;
             this.sugEstado = 'cargando';
             this.errorSug = '';
             try {
