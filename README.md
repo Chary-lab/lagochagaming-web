@@ -15,7 +15,8 @@ Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin b
 - HTML5 + CSS3 responsive (`style.css`).
 - JavaScript vanilla (`main.js` y scripts por página).
 - Supabase (Postgres, RLS, RPC, Realtime y Storage) con la librería JS 2.118.0.
-- Alpine.js 3.17.5, Bootstrap 6 solo CSS y Font Awesome 6.4.0 por CDN.
+- Alpine.js 3.17.5 por CDN.
+- Iconos: sprite SVG propio en `img/icons.svg` (paths de Font Awesome Free 6.6.0 incrustados, sin CDN ni Bootstrap).
 - Hosting: GitHub Pages con dominio `lagochagaming.com`.
 
 ## Desarrollo local
@@ -50,6 +51,8 @@ node --check main.js
 - Cambios en `CHANGELOG.md`.
 - Commit de release: `vX.Y.Z - resumen`.
 - GitHub Pages ignora `_headers`; no asumir CSP/HSTS activos en producción.
+- `.nojekyll` versionado: sin él Pages intenta construir con Jekyll y el build falla.
+- En cada release, subir el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los 6 HTML.
 
 ## Reglas para agentes
 

@@ -3,6 +3,25 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.0] - 2026-11-03
+
+### Auditoría, registro con Kick y limpieza
+
+- Arreglado el icono `i-solid-ban` del panel admin: se usa en la tarjeta
+  "Sin permisos" pero no existía en `img/icons.svg`.
+- Limpieza de `img/icons.svg`: fuera 7 símbolos sin uso (Google Drive, Twitch,
+  Twitter, arrow-right, globe, moon, volume-high).
+- Eliminado `tienda_tab_content.txt`, archivo huérfano que se servía suelto.
+- `README.md`: corregido el stack (sin Bootstrap ni Font Awesome por CDN) y
+  documentados `?v=X.Y.Z` y `.nojekyll`.
+- Nuevo botón "Registrarse con Kick" en el modal de registro: mismo OAuth que
+  "Conectar con Kick", pensado para quien no sabe que ya puede entrar así.
+- Tras registrarse con Kick se abre Ajustes con el aviso de completar perfil
+  (género y avatar).
+- Supabase: índice `idx_puntos_eventos_accion` para la FK que no tenía.
+- `AGENTS.md`: documentadas las insignias de Kick, la píldora de puntos diarios,
+  las tablas con RLS sin políticas y los grants de columna de `anon`.
+
 ## [1.42.1] - 2026-11-03
 
 ### Los puntos del día pasan al anillo del navbar

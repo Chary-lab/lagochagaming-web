@@ -2380,6 +2380,10 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="modal-perfil-body" role="tabpanel" aria-label="Ajustes"
              x-bind:hidden="$store.perfil.publico || $store.perfil.vista !== 'ajustes'">
+          <p class="mp-pendiente" role="status"
+             x-bind:hidden="$store.perfil.genero !== 'no_definido' && !!$store.perfil.usuario.avatar_url">
+            Completa tu perfil: elige tu género y tu avatar.
+          </p>
           <div class="mp-avatar-wrap">
             <img class="mp-avatar" x-bind:src="$store.perfil.previewAvatar" x-bind:hidden="!$store.perfil.previewAvatar"
                  alt="Vista previa del avatar">

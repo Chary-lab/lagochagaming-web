@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.42.1">
+    <link rel="stylesheet" href="style.css?v=1.43.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -405,6 +405,14 @@
                 <div>
                     <button type="submit" id="nickname-modal-set-btn" class="btn-primary">Entrar</button>
                 </div>
+                <div id="nickname-modal-kick" class="modal-kick-registro" hidden>
+                    <p class="modal-separador" aria-hidden="true"><span>o</span></p>
+                    <button type="button" id="btn-registro-kick" class="btn-primary btn-muted">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg>
+                        Registrarse con Kick
+                    </button>
+                    <p class="form-hint">Creas la cuenta con tu perfil de Kick. Después completas el género y el resto de ajustes.</p>
+                </div>
             </form>
             <p id="nickname-modal-error" class="modal-error" role="status" aria-live="polite"></p>
         </div>
@@ -413,7 +421,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.42.1" defer></script>
+    <script src="main.js?v=1.43.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -582,6 +590,8 @@
 
             const generoWrap = document.getElementById('nickname-modal-genero');
             if (generoWrap) generoWrap.hidden = modo !== 'registro';
+            const kickWrap = document.getElementById('nickname-modal-kick');
+            if (kickWrap) kickWrap.hidden = modo !== 'registro';
             document.querySelectorAll('input[name="nickname-genero"]').forEach((radio) => { radio.checked = false; });
 
             input.value = '';
@@ -1117,6 +1127,10 @@ setInterval(actualizarTypingIndicator, 1200);
                         return;
                     }
                     guardarSesion(datos.usuario, datos.token);
+                    if (localStorage.getItem('gocha_kick_intencion') === 'registro') {
+                        localStorage.removeItem('gocha_kick_intencion');
+                        localStorage.setItem('gocha_ajustes_pendientes', '1');
+                    }
                     location.reload();
                 } catch (e) {
                     if (boton) boton.disabled = false;
@@ -1133,6 +1147,13 @@ setInterval(actualizarTypingIndicator, 1200);
             }
 
             document.getElementById('btn-vincular-kick')?.addEventListener('click', vincularKickComunidad);
+
+            // "Registrarse con Kick" usa el mismo OAuth que "Conectar con Kick":
+            // cambia la etiqueta y que después se abren los ajustes pendientes.
+            document.getElementById('btn-registro-kick')?.addEventListener('click', () => {
+                localStorage.setItem('gocha_kick_intencion', 'registro');
+                window.KICK_COMUNIDAD?.abrirOAuth('entrar');
+            });
             window.addEventListener('kick-vinculado', actualizarAvisoKick);
 
             async function volverDeKick() {
@@ -1177,6 +1198,14 @@ setInterval(actualizarTypingIndicator, 1200);
                         abrirModalLogin();
                     }
                 }
+            }
+
+            // Tras registrarse con Kick se abren los ajustes para completar el perfil.
+            if (localStorage.getItem('gocha_ajustes_pendientes') === '1') {
+                localStorage.removeItem('gocha_ajustes_pendientes');
+                const abrirAjustesPendientes = () => window.Alpine?.store('perfil')?.abrir('ajustes');
+                if (window.Alpine) abrirAjustesPendientes();
+                else document.addEventListener('alpine:initialized', abrirAjustesPendientes, { once: true });
             }
 
             function guardarSesion(usuario, token) {

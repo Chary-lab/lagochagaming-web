@@ -3007,6 +3007,41 @@ body.light-mode {
             margin-top: 10px;
             padding: 12px 24px;
         }
+        #nickname-modal-kick { margin-top: 14px; }
+        #nickname-modal-kick[hidden] { display: none; }
+        .modal-separador {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 14px 0 12px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+        }
+        .modal-separador::before,
+        .modal-separador::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        .modal-separador span { flex-shrink: 0; }
+        #btn-registro-kick {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        #btn-registro-kick .icon { width: 16px; height: 16px; fill: currentColor; }
+        #nickname-modal-kick .form-hint {
+            margin: 8px 0 0;
+            font-size: 0.74rem;
+            line-height: 1.4;
+            color: var(--text-muted);
+            text-align: center;
+        }
         #nickname-modal-close {
             position: absolute;
             top: 10px; right: 10px;
@@ -4816,6 +4851,17 @@ body.light-mode {
 .mp-logout {
     width: 100%;
     margin-top: 10px;
+}
+.mp-pendiente {
+    margin: 0 0 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--accent-color);
+    background: var(--card-bg-subtle);
+    color: var(--text-main);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
 }
 .mp-bio { margin: 10px 0; text-align: center; white-space: pre-wrap; overflow-wrap: anywhere; }
 .mp-icono { font-size: 1rem; }

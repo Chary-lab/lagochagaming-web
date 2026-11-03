@@ -61,6 +61,8 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Respetar `prefers-reduced-motion` en animaciones nuevas (el confeti ya lo hace).
 - Chat de Kick: los iframes llevan `data-chat-kick` + `data-src` (nunca `src`). `prepararFachadaChat()` en `main.js` crea la fachada y carga el iframe al hacer scroll, clic o al terminar la carga; no añadir listeners por elemento.
 - Mantener los textos de UI en español y el tono actual.
+- Insignias de Kick: usar siempre `window.insigniasKickDe(fila)` (máximo 6, caducan a los 30 días). Devuelve `{tipo, etiqueta, icono, texto}` y pinta la píldora `.chat-kick-badge` con `kick-badge-<tipo>`. No duplicar el filtrado.
+- Puntos diarios: la píldora `#nav-puntos-dia` del navbar es la única vista de "hoy". Se actualiza con `window.pintarPuntosDia(datos)` y `window.refrescarPuntosDia()` (RPC `obtener_puntos_hoy`). No añadir otra línea de puntos en las páginas.
 - No usar `Get-Content`/`Set-Content` de PowerShell 5.1 para reemplazos masivos en archivos UTF-8: leen ANSI y rompen acentos/emojis. Usar el editor o Node/Python con UTF-8 explícito.
 
 ### 4.1 Alpine: reglas obligatorias
@@ -152,10 +154,14 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - No introducir `target="_blank"` sin `rel="noopener noreferrer"`.
 - Las cuentas de comunidad usan PIN de 4 dígitos: es una decisión de producto; no aumentar la superficie de ataque (no permitir cambiar el PIN sin verificación, no exponer hashes).
 - Recomendado en Supabase Auth: activar "Leaked password protection" y revisar los advisors tras cada migración.
+- Hay tablas con RLS activo y sin políticas (`instagram_feed`, `kick_clips`, `kick_config`, `kick_oauth_pendientes`, `kick_sessions`, `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango`, `tiktok_feed`). Es intencionado: solo se acceden por RPC `SECURITY DEFINER`. No añadir políticas sin revisar qué filas quedarían expuestas a `anon`.
+- La lectura pública de perfiles es por columna: `anon` tiene SELECT sobre `apodo, puntos, rango, genero, avatar_url, bio, links_json, icono_equipado, creado_en, kick_badges, kick_badges_at, kick_user_id, kick_username, ultima_actividad`. `rol` NO está concedido: no pedirlo en un select desde el cliente (devuelve 401).
 
 ## 7. Despliegue
 
 - Producción: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy con Jekyll, sin workflows). Los cambios pueden tardar en cachear.
+- `.nojekyll` DEBE estar versionado en la raíz: sin él Pages intenta Jekyll y el build falla (`Build with Jekyll`). El `.gitignore` usa `*` + whitelist, así que cualquier archivo nuevo necesita su `!archivo` para poder commitearse.
+- `AGENTS.md` está en cp1252, no en UTF-8. Para editarlo con acentos desde PowerShell, leer y escribir con `[System.Text.Encoding]::GetEncoding(1252)`.
 - El repo antiguo quedó bloqueado por un deployment fantasma de Pages (`400 in progress deployment`). Si vuelve a pasar: comprobar `pages/builds` y los deployments del environment `github-pages` antes de tocar código; el contenido no es el problema.
 - No hay service worker. `manifest.webmanifest` debe seguir siendo válido.
 - `robots.txt` y `sitemap.xml` deben mantenerse coherentes con las páginas públicas. Actualizar `lastmod` cuando cambie contenido público.
@@ -184,7 +190,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versi�n de esta release: `1.42.1` (los puntos del d�a pasan al anillo del navbar y se quita la l�nea bajo el perfil de Comunidad; sobre 1.42.0).
+- Versi�n de esta release: `1.43.0` (auditor�a: icono ban, iconos hu�rfanos, README, registro con Kick y ajustes pendientes; sobre 1.42.1).
 
 ## 9. Pruebas antes de commitear
 
