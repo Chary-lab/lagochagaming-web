@@ -10,6 +10,7 @@
 !robots.txt
 !sitemap.xml
 !_headers
+!.nojekyll
 !VERSION
 !app/
 !app/*
