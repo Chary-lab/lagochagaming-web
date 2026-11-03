@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.35.1] - 2026-11-03
+
+### Home: franja compacta en vez de bloque largo
+
+- `#sobre-la-gocha` pasa de 194 palabras y tres `h2` a una franja de tres
+  tarjetas (Quién es / Dónde verla / La comunidad), movida justo antes del
+  footer para no cortar el flujo entre YouTube y el muro.
+- Se conservan los enlaces internos y externos que usa Google para entender la
+  entidad, con menos altura y sin párrafos largos.
+
 ## [1.35.0] - 2026-11-03
 
 ### SEO: rastreo, entidad y contenido de apoyo

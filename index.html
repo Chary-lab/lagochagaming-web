@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.35.0">
+    <link rel="stylesheet" href="style.css?v=1.35.1">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -252,19 +252,6 @@
 </div>
     </section>
 
-    <!-- SOBRE LA GOCHA (contenido de apoyo, visible) -->
-    <section id="sobre-la-gocha" class="seo-texto" aria-labelledby="sobre-la-gocha-titulo">
-        <h2 id="sobre-la-gocha-titulo">Quién es La Gocha</h2>
-        <p>La Gocha, también conocida como La Gocha Gaming o Gochita, es Stefany: streamer venezolana en Kick y creadora de contenido. Su directo mezcla humor, charla y juegos como GTA V roleplay, y de ahí salen los clips que después circulan por TikTok, Instagram y YouTube.</p>
-        <p>La comunidad tiene su propio espacio en la web: chat con apodo y PIN, puntos, rangos y perfil público. Ahí también se publican los sorteos y las fotos de la galería, que pasan por moderación antes de salir.</p>
-        <h2>Dónde ver a La Gocha</h2>
-        <p>Los directos se emiten en <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">kick.com/lagochagaming</a>. El horario cambia según la semana, así que el calendario oficial está en el <a href="https://kick.com/lagochagaming/schedule" target="_blank" rel="noopener noreferrer">schedule de Kick</a>. Cuando está desconectada, el reproductor de esta página lo indica y deja el acceso directo al canal.</p>
-        <p>Los clips y videos cortos se suben a <a href="https://www.tiktok.com/@lagochagaming11" target="_blank" rel="noopener noreferrer">TikTok (@lagochagaming11)</a>, los reels a <a href="https://www.instagram.com/oscurostefany" target="_blank" rel="noopener noreferrer">Instagram (@oscurostefany)</a> y los videos largos al <a href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer">canal de YouTube</a>. La conversación del día a día ocurre en <a href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer">Discord</a>.</p>
-        <h2>GochiWatch y GochiSorteo</h2>
-        <p><a href="cine">GochiWatch</a> es el cine de la comunidad: películas y videos sincronizados con la reproducción de La Gocha. <a href="sorteo">GochiSorteo</a> reúne los sorteos abiertos y el historial de ganadores.</p>
-    </section>
-
-
     <!-- 💬 MURO DE SALUDOS DE LA COMUNIDAD -->
     <section id="muro" class="content-section" x-data="{ }">
         <h2>💬 MURO DE SALUDOS DE LA COMUNIDAD</h2>
@@ -406,6 +393,25 @@
         </div>
     </div>
 
+    <!-- SOBRE LA GOCHA (franja compacta, antes del footer) -->
+    <section id="sobre-la-gocha" class="seo-strip" aria-labelledby="seo-strip-titulo">
+        <h2 id="seo-strip-titulo">Sobre La Gocha</h2>
+        <div class="seo-strip-grid">
+            <div class="seo-strip-col">
+                <h3>Quién es</h3>
+                <p>Stefany, conocida como <strong>La Gocha Gaming</strong> o Gochita: streamer venezolana en Kick. Directos con humor, charla y GTA V roleplay, de donde salen los clips.</p>
+            </div>
+            <div class="seo-strip-col">
+                <h3>Dónde verla</h3>
+                <p>Directos en <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">Kick</a> y su <a href="https://kick.com/lagochagaming/schedule" target="_blank" rel="noopener noreferrer">horario semanal</a>. Clips en <a href="https://www.tiktok.com/@lagochagaming11" target="_blank" rel="noopener noreferrer">TikTok</a>, reels en <a href="https://www.instagram.com/oscurostefany" target="_blank" rel="noopener noreferrer">Instagram</a>, videos en <a href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer">YouTube</a> y charla en <a href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer">Discord</a>.</p>
+            </div>
+            <div class="seo-strip-col">
+                <h3>La comunidad</h3>
+                <p><a href="comunidad">Chat con puntos y rangos</a>, <a href="galeria">galería moderada</a>, <a href="cine">GochiWatch</a> para ver películas juntos y <a href="sorteo">GochiSorteo</a> con el historial de ganadores.</p>
+            </div>
+        </div>
+    </section>
+
     <!-- FOOTER -->
 </div>
 
@@ -442,7 +448,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" defer></script>
 
-    <script src="main.js?v=1.35.0" defer></script>
+    <script src="main.js?v=1.35.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script>

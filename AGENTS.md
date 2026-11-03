@@ -182,7 +182,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.35.0` (footer estático, metadatos y contenido de apoyo para SEO; sobre 1.34.3).
+- Versión de esta release: `1.35.1` (franja compacta `#sobre-la-gocha` antes del footer; sobre 1.35.0).
 
 ## 9. Pruebas antes de commitear
 

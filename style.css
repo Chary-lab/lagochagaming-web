@@ -1239,6 +1239,21 @@ body.light-mode #lightbox .lightbox-caption {
 .seo-texto a { color: var(--accent-color); text-decoration: none; }
 .seo-texto a:hover { text-decoration: underline; }
 
+/* Franja compacta "Sobre La Gocha" (home, antes del footer) */
+.seo-strip { max-width: 1100px; margin: 40px auto 8px; padding: 0 20px; }
+.seo-strip > h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); text-align: center; margin: 0 0 14px; }
+.seo-strip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.seo-strip-col { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; }
+.seo-strip-col h3 { margin: 0 0 6px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); }
+.seo-strip-col p { margin: 0; font-size: 0.88rem; line-height: 1.55; color: var(--text-muted); }
+.seo-strip-col a { color: var(--text-main); text-decoration: none; border-bottom: 1px solid var(--border-color); }
+.seo-strip-col a:hover { color: var(--accent-color); border-bottom-color: var(--accent-color); }
+@media (max-width: 720px) {
+    .seo-strip { margin: 28px auto 6px; }
+    .seo-strip-grid { grid-template-columns: 1fr; gap: 10px; }
+    .seo-strip-col { padding: 12px 14px; }
+}
+
 /* --- COMPONENTES UI Y NOTIFICACIONES MODERNAS --- */
 .gochi-toast-center {
     position: fixed;
