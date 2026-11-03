@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.38.0">
+    <link rel="stylesheet" href="style.css?v=1.39.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -136,6 +136,9 @@
                                   @keydown.enter.prevent="window.abrirPerfilUsuario?.(msg.autor)"
                                   @keydown.space.prevent="window.abrirPerfilUsuario?.(msg.autor)"
                                   x-text="msg.autor || 'Anónimo'"></span>
+                            <template x-for="b in $store.rangosChat.insignias(msg.autor)" :key="b.tipo">
+                                <span class="chat-kick-badge" :class="'kick-badge-' + b.tipo" :title="b.texto" x-text="b.etiqueta"></span>
+                            </template>
                             <span class="chat-msg-meta">
                                  <span class="chat-msg-fecha" x-text="msg.fecha"></span>
                              </span>
@@ -269,6 +272,11 @@
                     <!-- Bio y enlaces (se muestran si existen) -->
                     <div id="user-bio" class="user-bio" hidden></div>
                     <div id="user-links" class="user-links" hidden></div>
+
+                    <div id="kick-vinculo" class="kick-vinculo" hidden>
+                        <span id="kick-vinculo-texto" class="kick-vinculo-texto"></span>
+                        <button type="button" id="btn-vincular-kick" class="btn-primary btn-muted">Vincular Kick</button>
+                    </div>
 
                     <div id="aviso-genero" class="aviso-genero" hidden>
                         <span><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-circle-info"></use></svg> Elige tu género en Ajustes para asignar tu avatar.</span>
@@ -413,12 +421,14 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.38.0" defer></script>
+    <script src="main.js?v=1.39.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
             crossorigin="anonymous"></script>
     <script>
+        // Comunidad maneja su propio #kick= (entrar o vincular); main.js se aparta.
+        window.COMUNIDAD_KICK_PROPIO = true;
         // Funciones globales para los botones de login/registro (llamadas desde HTML)
         let _modalModo = 'login'; // 'login' o 'registro'
 
@@ -442,12 +452,17 @@
             // Rangos por apodo para el "relieve" del nombre en el chat.
             window.Alpine.store('rangosChat', {
                 mapa: {}, // apodo en minúsculas -> clave de rango
+                badges: {}, // apodo en minúsculas -> insignias recientes de Kick
                 clave(apodo) {
                     const k = String(apodo || '').trim().toLowerCase();
                     return this.mapa[k] || 'polvo_cosmico';
                 },
                 clase(apodo) {
                     return 'rango-texto-' + this.clave(apodo);
+                },
+                insignias(apodo) {
+                    const k = String(apodo || '').trim().toLowerCase();
+                    return this.badges[k] || [];
                 }
             });
 
@@ -1062,32 +1077,42 @@ setInterval(actualizarTypingIndicator, 1200);
                 } catch (e) { return { ok: false, error: e.message }; }
             }
 
-            // === Entrar a la comunidad con Kick ===
+            // === Kick en comunidad: entrar o vincular ===
             const KICK_FN = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1';
+            const CLAVE_KICK_OBJETIVO = 'gocha_kick_objetivo';
+
+            function actualizarAvisoKick() {
+                const caja = document.getElementById('kick-vinculo');
+                const texto = document.getElementById('kick-vinculo-texto');
+                const boton = document.getElementById('btn-vincular-kick');
+                if (!caja || !texto || !boton) return;
+                const sesion = window.obtenerSesionUsuarioComunidad();
+                if (!sesion || !sesion.id) { caja.hidden = true; return; }
+                caja.hidden = false;
+                if (sesion.kick_user_id) {
+                    caja.classList.add('vinculado');
+                    texto.textContent = 'Kick vinculado: @' + (sesion.kick_username || sesion.apodo);
+                    boton.hidden = true;
+                } else {
+                    caja.classList.remove('vinculado');
+                    texto.textContent = 'Vincula tu Kick para entrar sin PIN y mostrar tus insignias.';
+                    boton.hidden = false;
+                }
+            }
 
             async function entrarConKickComunidad() {
                 const boton = document.getElementById('btn-login-kick');
                 const token = localStorage.getItem('gocha_kick_token');
                 if (!token) {
-                    try {
-                        const res = await fetch(KICK_FN + '/kick-chat', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ accion: 'entrar', vuelta: '/comunidad' })
-                        });
-                        const datos = await res.json().catch(() => ({}));
-                        if (datos.url) { location.href = datos.url; return; }
-                        alert(datos.error || 'No se pudo abrir el login de Kick.');
-                    } catch (e) {
-                        alert('No se pudo abrir el login de Kick.');
-                    }
-                    return;
+                    sessionStorage.setItem(CLAVE_KICK_OBJETIVO, 'entrar');
+                    return window.KICK_COMUNIDAD.abrirOAuth('entrar');
                 }
                 if (boton) boton.disabled = true;
                 try {
                     const res = await fetch(KICK_FN + '/kick-comunidad', {
                         method: 'POST',
-                        headers: { Authorization: 'Bearer ' + token }
+                        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                        body: JSON.stringify({ accion: 'entrar' })
                     });
                     const datos = await res.json().catch(() => ({}));
                     if (!res.ok || !datos.token) {
@@ -1096,7 +1121,11 @@ setInterval(actualizarTypingIndicator, 1200);
                             localStorage.removeItem('gocha_kick_token');
                             return entrarConKickComunidad();
                         }
-                        alert(datos.error || 'No se pudo entrar con Kick.');
+                        if (datos.error === 'existe_sin_vincular') {
+                            alert(datos.mensaje || 'Esa cuenta ya existe. Entra con tu apodo y PIN, y vincula Kick desde tu perfil.');
+                            return;
+                        }
+                        alert(datos.mensaje || datos.error || 'No se pudo entrar con Kick.');
                         return;
                     }
                     guardarSesion(datos.usuario, datos.token);
@@ -1107,23 +1136,41 @@ setInterval(actualizarTypingIndicator, 1200);
                 }
             }
 
-            document.getElementById('btn-login-kick')?.addEventListener('click', entrarConKickComunidad);
+            async function vincularKickComunidad() {
+                const boton = document.getElementById('btn-vincular-kick');
+                if (boton) boton.disabled = true;
+                const ok = await window.KICK_COMUNIDAD.vincular();
+                if (boton) boton.disabled = false;
+                if (ok) actualizarAvisoKick();
+            }
 
-            (function volverDeKick() {
+            document.getElementById('btn-login-kick')?.addEventListener('click', entrarConKickComunidad);
+            document.getElementById('btn-vincular-kick')?.addEventListener('click', vincularKickComunidad);
+            window.addEventListener('kick-vinculado', actualizarAvisoKick);
+
+            async function volverDeKick() {
                 const hash = location.hash.startsWith('#') ? location.hash.slice(1) : '';
                 if (!hash) return;
                 const params = new URLSearchParams(hash);
                 const token = params.get('kick');
                 const error = params.get('kick_error');
                 if (!token && !error) return;
+                const objetivo = sessionStorage.getItem(CLAVE_KICK_OBJETIVO) || 'entrar';
+                sessionStorage.removeItem(CLAVE_KICK_OBJETIVO);
                 history.replaceState(null, '', location.pathname + location.search);
-                if (token) {
-                    localStorage.setItem('gocha_kick_token', token);
-                    entrarConKickComunidad();
-                } else if (error) {
+                if (error) {
                     alert(error);
+                    return;
                 }
-            })();
+                localStorage.setItem('gocha_kick_token', token);
+                if (objetivo === 'vincular') {
+                    await vincularKickComunidad();
+                } else {
+                    await entrarConKickComunidad();
+                }
+            }
+            // main.js va con defer: hasta DOMContentLoaded no existe KICK_COMUNIDAD.
+            document.addEventListener('DOMContentLoaded', volverDeKick);
 
             function guardarSesion(usuario, token) {
                 const u = usuario || {};
@@ -1188,6 +1235,7 @@ setInterval(actualizarTypingIndicator, 1200);
 
                 // Refrescar desde la base de datos (por si el login vino incompleto).
                 cargarPerfilExtendido();
+                actualizarAvisoKick();
                 if (token) {
                     supabase.rpc('obtener_puntos_hoy', { p_token: token })
                         .then(({ data }) => pintarPuntosHoy(data))
@@ -1783,6 +1831,33 @@ setInterval(actualizarTypingIndicator, 1200);
             }
 
             // Rango de los autores visibles para el relieve del nombre en el chat.
+            // De paso guarda sus insignias de Kick si son recientes.
+            const DIAS_INSIGNIA_KICK = 30;
+            const ETIQUETA_INSIGNIA = {
+                moderator: 'MOD',
+                vip: 'VIP',
+                subscriber: 'SUB',
+                founder: 'FOUNDER',
+                sub_gifter: 'GIFT',
+                og: 'OG',
+                verified: 'OK',
+                broadcaster: 'CANAL'
+            };
+
+            function insigniasKickRecientes(fila) {
+                if (!fila || !Array.isArray(fila.kick_badges) || !fila.kick_badges_at) return [];
+                const edad = Date.now() - new Date(fila.kick_badges_at).getTime();
+                if (!Number.isFinite(edad) || edad > DIAS_INSIGNIA_KICK * 86400000) return [];
+                return fila.kick_badges
+                    .filter(b => b && ETIQUETA_INSIGNIA[b.type])
+                    .slice(0, 6)
+                    .map(b => ({
+                        tipo: b.type,
+                        etiqueta: ETIQUETA_INSIGNIA[b.type],
+                        texto: b.text || b.type
+                    }));
+            }
+
             async function cargarRangosChat(autores) {
                 if (!window.Alpine || !Array.isArray(autores)) return;
                 const store = window.Alpine.store('rangosChat');
@@ -1799,10 +1874,13 @@ setInterval(actualizarTypingIndicator, 1200);
                 try {
                     const { data } = await supabase
                         .from('usuarios_comunidad')
-                        .select('apodo, puntos')
+                        .select('apodo, puntos, kick_badges, kick_badges_at')
                         .in('apodo', faltan);
                     (data || []).forEach((u) => {
-                        store.mapa[String(u.apodo).toLowerCase()] = window.rangoPorPuntos(Number(u.puntos) || 0).clave;
+                        const k = String(u.apodo).toLowerCase();
+                        store.mapa[k] = window.rangoPorPuntos(Number(u.puntos) || 0).clave;
+                        const insignias = insigniasKickRecientes(u);
+                        if (insignias.length) store.badges[k] = insignias;
                     });
                 } catch (e) { /* el relieve es cosmético */ }
             }
@@ -2340,6 +2418,7 @@ if (chatForm) {
             function mostrarAreaLoginComunidad() {
                 if (chatLoginForm) chatLoginForm.classList.remove('is-visible');
                 if (chatLoginArea) chatLoginArea.style.display = '';
+                actualizarAvisoKick();
             }
 
             if (savedApodo) {

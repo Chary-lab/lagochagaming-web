@@ -3,6 +3,20 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.39.0] - 2026-11-03
+
+### Vincular Kick sin auto-vínculos
+
+- Se retira el auto-vínculo por apodo: nadie hereda el perfil de otro por
+  escribir su nombre en Kick.
+- "Entrar con Kick" solo entra si la cuenta ya está vinculada. Si el apodo
+  existe sin vínculo, avisa y pide entrar con apodo y PIN.
+- Nuevo aviso en el perfil de la comunidad y botón en Ajustes para vincular
+  Kick. Vincular exige la sesión de comunidad y la de Kick a la vez.
+- McChary y LaGochaGaming quedan vinculadas a sus cuentas de Kick.
+- Insignias de Kick (mod, VIP, suscriptor, fundador, gifter, OG) en el chat de
+  comunidad, solo si el usuario escribió en Kick en los últimos 30 días.
+
 ## [1.38.0] - 2026-11-03
 
 ### Entrar a la comunidad con Kick

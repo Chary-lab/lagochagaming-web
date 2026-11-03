@@ -281,6 +281,104 @@ window.actualizarSesionUsuarioComunidad = function actualizarSesionUsuarioComuni
     return nuevo;
 };
 
+// === Kick: vincular la cuenta de comunidad con la de Kick ===
+// Vincular exige las dos sesiones: la de comunidad (PIN) y la de Kick.
+// Así nadie se queda con el perfil de otro por escribir su apodo en Kick.
+window.KICK_COMUNIDAD = (function () {
+    const FN = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1';
+    const CLAVE_OBJETIVO = 'gocha_kick_objetivo';
+
+    function sesion() {
+        return window.obtenerSesionUsuarioComunidad();
+    }
+
+    function vinculado() {
+        return !!sesion().kick_user_id;
+    }
+
+    async function abrirOAuth(objetivo) {
+        try {
+            sessionStorage.setItem(CLAVE_OBJETIVO, objetivo);
+            const res = await fetch(FN + '/kick-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accion: 'entrar', vuelta: location.pathname + location.search })
+            });
+            const datos = await res.json().catch(() => ({}));
+            if (datos.url) {
+                location.href = datos.url;
+                return false;
+            }
+            window.mostrarToast?.(datos.error || 'No se pudo abrir el login de Kick.', true);
+        } catch (e) {
+            window.mostrarToast?.('No se pudo abrir el login de Kick.', true);
+        }
+        return false;
+    }
+
+    async function vincular() {
+        const tokenComunidad = localStorage.getItem('comunidad_session_token');
+        if (!tokenComunidad) {
+            window.mostrarToast?.('Inicia sesión en la comunidad antes de vincular Kick.', true);
+            return false;
+        }
+        const tokenKick = localStorage.getItem('gocha_kick_token');
+        if (!tokenKick) return abrirOAuth('vincular');
+        try {
+            const res = await fetch(FN + '/kick-comunidad', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tokenKick },
+                body: JSON.stringify({ accion: 'vincular', token: tokenComunidad })
+            });
+            const datos = await res.json().catch(() => ({}));
+            if (res.status === 401) {
+                localStorage.removeItem('gocha_kick_token');
+                return abrirOAuth('vincular');
+            }
+            if (!res.ok || !datos.ok) {
+                window.mostrarToast?.(datos.mensaje || datos.error || 'No se pudo vincular Kick.', true);
+                return false;
+            }
+            window.actualizarSesionUsuarioComunidad(datos.usuario || {});
+            window.dispatchEvent(new CustomEvent('kick-vinculado', { detail: datos.usuario || {} }));
+            window.mostrarToast?.('Kick vinculado. Ya puedes entrar sin PIN.', false);
+            return true;
+        } catch (e) {
+            window.mostrarToast?.('No se pudo vincular Kick.', true);
+            return false;
+        }
+    }
+
+    // Vuelta del OAuth fuera de comunidad: solo resuelve el vínculo.
+    // El login del chat y el de comunidad tienen sus propios manejadores.
+    async function volverDelHash() {
+        if (window.COMUNIDAD_KICK_PROPIO) return false;
+        const hash = location.hash.startsWith('#') ? location.hash.slice(1) : '';
+        if (!hash) return false;
+        const params = new URLSearchParams(hash);
+        const token = params.get('kick');
+        const error = params.get('kick_error');
+        if (!token && !error) return false;
+        const objetivo = sessionStorage.getItem(CLAVE_OBJETIVO) || 'auto';
+        if (objetivo !== 'vincular' && !error) return false;
+        sessionStorage.removeItem(CLAVE_OBJETIVO);
+        history.replaceState(null, '', location.pathname + location.search);
+        if (error) {
+            window.mostrarToast?.(error, true);
+            return false;
+        }
+        localStorage.setItem('gocha_kick_token', token);
+        return await vincular();
+    }
+
+    return { vinculado, vincular, abrirOAuth, volverDelHash };
+})();
+
+window.addEventListener('kick-vinculado', (e) => {
+    const store = window.Alpine?.store?.('perfil');
+    if (store) store.usuario = Object.assign({}, store.usuario, e.detail || {});
+});
+
 // Latido de actividad: permite saber si una cuenta está activa aunque esté
 // navegando fuera de Comunidad. El panel de Usuarios considera "en línea"
 // a quien haya latido en los últimos 2 minutos.
@@ -1959,6 +2057,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try { window.sincronizarSesionComunidadVinculada(); } catch (e) { console.error('sincronizarSesionComunidadVinculada:', e); }
     try { iniciarLatidoComunidad(); } catch (e) { console.error('iniciarLatidoComunidad:', e); }
     try { iniciarPuntosGlobal(); } catch (e) { console.error('iniciarPuntosGlobal:', e); }
+    try { window.KICK_COMUNIDAD?.volverDelHash(); } catch (e) { console.error('volverDelHash:', e); }
 });
 
 // === MODAL DE SUGERENCIAS (firma del creador) ===
@@ -2205,6 +2304,17 @@ document.addEventListener('DOMContentLoaded', () => {
               </label>
             </template>
           </fieldset>
+          <div class="mp-kick" x-show="$store.perfil.kickDisponible">
+            <div class="mp-kick-texto">
+              <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg>
+              <span x-text="$store.perfil.kickUsuario
+                ? 'Kick vinculado: @' + $store.perfil.kickUsuario
+                : 'Vincula tu Kick para entrar sin PIN y mostrar tus insignias en el chat.'"></span>
+            </div>
+            <button type="button" class="btn-primary btn-muted"
+                    x-show="!$store.perfil.kickUsuario"
+                    x-on:click="$store.perfil.vincularKick()">Vincular Kick</button>
+          </div>
           <p class="mp-error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
           <div class="mp-actions">
             <button type="button" class="btn-primary btn-muted" x-on:click="$store.perfil.vista = 'perfil'">Cancelar</button>
@@ -2279,6 +2389,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (this.avatarSeleccionado === '') return this.avatarPorGenero();
         return this.avatarSeleccionado;
       },
+      get kickUsuario() {
+        return this.usuario.kick_user_id ? (this.usuario.kick_username || 'cuenta vinculada') : '';
+      },
+      get kickDisponible() {
+        return !!localStorage.getItem('comunidad_session_token');
+      },
+      vincularKick() {
+        window.KICK_COMUNIDAD?.vincular();
+      },
 
       abrir(vista) {
         crearModal();
@@ -2344,7 +2463,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (userId) {
             const { data, error } = await window.supabase
               .from('usuarios_comunidad')
-              .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en')
+              .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_user_id,kick_username')
               .eq('id', userId)
               .maybeSingle();
             if (!error && data) {
@@ -2358,7 +2477,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 bio: data.bio ?? null,
                 links_json: data.links_json ?? null,
                 icono: data.icono_equipado ?? '',
-                creado_en: data.creado_en ?? u.creado_en ?? null
+                creado_en: data.creado_en ?? u.creado_en ?? null,
+                kick_user_id: data.kick_user_id ?? null,
+                kick_username: data.kick_username ?? null
               });
             }
           }

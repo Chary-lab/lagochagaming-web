@@ -4695,6 +4695,21 @@ body.light-mode {
 .mp-vacio { color: var(--text-muted); font-size: 0.88rem; }
 .mp-cargando { color: var(--text-muted); text-align: center; padding: 24px 0; }
 .mp-error { color: #ff6b6b; font-size: 0.88rem; margin: 8px 0; }
+.mp-kick {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    padding: 10px 12px;
+    border: 1px solid rgba(83, 252, 24, 0.35);
+    border-radius: 10px;
+    background: rgba(83, 252, 24, 0.08);
+    font-size: 0.85rem;
+}
+.mp-kick-texto { flex: 1 1 180px; }
+.mp-kick .btn-primary { padding: 6px 10px; font-size: 0.8rem; }
 .mp-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; margin-top: 16px; }
 .mp-avatar-acciones { display: flex; justify-content: center; margin-bottom: 6px; }
 .mp-field { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; font-size: 0.9rem; font-weight: 600; }
@@ -4776,6 +4791,52 @@ body.light-mode {
 }
 .aviso-genero[hidden] { display: none; }
 .aviso-genero .btn-primary { padding: 6px 10px; font-size: 0.8rem; }
+
+/* --- Vinculo con Kick en el perfil --- */
+.kick-vinculo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(83, 252, 24, 0.35);
+    border-radius: 10px;
+    background: rgba(83, 252, 24, 0.08);
+    font-size: 0.82rem;
+}
+.kick-vinculo[hidden] { display: none; }
+.kick-vinculo.vinculado {
+    border-color: rgba(83, 252, 24, 0.5);
+    background: rgba(83, 252, 24, 0.14);
+}
+.kick-vinculo-texto { flex: 1 1 180px; }
+.kick-vinculo .btn-primary { padding: 6px 10px; font-size: 0.8rem; }
+.kick-vinculo .btn-primary[hidden] { display: none; }
+
+/* --- Insignias de Kick en el chat de comunidad --- */
+.chat-kick-badge {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 0 5px;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    vertical-align: middle;
+    color: #0b1207;
+    background: #53fc18;
+}
+.chat-kick-badge.kick-badge-moderator { background: #4ade80; }
+.chat-kick-badge.kick-badge-vip { background: #f472b6; }
+.chat-kick-badge.kick-badge-subscriber { background: #fbbf24; }
+.chat-kick-badge.kick-badge-founder { background: #a78bfa; }
+.chat-kick-badge.kick-badge-sub_gifter { background: #38bdf8; }
+.chat-kick-badge.kick-badge-og { background: #fb923c; }
+.chat-kick-badge.kick-badge-verified { background: #e2e8f0; }
+.chat-kick-badge.kick-badge-broadcaster { background: #ef4444; color: #fff; }
 
 /* --- Tienda: premios de avatar y estado obtenido --- */
 .tienda-item-avatar {
