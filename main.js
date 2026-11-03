@@ -318,6 +318,23 @@ window.actualizarSesionUsuarioComunidad = function actualizarSesionUsuarioComuni
 // === Kick: vincular la cuenta de comunidad con la de Kick ===
 // Vincular exige las dos sesiones: la de comunidad (PIN) y la de Kick.
 // Así nadie se queda con el perfil de otro por escribir su apodo en Kick.
+// Vuelta del OAuth de Kick. En el APK agrega la marca que hace que el
+// callback vuelva por el esquema lagochagaming:// en vez de quedarse en la web.
+window.vueltaKickApp = function vueltaKickApp(objetivo) {
+    const vuelta = location.pathname + location.search;
+    let enApp = false;
+    try {
+        enApp = !!(window.LaGochaNative
+            && typeof window.LaGochaNative.supportsKickDeepLink === 'function'
+            && window.LaGochaNative.supportsKickDeepLink());
+    } catch (e) {
+        enApp = false;
+    }
+    if (!enApp) return vuelta;
+    return vuelta + (vuelta.includes('?') ? '&' : '?')
+        + 'kick_app=1&kick_obj=' + encodeURIComponent(objetivo);
+};
+
 window.KICK_COMUNIDAD = (function () {
     const FN = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1';
     const CLAVE_OBJETIVO = 'gocha_kick_objetivo';
@@ -333,19 +350,7 @@ window.KICK_COMUNIDAD = (function () {
     async function abrirOAuth(objetivo) {
         try {
             sessionStorage.setItem(CLAVE_OBJETIVO, objetivo);
-            let vuelta = location.pathname + location.search;
-            let enApp = false;
-            try {
-                enApp = !!(window.LaGochaNative
-                    && typeof window.LaGochaNative.supportsKickDeepLink === 'function'
-                    && window.LaGochaNative.supportsKickDeepLink());
-            } catch (e) {
-                enApp = false;
-            }
-            if (enApp) {
-                vuelta += (vuelta.includes('?') ? '&' : '?')
-                    + 'kick_app=1&kick_obj=' + encodeURIComponent(objetivo);
-            }
+            const vuelta = window.vueltaKickApp(objetivo);
             const res = await fetch(FN + '/kick-chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -757,9 +762,9 @@ window.insertarNavbar = function insertarNavbar() {
             </summary>
             <div class="nav-app-panel">
                 <p class="nav-app-titulo">Gochita App</p>
-                <a class="nav-app-opcion" href="app/LaGochaGaming.apk?v=1.5" download type="application/vnd.android.package-archive" data-umami-event="descarga-apk">
+                <a class="nav-app-opcion" href="app/LaGochaGaming.apk?v=1.6" download type="application/vnd.android.package-archive" data-umami-event="descarga-apk">
                     <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
-                    <span class="nav-app-texto"><strong>Android</strong><small>v1.5 · 4,2 MB · Android 7+</small></span>
+                    <span class="nav-app-texto"><strong>Android</strong><small>v1.6 · 4,2 MB · Android 7+</small></span>
                     <span class="nav-app-accion">Descargar</span>
                 </a>
                 <div class="nav-app-opcion nav-app-opcion--pronto">
@@ -2087,7 +2092,7 @@ window.CHAT_KICK = {
         };
 
         window.CHAT_KICK.conectar = async (host) => {
-            const res = await pedir({ accion: 'entrar', vuelta: location.pathname + location.search });
+            const res = await pedir({ accion: 'entrar', vuelta: window.vueltaKickApp('chat') });
             if (!res.ok || !res.datos.url) {
                 host._mostrarAviso(res.datos.error || 'No se pudo abrir el login de Kick.');
                 return;
