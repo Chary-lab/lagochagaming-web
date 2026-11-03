@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.36.0] - 2026-11-03
+
+### Menú App en la navbar
+
+- Nuevo desplegable "App" con icono de Android en las cinco páginas (se genera
+  desde `main.js`, como el resto del menú).
+- Opción Android: descarga directa del APK firmado (v1.3, 4,2 MB, Android 7+),
+  con evento de Umami para medir descargas.
+- Opción iPhone/iPad: reloj y "En camino", sin enlace, porque todavía no hay app.
+- Se cierra al hacer clic fuera, con Escape o al descargar; en móvil se integra
+  dentro del menú hamburguesa a ancho completo.
+
 ## [1.35.2] - 2026-11-03
 
 ### APK firmada y publicada

@@ -559,6 +559,28 @@ window.insertarNavbar = function insertarNavbar() {
         return `<a href="${href}" class="${clases}"${aria}${id}>${enlace.texto}</a>`;
     }).join('');
 
+    const appMenu = `
+        <details class="nav-app" id="nav-app">
+            <summary class="nav-link nav-app-toggle" aria-label="Opciones de descarga de Gochita App">
+                <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
+                <span>App</span>
+            </summary>
+            <div class="nav-app-panel">
+                <p class="nav-app-titulo">Gochita App</p>
+                <a class="nav-app-opcion" href="app/LaGochaGaming.apk?v=1.3" download type="application/vnd.android.package-archive" data-umami-event="descarga-apk">
+                    <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
+                    <span class="nav-app-texto"><strong>Android</strong><small>v1.3 · 4,2 MB · Android 7+</small></span>
+                    <span class="nav-app-accion">Descargar</span>
+                </a>
+                <div class="nav-app-opcion nav-app-opcion--pronto">
+                    <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-brands-apple"></use></svg>
+                    <span class="nav-app-texto"><strong>iPhone / iPad</strong><small>Aún no disponible</small></span>
+                    <span class="nav-app-accion"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-clock"></use></svg> En camino</span>
+                </div>
+                <p class="nav-app-nota">Si Android pide permiso para instalar apps desconocidas, acéptalo: es el APK oficial.</p>
+            </div>
+        </details>`;
+
     nav.setAttribute('x-data', '{ }');
     nav.setAttribute('x-on:resize.window', 'if (window.innerWidth >= 1101) $store.ui.menuAbierto = false');
     nav.innerHTML = `
@@ -569,6 +591,7 @@ window.insertarNavbar = function insertarNavbar() {
                 x-on:click="$store.ui.menuAbierto = !$store.ui.menuAbierto"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg></button>
         <div class="nav-links navbar-nav" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
             ${enlaces}
+            ${appMenu}
         </div>
         <div class="nav-right">
             <span id="nav-live-tag" class="nav-live-tag" hidden>
@@ -579,6 +602,23 @@ window.insertarNavbar = function insertarNavbar() {
         </div>
     `;
     nav.dataset.montado = '1';
+
+    const appDetalle = nav.querySelector('#nav-app');
+    if (appDetalle) {
+        const cerrarApp = () => appDetalle.removeAttribute('open');
+        document.addEventListener('click', (evento) => {
+            if (appDetalle.open && !appDetalle.contains(evento.target)) cerrarApp();
+        });
+        document.addEventListener('keydown', (evento) => {
+            if (evento.key === 'Escape' && appDetalle.open) {
+                cerrarApp();
+                appDetalle.querySelector('summary').focus();
+            }
+        });
+        appDetalle.addEventListener('click', (evento) => {
+            if (evento.target.closest('a')) cerrarApp();
+        });
+    }
 };
 
 window.insertarNavbar();
