@@ -44,6 +44,8 @@ Las migraciones SQL no se versionan en este repo: el historial vive en Supabase.
 
 La navbar vive en `main.js` (`window.NAVBAR_ENLACES`): cada página solo tiene un `<nav id="navbar-root">` vacío y `insertarNavbar()` pinta enlaces, orden y estado activo. Para cambiar el menú, editar solo `main.js`. El estado EN VIVO (`#nav-live-tag` + `.navbar.live-glow`) lo alterna `verificarEstadoStream()`.
 
+El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de las cinco páginas para que los rastreadores encuentren las subpáginas sin ejecutar JavaScript. No moverlo a `main.js`.
+
 ## 4. Convenciones de JavaScript
 
 - Scripts clásicos, sin módulos ES. Para helpers usados desde HTML/Alpine, exponer en `window` (`window.escapeHtml`, `window.abrirLightboxDesdeTarjeta`, etc.).
@@ -180,7 +182,7 @@ La navbar vive en `main.js` (`window.NAVBAR_ENLACES`): cada página solo tiene u
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.34.3` (caché de feeds a 40 min y typing de comunidad a 1200 ms; sobre 1.34.2).
+- Versión de esta release: `1.35.0` (footer estático, metadatos y contenido de apoyo para SEO; sobre 1.34.3).
 
 ## 9. Pruebas antes de commitear
 

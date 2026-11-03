@@ -3,6 +3,23 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.35.0] - 2026-11-03
+
+### SEO: rastreo, entidad y contenido de apoyo
+
+- Footer con enlaces estáticos a Inicio, Comunidad, Galería, GochiWatch y
+  Sorteo en las cinco páginas. Antes solo existían en el navbar inyectado por
+  `main.js`, así que las subpáginas no tenían enlaces entrantes en el HTML.
+- Home: `title`, `description`, Open Graph y Twitter Card con las variantes
+  reales (`La Gocha Gaming`, `Gochita`); H1 pasa de `LAGOCHAGAMING` a
+  `La Gocha Gaming`.
+- Home: sección visible "Quién es La Gocha" / "Dónde ver a La Gocha" /
+  "GochiWatch y GochiSorteo".
+- `cine.html` y `sorteo.html`: texto propio sobre GochiWatch y GochiSorteo.
+- Schema `Person`: `description` y `knowsAbout`.
+- `sitemap.xml`: `lastmod` a 2026-11-03.
+- Caché de `style.css`/`main.js` actualizada a `?v=1.35.0`.
+
 ## [1.34.3] - 2026-11-02
 
 ### Feeds más calientes y menos polling

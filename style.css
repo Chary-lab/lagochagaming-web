@@ -1226,6 +1226,18 @@ body.light-mode #lightbox .lightbox-caption {
 .footer-social-icons .social-icon { display: flex; justify-content: center; align-items: center; width: 45px; height: 45px; border: 1px solid var(--border-color); color: var(--text-muted); text-decoration: none; font-size: 1.1rem; font-weight: bold; border-radius: 6px; transition: all 0.3s ease; }
 .footer-social-icons .social-icon:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-3px); box-shadow: var(--glow); }
 .footer-copyright { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px; text-align: center; margin-top: 10px; text-transform: uppercase; }
+/* Enlaces del footer: HTML estático, no inyectar desde main.js (rastreo SEO) */
+.footer-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; padding: 0 20px; }
+.footer-nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; transition: color 0.2s ease; }
+.footer-nav a:hover, .footer-nav a:focus-visible { color: var(--accent-color); }
+
+/* Texto de apoyo con contenido real (home, GochiWatch, GochiSorteo) */
+.seo-texto { max-width: 900px; margin: 45px auto; padding: 0 20px; }
+.seo-texto h2 { font-size: 1.25rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); border-left: 4px solid var(--accent-color); padding-left: 10px; margin: 0 0 12px; }
+.seo-texto h2 + p { margin-top: 0; }
+.seo-texto p { font-size: 0.95rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 12px; }
+.seo-texto a { color: var(--accent-color); text-decoration: none; }
+.seo-texto a:hover { text-decoration: underline; }
 
 /* --- COMPONENTES UI Y NOTIFICACIONES MODERNAS --- */
 .gochi-toast-center {
