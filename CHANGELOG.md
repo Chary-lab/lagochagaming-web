@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.4] - 2026-11-03
+
+### El login de Kick vuelve a la app
+
+- El OAuth de Kick termina ahora dentro del APK. La web detecta la vuelta
+  marcada por la app y la reenvía al esquema `lagochagaming://kick`.
+- La app recibe el token y completa el login o la vinculación en Comunidad.
+- Los navegadores y las versiones antiguas del APK mantienen el flujo normal.
+- APK 1.5 (versionCode 8), firmada con la misma keystore.
+
 ## [1.43.3] - 2026-11-03
 
 ### APK 1.4fix

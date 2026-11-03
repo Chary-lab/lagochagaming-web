@@ -9,6 +9,38 @@ try {
     // file:// no permite replaceState; se ignora
 }
 
+// Vuelta del OAuth de Kick al APK. El callback cae en el navegador; si la app
+// marco kick_app=1, se reenvia al esquema propio para terminar la sesion dentro
+// del WebView. Solo las versiones nuevas declaran supportsKickDeepLink().
+(function () {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('kick_app') !== '1') return;
+        const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const token = hash.get('kick') || '';
+        const error = hash.get('kick_error') || '';
+        if (!token && !error) return;
+        const objetivo = params.get('kick_obj') || 'entrar';
+        const query = new URLSearchParams();
+        if (token) query.set('kick', token);
+        if (error) query.set('kick_error', error);
+        query.set('objetivo', objetivo);
+        const destino = 'lagochagaming://kick?' + query.toString();
+        const aviso = document.createElement('div');
+        aviso.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:#05070a;color:#fff;font-family:system-ui,sans-serif;text-align:center';
+        aviso.innerHTML = '<strong style="font-size:20px">Vuelve a LaGochaGaming</strong><span style="color:#9aa4b2">Pulsa el boton para terminar el login dentro de la app.</span>';
+        const boton = document.createElement('a');
+        boton.href = destino;
+        boton.textContent = 'Abrir LaGochaGaming';
+        boton.style.cssText = 'display:inline-block;padding:14px 22px;border-radius:999px;background:#39d353;color:#04120a;font-weight:700;text-decoration:none';
+        aviso.appendChild(boton);
+        if (document.body) document.body.appendChild(aviso);
+        else document.addEventListener('DOMContentLoaded', () => document.body.appendChild(aviso), { once: true });
+    } catch (e) {
+        // Sin handler del esquema: se queda en la web.
+    }
+})();
+
 const SUPABASE_URL = 'https://cydiyaacnyydprgffmkq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5ZGl5YWFjbnl5ZHByZ2ZmbWtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3NjY1ODQsImV4cCI6MjEwNzM0MjU4NH0.fkipcX7Lx4lhGSa0zTDQ9BDNN3jiGTksB2hMlHH1bAs';
 // El token de comunidad viaja en cada petición: es_admin()/es_owner() lo leen
@@ -301,10 +333,23 @@ window.KICK_COMUNIDAD = (function () {
     async function abrirOAuth(objetivo) {
         try {
             sessionStorage.setItem(CLAVE_OBJETIVO, objetivo);
+            let vuelta = location.pathname + location.search;
+            let enApp = false;
+            try {
+                enApp = !!(window.LaGochaNative
+                    && typeof window.LaGochaNative.supportsKickDeepLink === 'function'
+                    && window.LaGochaNative.supportsKickDeepLink());
+            } catch (e) {
+                enApp = false;
+            }
+            if (enApp) {
+                vuelta += (vuelta.includes('?') ? '&' : '?')
+                    + 'kick_app=1&kick_obj=' + encodeURIComponent(objetivo);
+            }
             const res = await fetch(FN + '/kick-chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ accion: 'entrar', vuelta: location.pathname + location.search })
+                body: JSON.stringify({ accion: 'entrar', vuelta })
             });
             const datos = await res.json().catch(() => ({}));
             if (datos.url) {
@@ -712,9 +757,9 @@ window.insertarNavbar = function insertarNavbar() {
             </summary>
             <div class="nav-app-panel">
                 <p class="nav-app-titulo">Gochita App</p>
-                <a class="nav-app-opcion" href="app/LaGochaGaming.apk?v=1.4fix" download type="application/vnd.android.package-archive" data-umami-event="descarga-apk">
+                <a class="nav-app-opcion" href="app/LaGochaGaming.apk?v=1.5" download type="application/vnd.android.package-archive" data-umami-event="descarga-apk">
                     <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
-                    <span class="nav-app-texto"><strong>Android</strong><small>v1.4fix · 4,2 MB · Android 7+</small></span>
+                    <span class="nav-app-texto"><strong>Android</strong><small>v1.5 · 4,2 MB · Android 7+</small></span>
                     <span class="nav-app-accion">Descargar</span>
                 </a>
                 <div class="nav-app-opcion nav-app-opcion--pronto">

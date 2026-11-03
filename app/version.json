@@ -1,8 +1,8 @@
 {
-    "versionCode":  7,
-    "versionName":  "1.4fix",
+    "versionCode":  8,
+    "versionName":  "1.5",
     "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256":  "47483a4e9cf2eb496bbc3fb86d3bcf29ead20b37cd0783f67fe96204a20a697e",
-    "size":  4376654,
-    "notes":  "Aviso automatico de actualizaciones, opcion de no volver a mostrar y mejoras de estabilidad."
+    "sha256":  "d6204ca740e4d41cf974dbc93480a8f00c284fe8c971e72532e51fcdbbf5ab36",
+    "size":  4377226,
+    "notes":  "Login de Kick vuelve a la app y mejora de estabilidad."
 }
