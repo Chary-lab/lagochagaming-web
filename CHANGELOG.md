@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.37.2] - 2026-11-03
+
+### El chat ya carga al volver del login
+
+- Al volver del login, el chat se quedaba en "Cargando mensajes…" porque solo
+  pedía el historial y abría el canal en vivo cuando no había login pendiente.
+- Ahora carga el historial y se suscribe al canal siempre, haya vuelta de login
+  o no.
+
 ## [1.37.1] - 2026-11-03
 
 ### Login de Kick arreglado

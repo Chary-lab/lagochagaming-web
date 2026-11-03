@@ -1939,13 +1939,11 @@ window.CHAT_KICK = {
                 });
         };
 
-        const vueltaDeLogin = await completarLogin();
+        await completarLogin();
         window.CHAT_KICK.sesion = await validarSesion();
         sincronizar();
-        if (!vueltaDeLogin) {
-            await cargarMensajes();
-            escuchar();
-        }
+        await cargarMensajes();
+        escuchar();
     };
 })();
 
