@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.38.0] - 2026-11-03
+
+### Entrar a la comunidad con Kick
+
+- Nuevo botón "Entrar con Kick" en el acceso de la comunidad: reutiliza la
+  sesión que ya se abre en el chat, sin pedir apodo ni PIN.
+- Si el apodo de Kick coincide con una cuenta de comunidad sin vincular, se
+  vincula sola en el primer acceso.
+- Si no existe, el perfil se crea en ese momento con el nombre y el avatar de
+  Kick; esas cuentas no tienen PIN y entran siempre por Kick.
+- Las cuentas con PIN siguen funcionando exactamente igual.
+
 ## [1.37.2] - 2026-11-03
 
 ### El chat ya carga al volver del login

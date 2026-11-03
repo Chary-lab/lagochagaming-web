@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.37.2">
+    <link rel="stylesheet" href="style.css?v=1.38.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -190,6 +190,9 @@
             <div id="chat-login-area" class="chat-input-area chat-login-area">
                 <div class="chat-login-copy">Inicia sesión o regístrate para participar en el chat</div>
                 <div class="chat-login-actions">
+                    <button type="button" id="btn-login-kick" class="btn-primary chat-login-btn">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg> Entrar con Kick
+                    </button>
                     <button type="button" id="btn-login-chat" class="btn-primary chat-login-btn">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg> Iniciar Sesión
                     </button>
@@ -197,7 +200,7 @@
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-user-plus"></use></svg> Registrarse
                     </button>
                 </div>
-                <p class="chat-login-hint">Ambos requieren un apodo y un PIN de 4 dígitos para proteger tu cuenta y puntos.</p>
+                <p class="chat-login-hint">Con Kick entras en un clic. El apodo y el PIN siguen valiendo para las cuentas de siempre.</p>
             </div>
 
             <form id="chat-form" class="chat-input-area chat-form">
@@ -410,7 +413,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.37.2" defer></script>
+    <script src="main.js?v=1.38.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1058,6 +1061,69 @@ setInterval(actualizarTypingIndicator, 1200);
                     return { ok: !!data?.ok, error: data?.error, token: data?.token, usuario: data?.usuario };
                 } catch (e) { return { ok: false, error: e.message }; }
             }
+
+            // === Entrar a la comunidad con Kick ===
+            const KICK_FN = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1';
+
+            async function entrarConKickComunidad() {
+                const boton = document.getElementById('btn-login-kick');
+                const token = localStorage.getItem('gocha_kick_token');
+                if (!token) {
+                    try {
+                        const res = await fetch(KICK_FN + '/kick-chat', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ accion: 'entrar', vuelta: '/comunidad' })
+                        });
+                        const datos = await res.json().catch(() => ({}));
+                        if (datos.url) { location.href = datos.url; return; }
+                        alert(datos.error || 'No se pudo abrir el login de Kick.');
+                    } catch (e) {
+                        alert('No se pudo abrir el login de Kick.');
+                    }
+                    return;
+                }
+                if (boton) boton.disabled = true;
+                try {
+                    const res = await fetch(KICK_FN + '/kick-comunidad', {
+                        method: 'POST',
+                        headers: { Authorization: 'Bearer ' + token }
+                    });
+                    const datos = await res.json().catch(() => ({}));
+                    if (!res.ok || !datos.token) {
+                        if (boton) boton.disabled = false;
+                        if (res.status === 401) {
+                            localStorage.removeItem('gocha_kick_token');
+                            return entrarConKickComunidad();
+                        }
+                        alert(datos.error || 'No se pudo entrar con Kick.');
+                        return;
+                    }
+                    guardarSesion(datos.usuario, datos.token);
+                    location.reload();
+                } catch (e) {
+                    if (boton) boton.disabled = false;
+                    alert('No se pudo entrar con Kick.');
+                }
+            }
+
+            document.getElementById('btn-login-kick')?.addEventListener('click', entrarConKickComunidad);
+
+            (function volverDeKick() {
+                const hash = location.hash.startsWith('#') ? location.hash.slice(1) : '';
+                if (!hash) return;
+                const params = new URLSearchParams(hash);
+                const token = params.get('kick');
+                const error = params.get('kick_error');
+                if (!token && !error) return;
+                history.replaceState(null, '', location.pathname + location.search);
+                if (token) {
+                    localStorage.setItem('gocha_kick_token', token);
+                    entrarConKickComunidad();
+                } else if (error) {
+                    alert(error);
+                }
+            })();
 
             function guardarSesion(usuario, token) {
                 const u = usuario || {};
