@@ -3,6 +3,24 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.42.0] - 2026-11-03
+
+### Insignias pegadas al nombre, perfil público completo y puntos del día en el navbar
+
+- Chat: las insignias de Kick van agrupadas en un bloque pegado al nombre del
+  autor (antes se repartían por toda la fila por el `space-between` del header).
+  La fecha y el botón de borrar quedan a la derecha con `margin-left: auto`.
+- Perfil público: muestra las insignias de Kick vigentes del usuario y una
+  rejilla de estadísticas (mensajes, reacciones dadas y recibidas, saludos,
+  likes de galería y puntos de hoy). Nueva RPC `estadisticas_perfil_comunidad`
+  con `SECURITY DEFINER` y grant a anon/authenticated.
+- Navbar: píldora compacta de puntos diarios con anillo de progreso
+  (`hoy/tope`), pulso al ganar puntos y "+N" flotante; oculta sin sesión,
+  solo anillo en pantallas pequeñas y sin animación con
+  `prefers-reduced-motion`.
+- `window.insigniasKickDe()` centraliza el filtrado de insignias (30 días,
+  máximo 6) para el chat y el perfil público.
+
 ## [1.41.0] - 2026-11-03
 
 ### Pase visual del navbar, Kick arreglado y buzón para admins

@@ -476,6 +476,45 @@ window.etiquetaRango = function etiquetaRango(clave, puntos) {
     return r.emoji + ' ' + r.nombre.toUpperCase();
 };
 
+// === INSIGNIAS DE KICK (chat y perfil público) ===
+window.DIAS_INSIGNIA_KICK = 30;
+window.ETIQUETA_INSIGNIA_KICK = {
+    moderator: 'MOD',
+    vip: 'VIP',
+    subscriber: 'SUB',
+    founder: 'FOUNDER',
+    sub_gifter: 'GIFT',
+    og: 'OG',
+    verified: 'OK',
+    broadcaster: 'CANAL'
+};
+window.ICONO_INSIGNIA_KICK = {
+    moderator: 'i-solid-shield-halved',
+    vip: 'i-solid-gem',
+    subscriber: 'i-solid-sparkles',
+    founder: 'i-solid-crown',
+    sub_gifter: 'i-solid-gift',
+    og: 'i-solid-fire',
+    verified: 'i-solid-check',
+    broadcaster: 'i-solid-tower-broadcast'
+};
+
+// Devuelve las insignias vigentes (máx 6, caducan a los 30 días).
+window.insigniasKickDe = function insigniasKickDe(fila) {
+    if (!fila || !Array.isArray(fila.kick_badges) || !fila.kick_badges_at) return [];
+    const edad = Date.now() - new Date(fila.kick_badges_at).getTime();
+    if (!Number.isFinite(edad) || edad > window.DIAS_INSIGNIA_KICK * 86400000) return [];
+    return fila.kick_badges
+        .filter(b => b && window.ETIQUETA_INSIGNIA_KICK[b.type])
+        .slice(0, 6)
+        .map(b => ({
+            tipo: b.type,
+            etiqueta: window.ETIQUETA_INSIGNIA_KICK[b.type],
+            icono: window.ICONO_INSIGNIA_KICK[b.type],
+            texto: b.text || b.type
+        }));
+};
+
 
 // === COPIAR USUARIO (sorteo) ===
 window.copiarEnlace = async function copiarEnlace(url, textoExito = '¡Enlace copiado!') {
@@ -729,6 +768,12 @@ window.insertarNavbar = function insertarNavbar() {
             </span>
             ${loginMenu}
             <button type="button" id="btn-toggle-tema" class="btn-tema-nav" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
+            <button type="button" id="nav-puntos-dia" class="nav-puntos-dia" hidden
+                    title="Puntos que llevas hoy" aria-label="Puntos de hoy">
+                <span class="nav-puntos-ring" aria-hidden="true"></span>
+                <span class="nav-puntos-texto" aria-hidden="true"><span id="nav-puntos-hoy">0</span><span class="nav-puntos-sep">/</span><span id="nav-puntos-tope">60</span></span>
+                <span class="nav-puntos-suma" aria-hidden="true"></span>
+            </button>
             <div id="nav-user-info"></div>
         </div>
     `;
@@ -853,6 +898,67 @@ window.avisarPuntos = function avisarPuntos(ganados) {
     const n = Number(ganados) || 0;
     if (n <= 0) return;
     window.mostrarToast('+' + n + ' pts');
+    window.refrescarPuntosDia?.();
+};
+
+// === Píldora de puntos diarios del navbar ===
+function animarSumaPuntos(btn, delta) {
+    if (!btn || delta <= 0) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    btn.classList.remove('nav-puntos-dia--suma');
+    // reinicia la animación de pulso
+    void btn.offsetWidth;
+    btn.classList.add('nav-puntos-dia--suma');
+    const globo = btn.querySelector('.nav-puntos-suma');
+    if (globo) {
+        globo.textContent = '+' + delta;
+        globo.classList.remove('nav-puntos-suma--viva');
+        void globo.offsetWidth;
+        globo.classList.add('nav-puntos-suma--viva');
+    }
+    setTimeout(() => btn.classList.remove('nav-puntos-dia--suma'), 700);
+}
+
+window.pintarPuntosDia = function pintarPuntosDia(datos) {
+    const btn = document.getElementById('nav-puntos-dia');
+    if (!btn) return;
+    const token = localStorage.getItem('comunidad_session_token');
+    if (!token) {
+        btn.hidden = true;
+        delete btn.dataset.hoy;
+        return;
+    }
+    const hoy = Math.max(0, Number(datos?.hoy) || 0);
+    const tope = Math.max(1, Number(datos?.tope) || 60);
+    const elHoy = document.getElementById('nav-puntos-hoy');
+    const elTope = document.getElementById('nav-puntos-tope');
+    if (elHoy) elHoy.textContent = hoy;
+    if (elTope) elTope.textContent = tope;
+    btn.style.setProperty('--p', Math.min(100, Math.round((hoy / tope) * 100)) + '%');
+    btn.classList.toggle('nav-puntos-dia--completo', hoy >= tope);
+    btn.hidden = false;
+    btn.title = 'Hoy: ' + hoy + ' / ' + tope + ' pts';
+    btn.setAttribute('aria-label', 'Puntos de hoy: ' + hoy + ' de ' + tope);
+    const previo = Number(btn.dataset.hoy ?? '-1');
+    if (previo >= 0 && hoy > previo) animarSumaPuntos(btn, hoy - previo);
+    btn.dataset.hoy = String(hoy);
+};
+
+window.refrescarPuntosDia = async function refrescarPuntosDia() {
+    const btn = document.getElementById('nav-puntos-dia');
+    const token = localStorage.getItem('comunidad_session_token');
+    if (!token) {
+        if (btn) btn.hidden = true;
+        return;
+    }
+    if (!window.supabase) return;
+    try {
+        const { data, error } = await window.supabase.rpc('obtener_puntos_hoy', { p_token: token });
+        if (error) throw error;
+        if (data && data.ok) window.pintarPuntosDia(data);
+    } catch (e) {
+        console.warn('No se pudieron cargar los puntos del día:', e?.message || e);
+    }
 };
 
 // Puntos por tiempo conectado en todas las páginas menos Comunidad
@@ -866,11 +972,14 @@ window.iniciarPuntosGlobal = function iniciarPuntosGlobal() {
         if (!token || document.hidden) return;
         if (Date.now() - ultimo < 60000) return;
         ultimo = Date.now();
-        window.supabase.rpc('incrementar_puntos_comunidad', { p_token: token }).catch(() => {});
+        window.supabase.rpc('incrementar_puntos_comunidad', { p_token: token })
+            .then(() => window.refrescarPuntosDia?.())
+            .catch(() => {});
     };
     setInterval(tick, 300000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
     tick();
+    window.refrescarPuntosDia?.();
 };
 
 window.mostrarConfirmacionModal = function mostrarConfirmacionModal({ titulo, mensaje, textoConfirmar = 'Confirmar', enConfirmar }) {
@@ -2242,6 +2351,14 @@ document.addEventListener('DOMContentLoaded', () => {
                       x-text="$store.perfil.generoTexto"></span>
                 <span class="mp-icono" x-bind:hidden="!$store.perfil.usuario.icono" x-text="$store.perfil.usuario.icono"></span>
               </div>
+              <div class="mp-kick-badges" x-bind:hidden="!$store.perfil.insignias.length">
+                <template x-for="b in $store.perfil.insignias" :key="b.tipo">
+                  <span class="chat-kick-badge" x-bind:class="'kick-badge-' + b.tipo" x-bind:title="b.texto">
+                    <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + b.icono"></use></svg>
+                    <span x-text="b.etiqueta"></span>
+                  </span>
+                </template>
+              </div>
               <p class="mp-desde" x-bind:hidden="!$store.perfil.miembro" x-text="'Miembro desde ' + $store.perfil.miembro"></p>
               <p class="mp-bio" x-bind:hidden="!$store.perfil.usuario.bio" x-text="$store.perfil.usuario.bio"></p>
               <div class="mp-links" x-bind:hidden="!$store.perfil.linksVisibles.length">
@@ -2249,6 +2366,14 @@ document.addEventListener('DOMContentLoaded', () => {
                   <a class="mp-link" x-bind:href="l.url" x-bind:title="l.label" x-bind:aria-label="l.label"
                      target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + l.icon"></use></svg></a>
                 </template>
+              </div>
+              <div class="mp-stats" x-bind:hidden="!$store.perfil.tieneEstadisticas">
+                <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.mensajes || 0"></span><span class="mp-stat-label">Mensajes</span></div>
+                <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.reacciones_dadas || 0"></span><span class="mp-stat-label">Reacciones</span></div>
+                <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.reacciones_recibidas || 0"></span><span class="mp-stat-label">Recibidas</span></div>
+                <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.saludos || 0"></span><span class="mp-stat-label">Saludos</span></div>
+                <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.likes_galeria || 0"></span><span class="mp-stat-label">Likes</span></div>
+                <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.puntos_hoy || 0"></span><span class="mp-stat-label">Hoy</span></div>
               </div>
             </div>
           </div>
@@ -2332,6 +2457,7 @@ document.addEventListener('DOMContentLoaded', () => {
       guardando: false,
       error: '',
       usuario: {},
+      estadisticas: {},
       avatares: [],
       avatarSeleccionado: undefined,
       genero: 'no_definido',
@@ -2370,6 +2496,13 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
         return visibles;
+      },
+      get insignias() {
+        return window.insigniasKickDe(this.usuario) || [];
+      },
+      get tieneEstadisticas() {
+        const e = this.estadisticas || {};
+        return e.ok === true;
       },
       avatarPorGenero() {
         if (this.genero === 'femenino') return '/img/avatars/avatar-female.webp';
@@ -2410,13 +2543,14 @@ document.addEventListener('DOMContentLoaded', () => {
         this.vista = 'perfil';
         this.error = '';
         this.usuario = {};
+        this.estadisticas = {};
         this.cargando = true;
         this.abierto = true;
         setNavExpanded(false);
         try {
           const { data, error } = await window.supabase
             .from('usuarios_comunidad')
-            .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en')
+            .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at')
             .ilike('apodo', apodo)
             .maybeSingle();
           if (error) throw error;
@@ -2425,6 +2559,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
           this.usuario = data;
+          window.supabase
+            .rpc('estadisticas_perfil_comunidad', { p_apodo: data.apodo })
+            .then(({ data: stats, error: statsError }) => {
+              if (statsError) {
+                console.warn('No se pudieron cargar las estadísticas:', statsError.message);
+                return;
+              }
+              this.estadisticas = stats || {};
+            });
         } catch (e) {
           console.error('Error cargando perfil público:', e);
           this.error = 'No se pudo cargar el perfil.';

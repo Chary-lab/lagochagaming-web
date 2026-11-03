@@ -3141,7 +3141,7 @@ body.light-mode {
         }
         .chat-msg-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             gap: 8px;
             margin-bottom: 4px;
@@ -3149,7 +3149,8 @@ body.light-mode {
         }
         .chat-msg-autor { color: var(--accent-color); font-weight: bold; }
         .chat-msg-fecha { color: var(--text-muted); }
-        .chat-msg-meta { display: inline-flex; align-items: center; gap: 8px; }
+        .chat-msg-badges { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; min-width: 0; margin-left: -4px; }
+        .chat-msg-meta { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
         .chat-msg-texto { color: var(--text-main); font-size: 0.95rem; overflow-wrap: anywhere; }
         .typing-indicator { margin-left: auto; font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
         .btn-scroll-nuevos {
@@ -4615,6 +4616,75 @@ body.light-mode {
 @media (max-width: 640px) {
     .nav-user-puntos { display: none; }
 }
+
+/* --- Píldora de puntos diarios del navbar --- */
+.nav-puntos-dia {
+    --p: 0%;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 34px;
+    padding: 0 10px 0 6px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg-subtle);
+    color: var(--text-main);
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: default;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.nav-puntos-dia[hidden] { display: none; }
+.nav-puntos-ring {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent-color) var(--p), rgba(127, 127, 127, 0.25) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+}
+.nav-puntos-texto {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1px;
+    font-variant-numeric: tabular-nums;
+}
+.nav-puntos-sep { opacity: 0.55; font-weight: 600; }
+.nav-puntos-dia--completo { border-color: var(--accent-color); }
+.nav-puntos-dia--completo .nav-puntos-ring { background: var(--accent-color); }
+.nav-puntos-dia--suma { animation: nav-puntos-pulso 0.7s ease; }
+@keyframes nav-puntos-pulso {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+.nav-puntos-suma {
+    position: absolute;
+    top: -4px;
+    right: 6px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: var(--accent-color);
+    opacity: 0;
+    pointer-events: none;
+}
+.nav-puntos-suma--viva { animation: nav-puntos-sube 0.9s ease forwards; }
+@keyframes nav-puntos-sube {
+    0% { opacity: 0; transform: translateY(2px); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-14px); }
+}
+@media (max-width: 1100px) {
+    .nav-puntos-texto { display: none; }
+    .nav-puntos-dia { padding: 0 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .nav-puntos-dia--suma,
+    .nav-puntos-suma--viva { animation: none; }
+}
 .nav-user-icono { font-size: 0.9rem; line-height: 1; }
 .nav-user-chevron { font-size: 0.65rem; opacity: 0.7; }
 @media (max-width: 640px) {
@@ -4688,6 +4758,32 @@ body.light-mode {
     gap: 6px;
     margin: 2px 0 6px;
 }
+.mp-kick-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 0 0 8px;
+}
+.mp-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin: 4px 0 12px;
+}
+.mp-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 6px 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg-subtle);
+}
+.mp-stat-valor { font-size: 0.95rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
+.mp-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
 .mp-puntos {
     display: inline-flex;
     align-items: center;
@@ -4869,7 +4965,7 @@ body.light-mode {
     display: inline-flex;
     align-items: center;
     gap: 3px;
-    margin-left: 6px;
+    margin-left: 0;
     padding: 1px 7px 1px 5px;
     border-radius: 999px;
     border: 1px solid rgba(83, 252, 24, 0.45);
