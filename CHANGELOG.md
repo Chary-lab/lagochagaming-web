@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.35.2] - 2026-11-03
+
+### APK firmada y publicada
+
+- `app/LaGochaGaming.apk` pasa a ser la build **release** firmada con la clave
+  de release (`CN=LaGochaGaming`), no la de debug. Pesa 4,18 MB.
+- `app/version.json` actualizado con el SHA-256 y el tamaño nuevos; el
+  actualizador interno de la app ya puede leerlo en producción.
+- La clave vive fuera del repo (`C:\Users\Administrator\.lagocha`). Sin ella no
+  se pueden publicar actualizaciones: hay que guardar copia.
+
 ## [1.35.1] - 2026-11-03
 
 ### Home: franja compacta en vez de bloque largo

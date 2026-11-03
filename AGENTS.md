@@ -160,6 +160,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - No hay service worker. `manifest.webmanifest` debe seguir siendo válido.
 - `robots.txt` y `sitemap.xml` deben mantenerse coherentes con las páginas públicas. Actualizar `lastmod` cuando cambie contenido público.
 - Si se cambia de host, actualizar esta sección y `_headers`.
+- APK Android: el proyecto vive en `D:\Apk Gocha` (Capacitor). El keystore de release está en `C:\Users\Administrator\.lagocha\lagocha-release.jks` (alias `lagocha-release`, credenciales en `credenciales.txt` al lado). Nunca versionar la clave. Tras cada build, copiar el APK a `app/LaGochaGaming.apk` y actualizar `sha256` y `size` en `app/version.json`: el actualizador interno de la app los verifica antes de instalar.
 
 ### 7.1 SEO / AEO
 
@@ -183,7 +184,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.35.1` (franja compacta `#sobre-la-gocha` antes del footer; sobre 1.35.0).
+- Versión de esta release: `1.35.2` (APK release firmada y `version.json` publicado; sobre 1.35.1).
 
 ## 9. Pruebas antes de commitear
 
