@@ -3,6 +3,23 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.2] - 2026-11-03
+
+### AGENTS.md al día
+
+- Nueva regla de estructura fija: no dividir archivos ni crear otros nuevos.
+  `style.css` es un solo archivo, `main.js` otro y cada página un HTML; un
+  archivo nuevo solo con autorización explícita.
+- Documentado el flujo de Kick: Edge Functions, tablas y registro con Kick.
+- Corregido el modelo de admin: `es_admin()` acepta el JWT con
+  `app_metadata.role` y una sesión de comunidad con `usuarios_comunidad.rol`
+  (`x-comunidad-token`).
+- Ampliada la lista de RPC (`obtener_puntos_hoy`,
+  `estadisticas_perfil_comunidad`, `otorgar_puntos_accion`, `registrar_puntos`,
+  `obtener_avatares_disponibles`, `actualizar_autor_galeria`, `admin_auditar`).
+- Añadidos hls.js 1.5.20, el store `sugerencias` y Umami en las 6 páginas.
+- Nota corregida: `AGENTS.md` está en UTF-8 sin BOM, no en cp1252.
+
 ## [1.43.1] - 2026-11-03
 
 ### Limpieza de código huérfano

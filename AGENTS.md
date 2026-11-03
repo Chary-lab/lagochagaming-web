@@ -5,7 +5,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 ## 1. Resumen del proyecto
 
 - Sitio estático de La Gocha Gaming: HTML + CSS + JavaScript clásico, sin build, sin bundler y sin dependencias instaladas localmente.
-- Páginas: `index.html` (inicio), `comunidad.html` (chat/puntos), `galeria.html` (fotos/likes), `sorteo.html` (sorteo), `cine.html` (GochiWatch).
+- Páginas: `index.html` (inicio), `comunidad.html` (chat/puntos), `galeria.html` (fotos/likes), `sorteo.html` (sorteo), `cine.html` (GochiWatch) y `404.html` (página no encontrada).
 - Código compartido: `main.js` (navbar inyectada, tema, toasts, sesión de comunidad, admin, confeti, fachada del chat de Kick) y `style.css`.
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
 - Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
@@ -16,10 +16,12 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - No introducir frameworks, bundlers ni dependencias npm de runtime sin autorización explícita.
 - No añadir jQuery ni Bootstrap. El sitio usa CSS propio (`.visually-hidden`, `.nav-right`) y Alpine para la UI.
 - **Alpine primero:** toda UI interactiva (listas, tarjetas, modales, formularios, menús, toasts y estados) se implementa con Alpine (`x-data`/stores, `x-for`, `x-model`, `:hidden`, `x-trap`). El JS clásico queda para Supabase, RPC, Realtime, cálculo y APIs `window.*`; no se añaden renders con `innerHTML` ni listeners por elemento.
-- Las librerías externas se cargan por CDN con versión fijada (Supabase JS 2.118.0, Alpine 3.17.5, `@alpinejs/focus` 3.17.5). No cambiar versiones a `latest`.
+- Las librerías externas se cargan por CDN con versión fijada (Supabase JS 2.118.0, Alpine 3.17.5, `@alpinejs/focus` 3.17.5 y hls.js 1.5.20 solo en `index.html`). No cambiar versiones a `latest`.
 - Iconos: sprite local `img/icons.svg` (Font Awesome Free 6.6.0, CC BY 4.0). En el markup se usa `<svg class="icon"><use href="img/icons.svg#i-solid-x">`; no se carga Font Awesome por CDN.
 - Mantener el estilo actual: variables CSS, clases semánticas, modo claro/oscuro y diseño responsive.
 - El sitio debe funcionar sin build. No crear pasos de compilación obligatorios.
+- **Estructura fija del proyecto:** no dividir archivos ni crear otros nuevos. `style.css` es un solo archivo, `main.js` otro y cada página un HTML. Prohibido partir el CSS por página o sección, trocear el HTML en parciales o crear archivos de módulos: si algo crece, se ordena y se limpia dentro del archivo que ya existe.
+- Un archivo nuevo solo con autorización explícita del usuario. Antes de crearlo, resolver el problema dentro de los archivos actuales.
 
 ## 3. Mapa de archivos
 
@@ -53,7 +55,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Preferir `textContent` y creación de nodos a `innerHTML` cuando sea posible.
 - No usar `eval`, `new Function` ni `document.write`.
 - En Alpine, no usar mustaches `{{ }}` dentro de atributos. Usar bindings (`:aria-label="'...' + variable"`).
-- Stores globales en `main.js` (`perfil`, `ui`, `toast`, `adminPanel`); por página en su HTML (`media`/`muro` en index, `galeria`/`subida` en galería, `cine`, `chat`/`tienda` en comunidad, `sorteo`).
+- Stores globales en `main.js` (`perfil`, `ui`, `toast`, `adminPanel`, `sugerencias`); por página en su HTML (`media`/`muro` en index, `galeria`/`subida` en galería, `cine`, `chat`/`ranking`/`rangosChat`/`reacciones`/`tienda` en comunidad, `sorteo`).
 - Alpine va con `defer` y los stores se registran en `alpine:init`. Usar `x-cloak` en lo que deba ocultarse antes de inicializar.
 - Para visibilidad usar `:hidden="!abierto"` con la regla global `[hidden]`; no `x-show` (en este build no vuelve a ocultar elementos con `display: flex`).
 - Cuidado con la propagación de clics: las tarjetas de galería abren el lightbox, pero los botones de acción deben llegar al listener delegado del documento. Usar `window.abrirLightboxDesdeTarjeta($event, foto, $el)` y no `@click.stop` en la zona de acciones.
@@ -67,7 +69,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 ### 4.1 Alpine: reglas obligatorias
 
-- Stores globales en `main.js`: `perfil` (modal), `ui` (menú móvil), `toast` y `adminPanel` (panel de administración global).
+- Stores globales en `main.js`: `perfil` (modal), `ui` (menú móvil), `toast`, `adminPanel` (panel de administración global) y `sugerencias` (buzón del owner).
 - Stores por página: `media`/`muro` (index), `galeria`/`subida` (galería), `chat`/`ranking`/`rangosChat`/`reacciones`/`tienda` (comunidad), `sorteo` y `cine`.
 - Listas y tarjetas con `x-for` y `:key`. Formularios con `x-model` (o `:value` + `@input` en objetos anidados). Textos y feedback con `x-text` + `:hidden`.
 - Visibilidad con `:hidden="!abierto"` y la regla global `[hidden]`; `x-cloak` para lo que deba ocultarse antes de inicializar. Evitar `x-show` en elementos con `display: flex` (en este build puede no volver a ocultarlos).
@@ -83,7 +85,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 - La `anon key` es pública y vive en `main.js`; es lo esperado.
 - NUNCA agregar `service_role`, contraseñas, tokens de administrador ni secretos al repositorio ni al cliente.
-- La autenticación de administrador es Supabase Auth + `app_metadata.role = "admin"` o `"owner"`. No usar email hardcodeado ni listas en cliente.
+- La autenticación de administrador es Supabase Auth + `app_metadata.role = "admin"` o `"owner"`, o una sesión de comunidad con `usuarios_comunidad.rol` en `admin`/`owner` enviada en la cabecera `x-comunidad-token`. `es_admin()` acepta las dos vías. No usar email hardcodeado ni listas en cliente.
 - `owner` es el rol superior (McChary); `es_owner()` lo valida y `es_admin()` acepta `admin` y `owner`. El buzón de sugerencias es solo para `owner`.
 - Un perfil de comunidad puede vincularse a un usuario Auth con `usuarios_comunidad.auth_user_id`. La función `sesion_comunidad_vinculada()` abre/reutiliza una sesión de comunidad para ese vínculo; el cliente la sincroniza al cargar y al iniciar sesión. El vínculo no se basa en el apodo.
 - Cerrar sesión desde ajustes con una cuenta Auth vinculada cierra también Auth y deja `comunidad_logout_explicito=1` para que la sincronización no reabra la comunidad al recargar. La marca se borra al iniciar sesión Auth o con PIN.
@@ -118,7 +120,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - `kick_clips` (caché de la Edge Function `kick-clips`, una fila JSON con los últimos clips de Kick; solo `service_role`, TTL 40 min y refresco con `pg_cron` cada 20 min).
 - `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango` (puntos por acción, historial con idempotencia y topes diarios por rango; solo `service_role`, se escriben desde RPC `SECURITY DEFINER`).
 - `sugerencias` (texto 5–500, `ip_hash`, `leida`, `creada_en`; sin acceso `anon`; solo `owner` lee, marca y borra con `es_owner()` y las RPC `owner_marcar_sugerencia` / `owner_eliminar_sugerencia`).
-- RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `sesion_comunidad_vinculada`, `latido_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `owner_marcar_sugerencia`, `owner_eliminar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`, `admin_eliminar_mensaje_chat`.
+- RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `sesion_comunidad_vinculada`, `latido_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `owner_marcar_sugerencia`, `owner_eliminar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`, `admin_eliminar_mensaje_chat`, `admin_auditar`, `obtener_puntos_hoy`, `estadisticas_perfil_comunidad`, `obtener_avatares_disponibles`, `otorgar_puntos_accion`, `registrar_puntos` y `actualizar_autor_galeria`.
 
 ### 5.5 Invariantes de integridad
 
@@ -145,6 +147,14 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - No crear canales duplicados en la misma página. Limpiar/salir de canales al navegar si se añaden nuevas páginas.
 - Realtime respeta RLS. No añadir tablas a `supabase_realtime` sin evaluar qué filas puede ver `anon`.
 
+### 5.7 Kick
+
+- Edge Functions: `kick-oauth-callback` (intercambio OAuth), `kick-comunidad` (acciones `entrar` y `vincular`), `kick-clips` (caché de clips), `kick-chat`, `kick-chat-setup` y `kick-chat-webhook`. Todas con `verify_jwt=false`: validan por su cuenta.
+- Tablas: `kick_config`, `kick_sessions`, `kick_oauth_pendientes` (RLS sin políticas, solo `service_role` y RPC) y `kick_clips`.
+- Cliente: `window.KICK_COMUNIDAD` en `main.js` (`vinculado`, `vincular`, `abrirOAuth`, `volverDelHash`). El objetivo del OAuth viaja en `sessionStorage` (`gocha_kick_objetivo`): `entrar` o `vincular`.
+- Registro con Kick: `#btn-registro-kick` del modal de registro usa el mismo OAuth que "Conectar con Kick" y deja `gocha_kick_intencion=registro`. Al volver, `entrarConKickComunidad()` lo convierte en `gocha_ajustes_pendientes=1` y la página abre `Alpine.store('perfil').abrir('ajustes')` para completar género y avatar.
+- Insignias de Kick: `window.insigniasKickDe()` (§4); no pedir `rol` al cliente.
+
 ## 6. Seguridad
 
 - CSP, HSTS y demás cabeceras de `_headers` NO se aplican en GitHub Pages. No asumir que están activas en producción. Si se migra a Cloudflare Pages/Netlify, revisar que la CSP incluya `wss://*.supabase.co` y `https://www.youtube.com` en `script-src`, y probar Realtime + YouTube.
@@ -161,7 +171,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 - Producción: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy con Jekyll, sin workflows). Los cambios pueden tardar en cachear.
 - `.nojekyll` DEBE estar versionado en la raíz: sin él Pages intenta Jekyll y el build falla (`Build with Jekyll`). El `.gitignore` usa `*` + whitelist, así que cualquier archivo nuevo necesita su `!archivo` para poder commitearse.
-- `AGENTS.md` está en cp1252, no en UTF-8. Para editarlo con acentos desde PowerShell, leer y escribir con `[System.Text.Encoding]::GetEncoding(1252)`.
+- `AGENTS.md` está en UTF-8 sin BOM. Editarlo con el editor o con Node en UTF-8; no usar `Get-Content`/`Set-Content` de PowerShell 5.1 (leen ANSI y rompen acentos).
 - El repo antiguo quedó bloqueado por un deployment fantasma de Pages (`400 in progress deployment`). Si vuelve a pasar: comprobar `pages/builds` y los deployments del environment `github-pages` antes de tocar código; el contenido no es el problema.
 - No hay service worker. `manifest.webmanifest` debe seguir siendo válido.
 - `robots.txt` y `sitemap.xml` deben mantenerse coherentes con las páginas públicas. Actualizar `lastmod` cuando cambie contenido público.
@@ -174,7 +184,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - JSON-LD: `Person` + `WebSite` en la home; `BreadcrumbList` en comunidad, galería, sorteo y cine; `FAQPage` en la home. La FAQ debe seguir siendo visible y coincidir con el schema.
 - `llms.txt` en la raíz y `404.html` con `noindex`.
 - Open Graph/Twitter por página: `img/3.jpg` en todas (home, comunidad, cine, galería y sorteo), con `og:image:alt`.
-- Analítica: Umami (`cloud.umami.is`) en las 5 páginas; no instalar Plausible a la vez.
+- Analítica: Umami (`cloud.umami.is`) en las 6 páginas, `404.html` incluida; no instalar Plausible a la vez.
 - No cambiar `<title>`, meta description ni H1 sin revisar canibalización: una intención por página (home = marca/streamer; comunidad = chat; galería = fotos; sorteo = sorteos; cine = GochiWatch).
 - Al cambiar contenido público, actualizar `lastmod` del sitemap y pedir indexación en GSC.
 - IndexNow: la clave vive en `f7d530743fabe8d2351dd9d026536f44.txt` (raíz, pública, se sirve tal cual). No borrarla ni renombrarla; si se rota, sustituir el archivo y volver a enviar las URLs a `api.indexnow.org`.
@@ -190,7 +200,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versi�n de esta release: `1.43.1` (limpieza de c�digo hu�rfano: funci�n muerta del chat, 2 reglas CSS y 16 ids sin referencia; sobre 1.43.0).
+- Versión de esta release: `1.43.2` (AGENTS.md al día: estructura fija sin dividir archivos, flujo de Kick, modelo de admin y RPC actuales; sobre 1.43.1).
 
 ## 9. Pruebas antes de commitear
 
@@ -199,7 +209,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 3. Levantar servidor local: `python -m http.server 8765` y probar en `http://127.0.0.1:8765/`.
 4. Smoke test mínimo:
    - Home: player, 6 clips de Kick, 6 de Instagram y 6 de TikTok cargan; la fachada del chat aparece y el iframe entra al pulsar; el muro pinta mensajes y no hay errores de consola propios.
-   - Comunidad: presencia muestra "Nadie en línea" si no hay nadie, chat/ranking cargan, login/registro y reacciones funcionan.
+   - Comunidad: presencia muestra "Nadie en línea" si no hay nadie, chat/ranking cargan, login/registro (PIN y Kick) y reacciones funcionan.
    - Comunidad (moderación): con sesión owner/admin aparece el botón de borrar en cada mensaje; borra con confirmación, desaparece para todos y queda fila `eliminar_mensaje_chat` en auditoría. Sin sesión no aparece y la RPC rechaza.
    - Galería: tarjetas abren lightbox; like sin sesión NO abre lightbox y pide login; con sesión alterna like/contador; moderación rechaza cuentas no admin; el panel de galería solo muestra fotos pendientes (aprobar/rechazar).
    - Panel global: se abre solo desde “Acceso” en el footer (sin iconos en el navbar); con Auth admin/owner muestra Usuarios y Auditoría, y el owner además Buzón; el detalle de auditoría se escapa.
@@ -239,12 +249,13 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - No escribir directo a `comunidad_chat`, `message_reactions`, `muro_saludos`, `galeria_likes` ni `ganadores_sorteo` desde el cliente.
 - No confiar en apodo/puntos/likes/ganador enviados por el cliente.
 - No usar email hardcodeado para decidir admin.
-- No decidir `owner` por apodo ni por nombre de usuario de comunidad; solo por `app_metadata.role` y vínculo `auth_user_id`.
+- No decidir `owner` por apodo ni por nombre de usuario de comunidad; solo por `app_metadata.role`, por la columna `usuarios_comunidad.rol` de una sesión válida y por el vínculo `auth_user_id`.
 - No exponer el buzón de sugerencias a `admin`; es exclusivo de `owner`.
 - No usar `innerHTML` con datos de usuario sin escapar.
 - No poner `{{ }}` en atributos Alpine.
 - No usar `@click.stop` en las acciones de la tarjeta de galería (rompe el listener delegado).
 - No agregar dependencias/build sin autorización.
+- No dividir archivos ni crear CSS, JS o HTML parciales: la estructura actual se mantiene (ver §2).
 - No asumir que `_headers` funciona en GitHub Pages.
 - No commitear con la app rota o sin probar.
 
