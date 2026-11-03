@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.42.1] - 2026-11-03
+
+### Los puntos del día pasan al anillo del navbar
+
+- Quitada la línea "Hoy: X / Y pts" que se mostraba bajo el perfil en Comunidad.
+  Esa información vive ahora en la píldora de anillo del navbar.
+- `pintarPuntosHoy()` delega en `pintarPuntosDia()`, así el anillo se actualiza
+  al cargar la página y cada vez que se suman puntos.
+
 ## [1.42.0] - 2026-11-03
 
 ### Insignias pegadas al nombre, perfil público completo y puntos del día en el navbar

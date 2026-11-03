@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.42.0">
+    <link rel="stylesheet" href="style.css?v=1.42.1">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -260,7 +260,6 @@
                         <div id="user-rango-progreso" class="rango-progreso-fill"></div>
                     </div>
                     <p id="user-rango-meta" class="rango-meta">Próximo rango: Protoestrella (100 pts)</p>
-                    <p id="puntos-hoy" class="rango-meta" hidden></p>
 
                     <!-- Bio y enlaces (se muestran si existen) -->
                     <div id="user-bio" class="user-bio" hidden></div>
@@ -414,7 +413,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.42.0" defer></script>
+    <script src="main.js?v=1.42.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -935,14 +934,10 @@ setInterval(actualizarTypingIndicator, 1200);
                 chip._temporizador = setTimeout(() => chip.classList.remove('visible'), 4000);
             }
 
+            // Los puntos del día se muestran en la píldora de anillo del navbar.
             function pintarPuntosHoy(datos) {
-                const el = document.getElementById('puntos-hoy');
-                if (!el || !datos || datos.ok === false) return;
-                const hoy = Number(datos.hoy);
-                const tope = Number(datos.tope);
-                if (!Number.isFinite(hoy) || !Number.isFinite(tope) || tope <= 0) return;
-                el.hidden = false;
-                el.textContent = 'Hoy: ' + hoy + ' / ' + tope + ' pts';
+                if (!datos || datos.ok === false) return;
+                window.pintarPuntosDia?.(datos);
             }
             window.pintarPuntosHoy = pintarPuntosHoy;
 

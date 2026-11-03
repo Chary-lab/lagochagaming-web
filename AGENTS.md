@@ -184,7 +184,7 @@ El `nav.footer-nav` del footer es la excepciÃ³n: va en HTML estÃ¡tico dentro de 
 - En cada release, actualizar el query de cachÃ© `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versiÃ³n inestable. Probar antes.
-- Versión de esta release: `1.42.0` (insignias pegadas al nombre, perfil público con estadísticas y píldora de puntos diarios en el navbar; sobre 1.41.0).
+- Versión de esta release: `1.42.1` (los puntos del día pasan al anillo del navbar y se quita la línea bajo el perfil de Comunidad; sobre 1.42.0).
 
 ## 9. Pruebas antes de commitear
 
