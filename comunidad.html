@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.39.0">
+    <link rel="stylesheet" href="style.css?v=1.40.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -189,21 +189,9 @@
                 <button type="button" id="btn-cargar-mas-chat" class="btn-primary btn-cargar-mas" @click="window.cargarMasChat?.()" x-text="$store.chat.cargandoMas ? 'Cargando...' : '⬆ Cargar mensajes anteriores'"></button>
             </div>
 
-            <!-- ÁREA DE CHAT: Login/Registro cuando no hay sesión, Formulario cuando hay sesión -->
+            <!-- ÁREA DE CHAT: acceso desde el menú Login del navbar -->
             <div id="chat-login-area" class="chat-input-area chat-login-area">
-                <div class="chat-login-copy">Inicia sesión o regístrate para participar en el chat</div>
-                <div class="chat-login-actions">
-                    <button type="button" id="btn-login-kick" class="btn-primary chat-login-btn">
-                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg> Entrar con Kick
-                    </button>
-                    <button type="button" id="btn-login-chat" class="btn-primary chat-login-btn">
-                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg> Iniciar Sesión
-                    </button>
-                    <button type="button" id="btn-registro-chat" class="btn-primary chat-login-btn">
-                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-user-plus"></use></svg> Registrarse
-                    </button>
-                </div>
-                <p class="chat-login-hint">Con Kick entras en un clic. El apodo y el PIN siguen valiendo para las cuentas de siempre.</p>
+                <div class="chat-login-copy">Entra desde el menú <strong>Login</strong> de arriba: con apodo y PIN, o con Kick en un clic.</div>
             </div>
 
             <form id="chat-form" class="chat-input-area chat-form">
@@ -421,7 +409,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.39.0" defer></script>
+    <script src="main.js?v=1.40.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1144,7 +1132,6 @@ setInterval(actualizarTypingIndicator, 1200);
                 if (ok) actualizarAvisoKick();
             }
 
-            document.getElementById('btn-login-kick')?.addEventListener('click', entrarConKickComunidad);
             document.getElementById('btn-vincular-kick')?.addEventListener('click', vincularKickComunidad);
             window.addEventListener('kick-vinculado', actualizarAvisoKick);
 
@@ -1170,7 +1157,23 @@ setInterval(actualizarTypingIndicator, 1200);
                 }
             }
             // main.js va con defer: hasta DOMContentLoaded no existe KICK_COMUNIDAD.
-            document.addEventListener('DOMContentLoaded', volverDeKick);
+            document.addEventListener('DOMContentLoaded', () => {
+                volverDeKick();
+                const params = new URLSearchParams(location.search);
+                const accion = params.get('login') === '1' ? 'login'
+                    : params.get('registro') === '1' ? 'registro'
+                    : params.get('kick') === '1' ? 'kick'
+                    : '';
+                if (!accion) return;
+                history.replaceState(null, '', location.pathname + location.hash);
+                if (accion === 'kick') {
+                    entrarConKickComunidad();
+                } else if (accion === 'registro') {
+                    abrirModalRegistro();
+                } else {
+                    abrirModalLogin();
+                }
+            });
 
             function guardarSesion(usuario, token) {
                 const u = usuario || {};
@@ -2734,10 +2737,6 @@ if (chatForm) {
             });
         });
 
-        const btnLoginChat = document.getElementById('btn-login-chat');
-        if (btnLoginChat) btnLoginChat.addEventListener('click', abrirModalLogin);
-        const btnRegistroChat = document.getElementById('btn-registro-chat');
-        if (btnRegistroChat) btnRegistroChat.addEventListener('click', abrirModalRegistro);
         document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
             btn.addEventListener('click', () => window.cambiarTabComunidad(btn.dataset.tab));
         });

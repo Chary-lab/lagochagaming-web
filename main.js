@@ -11,9 +11,21 @@ try {
 
 const SUPABASE_URL = 'https://cydiyaacnyydprgffmkq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5ZGl5YWFjbnl5ZHByZ2ZmbWtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3NjY1ODQsImV4cCI6MjEwNzM0MjU4NH0.fkipcX7Lx4lhGSa0zTDQ9BDNN3jiGTksB2hMlHH1bAs';
+// El token de comunidad viaja en cada petición: es_admin()/es_owner() lo leen
+// para dar permisos de panel sin pasar por el login oculto de Supabase Auth.
+function fetchConTokenComunidad(input, init) {
+    const token = localStorage.getItem('comunidad_session_token');
+    if (!token) return fetch(input, init);
+    const opciones = init || {};
+    const cabeceras = new Headers(opciones.headers || {});
+    cabeceras.set('x-comunidad-token', token);
+    return fetch(input, { ...opciones, headers: cabeceras });
+}
 if (window.supabase) {
     try {
-        window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            global: { fetch: fetchConTokenComunidad }
+        });
         window.supabaseReady = true;
     } catch (e) {
         console.error('Error inicializando Supabase:', e);
@@ -40,37 +52,27 @@ window.escapeAttr = function escapeAttr(s) {
     }[c]));
 };
 
-// El rol de admin lo resuelve el servidor con la RPC es_admin() (lee app_metadata.role del JWT).
+// El rol de admin lo resuelve el servidor con la RPC es_admin(): acepta el JWT
+// de Auth o la sesión de comunidad (cabecera x-comunidad-token).
 let _adminCache = null;
 
 window.esAdminActual = async function esAdminActual() {
     if (!window.supabase) return false;
-    const adminEnCache = () => (_adminCache ? _adminCache.ok : false);
-
-    let user = null;
-    try {
-        const { data, error } = await window.supabase.auth.getSession();
-        if (error) return _adminCache ? _adminCache.ok : false;
-        user = data && data.session ? data.session.user : null;
-    } catch (e) {
-        return _adminCache ? _adminCache.ok : false;
-    }
-
-    if (!user) { _adminCache = null; return false; }
-    if (user.email_confirmed_at === null) return false;
-    if (_adminCache && _adminCache.userId === user.id) return _adminCache.ok;
+    const token = localStorage.getItem('comunidad_session_token') || '';
+    if (!token) { _adminCache = null; return false; }
+    if (_adminCache && _adminCache.token === token) return _adminCache.ok;
 
     let ok = false;
-    let definitivo = false;
     try {
         const { data, error } = await window.supabase.rpc('es_admin');
         if (error) console.warn('No se pudo verificar el rol de admin:', error.message);
-        else { ok = data === true; definitivo = true; }
+        else ok = data === true;
     } catch (e) {
         console.warn('No se pudo verificar el rol de admin:', e);
+        return false;
     }
 
-    if (definitivo) _adminCache = { userId: user.id, ok: ok };
+    _adminCache = { token: token, ok: ok };
     return ok;
 };
 
@@ -581,6 +583,8 @@ window.cerrarSesionAdminGlobal = async function cerrarSesionAdminGlobal() {
 window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() {
     const apodo = localStorage.getItem('comunidad_nickname');
     const navUserInfo = document.getElementById('nav-user-info');
+    const navLogin = document.getElementById('nav-login');
+    if (navLogin) navLogin.hidden = !!apodo;
 
     if (apodo && navUserInfo) {
         const usuario = window.obtenerSesionUsuarioComunidad();
@@ -679,6 +683,30 @@ window.insertarNavbar = function insertarNavbar() {
             </div>
         </details>`;
 
+    const loginMenu = `
+        <details class="nav-app nav-login" id="nav-login">
+            <summary class="nav-link nav-login-toggle" aria-label="Opciones de acceso">
+                <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg>
+                <span>Login</span>
+            </summary>
+            <div class="nav-app-panel nav-login-panel">
+                <p class="nav-app-titulo">Tu cuenta</p>
+                <button type="button" class="nav-app-opcion nav-login-opcion" data-login-accion="login">
+                    <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg>
+                    <span class="nav-app-texto"><strong>Iniciar sesión</strong><small>Con tu apodo y PIN de comunidad</small></span>
+                </button>
+                <button type="button" class="nav-app-opcion nav-login-opcion" data-login-accion="kick">
+                    <svg class="icon nav-app-icono nav-login-kick" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg>
+                    <span class="nav-app-texto"><strong>Conectar con Kick</strong><small>Entra o vincula tu cuenta en un clic</small></span>
+                </button>
+                <button type="button" class="nav-app-opcion nav-login-opcion" data-login-accion="registro">
+                    <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-solid-user-plus"></use></svg>
+                    <span class="nav-app-texto"><strong>Registrarse</strong><small>Crea tu cuenta con apodo y PIN</small></span>
+                </button>
+                <p class="nav-app-nota">Con Kick se abre también el chat de la comunidad y el de Kick a la vez.</p>
+            </div>
+        </details>`;
+
     nav.setAttribute('x-data', '{ }');
     nav.setAttribute('x-on:resize.window', 'if (window.innerWidth >= 1101) $store.ui.menuAbierto = false');
     nav.innerHTML = `
@@ -690,6 +718,7 @@ window.insertarNavbar = function insertarNavbar() {
         <div class="nav-links navbar-nav" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
             ${enlaces}
             ${appMenu}
+            ${loginMenu}
         </div>
         <div class="nav-right">
             <span id="nav-live-tag" class="nav-live-tag" hidden>
@@ -718,6 +747,43 @@ window.insertarNavbar = function insertarNavbar() {
         });
     }
 };
+
+// === Menú de acceso del navbar: única entrada de login ===
+async function conectarKickNavbar() {
+    const tokenComunidad = localStorage.getItem('comunidad_session_token');
+    if (tokenComunidad) {
+        await window.KICK_COMUNIDAD?.vincular();
+        return;
+    }
+    if (typeof window.entrarConKickComunidad === 'function') {
+        await window.entrarConKickComunidad();
+        return;
+    }
+    window.location.href = 'comunidad?kick=1';
+}
+
+window.abrirLoginMenu = function abrirLoginMenu(accion) {
+    const menu = document.getElementById('nav-login');
+    if (menu) menu.removeAttribute('open');
+    if (accion === 'kick') {
+        conectarKickNavbar();
+        return;
+    }
+    const esRegistro = accion === 'registro';
+    const abrir = esRegistro ? window.abrirModalRegistro : window.abrirModalLogin;
+    if (typeof abrir === 'function') {
+        abrir();
+        return;
+    }
+    window.location.href = esRegistro ? 'comunidad?registro=1' : 'comunidad?login=1';
+};
+
+document.addEventListener('click', (evento) => {
+    const boton = evento.target.closest('[data-login-accion]');
+    if (!boton) return;
+    evento.preventDefault();
+    window.abrirLoginMenu(boton.dataset.loginAccion);
+});
 
 window.insertarNavbar();
 
@@ -1152,31 +1218,25 @@ function insertarPanelAdminGlobal() {
             <p class="gallery-empty" x-show="$store.adminPanel.cargando">Comprobando sesión...</p>
 
             <template x-if="!$store.adminPanel.cargando && !$store.adminPanel.sesion">
-                <form class="admin-login-card" x-on:submit.prevent="$store.adminPanel.login()" novalidate>
-                    <p>Entra con tu cuenta de administrador. La cuenta de comunidad se vincula automáticamente si está asociada.</p>
-                    <label for="admin-login-email">Email</label>
-                    <input id="admin-login-email" type="email" class="admin-input" autocomplete="username" x-model="$store.adminPanel.loginEmail" required>
-                    <label for="admin-login-password">Contraseña</label>
-                    <input id="admin-login-password" type="password" class="admin-input" autocomplete="current-password" x-model="$store.adminPanel.loginPassword" required>
-                    <p class="admin-login-error" x-show="$store.adminPanel.loginError" x-text="$store.adminPanel.loginError" role="alert" x-cloak></p>
-                    <button type="submit" class="btn-admin-mode" :disabled="$store.adminPanel.loginCargando">
+                <div class="admin-login-card">
+                    <p>Este panel usa tu cuenta de la comunidad. Entra desde el menú <strong>Login</strong> con una cuenta con rol de administración.</p>
+                    <button type="button" class="btn-admin-mode" x-on:click="$store.adminPanel.cerrar(); window.abrirLoginMenu?.('login')">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg>
-                        <span x-text="$store.adminPanel.loginCargando ? 'Entrando...' : 'Entrar'"></span>
+                        <span>Abrir login</span>
                     </button>
-                </form>
+                </div>
             </template>
 
             <template x-if="!$store.adminPanel.cargando && $store.adminPanel.sesion && !$store.adminPanel.admin">
                 <div class="admin-login-card">
                     <h3><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-ban"></use></svg> Sin permisos</h3>
-                    <p>Esta cuenta no tiene rol de administrador.</p>
+                    <p>Esta cuenta de la comunidad no tiene rol de administración.</p>
                     <p class="admin-login-email" x-text="$store.adminPanel.email"></p>
-                    <button type="button" class="btn-admin-mode" x-on:click="$store.adminPanel.logout()">Cerrar sesión</button>
+                    <button type="button" class="btn-admin-mode" x-on:click="$store.adminPanel.cerrar()">Cerrar panel</button>
                 </div>
             </template>
 
             <div x-show="!$store.adminPanel.cargando && $store.adminPanel.admin">
-                <p class="admin-vinculo-aviso" x-show="!$store.adminPanel.vinculoOk" x-text="$store.adminPanel.vinculoError" role="status" x-cloak></p>
 
                 <div class="admin-tabs" role="tablist" aria-label="Paneles de administración">
                     <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'buzon' }" x-on:click="$store.adminPanel.setTab('buzon')" role="tab" :aria-selected="$store.adminPanel.tab === 'buzon' ? 'true' : 'false'" x-show="$store.adminPanel.owner">
@@ -1307,14 +1367,9 @@ document.addEventListener('alpine:init', () => {
         admin: false,
         owner: false,
         email: '',
-        vinculoOk: true,
-        vinculoError: '',
         tab: 'usuarios',
 
-        loginEmail: '',
-        loginPassword: '',
         loginError: '',
-        loginCargando: false,
 
         usuarios: [],
         usuariosEstado: 'inicial',
@@ -1355,7 +1410,7 @@ document.addEventListener('alpine:init', () => {
         async abrir(tab) {
             this.abierto = true;
             this.loginError = '';
-            await this.comprobarSesion(true);
+            await this.comprobarSesion();
             if (this.admin) {
                 const pedida = (!tab || tab === 'login')
                     ? (this.owner ? 'buzon' : 'usuarios')
@@ -1382,7 +1437,7 @@ document.addEventListener('alpine:init', () => {
             }, 30000);
         },
 
-        async comprobarSesion(forzarVinculo) {
+        async comprobarSesion() {
             this.cargando = true;
             this.loginError = '';
             if (!window.supabase) {
@@ -1390,29 +1445,22 @@ document.addEventListener('alpine:init', () => {
                 this.loginError = 'Supabase no está disponible. Recarga la página.';
                 return;
             }
+            const token = localStorage.getItem('comunidad_session_token');
+            this.sesion = !!token;
+            const usuario = window.obtenerSesionUsuarioComunidad?.() || {};
+            this.email = usuario.apodo || '';
+            if (!token) {
+                this.cargando = false;
+                return;
+            }
             try {
-                const { data } = await window.supabase.auth.getSession();
-                const session = data && data.session;
-                this.sesion = !!session;
-                this.email = session && session.user ? (session.user.email || '') : '';
-                if (!session) {
-                    this.cargando = false;
-                    return;
-                }
-
                 const [adminRes, ownerRes] = await Promise.all([
                     window.supabase.rpc('es_admin'),
                     window.supabase.rpc('es_owner')
                 ]);
                 this.admin = adminRes && adminRes.data === true;
                 this.owner = ownerRes && ownerRes.data === true;
-
-                if (this.admin) {
-                    if (forzarVinculo || !localStorage.getItem('comunidad_session_token')) {
-                        await this.vincularComunidad();
-                    }
-                    if (this.tab === 'buzon' && !this.owner) this.tab = 'usuarios';
-                }
+                if (this.admin && this.tab === 'buzon' && !this.owner) this.tab = 'usuarios';
                 this.cargando = false;
             } catch (e) {
                 console.error('Error comprobando sesión admin:', e);
@@ -1421,78 +1469,10 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async vincularComunidad() {
-            this.vinculoOk = true;
-            this.vinculoError = '';
-            try {
-                const { data, error } = await window.supabase.rpc('sesion_comunidad_vinculada');
-                if (error || !data || !data.ok) {
-                    this.vinculoOk = false;
-                    this.vinculoError = 'Tu cuenta de Auth no está vinculada a un perfil de comunidad; los paneles de usuarios y auditoría pueden fallar.';
-                    return false;
-                }
-                const token = data.token;
-                const val = await window.supabase.rpc('validar_sesion_comunidad', { p_token: token });
-                if (val.error || !val.data || !val.data.ok) {
-                    this.vinculoOk = false;
-                    this.vinculoError = 'No se pudo abrir la sesión de comunidad vinculada.';
-                    return false;
-                }
-                if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
-                const usuario = val.data.usuario;
-                localStorage.setItem('comunidad_session_token', token);
-                localStorage.setItem('comunidad_nickname', usuario.apodo);
-                localStorage.setItem('comunidad_user_id', String(usuario.id));
-                localStorage.setItem('comunidad_session_usuario', JSON.stringify(usuario));
-                window.actualizarUsuarioNavComunidad?.();
-                window.latidoComunidad?.();
-                return true;
-            } catch (e) {
-                this.vinculoOk = false;
-                this.vinculoError = 'No se pudo abrir la sesión de comunidad vinculada.';
-                return false;
-            }
-        },
-
-        async login() {
-            this.loginError = '';
-            if (!this.loginEmail.trim() || !this.loginPassword) {
-                this.loginError = 'Escribe email y contraseña.';
-                return;
-            }
-            this.loginCargando = true;
-            try {
-                const { error } = await window.supabase.auth.signInWithPassword({
-                    email: this.loginEmail.trim(),
-                    password: this.loginPassword
-                });
-                if (error) {
-                    this.loginError = 'No se pudo entrar: ' + (error.message || 'credenciales incorrectas');
-                    return;
-                }
-                this.loginPassword = '';
-                window.refrescarCacheAdmin?.();
-                await this.comprobarSesion(true);
-                if (this.admin) {
-                    this.tab = this.owner ? 'buzon' : 'usuarios';
-                    await this.cargarTab();
-                    this.iniciarRefrescoUsuarios();
-                }
-            } catch (e) {
-                console.error('Error login admin:', e);
-                this.loginError = 'Error inesperado al entrar.';
-            } finally {
-                this.loginCargando = false;
-            }
-        },
-
         async logout() {
             const token = localStorage.getItem('comunidad_session_token');
-            if (window.supabase) {
-                try { await window.supabase.auth.signOut(); } catch (e) {}
-                if (token) {
-                    try { await window.supabase.rpc('cerrar_sesion_comunidad', { p_token: token }); } catch (e) {}
-                }
+            if (window.supabase && token) {
+                try { await window.supabase.rpc('cerrar_sesion_comunidad', { p_token: token }); } catch (e) {}
             }
             localStorage.removeItem('comunidad_session_token');
             localStorage.removeItem('comunidad_nickname');

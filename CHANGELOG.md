@@ -3,6 +3,22 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.40.0] - 2026-11-03
+
+### Menú Login único y admin por rol de comunidad
+
+- Nuevo menú plegable "Login" en el navbar con tres acciones: Iniciar sesión
+  (apodo y PIN), Conectar con Kick y Registrarse.
+- "Conectar con Kick" abre a la vez la sesión del chat de Kick y el vínculo con
+  la cuenta de comunidad; si no hay sesión de comunidad, entra o crea el perfil.
+- Se quitan los botones de login duplicados del chat de comunidad: el acceso
+  vive solo en el navbar.
+- El panel de administración usa la sesión de comunidad y el rol nuevo
+  `usuarios_comunidad.rol`; McChary es admin y LaGochaGaming owner. Ya no hace
+  falta el login oculto de Supabase Auth.
+- `es_admin()`/`es_owner()` aceptan el token de comunidad por cabecera
+  `x-comunidad-token`, también en las políticas RLS.
+
 ## [1.39.0] - 2026-11-03
 
 ### Vincular Kick sin auto-vínculos

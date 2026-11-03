@@ -125,6 +125,22 @@ body.light-mode .navbar { background: rgba(240,253,244,0.75); }
 .nav-app-opcion--pronto .nav-app-accion { color: var(--text-muted); }
 .nav-app-nota { margin: 8px 2px 0; font-size: 0.7rem; line-height: 1.4; color: var(--text-muted); }
 
+/* --- Menú Login del navbar --- */
+.nav-login-panel { width: 320px; }
+.nav-login-opcion {
+    width: 100%;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.nav-login-opcion:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+.nav-login-kick { color: #53fc18; }
+.nav-login .nav-app-texto small { line-height: 1.35; }
+
 @media (max-width: 1100px) {
     .nav-app { width: 100%; justify-content: center; }
     .nav-app-toggle { width: 100%; justify-content: center; }
@@ -3130,9 +3146,6 @@ body.light-mode {
 
         .chat-login-area { flex-direction: column; align-items: center; gap: 12px; padding: 20px; text-align: center; }
         .chat-login-copy { color: var(--text-muted); font-size: 0.9rem; }
-        .chat-login-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        .chat-login-btn { flex: 1; min-width: 140px; padding: 12px 14px; font-size: 0.9rem; white-space: nowrap; }
-        .chat-login-hint { font-size: 0.8rem; color: var(--text-muted); margin: 5px 0 0 0; }
 
     .chat-form { display: none; position: relative; grid-template-columns: 140px minmax(0, 1fr) auto; align-items: center; }
     .chat-form.is-visible { display: grid; }
