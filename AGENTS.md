@@ -170,6 +170,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Analítica: Umami (`cloud.umami.is`) en las 5 páginas; no instalar Plausible a la vez.
 - No cambiar `<title>`, meta description ni H1 sin revisar canibalización: una intención por página (home = marca/streamer; comunidad = chat; galería = fotos; sorteo = sorteos; cine = GochiWatch).
 - Al cambiar contenido público, actualizar `lastmod` del sitemap y pedir indexación en GSC.
+- IndexNow: la clave vive en `f7d530743fabe8d2351dd9d026536f44.txt` (raíz, pública, se sirve tal cual). No borrarla ni renombrarla; si se rota, sustituir el archivo y volver a enviar las URLs a `api.indexnow.org`.
 
 ## 8. Versionado SemVer (obligatorio)
 
