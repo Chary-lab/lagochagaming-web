@@ -1197,7 +1197,9 @@ setInterval(actualizarTypingIndicator, 1200);
                     genero: u.genero || 'no_definido',
                     avatar_url: u.avatar_url || null,
                     bio: u.bio || null,
-                    links_json: u.links_json || null
+                    links_json: u.links_json || null,
+                    kick_user_id: u.kick_user_id ?? null,
+                    kick_username: u.kick_username || null
                 });
                 if (userProfilePanel) {
                     userProfilePanel.style.display = 'block';
