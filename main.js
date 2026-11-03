@@ -1593,73 +1593,408 @@ document.addEventListener('alpine:init', () => {
     });
 });
 
-// Fachada del chat de Kick: el iframe no se carga hasta que hace falta.
-window.prepararFachadaChat = function prepararFachadaChat() {
-    const iframes = document.querySelectorAll('iframe[data-chat-kick]');
-    iframes.forEach((iframe) => {
-        if (iframe.dataset.fachadaLista) return;
-        iframe.dataset.fachadaLista = '1';
-        const host = iframe.parentElement;
-        if (!host) return;
-        host.classList.add('chat-fachada-host');
-
-        const fachada = document.createElement('div');
-        fachada.className = 'chat-fachada';
-        fachada.innerHTML = [
-            '<span class="chat-fachada-k" aria-hidden="true">K</span>',
-            '<p class="chat-fachada-titulo">Chat de Kick</p>',
-            '<div class="chat-fachada-lineas" aria-hidden="true"><span></span><span></span><span></span></div>',
-            '<button type="button" class="chat-fachada-btn">Cargar chat</button>',
-            '<p class="chat-fachada-error" hidden>El chat no cargó. <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">Abrir en Kick</a></p>'
-        ].join('');
-        host.appendChild(fachada);
-
-        const boton = fachada.querySelector('.chat-fachada-btn');
-        const aviso = fachada.querySelector('.chat-fachada-error');
-        let cargado = false;
-        let temporizador = null;
-
-        const cargar = () => {
-            if (cargado) return;
-            const src = iframe.dataset.src;
-            if (!src) return;
-            cargado = true;
-            fachada.classList.add('is-cargando');
-            iframe.addEventListener('load', () => {
-                clearTimeout(temporizador);
-                fachada.classList.add('is-lista');
-                setTimeout(() => fachada.remove(), 260);
-            }, { once: true });
-            temporizador = setTimeout(() => {
-                if (fachada.classList.contains('is-lista')) return;
-                fachada.classList.remove('is-cargando');
-                fachada.classList.add('is-error');
-                aviso.hidden = false;
-                boton.hidden = true;
-            }, 8000);
-            iframe.src = src;
-        };
-
-        boton.addEventListener('click', cargar);
-
-        window.addEventListener('load', () => {
-            if (!('IntersectionObserver' in window)) {
-                setTimeout(cargar, 1200);
-                return;
-            }
-            const observador = new IntersectionObserver((entradas) => {
-                if (entradas.some((e) => e.isIntersecting)) {
-                    observador.disconnect();
-                    cargar();
-                }
-            }, { rootMargin: '200px' });
-            observador.observe(iframe);
-        }, { once: true });
-    });
+// === CHAT DE KICK (login propio, API oficial) ===
+// El login se guarda en localStorage, así que sobrevive al cambiar de página.
+window.CHAT_KICK = {
+    funcion: SUPABASE_URL + '/functions/v1',
+    retorno: 'https://lagochagaming.com/',
+    emisor: 4582776,
+    claveToken: 'gocha_kick_token',
+    claveVerificador: 'gocha_kick_verificador',
+    claveEstado: 'gocha_kick_estado',
+    claveVuelta: 'gocha_kick_vuelta'
 };
 
+(function prepararChatKick() {
+    const api = window.CHAT_KICK;
+
+    const base64url = (bytes) => {
+        let binario = '';
+        bytes.forEach((b) => { binario += String.fromCharCode(b); });
+        return btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    };
+
+    const pedir = async (cuerpo, token) => {
+        const cabeceras = { 'Content-Type': 'application/json' };
+        if (token) cabeceras.Authorization = 'Bearer ' + token;
+        try {
+            const res = await fetch(api.funcion + '/kick-chat', {
+                method: 'POST',
+                headers: cabeceras,
+                body: JSON.stringify(cuerpo)
+            });
+            const datos = await res.json().catch(() => ({}));
+            return { ok: res.ok, estado: res.status, datos };
+        } catch (e) {
+            console.error('chat kick:', e);
+            return { ok: false, estado: 0, datos: { error: 'Sin conexión con el chat' } };
+        }
+    };
+
+    const conEmotes = (texto) => window.escapeHtml(texto).replace(
+        /\[emote:(\d+):([^\]]*)\]/g,
+        (todo, id, nombre) => '<img class="chat-kick-emote" src="https://files.kick.com/emotes/' + id +
+            '/fullsize" alt="' + nombre + '" title="' + nombre + '" loading="lazy" width="24" height="24">'
+    );
+
+    const SIMBOLO_BADGE = { moderator: '🛡', founder: '👑', subscriber: '⭐', vip: '💎', verified: '✓' };
+
+    const pintarMensaje = (m) => {
+        const fila = document.createElement('div');
+        fila.className = 'chat-kick-mensaje';
+        fila.dataset.id = m.message_id;
+
+        const cabeza = document.createElement('div');
+        cabeza.className = 'chat-kick-mensaje-cabeza';
+
+        const autor = document.createElement('span');
+        autor.className = 'chat-kick-autor';
+        autor.textContent = m.sender_username;
+        if (m.sender_color) autor.style.color = m.sender_color;
+        cabeza.appendChild(autor);
+
+        if (Array.isArray(m.badges)) {
+            m.badges.slice(0, 3).forEach((badge) => {
+                const tipo = String(badge?.type ?? '').toLowerCase();
+                const simbolo = SIMBOLO_BADGE[tipo];
+                if (!simbolo) return;
+                const marca = document.createElement('span');
+                marca.className = 'chat-kick-badge';
+                marca.textContent = simbolo;
+                marca.title = String(badge?.text ?? tipo);
+                cabeza.appendChild(marca);
+            });
+        }
+
+        const hora = document.createElement('time');
+        hora.className = 'chat-kick-hora';
+        const fecha = new Date(m.created_at);
+        if (!Number.isNaN(fecha.getTime())) {
+            hora.dateTime = fecha.toISOString();
+            hora.textContent = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+        cabeza.appendChild(hora);
+        fila.appendChild(cabeza);
+
+        if (m.replies_to && m.replies_to.content) {
+            const cita = document.createElement('span');
+            cita.className = 'chat-kick-cita';
+            cita.textContent = '↳ ' + String(m.replies_to.content).slice(0, 80);
+            fila.appendChild(cita);
+        }
+
+        const texto = document.createElement('span');
+        texto.className = 'chat-kick-texto';
+        texto.innerHTML = conEmotes(String(m.content ?? ''));
+        fila.appendChild(texto);
+        return fila;
+    };
+
+    const montar = (host) => {
+        if (host.dataset.chatListo === '1') return;
+        host.dataset.chatListo = '1';
+        host.classList.add('chat-kick');
+
+        host.innerHTML = [
+            '<div class="chat-kick-top">',
+            '  <span class="chat-kick-punto" data-estado="cargando" aria-hidden="true"></span>',
+            '  <span class="chat-kick-titulo">Chat de Kick</span>',
+            '  <div class="chat-kick-cuenta" hidden>',
+            '    <img class="chat-kick-avatar" alt="" width="20" height="20">',
+            '    <span class="chat-kick-usuario"></span>',
+            '    <button type="button" class="chat-kick-salir" title="Cerrar la sesión de Kick">Salir</button>',
+            '  </div>',
+            '  <button type="button" class="chat-kick-login"><span aria-hidden="true">K</span> Conectar</button>',
+            '</div>',
+            '<div class="chat-kick-mensajes" role="log" aria-live="polite" aria-label="Mensajes del chat de Kick">',
+            '  <p class="chat-kick-vacio">Cargando mensajes…</p>',
+            '</div>',
+            '<form class="chat-kick-form">',
+            '  <label class="chat-kick-oculto" for="chat-kick-campo">Tu mensaje</label>',
+            '  <input class="chat-kick-campo" id="chat-kick-campo" type="text" maxlength="500" autocomplete="off" placeholder="Conecta con Kick para escribir" disabled>',
+            '  <button class="chat-kick-enviar" type="submit" disabled>Enviar</button>',
+            '</form>',
+            '<p class="chat-kick-aviso" role="status" hidden></p>'
+        ].join('');
+
+        const lista = host.querySelector('.chat-kick-mensajes');
+        const vacio = host.querySelector('.chat-kick-vacio');
+        const punto = host.querySelector('.chat-kick-punto');
+        const cuenta = host.querySelector('.chat-kick-cuenta');
+        const avatar = host.querySelector('.chat-kick-avatar');
+        const nombre = host.querySelector('.chat-kick-usuario');
+        const login = host.querySelector('.chat-kick-login');
+        const salir = host.querySelector('.chat-kick-salir');
+        const form = host.querySelector('.chat-kick-form');
+        const campo = host.querySelector('.chat-kick-campo');
+        const enviar = host.querySelector('.chat-kick-enviar');
+        const aviso = host.querySelector('.chat-kick-aviso');
+
+        const vistos = new Set();
+        let cercaDelFinal = true;
+        let bloqueo = 0;
+        let temporizadorBloqueo = null;
+
+        const mostrarAviso = (texto) => {
+            if (!texto) {
+                aviso.hidden = true;
+                aviso.textContent = '';
+                return;
+            }
+            aviso.hidden = false;
+            aviso.textContent = texto;
+        };
+
+        const alFinal = () => {
+            lista.scrollTop = lista.scrollHeight;
+        };
+
+        lista.addEventListener('scroll', () => {
+            cercaDelFinal = lista.scrollHeight - lista.scrollTop - lista.clientHeight < 60;
+        });
+
+        const añadir = (m) => {
+            if (!m || !m.message_id || vistos.has(m.message_id)) return;
+            vistos.add(m.message_id);
+            if (vacio) vacio.hidden = true;
+            lista.appendChild(pintarMensaje(m));
+            if (cercaDelFinal) alFinal();
+        };
+
+        const actualizarCuenta = (sesion) => {
+            if (sesion) {
+                cuenta.hidden = false;
+                login.hidden = true;
+                nombre.textContent = sesion.usuario.username;
+                if (sesion.usuario.avatar) {
+                    avatar.src = sesion.usuario.avatar;
+                    avatar.hidden = false;
+                } else {
+                    avatar.hidden = true;
+                }
+                campo.disabled = false;
+                enviar.disabled = false;
+                campo.placeholder = 'Escribe en el chat…';
+            } else {
+                cuenta.hidden = true;
+                login.hidden = false;
+                campo.disabled = true;
+                enviar.disabled = true;
+                campo.placeholder = 'Conecta con Kick para escribir';
+            }
+        };
+
+        host._actualizarCuenta = actualizarCuenta;
+        host._añadirMensaje = añadir;
+        host._mostrarAviso = mostrarAviso;
+        host._lista = lista;
+        host._vacio = vacio;
+        host._punto = punto;
+        host._campo = campo;
+
+        login.addEventListener('click', () => { host._conectar(); });
+        salir.addEventListener('click', () => { host._salir(); });
+
+        form.addEventListener('submit', async (evento) => {
+            evento.preventDefault();
+            const sesion = window.CHAT_KICK.sesion;
+            const contenido = campo.value.trim();
+            if (!sesion || !contenido || bloqueo) return;
+
+            enviar.disabled = true;
+            campo.disabled = true;
+            const res = await pedir({ accion: 'enviar', contenido }, sesion.token);
+
+            if (res.ok) {
+                campo.value = '';
+                mostrarAviso('');
+                campo.disabled = true;
+                bloqueo = 5;
+                campo.placeholder = 'Espera 5 s…';
+                clearInterval(temporizadorBloqueo);
+                temporizadorBloqueo = setInterval(() => {
+                    bloqueo -= 1;
+                    if (bloqueo <= 0) {
+                        clearInterval(temporizadorBloqueo);
+                        bloqueo = 0;
+                        campo.disabled = false;
+                        enviar.disabled = false;
+                        campo.placeholder = 'Escribe en el chat…';
+                    } else {
+                        campo.placeholder = 'Espera ' + bloqueo + ' s…';
+                    }
+                }, 1000);
+            } else if (res.estado === 401) {
+                window.CHAT_KICK.sesion = null;
+                localStorage.removeItem(api.claveToken);
+                document.querySelectorAll('[data-chat-kick]').forEach((otro) => {
+                    if (otro._actualizarCuenta) otro._actualizarCuenta(null);
+                });
+                mostrarAviso('Tu sesión de Kick caducó. Vuelve a conectar.');
+                campo.disabled = false;
+                enviar.disabled = false;
+            } else {
+                mostrarAviso(res.datos.error || 'No se pudo enviar el mensaje.');
+                campo.disabled = false;
+                enviar.disabled = false;
+            }
+            campo.focus();
+        });
+    };
+
+    window.iniciarChatKick = async function iniciarChatKick() {
+        const hosts = Array.from(document.querySelectorAll('[data-chat-kick]'));
+        if (!hosts.length) return;
+        hosts.forEach(montar);
+
+        const sincronizar = () => {
+            const sesion = window.CHAT_KICK.sesion ?? null;
+            hosts.forEach((host) => { if (host._actualizarCuenta) host._actualizarCuenta(sesion); });
+        };
+
+        window.CHAT_KICK.conectar = async (host) => {
+            if (!window.crypto?.subtle) {
+                host._mostrarAviso('Tu navegador no permite el login. Abre el chat en Kick.');
+                return;
+            }
+            const verificador = base64url(crypto.getRandomValues(new Uint8Array(32)));
+            const estado = base64url(crypto.getRandomValues(new Uint8Array(16)));
+            sessionStorage.setItem(api.claveVerificador, verificador);
+            sessionStorage.setItem(api.claveEstado, estado);
+            localStorage.setItem(api.claveVuelta, location.pathname + location.search);
+
+            const desafio = base64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verificador))));
+            const res = await pedir({ accion: 'entrar', code_challenge: desafio, state: estado, redirect_uri: api.retorno });
+            if (!res.ok || !res.datos.url) {
+                host._mostrarAviso(res.datos.error || 'No se pudo abrir el login de Kick.');
+                return;
+            }
+            location.href = res.datos.url;
+        };
+
+        window.CHAT_KICK.salir = async (host) => {
+            const sesion = window.CHAT_KICK.sesion;
+            if (sesion) await pedir({ accion: 'salir' }, sesion.token);
+            window.CHAT_KICK.sesion = null;
+            localStorage.removeItem(api.claveToken);
+            sincronizar();
+            host._mostrarAviso('');
+        };
+
+        hosts.forEach((host) => {
+            host._conectar = () => window.CHAT_KICK.conectar(host);
+            host._salir = () => window.CHAT_KICK.salir(host);
+        });
+
+        const limpiarUrl = () => {
+            const url = new URL(location.href);
+            url.searchParams.delete('code');
+            url.searchParams.delete('state');
+            url.searchParams.delete('scope');
+            history.replaceState(null, '', url.pathname + url.search + url.hash);
+        };
+
+        const completarLogin = async () => {
+            const params = new URLSearchParams(location.search);
+            const codigo = params.get('code');
+            const estado = params.get('state');
+            if (!codigo || !estado) return false;
+
+            const guardado = sessionStorage.getItem(api.claveEstado);
+            const verificador = sessionStorage.getItem(api.claveVerificador);
+            const vuelta = localStorage.getItem(api.claveVuelta) || '/';
+            limpiarUrl();
+
+            if (!guardado || estado !== guardado || !verificador) {
+                hosts.forEach((host) => host._mostrarAviso('El login caducó. Inténtalo otra vez.'));
+                return false;
+            }
+            sessionStorage.removeItem(api.claveEstado);
+            sessionStorage.removeItem(api.claveVerificador);
+
+            const res = await pedir({ code: codigo, code_verifier: verificador, redirect_uri: api.retorno });
+            if (!res.ok) {
+                hosts.forEach((host) => host._mostrarAviso(res.datos.error || 'Kick no completó el login.'));
+                return false;
+            }
+            localStorage.setItem(api.claveToken, res.datos.token);
+            const destino = location.pathname + location.search;
+            if (vuelta && vuelta !== destino) {
+                location.replace(vuelta);
+                return true;
+            }
+            return true;
+        };
+
+        const validarSesion = async () => {
+            const token = localStorage.getItem(api.claveToken);
+            if (!token) return null;
+            const res = await pedir({ accion: 'sesion' }, token);
+            if (!res.ok) {
+                if (res.estado === 401) localStorage.removeItem(api.claveToken);
+                return null;
+            }
+            return { token, usuario: res.datos.usuario };
+        };
+
+        const cargarMensajes = async () => {
+            if (!window.supabase) return;
+            const { data, error } = await window.supabase
+                .from('kick_chat_messages')
+                .select('message_id,sender_username,sender_color,sender_avatar,badges,content,emotes,replies_to,created_at')
+                .eq('broadcaster_user_id', api.emisor)
+                .order('created_at', { ascending: false })
+                .limit(60);
+
+            if (error) {
+                hosts.forEach((host) => {
+                    host._vacio.hidden = false;
+                    host._vacio.textContent = 'No se pudieron cargar los mensajes.';
+                });
+                return;
+            }
+            const mensajes = (data ?? []).slice().reverse();
+            if (!mensajes.length) {
+                hosts.forEach((host) => {
+                    host._vacio.hidden = false;
+                    host._vacio.textContent = 'Nadie ha escrito todavía. Rompe el hielo.';
+                });
+                return;
+            }
+            mensajes.forEach((m) => hosts.forEach((host) => host._añadirMensaje(m)));
+        };
+
+        const escuchar = () => {
+            if (!window.supabase) return;
+            window.supabase
+                .channel('kick-chat-' + api.emisor)
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'kick_chat_messages',
+                    filter: 'broadcaster_user_id=eq.' + api.emisor
+                }, (carga) => {
+                    hosts.forEach((host) => host._añadirMensaje(carga.new));
+                })
+                .subscribe((estado) => {
+                    const valor = estado === 'SUBSCRIBED' ? 'vivo'
+                        : (estado === 'CHANNEL_ERROR' || estado === 'TIMED_OUT') ? 'error' : 'cargando';
+                    hosts.forEach((host) => { host._punto.dataset.estado = valor; });
+                });
+        };
+
+        const vueltaDeLogin = await completarLogin();
+        window.CHAT_KICK.sesion = await validarSesion();
+        sincronizar();
+        if (!vueltaDeLogin) {
+            await cargarMensajes();
+            escuchar();
+        }
+    };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
-    try { prepararFachadaChat(); } catch (e) { console.error('prepararFachadaChat:', e); }
+    try { iniciarChatKick(); } catch (e) { console.error('iniciarChatKick:', e); }
     try { iniciarPollingStreamGlobal(); } catch (e) { console.error('iniciarPollingStreamGlobal:', e); }
     try { insertarComponentesUIGlobales(); } catch (e) { console.error('insertarComponentesUIGlobales:', e); }
     try { initTema(); } catch (e) { console.error('initTema:', e); }

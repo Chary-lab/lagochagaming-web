@@ -3,6 +3,21 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.37.0] - 2026-11-03
+
+### Chat propio de Kick con sesión persistente
+
+- La home y GochiWatch ya no cargan el iframe de Kick: el chat se pinta en la
+  propia página, con el mismo aspecto en las dos.
+- Login con OAuth de Kick (PKCE): la sesión se guarda en el navegador y se
+  mantiene al cambiar de página, también entre home y GochiWatch.
+- Mensajes en directo con emotes, badges, color de usuario, respuestas y hora.
+- El envío pasa por una Edge Function: el token de Kick nunca llega al HTML y
+  el secreto de la app se queda en el servidor.
+- Los mensajes se guardan 48 h; la lectura pública se limita a las últimas 12 h.
+- Aviso claro si Kick pide seguir el canal, si la sesión caduca o si hay que
+  esperar entre mensajes.
+
 ## [1.36.0] - 2026-11-03
 
 ### Menú App en la navbar
