@@ -11,6 +11,7 @@
 !sitemap.xml
 !_headers
 !VERSION
+!app/*
 # Permitir carpeta de imágenes
 !img/
 !img/*
