@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="GochiWatch, cine sincronizado">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.0">
+    <link rel="stylesheet" href="style.css?v=1.43.1">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -105,7 +105,7 @@
                     <button type="button" data-action="logout-admin" class="btn-logout"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-from-bracket"></use></svg> Cerrar Sesión</button>
                 </div>
                 <div class="admin-source-row">
-                    <span class="admin-status" id="statusSyncText">🟢 Sincronización activa</span>
+                    <span class="admin-status">🟢 Sincronización activa</span>
                     <span class="admin-source-hint" id="urlSourceHint">Fuente: esperando enlace</span>
                 </div>
 
@@ -114,7 +114,7 @@
             <!-- CONTENEDOR DE REPRODUCCIÓN Y CÁMARA DE KICK -->
             <div class="video-player-box" id="videoBoxContainer">
                 <!-- Estado de carga / error -->
-                <div id="cinePlayerOverlay" class="cine-player-overlay"
+                <div class="cine-player-overlay"
                      x-bind:class="{ hide: !$store.cine.overlayVisible, error: $store.cine.overlayError }">
                     <div class="cine-overlay-text">
                         <button type="button" class="cine-empty-sleeper" x-data="{ despierto: false }"
@@ -154,10 +154,10 @@
 
             <div class="cine-now-playing">
                 <div class="cine-now-meta">
-                    <span id="cineSourceBadge" class="cine-source-badge" hidden x-bind:hidden="!$store.cine.fuenteVisible">
+                    <span class="cine-source-badge" hidden x-bind:hidden="!$store.cine.fuenteVisible">
                         <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + $store.cine.fuenteIcono"></use></svg> <span x-text="$store.cine.fuenteTexto">Video</span>
                     </span>
-                    <span id="cineStatusPill" class="cine-status-pill is-waiting"
+                    <span class="cine-status-pill is-waiting"
                           x-bind:class="'cine-status-pill ' + $store.cine.estadoClase">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-circle"></use></svg> <span x-text="$store.cine.estadoTexto">Esperando</span>
                     </span>
@@ -224,7 +224,7 @@
     <script src="https://www.youtube.com/iframe_api" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.43.0" defer></script>
+    <script src="main.js?v=1.43.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
 

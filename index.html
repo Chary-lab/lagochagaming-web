@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.0">
+    <link rel="stylesheet" href="style.css?v=1.43.1">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -251,14 +251,14 @@
         <div class="muro-form-container" x-data="{ }">
             <form id="muro-form" class="muro-form" x-on:submit.prevent="$store.muro.enviar()">
                 <input type="text" id="muro-autor" aria-label="Tu apodo o nombre" placeholder="Tu apodo o nombre (invitado)" maxlength="30" required autocomplete="name" x-model="$store.muro.autor">
-                <textarea id="muro-mensaje" aria-label="Tu saludo o mensaje" placeholder="Escribe tu saludo o mensaje para La Gocha..." maxlength="280" required x-model="$store.muro.mensaje"></textarea>
-                <button type="submit" id="btn-enviar-muro" class="btn-primary" x-bind:disabled="$store.muro.enviando">ENVIAR SALUDO</button>
+                <textarea aria-label="Tu saludo o mensaje" placeholder="Escribe tu saludo o mensaje para La Gocha..." maxlength="280" required x-model="$store.muro.mensaje"></textarea>
+                <button type="submit" class="btn-primary" x-bind:disabled="$store.muro.enviando">ENVIAR SALUDO</button>
             </form>
             <div id="muro-feedback" class="muro-feedback"
                  x-bind:class="{ 'muro-feedback-success': $store.muro.tipo === 'ok', 'muro-feedback-error': $store.muro.tipo === 'error' }"
                  x-bind:hidden="!$store.muro.feedback" x-text="$store.muro.feedback"></div>
         </div>
-        <div id="muro-mensajes-container" class="muro-grid">
+        <div class="muro-grid">
             <p class="muro-empty" x-bind:hidden="$store.muro.cargando || $store.muro.mensajes.length > 0"><img class="empty-illustration" src="img/mcchary/empty.webp" alt="" width="150" height="101" loading="lazy" decoding="async">Aún no hay saludos. ¡Sé el primero en escribir uno! 💖</p>
             <template x-for="msg in $store.muro.mensajes" :key="msg.id">
                 <div class="muro-card" x-bind:id="'muro-card-' + msg.id">
@@ -387,7 +387,7 @@
     </div>
 
     <!-- SOBRE LA GOCHA (franja compacta, antes del footer) -->
-    <section id="sobre-la-gocha" class="seo-strip" aria-labelledby="seo-strip-titulo">
+    <section class="seo-strip" aria-labelledby="seo-strip-titulo">
         <h2 id="seo-strip-titulo">Sobre La Gocha</h2>
         <div class="seo-strip-grid">
             <div class="seo-strip-col">
@@ -441,7 +441,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" defer></script>
 
-    <script src="main.js?v=1.43.0" defer></script>
+    <script src="main.js?v=1.43.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script>

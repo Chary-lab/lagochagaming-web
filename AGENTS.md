@@ -190,7 +190,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versi�n de esta release: `1.43.0` (auditor�a: icono ban, iconos hu�rfanos, README, registro con Kick y ajustes pendientes; sobre 1.42.1).
+- Versi�n de esta release: `1.43.1` (limpieza de c�digo hu�rfano: funci�n muerta del chat, 2 reglas CSS y 16 ids sin referencia; sobre 1.43.0).
 
 ## 9. Pruebas antes de commitear
 
@@ -258,6 +258,6 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Shadowban: `comunidad_chat.oculto` filtra la lectura por RPC y el realtime del cliente, pero la tabla tiene SELECT público; un atacante podría leer mensajes ocultos por REST. No es un control de seguridad fuerte.
 - PIN de 4 dígitos: fuerza bruta distribuida posible; el rate limit es por IP.
 - GitHub Pages no aplica `_headers`: no hay CSP/HSTS reales en producción.
-- CDNs sin SRI (Supabase, Alpine, Bootstrap CSS, Font Awesome, Google Fonts).
+- CDNs sin SRI (jsDelivr: Supabase JS, Alpine, hls.js; Google Fonts).
 - Advisors de Supabase marcan RPCs `SECURITY DEFINER` ejecutables por `anon`; es intencional para usuarios de comunidad sin Supabase Auth. Revisar cada nueva RPC con el mismo criterio.
 - Índices marcados como "unused" son de bajo volumen; no eliminarlos sin medir.

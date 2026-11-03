@@ -3,6 +3,22 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.1] - 2026-11-03
+
+### Limpieza de código huérfano
+
+- Eliminada la función `renderizarMensajes` de `comunidad.html`: no se llamaba
+  desde ningún sitio (el chat usa `cargarMensajes` y el store).
+- Eliminadas dos reglas CSS sin uso: `.admin-login-error` y
+  `.admin-vinculo-aviso`.
+- Fuera 16 atributos `id` sin ninguna referencia en HTML, JS ni CSS
+  (`cinePlayerOverlay`, `cineSourceBadge`, `cineStatusPill`, `statusSyncText`,
+  `btn-cargar-mas-chat`, `gridPendientes`, `imageAuthorInput`,
+  `imageTitleInput`, `tab-moderacion`, `uploadFeedback`, `btn-enviar-muro`,
+  `muro-mensaje`, `muro-mensajes-container`, `sobre-la-gocha`,
+  `lista-participantes-publico`, `top-ganadores-grid`).
+- `AGENTS.md`: corregida la línea de CDNs, que citaba unos que ya no se usan.
+
 ## [1.43.0] - 2026-11-03
 
 ### Auditoría, registro con Kick y limpieza

@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.0">
+    <link rel="stylesheet" href="style.css?v=1.43.1">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -93,9 +93,9 @@
                 </ul>
             </details>
 
-            <div id="tab-moderacion" class="admin-tab-panel">
+            <div class="admin-tab-panel">
                 <h2><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-clock-rotate-left"></use></svg> Imágenes Pendientes por Aprobar (<span id="cantPendientes" x-text="$store.galeria.pendientesEstado === 'error' ? '?' : $store.galeria.pendientes.length">0</span>)</h2>
-                <div class="gallery-grid" id="gridPendientes">
+                <div class="gallery-grid">
                     <template x-for="foto in $store.galeria.pendientes" :key="foto.id">
                         <div class="gallery-card gallery-card-pending">
                             <div class="gallery-card-image-wrap">
@@ -133,9 +133,9 @@
              x-on:dragleave.prevent="$store.subida.arrastrando = false"
              x-on:drop.prevent="$store.subida.soltar($event)">
             <div class="upload-title-wrap">
-                <input type="text" id="imageTitleInput" class="gallery-title-input" aria-label="Título de la imagen" placeholder="Escribe un título para tu imagen..." maxlength="60" autocomplete="off" x-model="$store.subida.titulo">
+                <input type="text" class="gallery-title-input" aria-label="Título de la imagen" placeholder="Escribe un título para tu imagen..." maxlength="60" autocomplete="off" x-model="$store.subida.titulo">
                 <div id="admin-author-wrap" hidden>
-                    <input type="text" id="imageAuthorInput" class="gallery-title-input" placeholder="Autor de la foto" maxlength="30" value="LaGochaGaming" autocomplete="name" x-model="$store.subida.autorAdmin">
+                    <input type="text" class="gallery-title-input" placeholder="Autor de la foto" maxlength="30" value="LaGochaGaming" autocomplete="name" x-model="$store.subida.autorAdmin">
                     <p class="upload-hint">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-crown"></use></svg> Sesión de admin: la foto se publicará con este autor
                         (vacío = LaGochaGaming).
@@ -152,7 +152,7 @@
                 <p><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> Inicia sesión en la Comunidad para subir tus fotos.</p>
                 <a href="comunidad" class="btn-primary upload-login-link">Ir a la Comunidad</a>
             </div>
-            <div id="uploadFeedback">
+            <div>
                 <p x-bind:hidden="!$store.subida.feedback"
                    x-bind:class="$store.subida.tipo === 'error' ? 'msg-subida-error' : 'msg-subida-exito'"
                    x-text="$store.subida.feedback"></p>
@@ -1189,7 +1189,7 @@
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.43.0" defer></script>
+    <script src="main.js?v=1.43.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

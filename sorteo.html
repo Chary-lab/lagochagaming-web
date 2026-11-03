@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Sorteos de LaGochaGaming">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.0">
+    <link rel="stylesheet" href="style.css?v=1.43.1">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -74,7 +74,7 @@
             <p class="sidebar-ganadores-lead">
                 Registro histórico con los últimos ganadores afortunados de los sorteos oficiales de la comunidad.
             </p>
-            <div id="top-ganadores-grid" x-data="{ }">
+            <div x-data="{ }">
                 <template x-for="g in $store.sorteo.ganadores" :key="g.nombre + g.created_at">
                     <div class="ganador-card-side">
                         <div class="ganador-nombre" x-text="'🎉 ' + (g.nombre || '')"></div>
@@ -125,7 +125,7 @@
 
                 <div class="participants-box">
                     <h3 class="participants-title">Participantes (<span x-text="$store.sorteo.manual.length">0</span>)</h3>
-                    <ul id="lista-participantes-publico" class="participants-list">
+                    <ul class="participants-list">
                         <template x-for="(p, index) in $store.sorteo.manual" :key="p">
                             <li class="tag-participante">
                                 <span x-text="'@' + p"></span>
@@ -954,7 +954,7 @@
         </div>
     </footer>
 
-    <script src="main.js?v=1.43.0" defer></script>
+    <script src="main.js?v=1.43.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
