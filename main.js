@@ -1597,22 +1597,12 @@ document.addEventListener('alpine:init', () => {
 // El login se guarda en localStorage, así que sobrevive al cambiar de página.
 window.CHAT_KICK = {
     funcion: SUPABASE_URL + '/functions/v1',
-    retorno: 'https://lagochagaming.com/',
     emisor: 4582776,
-    claveToken: 'gocha_kick_token',
-    claveVerificador: 'gocha_kick_verificador',
-    claveEstado: 'gocha_kick_estado',
-    claveVuelta: 'gocha_kick_vuelta'
+    claveToken: 'gocha_kick_token'
 };
 
 (function prepararChatKick() {
     const api = window.CHAT_KICK;
-
-    const base64url = (bytes) => {
-        let binario = '';
-        bytes.forEach((b) => { binario += String.fromCharCode(b); });
-        return btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    };
 
     const pedir = async (cuerpo, token) => {
         const cabeceras = { 'Content-Type': 'application/json' };
@@ -1853,18 +1843,7 @@ window.CHAT_KICK = {
         };
 
         window.CHAT_KICK.conectar = async (host) => {
-            if (!window.crypto?.subtle) {
-                host._mostrarAviso('Tu navegador no permite el login. Abre el chat en Kick.');
-                return;
-            }
-            const verificador = base64url(crypto.getRandomValues(new Uint8Array(32)));
-            const estado = base64url(crypto.getRandomValues(new Uint8Array(16)));
-            sessionStorage.setItem(api.claveVerificador, verificador);
-            sessionStorage.setItem(api.claveEstado, estado);
-            localStorage.setItem(api.claveVuelta, location.pathname + location.search);
-
-            const desafio = base64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verificador))));
-            const res = await pedir({ accion: 'entrar', code_challenge: desafio, state: estado, redirect_uri: api.retorno });
+            const res = await pedir({ accion: 'entrar', vuelta: location.pathname + location.search });
             if (!res.ok || !res.datos.url) {
                 host._mostrarAviso(res.datos.error || 'No se pudo abrir el login de Kick.');
                 return;
@@ -1886,43 +1865,20 @@ window.CHAT_KICK = {
             host._salir = () => window.CHAT_KICK.salir(host);
         });
 
-        const limpiarUrl = () => {
-            const url = new URL(location.href);
-            url.searchParams.delete('code');
-            url.searchParams.delete('state');
-            url.searchParams.delete('scope');
-            history.replaceState(null, '', url.pathname + url.search + url.hash);
-        };
-
         const completarLogin = async () => {
-            const params = new URLSearchParams(location.search);
-            const codigo = params.get('code');
-            const estado = params.get('state');
-            if (!codigo || !estado) return false;
+            const hash = location.hash.startsWith('#') ? location.hash.slice(1) : '';
+            if (!hash) return false;
+            const params = new URLSearchParams(hash);
+            const token = params.get('kick');
+            const error = params.get('kick_error');
+            if (!token && !error) return false;
 
-            const guardado = sessionStorage.getItem(api.claveEstado);
-            const verificador = sessionStorage.getItem(api.claveVerificador);
-            const vuelta = localStorage.getItem(api.claveVuelta) || '/';
-            limpiarUrl();
-
-            if (!guardado || estado !== guardado || !verificador) {
-                hosts.forEach((host) => host._mostrarAviso('El login caducó. Inténtalo otra vez.'));
+            history.replaceState(null, '', location.pathname + location.search);
+            if (error) {
+                hosts.forEach((host) => host._mostrarAviso(error));
                 return false;
             }
-            sessionStorage.removeItem(api.claveEstado);
-            sessionStorage.removeItem(api.claveVerificador);
-
-            const res = await pedir({ code: codigo, code_verifier: verificador, redirect_uri: api.retorno });
-            if (!res.ok) {
-                hosts.forEach((host) => host._mostrarAviso(res.datos.error || 'Kick no completó el login.'));
-                return false;
-            }
-            localStorage.setItem(api.claveToken, res.datos.token);
-            const destino = location.pathname + location.search;
-            if (vuelta && vuelta !== destino) {
-                location.replace(vuelta);
-                return true;
-            }
+            localStorage.setItem(api.claveToken, token);
             return true;
         };
 

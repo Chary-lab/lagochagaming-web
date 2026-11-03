@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.37.1] - 2026-11-03
+
+### Login de Kick arreglado
+
+- El login devolvía a la web, pero la app de Kick solo admite una Redirect URL y
+  la registrada es la función callback de Supabase. Kick respondía
+  `invalid authorization request`.
+- Ahora el retorno pasa por `kick-oauth-callback`: canjea el código, guarda la
+  sesión y devuelve al usuario a la página donde estaba (home o GochiWatch).
+- El `state` y el verificador PKCE se generan en el servidor y caducan a los
+  15 minutos; el navegador ya no guarda nada del login a medias.
+
 ## [1.37.0] - 2026-11-03
 
 ### Chat propio de Kick con sesión persistente
