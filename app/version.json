@@ -1,8 +1,8 @@
 {
-    "versionCode":  6,
-    "versionName":  "1.4",
+    "versionCode":  7,
+    "versionName":  "1.4fix",
     "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256":  "542cad8338c19bc76f986d01f3d87f5b410d77f08a14aca53bb74ef2c1f3cded",
-    "size":  4376514,
-    "notes":  "Acceso con Kick, interfaz adaptada a la web nueva y mejoras de estabilidad."
+    "sha256":  "47483a4e9cf2eb496bbc3fb86d3bcf29ead20b37cd0783f67fe96204a20a697e",
+    "size":  4376654,
+    "notes":  "Aviso automatico de actualizaciones, opcion de no volver a mostrar y mejoras de estabilidad."
 }

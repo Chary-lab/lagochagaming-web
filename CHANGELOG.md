@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.3] - 2026-11-03
+
+### APK 1.4fix
+
+- La app avisa de las actualizaciones automáticamente al abrir, sin entrar en
+  Ajustes. Comprueba como máximo una vez por hora.
+- El aviso incluye la casilla "No volver a mostrar esta versión"; quien la
+  marque puede seguir actualizando después desde Ajustes.
+- Menú App de la web actualizado a la versión 1.4fix (versionCode 7).
+
 ## [1.43.2] - 2026-11-03
 
 ### AGENTS.md al día
