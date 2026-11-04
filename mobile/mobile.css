@@ -227,29 +227,92 @@ html.lg-app.lg-theme-light .lg-kick-chip {
   color: #a3155e !important;
 }
 
+@property --p {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 0%;
+}
+
 html.lg-app .lg-points {
-  height: 40px;
-  padding: 0 9px;
+  --p: 0%;
+  height: 38px;
+  padding: 0 10px 0 7px;
   display: inline-flex;
-  align-items: baseline;
-  gap: 1px;
-  border-radius: 13px;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
   border: 1px solid var(--lg-line);
   background: var(--lg-surface);
   color: var(--lg-text);
   font: 800 13px/1 'Inter', system-ui, sans-serif;
   letter-spacing: -.01em;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease, --p .9s cubic-bezier(.22, .8, .3, 1);
 }
 
 html.lg-app .lg-points[hidden] { display: none; }
 
-html.lg-app .lg-points span {
+html.lg-app .lg-points-ring {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  background: conic-gradient(var(--lg-pink) var(--p), rgba(127, 127, 127, .25) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  transition: box-shadow .3s ease;
+}
+
+html.lg-app .lg-points-texto {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+html.lg-app .lg-points-sep {
   font-size: 9px;
   font-weight: 700;
   color: var(--lg-muted);
 }
 
+html.lg-app .lg-points--completo {
+  border-color: var(--lg-pink);
+  box-shadow: 0 0 0 3px rgba(255, 102, 178, .16);
+}
+
+html.lg-app .lg-points--completo .lg-points-ring {
+  background: conic-gradient(var(--lg-pink) 100%, var(--lg-pink) 0);
+  box-shadow: 0 0 12px rgba(255, 102, 178, .6);
+}
+
+html.lg-app .lg-points--remate .lg-points-ring {
+  animation: lgPointsRemate .95s ease;
+}
+
+html.lg-app .lg-points--suma {
+  animation: lgPointsSuma .7s ease;
+}
+
+@keyframes lgPointsRemate {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); box-shadow: 0 0 0 4px rgba(255, 102, 178, .22), 0 0 16px rgba(255, 102, 178, .65); }
+  100% { transform: scale(1); }
+}
+
+@keyframes lgPointsSuma {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
 html.lg-app .lg-points:active { transform: scale(.94); }
+
+@media (prefers-reduced-motion: reduce) {
+  html.lg-app .lg-points { transition: border-color .2s ease, box-shadow .2s ease; }
+  html.lg-app .lg-points--remate .lg-points-ring,
+  html.lg-app .lg-points--suma { animation: none; }
+}
 
 html.lg-app .lg-kick-chip.lg-live i {
   background: #53fc18;

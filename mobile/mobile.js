@@ -83,7 +83,10 @@
         '<span class="lg-brand-text"><b>LAGOCHA</b><small>GAMING</small></span>' +
       '</a>' +
       '<div class="lg-top-actions">' +
-        '<button class="lg-points" id="lg-points" type="button" hidden aria-label="Puntos de hoy"><b id="lg-points-hoy">0</b><span>/60</span></button>' +
+        '<button class="lg-points" id="lg-points" type="button" hidden aria-label="Puntos de hoy">' +
+          '<span class="lg-points-ring" aria-hidden="true"></span>' +
+          '<span class="lg-points-texto"><b id="lg-points-hoy">0</b><span class="lg-points-sep">/</span><span id="lg-points-tope">60</span></span>' +
+        '</button>' +
         '<a class="lg-kick-chip" id="lg-kick-chip" href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer"><i></i>KICK</a>' +
         '<button class="lg-top-btn" id="lg-open-settings" type="button" aria-label="Abrir ajustes">' + icon('settings') + '</button>' +
         '<button class="lg-top-btn" id="lg-open-profile" type="button" aria-label="Abrir mi cuenta">' + icon('user') + '</button>' +
@@ -140,7 +143,7 @@
             '<button type="button" class="lg-action-btn" data-action="reload">' + icon('refresh') + 'Recargar aplicación</button>' +
             '<a class="lg-action-btn" href="https://lagochagaming.com" target="_blank" rel="noopener noreferrer">' + icon('external') + 'Abrir versión web<small>Navegador</small></a>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.6 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.7 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -318,16 +321,37 @@
   function syncTopbarMeta() {
     var pill = document.getElementById('lg-points');
     var value = document.getElementById('nav-puntos-hoy');
-    if (pill && value) {
+    var navPuntos = document.getElementById('nav-puntos-dia');
+    if (pill && value && isLoggedIn() && navPuntos && !navPuntos.hidden) {
       var points = (value.textContent || '').trim();
       var max = document.getElementById('nav-puntos-tope');
-      var top = max ? (max.textContent || '').trim() : '60';
+      var topTexto = max ? (max.textContent || '').trim() : '60';
+      var tope = Number(topTexto) || 60;
       if (points) {
+        var hoy = Number(points) || 0;
+        var previo = Number(pill.dataset.hoy);
+        var antes = isNaN(previo) ? -1 : previo;
         pill.hidden = false;
         var label = document.getElementById('lg-points-hoy');
         if (label) label.textContent = points;
-        var suffix = pill.querySelector('span');
-        if (suffix) suffix.textContent = '/' + (top || '60');
+        var maxLabel = document.getElementById('lg-points-tope');
+        if (maxLabel) maxLabel.textContent = String(tope);
+        pill.style.setProperty('--p', Math.min(100, Math.round((hoy / tope) * 100)) + '%');
+        pill.classList.toggle('lg-points--completo', hoy >= tope);
+        pill.dataset.hoy = String(hoy);
+        if (antes >= 0 && hoy > antes) {
+          pill.classList.remove('lg-points--suma');
+          void pill.offsetWidth;
+          pill.classList.add('lg-points--suma');
+          setTimeout(function () { pill.classList.remove('lg-points--suma'); }, 700);
+        }
+        if (antes >= 0 && hoy >= tope && antes < tope) {
+          pill.classList.remove('lg-points--remate');
+          void pill.offsetWidth;
+          pill.classList.add('lg-points--remate');
+          setTimeout(function () { pill.classList.remove('lg-points--remate'); }, 1000);
+        }
+        pill.setAttribute('aria-label', 'Puntos de hoy: ' + hoy + ' de ' + tope);
       } else {
         pill.hidden = true;
       }
@@ -654,6 +678,10 @@
       return;
     }
     var token = localStorage.getItem(SESSION.token) || '';
+    try {
+      if (typeof window.cerrarSesionKick === 'function') window.cerrarSesionKick();
+    } catch (e) {}
+    try { localStorage.removeItem('gocha_kick_token'); } catch (e) {}
     if (token && window.supabase && typeof window.supabase.rpc === 'function') {
       try { window.supabase.rpc('cerrar_sesion_comunidad', { p_token: token }); } catch (e) {}
     }
@@ -695,6 +723,10 @@
   function openProfile() {
     openAccount(isLoggedIn() ? 'profile' : 'login');
   }
+
+  window.lgOpenAccount = function (mode) {
+    openAccount(mode || (isLoggedIn() ? 'profile' : 'login'));
+  };
 
   function openFullProfile() {
     closeAllOverlays();

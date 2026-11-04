@@ -638,6 +638,11 @@ window.cerrarSesion = async function cerrarSesion() {
     localStorage.removeItem('comunidad_session_usuario');
     window.limpiarCachesSesionComunidad();
 
+    // El login general también cierra la sesión de Kick del chat y del OAuth.
+    if (typeof window.cerrarSesionKick === 'function') {
+        try { await window.cerrarSesionKick(); } catch (e) {}
+    }
+
     if (token && window.supabase) {
         try {
             await window.supabase.rpc('cerrar_sesion_comunidad', { p_token: token });
@@ -1894,6 +1899,17 @@ window.CHAT_KICK = {
         }
     };
 
+    // Salida única de Kick: la usa el cierre de sesión general y el chat.
+    // Así no queda una sesión de Kick viva cuando el usuario cierra su cuenta.
+    window.cerrarSesionKick = async function cerrarSesionKick() {
+        const token = localStorage.getItem(api.claveToken);
+        if (token) {
+            try { await pedir({ accion: 'salir' }, token); } catch (e) {}
+        }
+        window.CHAT_KICK.sesion = null;
+        localStorage.removeItem(api.claveToken);
+    };
+
     const conEmotes = (texto) => window.escapeHtml(texto).replace(
         /\[emote:(\d+):([^\]]*)\]/g,
         (todo, id, nombre) => '<img class="chat-kick-emote" src="https://files.kick.com/emotes/' + id +
@@ -1965,7 +1981,6 @@ window.CHAT_KICK = {
             '  <div class="chat-kick-cuenta" hidden>',
             '    <img class="chat-kick-avatar" alt="" width="20" height="20">',
             '    <span class="chat-kick-usuario"></span>',
-            '    <button type="button" class="chat-kick-salir" title="Cerrar la sesión de Kick">Salir</button>',
             '  </div>',
             '  <button type="button" class="chat-kick-login"><span aria-hidden="true">K</span> Conectar</button>',
             '</div>',
@@ -1987,7 +2002,6 @@ window.CHAT_KICK = {
         const avatar = host.querySelector('.chat-kick-avatar');
         const nombre = host.querySelector('.chat-kick-usuario');
         const login = host.querySelector('.chat-kick-login');
-        const salir = host.querySelector('.chat-kick-salir');
         const form = host.querySelector('.chat-kick-form');
         const campo = host.querySelector('.chat-kick-campo');
         const enviar = host.querySelector('.chat-kick-enviar');
@@ -2056,7 +2070,6 @@ window.CHAT_KICK = {
         host._campo = campo;
 
         login.addEventListener('click', () => { host._conectar(); });
-        salir.addEventListener('click', () => { host._salir(); });
 
         form.addEventListener('submit', async (evento) => {
             evento.preventDefault();
@@ -2116,6 +2129,15 @@ window.CHAT_KICK = {
         };
 
         window.CHAT_KICK.conectar = async (host) => {
+            // Un solo login: el chat no crea cuentas por su cuenta. Si no hay
+            // sesión general, se abre el acceso de la comunidad.
+            const tokenComunidad = localStorage.getItem('comunidad_session_token');
+            if (!tokenComunidad) {
+                host._mostrarAviso('Inicia sesión en tu cuenta para conectar Kick.');
+                if (typeof window.lgOpenAccount === 'function') window.lgOpenAccount('login');
+                else if (typeof window.abrirLoginMenu === 'function') window.abrirLoginMenu('login');
+                return;
+            }
             // El login de arriba y el del chat comparten el mismo token de Kick.
             // Si ya hay sesion, se reutiliza y no se abre otro OAuth.
             const tokenGuardado = localStorage.getItem(api.claveToken);

@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.8] - 2026-11-03
+
+### Un solo login y anillo solo con sesión
+
+- El anillo de puntos de la app solo aparece cuando hay una sesión iniciada.
+- El chat ya no tiene "Salir": el cierre de sesión general también desconecta Kick.
+- "Conectar" del chat pide primero la sesión general de la comunidad.
+- Assets móviles del sitio actualizados a la app 1.7, sin APK nueva.
+
 ## [1.43.7] - 2026-11-03
 
 ### Herramientas de Streamer y APK 1.7
