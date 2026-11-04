@@ -1,8 +1,8 @@
 {
-    "versionCode":  11,
-    "versionName":  "1.8",
+    "versionCode":  12,
+    "versionName":  "1.9",
     "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256":  "7a59e84d45328ff6f8484b54c1627575d567ab9ea3b94ec480c02217a690e8db",
-    "size":  4378342,
-    "notes":  "Chat con la caja de escritura visible en la app y reconexion de Kick sin pedir OAuth."
+    "sha256":  "47c6ed4a782d346a5d19ed80983afe89dfe6a49273747d3f97172223b2b616e7",
+    "size":  7085454,
+    "notes":  "Reproductor propio del directo en la app (sin avisos de Kick y con selector de calidad) y espectadores en vivo en el chat."
 }

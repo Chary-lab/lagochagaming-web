@@ -11,6 +11,14 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 - El dato sale del mismo sondeo que ya comprobaba si había directo, sin peticiones extra.
 - Se oculta solo cuando el canal está offline.
 
+### APK 1.9 con reproductor propio
+
+- La app ya no usa el iframe de Kick para el directo: muestra una tarjeta “Ver el directo” que abre un reproductor nativo.
+- Desaparece el aviso “Visit KICK for HD quality” y el toque en pantalla ya no lo dispara.
+- Selector de calidad dentro del reproductor: Automática, 1080p, 720p, 480p.
+- Si además hay directo, la app pide la URL del HLS directamente a Kick y reintenta sola cuando caduca.
+- La web sigue con el iframe de siempre (ahí no cambia nada).
+
 ## [1.44.2] - 2026-11-04
 
 ### Contador de descargas reales
