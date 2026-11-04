@@ -143,7 +143,7 @@
             '<button type="button" class="lg-action-btn" data-action="reload">' + icon('refresh') + 'Recargar aplicación</button>' +
             '<a class="lg-action-btn" href="https://lagochagaming.com" target="_blank" rel="noopener noreferrer">' + icon('external') + 'Abrir versión web<small>Navegador</small></a>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.12 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.13 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -277,8 +277,22 @@
     }
     var directo = document.getElementById('stream') || document.querySelector('.video-container');
     if (directo) {
-      var arriba = directo.getBoundingClientRect().top + window.pageYOffset - 62;
-      if (window.pageYOffset > arriba + 8) window.scrollTo({ top: Math.max(0, arriba), behavior: 'smooth' });
+      // Deja el directo entero por encima de la hoja: la hoja mide 56vh.
+      window.setTimeout(function () {
+        var hoja = chatOverlay.querySelector('.lg-sheet');
+        var altoHoja = hoja ? hoja.getBoundingClientRect().height : 0;
+        if (!altoHoja) return;
+        var limite = window.innerHeight - altoHoja - 10;
+        var caja = directo.getBoundingClientRect();
+        if (caja.bottom > limite) {
+          window.scrollTo({
+            top: Math.max(0, window.pageYOffset + (caja.bottom - limite) + 12),
+            behavior: 'smooth'
+          });
+        } else if (caja.top < 56) {
+          window.scrollTo({ top: Math.max(0, window.pageYOffset + caja.top - 62), behavior: 'smooth' });
+        }
+      }, 340);
     }
   }
 

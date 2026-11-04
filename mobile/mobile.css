@@ -1234,6 +1234,27 @@ body.lg-chat-open .lg-chat-fab svg {
   color: var(--lg-teal);
 }
 
+/* Con el chat abierto la página sigue deslizándose por detrás: el usuario coloca
+   el directo encima de la hoja. Solo la hoja captura toques; el resto pasa a la página. */
+html.lg-app body.lg-chat-open {
+  overflow-y: auto !important;
+  touch-action: pan-y !important;
+}
+
+html.lg-app body.lg-chat-open #lg-chat-sheet {
+  pointer-events: none;
+}
+
+html.lg-app body.lg-chat-open #lg-chat-sheet .lg-sheet,
+html.lg-app body.lg-chat-open .lg-chat-fab {
+  pointer-events: auto;
+}
+
+html.lg-app body.lg-chat-open #lg-chat-sheet .lg-scrim {
+  pointer-events: none;
+  background: transparent;
+}
+
 html.lg-app #lg-chat-sheet .lg-sheet-scroll {
   padding: 0;
   overflow: hidden;

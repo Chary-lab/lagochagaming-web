@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.2] - 2026-11-04
+
+### El chat deja mover la página
+
+- Con el chat en vivo abierto, la página se puede deslizar: se coloca el directo arriba y se lee el chat abajo sin perder ninguno de los dos.
+- El velo deja de capturar toques; solo la hoja del chat y el botón “Ocultar chat” responden.
+- Al abrir el chat la página se ajusta sola para dejar el reproductor completo a la vista.
+
+### APK 1.13
+
+- Incluye el chat deslizable y el arranque sin logo.
+
 ## [1.47.1] - 2026-11-04
 
 ### La app abre sin el logo gigante
