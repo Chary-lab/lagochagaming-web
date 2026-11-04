@@ -1432,6 +1432,10 @@ window.verificarEstadoStream = async function verificarEstadoStream() {
         if (liveTag) liveTag.hidden = true;
     }
 
+    if (typeof window.actualizarEspectadoresKick === 'function') {
+        window.actualizarEspectadoresKick(enVivo ? data?.livestream?.viewer_count : 0, enVivo);
+    }
+
     // Notificar a la página actual (paneles específicos) sin duplicar el fetch
     if (typeof window.actualizarEstadoStreamPagina === 'function') {
         window.actualizarEstadoStreamPagina(data, enVivo, null);
@@ -2142,6 +2146,21 @@ window.CHAT_KICK = {
         }
     };
 
+    // Contador de espectadores de la cabecera del chat ("191 Views").
+    window.actualizarEspectadoresKick = function actualizarEspectadoresKick(total, enVivo) {
+        const valor = { total: Number(total) || 0, vivo: !!enVivo };
+        window._kickEspectadores = valor;
+        document.querySelectorAll('.chat-kick-espectadores').forEach((el) => {
+            if (!valor.vivo || valor.total <= 0) {
+                el.hidden = true;
+                return;
+            }
+            el.hidden = false;
+            const num = el.querySelector('.chat-kick-espectadores-num');
+            if (num) num.textContent = valor.total.toLocaleString('es-ES');
+        });
+    };
+
     // Salida única de Kick: la usa el cierre de sesión general y el chat.
     // Así no queda una sesión de Kick viva cuando el usuario cierra su cuenta.
     window.cerrarSesionKick = async function cerrarSesionKick() {
@@ -2221,6 +2240,7 @@ window.CHAT_KICK = {
             '<div class="chat-kick-top">',
             '  <span class="chat-kick-punto" data-estado="cargando" aria-hidden="true"></span>',
             '  <span class="chat-kick-titulo">Chat de Kick</span>',
+            '  <span class="chat-kick-espectadores" hidden><span class="chat-kick-espectadores-num">0</span> Views</span>',
             '  <div class="chat-kick-cuenta" hidden>',
             '    <img class="chat-kick-avatar" alt="" width="20" height="20">',
             '    <span class="chat-kick-usuario"></span>',
@@ -2249,6 +2269,10 @@ window.CHAT_KICK = {
         const campo = host.querySelector('.chat-kick-campo');
         const enviar = host.querySelector('.chat-kick-enviar');
         const aviso = host.querySelector('.chat-kick-aviso');
+
+        if (typeof window.actualizarEspectadoresKick === 'function' && window._kickEspectadores) {
+            window.actualizarEspectadoresKick(window._kickEspectadores.total, window._kickEspectadores.vivo);
+        }
 
         const vistos = new Set();
         let cercaDelFinal = true;

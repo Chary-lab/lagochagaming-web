@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.45.0] - 2026-11-04
+
+### Espectadores en la cabecera del chat
+
+- El chat de Kick muestra los espectadores en vivo (“191 Views”) centrados en su cabecera.
+- El dato sale del mismo sondeo que ya comprobaba si había directo, sin peticiones extra.
+- Se oculta solo cuando el canal está offline.
+
 ## [1.44.2] - 2026-11-04
 
 ### Contador de descargas reales

@@ -391,12 +391,19 @@ body.light-mode .hero-bio {
 
 /* Chat propio de Kick */
 .chat-kick { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; height: 100%; min-height: 0; text-align: left; }
-.chat-kick-top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border-color); background: var(--card-bg-subtle); flex-shrink: 0; }
+.chat-kick-top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border-color); background: var(--card-bg-subtle); flex-shrink: 0; position: relative; }
 .chat-kick-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
 .chat-kick-punto[data-estado="vivo"] { background: #53fc18; box-shadow: 0 0 0 3px rgba(83, 252, 24, 0.16); }
 .chat-kick-punto[data-estado="error"] { background: #ff6b6b; }
 .chat-kick-punto[data-estado="cargando"] { animation: chatKickPulso 1.4s ease-in-out infinite; }
 .chat-kick-titulo { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.chat-kick-espectadores { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.05); color: var(--text-muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; pointer-events: none; }
+.chat-kick-espectadores[hidden] { display: none; }
+.chat-kick-espectadores::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #ff3b5c; box-shadow: 0 0 0 3px rgba(255, 59, 92, 0.14); }
+.chat-kick-espectadores-num { color: var(--text-main); font-variant-numeric: tabular-nums; }
+@media (max-width: 460px) {
+    .chat-kick-espectadores { position: static; transform: none; margin-left: 2px; padding: 2px 7px; font-size: 0.64rem; }
+}
 .chat-kick-cuenta { display: flex; align-items: center; gap: 6px; margin-left: auto; min-width: 0; }
 .chat-kick-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
 .chat-kick-usuario { font-size: 0.78rem; font-weight: 700; color: var(--text-main); max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
