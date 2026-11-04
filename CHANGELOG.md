@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.16] - 2026-11-04
+
+### Regla de confirmaciones en AGENTS
+
+- `AGENTS.md` prohíbe `alert()`, `confirm()` y `prompt()`.
+- Avisos por toast y confirmaciones por `window.confirmarAccion()` o `window.mostrarConfirmacionModal()`; sin modales nuevos por página.
+
+Sin cambios funcionales en la web.
+
 ## [1.47.15] - 2026-11-04
 
 ### Confirmaciones nativas fuera

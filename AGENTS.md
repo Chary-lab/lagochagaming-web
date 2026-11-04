@@ -57,6 +57,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 - Scripts clásicos, sin módulos ES. Para helpers usados desde HTML/Alpine, exponer en `window` (`window.escapeHtml`, `window.abrirLightboxDesdeTarjeta`, etc.).
 - Escapar SIEMPRE datos no confiables antes de `innerHTML`: usar `escapeHtml`/`escapeAttr` o `textContent`. Nunca interpolar apodos, mensajes, títulos, URLs ni emojis sin escapar.
+- **Nada de diálogos del navegador:** prohibido `alert()`, `confirm()` y `prompt()`. Los avisos van con `mostrarToast()` o el store `toast`. Las confirmaciones van con `await window.confirmarAccion({ titulo, mensaje, textoConfirmar, tono, icono })` (tonos `peligro`, `aviso`, `info` y `exito`) o con `window.mostrarConfirmacionModal(...)`. No crear otro modal de confirmación por página.
 - Preferir `textContent` y creación de nodos a `innerHTML` cuando sea posible.
 - No usar `eval`, `new Function` ni `document.write`.
 - En Alpine, no usar mustaches `{{ }}` dentro de atributos. Usar bindings (`:aria-label="'...' + variable"`).
@@ -242,7 +243,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.47.15` (confirmaciones globales con estilo propio, sin diálogos del navegador; APK actual 1.13 / code 16).
+- Versión de esta release: `1.47.16` (regla de AGENTS: nada de `alert()`, `confirm()` ni `prompt()`; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
@@ -298,6 +299,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - No usar email hardcodeado para decidir admin.
 - No decidir `owner` por apodo ni por nombre de usuario de comunidad; solo por `app_metadata.role`, por la columna `usuarios_comunidad.rol` de una sesión válida y por el vínculo `auth_user_id`.
 - No exponer el buzón de sugerencias a `admin`; es exclusivo de `owner`.
+- No usar `alert()`, `confirm()` ni `prompt()`: los avisos van por toast y las confirmaciones por `window.confirmarAccion()`.
 - No usar `innerHTML` con datos de usuario sin escapar.
 - No poner `{{ }}` en atributos Alpine.
 - No usar `@click.stop` en las acciones de la tarjeta de galería (rompe el listener delegado).
