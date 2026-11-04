@@ -3,6 +3,20 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.0] - 2026-11-04
+
+### Chat en vivo que deja ver el stream
+
+- La hoja del chat baja de 84vh a 56vh: el reproductor queda a la vista mientras se lee y se escribe.
+- Se quita el desenfoque del fondo; el stream se ve nítido detrás del chat.
+- El botón “Chat en vivo” alterna: abre el chat y, ya abierto, pasa a “Ocultar chat” sin tapar la hoja.
+- Cabecera del chat más compacta y al abrir se desplaza la página para encuadrar el reproductor.
+
+### APK 1.11 sin pantalla de logo al navegar
+
+- La pantalla de arranque con el logo solo sale al abrir la app, no al cambiar de página.
+- Incluye los cambios del chat móvil.
+
 ## [1.46.1] - 2026-11-04
 
 ### La web deja de mostrar una versión vieja de la app

@@ -10,7 +10,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
 - Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
 - Versión actual: ver `VERSION` (SemVer). Changelog: `CHANGELOG.md`.
-- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView + player nativo). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`.
+- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`.
 
 ## 2. Reglas de stack
 
@@ -164,6 +164,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Player web: `#stream-player` es el iframe de `player.kick.com` y se queda así. Su CORS solo admite orígenes de Kick, así que reproducir el HLS directo (`playback_url` de `https://kick.com/api/v2/channels/lagochagaming`) en la web exige proxy y cuesta 2–3 GB por hora y espectador: no hacerlo sin autorización.
 - Player en la app: desde la 1.10 la app usa el mismo iframe de `player.kick.com` que la web. El reproductor nativo ExoPlayer (`PlayerActivity`, puente `abrirDirecto`, tarjeta `.lg-directo-nativo`) se eliminó: no reintroducirlo sin autorización. No añadir botón “Ver en HD” en la web.
 - El aviso “Visit KICK for HD quality” vive dentro del iframe y no se puede quitar desde fuera. Cualquier intento de taparlo con capas rompe los controles de Kick.
+- Chat móvil en la app: `mobile/mobile.css` fija la hoja del chat en `min(56vh, 480px)` con velo `rgba(5,7,10,.12)` y sin `backdrop-filter`, para que el stream siga nítido y visible. El fab `.lg-chat-fab` alterna abrir/cerrar (`alternarChat()` en `mobile.js`) y se queda por encima de la hoja con `body.lg-chat-open`. No volver a subir la hoja a 84vh ni a ponerle blur.
 
 ## 6. Seguridad
 
@@ -231,7 +232,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.46.1` (AGENTS.md al día: app móvil 1.10 sin player nativo y checklist con los 6 sitios donde vive la versión; sobre 1.46.0).
+- Versión de esta release: `1.47.0` (AGENTS.md al día: chat en vivo bajo y sin blur con botón de ocultar, sin pantalla de logo al navegar en la app 1.11; sobre 1.46.1).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

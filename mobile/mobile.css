@@ -1198,8 +1198,40 @@ html.lg-app .lg-about span {
 }
 
 html.lg-app #lg-chat-sheet .lg-sheet {
-  height: min(84vh, 760px);
-  max-height: 84vh;
+  height: min(56vh, 480px);
+  max-height: 56vh;
+}
+
+/* El chat se abre encima del directo: sin blur para no emborronar el stream. */
+html.lg-app #lg-chat-sheet .lg-scrim {
+  background: rgba(5, 7, 10, .12);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html.lg-app #lg-chat-sheet .lg-sheet-head {
+  padding: 8px 16px 9px;
+}
+
+html.lg-app #lg-chat-sheet .lg-sheet-head small {
+  font-size: .58rem;
+}
+
+html.lg-app #lg-chat-sheet .lg-sheet-head h2 {
+  font-size: 1.05rem;
+  line-height: 1.1;
+}
+
+/* Burbuja de chat: se queda visible por encima de la hoja para cerrarla. */
+body.lg-chat-open .lg-chat-fab {
+  display: inline-flex;
+  z-index: 5100;
+  bottom: calc(min(56vh, 480px) + 12px);
+  border-color: rgba(62, 224, 198, .45);
+}
+
+body.lg-chat-open .lg-chat-fab svg {
+  color: var(--lg-teal);
 }
 
 html.lg-app #lg-chat-sheet .lg-sheet-scroll {

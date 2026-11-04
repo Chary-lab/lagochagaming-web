@@ -143,7 +143,7 @@
             '<button type="button" class="lg-action-btn" data-action="reload">' + icon('refresh') + 'Recargar aplicación</button>' +
             '<a class="lg-action-btn" href="https://lagochagaming.com" target="_blank" rel="noopener noreferrer">' + icon('external') + 'Abrir versión web<small>Navegador</small></a>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.10 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.11 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -195,6 +195,8 @@
       fab.type = 'button';
       fab.className = 'lg-chat-fab';
       fab.id = 'lg-chat-fab';
+      fab.setAttribute('aria-expanded', 'false');
+      fab.setAttribute('aria-controls', 'lg-chat-sheet');
       fab.innerHTML = icon('chat') + '<i></i><span>' + (page === 'cine' ? 'Chat de la sala' : 'Chat en vivo') + '</span>';
       body.appendChild(fab);
       chatFab = fab;
@@ -216,6 +218,11 @@
     }
     clearInterval(accountPoll);
     body.classList.remove('lg-sheet-open');
+    body.classList.remove('lg-chat-open');
+    if (chatFab) {
+      chatFab.setAttribute('aria-expanded', 'false');
+      chatFab.innerHTML = icon('chat') + '<i></i><span>' + (page === 'cine' ? 'Chat de la sala' : 'Chat en vivo') + '</span>';
+    }
     native('setPullRefresh', true);
   }
 
@@ -262,6 +269,32 @@
     }
     loadChatIframe();
     openOverlay(chatOverlay);
+    body.classList.add('lg-chat-open');
+    if (chatFab) {
+      chatFab.classList.add('lg-show');
+      chatFab.setAttribute('aria-expanded', 'true');
+      chatFab.innerHTML = icon('close') + '<span>Ocultar chat</span>';
+    }
+    var directo = document.getElementById('stream') || document.querySelector('.video-container');
+    if (directo) {
+      var arriba = directo.getBoundingClientRect().top + window.pageYOffset - 62;
+      if (window.pageYOffset > arriba + 8) window.scrollTo({ top: Math.max(0, arriba), behavior: 'smooth' });
+    }
+  }
+
+  function chatAbierto() {
+    return !!(chatOverlay && chatOverlay.classList.contains('lg-open'));
+  }
+
+  function cerrarChat() {
+    if (!chatAbierto()) return;
+    closeAllOverlays();
+    haptic();
+  }
+
+  function alternarChat() {
+    if (chatAbierto()) cerrarChat();
+    else openChat();
   }
 
   /* ---------- Cuenta de comunidad ---------- */
@@ -1066,7 +1099,7 @@
     }
   });
 
-  if (chatFab) chatFab.addEventListener('click', openChat);
+  if (chatFab) chatFab.addEventListener('click', alternarChat);
 
   settingsOverlay.addEventListener('click', function (event) {
     if (event.target.closest('[data-close-settings]')) {
