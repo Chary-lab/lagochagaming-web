@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
-    <meta name="theme-color" content="#ff66b2">
+    <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Gocha Gaming (Gochita) | Kick, clips y comunidad</title>
@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.49.1">
+    <link rel="stylesheet" href="style.css?v=1.49.4">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -195,7 +195,7 @@
             <iframe id="stream-player" data-src="https://player.kick.com/lagochagaming?autoplay=true&muted=1" frameborder="0" scrolling="no" allowfullscreen="true" title="Stream de LaGochaGaming en Kick" loading="lazy" hidden></iframe>
         </div>
         <aside class="chat-sidebar chat-sidebar-box chat-kick" data-chat-kick aria-label="Chat de Kick"></aside>
-    </main>
+    </div>
 
     <!-- 🔥 SECCIÓN ÚLTIMOS CLIPS DE KICK -->
     <section id="clips" class="content-section clips-section">
@@ -254,7 +254,7 @@
                 <textarea aria-label="Tu saludo o mensaje" placeholder="Escribe tu saludo o mensaje para La Gocha..." maxlength="280" required x-model="$store.muro.mensaje"></textarea>
                 <button type="submit" class="btn-primary" x-bind:disabled="$store.muro.enviando">ENVIAR SALUDO</button>
             </form>
-            <div id="muro-feedback" class="muro-feedback"
+            <div id="muro-feedback" class="muro-feedback" role="status" aria-live="polite"
                  x-bind:class="{ 'muro-feedback-success': $store.muro.tipo === 'ok', 'muro-feedback-error': $store.muro.tipo === 'error' }"
                  x-bind:hidden="!$store.muro.feedback" x-text="$store.muro.feedback"></div>
         </div>
@@ -405,6 +405,8 @@
         </div>
     </section>
 
+    </main>
+
     <!-- FOOTER -->
 </div>
 
@@ -441,7 +443,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" defer></script>
 
-    <script src="main.js?v=1.49.1" defer></script>
+    <script src="main.js?v=1.49.4" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script>

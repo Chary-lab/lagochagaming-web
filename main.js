@@ -79,8 +79,8 @@ window.escapeHtml = function escapeHtml(s) {
 };
 
 window.escapeAttr = function escapeAttr(s) {
-    return String(s ?? '').replace(/["'<>]/g, c => ({
-        '"': '&quot;', "'": '&#39;', '<': '&lt;', '>': '&gt;'
+    return String(s ?? '').replace(/[&"'<>]/g, c => ({
+        '&': '&amp;', '"': '&quot;', "'": '&#39;', '<': '&lt;', '>': '&gt;'
     }[c]));
 };
 
@@ -253,20 +253,28 @@ let _adminCache = null;
 window.esAdminActual = async function esAdminActual() {
     if (!window.supabase) return false;
     const token = localStorage.getItem('comunidad_session_token') || '';
-    if (!token) { _adminCache = null; return false; }
-    if (_adminCache && _adminCache.token === token) return _adminCache.ok;
+    let authId = '';
+    try {
+        const { data } = await window.supabase.auth.getSession();
+        authId = data?.session?.user?.id || '';
+    } catch (e) { /* sin sesión Auth */ }
+    if (!token && !authId) { _adminCache = null; return false; }
+    const clave = token + '|' + authId;
+    if (_adminCache && _adminCache.token === clave) return _adminCache.ok;
 
     let ok = false;
     try {
         const { data, error } = await window.supabase.rpc('es_admin');
         if (error) console.warn('No se pudo verificar el rol de admin:', error.message);
-        else ok = data === true;
+        else {
+            ok = data === true;
+            _adminCache = { token: clave, ok: ok };
+        }
     } catch (e) {
         console.warn('No se pudo verificar el rol de admin:', e);
         return false;
     }
 
-    _adminCache = { token: token, ok: ok };
     return ok;
 };
 
@@ -410,13 +418,12 @@ window.initTema = function initTema() {
     let temaActual = localStorage.getItem('gochi_tema') || 'dark';
     if (!['dark', 'light', 'oled'].includes(temaActual)) temaActual = 'dark';
     const btn = document.getElementById('btn-toggle-tema');
-    if (!btn) return;
-
-    const icono = btn.querySelector('use');
+    const icono = btn ? btn.querySelector('use') : null;
     const aplicarTema = (tema) => {
         document.body.classList.remove('light-mode', 'oled-mode');
         if (tema === 'light') document.body.classList.add('light-mode');
         else if (tema === 'oled') document.body.classList.add('oled-mode');
+        if (!btn) return;
         if (icono) {
             const simbolo = tema === 'light' ? 'i-solid-moon' :
                 tema === 'oled' ? 'i-solid-circle' : 'i-solid-sun';
@@ -430,6 +437,7 @@ window.initTema = function initTema() {
                                                          'Tema oscuro → Claro';
     };
     aplicarTema(temaActual);
+    if (!btn) return;
     btn.onclick = () => {
         const siguiente = temaActual === 'dark' ? 'light' :
                           temaActual === 'light' ? 'oled' : 'dark';
@@ -1290,9 +1298,14 @@ window.insertarComponentesUIGlobales = function insertarComponentesUIGlobales() 
     insertarPanelAdminGlobal();
 };
 
+let _toastsPendientes = [];
 window.mostrarToast = function mostrarToast(mensaje, esError = false) {
     const store = window.Alpine?.store('toast');
-    if (!store) return;
+    if (!store) {
+        _toastsPendientes.push([mensaje, esError]);
+        if (_toastsPendientes.length > 5) _toastsPendientes.shift();
+        return;
+    }
     store.mostrar(mensaje, esError);
 };
 
@@ -1403,7 +1416,10 @@ window.mostrarConfirmacionModal = function mostrarConfirmacionModal({
     alCancelar
 } = {}) {
     const modal = document.getElementById('gochi-confirm-modal');
-    if (!modal) return;
+    if (!modal) {
+        if (typeof alCancelar === 'function') alCancelar();
+        return;
+    }
     const caja = modal.querySelector('.gochi-confirm');
     const titEl = document.getElementById('gochi-confirm-titulo');
     const msgEl = document.getElementById('gochi-confirm-mensaje');
@@ -1450,12 +1466,24 @@ window.mostrarConfirmacionModal = function mostrarConfirmacionModal({
 };
 
 // Promise-based helper: await window.confirmarAccion({...}) devuelve true/false.
+// Una confirmación nueva cancela la anterior para no dejar promesas colgadas.
+let _resolverConfirmacion = null;
 window.confirmarAccion = function confirmarAccion(opciones = {}) {
+    if (_resolverConfirmacion) {
+        const anterior = _resolverConfirmacion;
+        _resolverConfirmacion = null;
+        anterior(false);
+    }
     return new Promise((resolver) => {
+        _resolverConfirmacion = resolver;
+        const terminar = (valor) => {
+            if (_resolverConfirmacion === resolver) _resolverConfirmacion = null;
+            resolver(valor);
+        };
         window.mostrarConfirmacionModal({
             ...opciones,
-            enConfirmar: () => resolver(true),
-            alCancelar: () => resolver(false)
+            enConfirmar: () => terminar(true),
+            alCancelar: () => terminar(false)
         });
     });
 };
@@ -1474,7 +1502,16 @@ function cerrarModalVisible() {
 }
 
 document.addEventListener('keydown', (evento) => {
-    if (evento.key === 'Escape') cerrarModalVisible();
+    if (evento.key !== 'Escape') return;
+    if (cerrarModalVisible()) return;
+    // Capas globales: se cierra solo la superior (perfil puede ir sobre admin).
+    for (const nombre of ['perfil', 'sugerencias', 'adminPanel']) {
+        const store = window.Alpine?.store(nombre);
+        if (store && store.abierto) {
+            store.cerrar();
+            return;
+        }
+    }
 });
 
 // === MENÚ MÓVIL ===
@@ -1499,6 +1536,11 @@ document.addEventListener('alpine:init', () => {
             this.visible = false;
         }
     });
+    if (_toastsPendientes.length) {
+        const pendientes = _toastsPendientes;
+        _toastsPendientes = [];
+        pendientes.forEach(([mensaje, esError]) => window.mostrarToast(mensaje, esError));
+    }
 });
 
 window.cerrarMenuMovil = function cerrarMenuMovil(devolverFoco = false) {
@@ -1792,7 +1834,7 @@ function insertarPanelAdminGlobal() {
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-labelledby', 'admin-global-title');
-    modal.setAttribute('x-on:keydown.escape.window', '$store.adminPanel.cerrar()');
+    modal.setAttribute('x-on:click.self', '$store.adminPanel.cerrar()');
     modal.innerHTML = `
         <div class="admin-global-backdrop" x-on:click="$store.adminPanel.cerrar()"></div>
         <div class="admin-global-card" x-trap.noscroll="$store.adminPanel.abierto">
@@ -1809,6 +1851,7 @@ function insertarPanelAdminGlobal() {
             <template x-if="!$store.adminPanel.cargando && !$store.adminPanel.sesion">
                 <div class="admin-login-card">
                     <p>Este panel usa tu cuenta de la comunidad. Entra desde el menú <strong>Login</strong> con una cuenta con rol de administración.</p>
+                    <p class="admin-login-error" x-show="$store.adminPanel.loginError" x-text="$store.adminPanel.loginError"></p>
                     <button type="button" class="btn-admin-mode" x-on:click="$store.adminPanel.cerrar(); window.abrirLoginMenu?.('login')">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg>
                         <span>Abrir login</span>
@@ -1828,7 +1871,7 @@ function insertarPanelAdminGlobal() {
             <div x-show="!$store.adminPanel.cargando && $store.adminPanel.admin">
 
                 <div class="admin-tabs" role="tablist" aria-label="Paneles de administración">
-                    <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'buzon' }" x-on:click="$store.adminPanel.setTab('buzon')" role="tab" :aria-selected="$store.adminPanel.tab === 'buzon' ? 'true' : 'false'" x-show="$store.adminPanel.admin">
+                    <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'buzon' }" x-on:click="$store.adminPanel.setTab('buzon')" role="tab" :aria-selected="$store.adminPanel.tab === 'buzon' ? 'true' : 'false'" x-show="$store.adminPanel.owner">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-envelope"></use></svg> Buzón
                         <span class="admin-tab-count" x-show="$store.adminPanel.noLeidas > 0" x-text="$store.adminPanel.noLeidas"></span>
                     </button>
@@ -1843,7 +1886,7 @@ function insertarPanelAdminGlobal() {
                     </button>
                 </div>
 
-                <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'buzon' && $store.adminPanel.admin" x-cloak>
+                <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'buzon' && $store.adminPanel.owner" x-cloak>
                     <div class="buzon-toolbar">
                         <h2><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-envelope"></use></svg> Sugerencias de la comunidad</h2>
                         <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarSugerencias()" :disabled="$store.adminPanel.sugEstado === 'cargando'">Actualizar</button>
@@ -2173,9 +2216,9 @@ document.addEventListener('alpine:init', () => {
             await this.comprobarSesion();
             if (this.admin) {
                 const pedida = (!tab || tab === 'login')
-                    ? 'buzon'
+                    ? (this.owner ? 'buzon' : 'usuarios')
                     : tab;
-                this.tab = pedida;
+                this.tab = (pedida === 'buzon' && !this.owner) ? 'usuarios' : pedida;
                 await this.cargarTab();
                 this.iniciarRefrescoUsuarios();
             }
@@ -2206,10 +2249,17 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
             const token = localStorage.getItem('comunidad_session_token');
-            this.sesion = !!token;
+            let authUser = null;
+            try {
+                const { data: authData } = await window.supabase.auth.getSession();
+                authUser = authData?.session?.user || null;
+            } catch (e) { /* sin sesión Auth */ }
+            this.sesion = !!token || !!authUser;
             const usuario = window.obtenerSesionUsuarioComunidad?.() || {};
-            this.email = usuario.apodo || '';
-            if (!token) {
+            this.email = usuario.apodo || authUser?.email || '';
+            this.admin = false;
+            this.owner = false;
+            if (!this.sesion) {
                 this.cargando = false;
                 return;
             }
@@ -2229,7 +2279,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         setTab(tab) {
-            if (tab === 'buzon' && !this.admin) return;
+            if (tab === 'buzon' && !this.owner) return;
             this.tab = tab;
             this.cargarTab();
         },
@@ -2246,7 +2296,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async cargarSugerencias() {
-            if (!this.admin) return;
+            if (!this.owner) return;
             this.sugEstado = 'cargando';
             this.errorSug = '';
             try {
@@ -2763,7 +2813,15 @@ window.CHAT_KICK = {
             if (!m || !m.message_id || vistos.has(m.message_id)) return;
             vistos.add(m.message_id);
             if (vacio) vacio.hidden = true;
-            lista.appendChild(pintarMensaje(m));
+            const nodo = pintarMensaje(m);
+            nodo.dataset.messageId = m.message_id;
+            lista.appendChild(nodo);
+            while (lista.children.length > 200) {
+                const viejo = lista.firstElementChild;
+                if (!viejo) break;
+                if (viejo.dataset.messageId) vistos.delete(viejo.dataset.messageId);
+                viejo.remove();
+            }
             if (cercaDelFinal) alFinal();
         };
 
@@ -2801,7 +2859,7 @@ window.CHAT_KICK = {
         host._punto = punto;
         host._campo = campo;
 
-        login.addEventListener('click', () => { host._conectar(); });
+        login.addEventListener('click', () => { host._conectar?.(); });
 
         form.addEventListener('submit', async (evento) => {
             evento.preventDefault();
@@ -2855,9 +2913,6 @@ window.CHAT_KICK = {
         const hosts = Array.from(document.querySelectorAll('[data-chat-kick]'));
         if (!hosts.length) return;
         hosts.forEach(montar);
-
-        // El set global se comparte con el chat de comunidad y se cachea.
-        await window.cargarEmotes7TV?.();
 
         const sincronizar = () => {
             const sesion = window.CHAT_KICK.sesion ?? null;
@@ -2949,6 +3004,10 @@ window.CHAT_KICK = {
             host._salir = () => window.CHAT_KICK.salir(host);
         });
 
+        // El set global se comparte con el chat de comunidad y se cachea.
+        // Va al final para no retrasar los botones de conexión.
+        await window.cargarEmotes7TV?.();
+
         const completarLogin = async () => {
             const hash = location.hash.startsWith('#') ? location.hash.slice(1) : '';
             if (!hash) return false;
@@ -2998,7 +3057,13 @@ window.CHAT_KICK = {
         };
 
         const cargarMensajes = async () => {
-            if (!window.supabase) return;
+            if (!window.supabase) {
+                hosts.forEach((host) => {
+                    host._vacio.hidden = false;
+                    host._vacio.textContent = 'Chat no disponible. Recarga la página.';
+                });
+                return;
+            }
             const { data, error } = await window.supabase
                 .from('kick_chat_messages')
                 .select('message_id,sender_username,sender_color,sender_avatar,badges,content,emotes,replies_to,created_at')
@@ -3089,7 +3154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalEl.setAttribute('x-data', '{ }');
     modalEl.setAttribute('x-cloak', '');
     modalEl.setAttribute('x-bind:hidden', '!$store.sugerencias.abierto');
-    modalEl.setAttribute('x-on:keydown.escape.window', '$store.sugerencias.cerrar()');
+    modalEl.setAttribute('x-on:click.self', '$store.sugerencias.cerrar()');
     modalEl.innerHTML = `
       <div class="modal-sugerencias-backdrop" x-on:click="$store.sugerencias.cerrar()"></div>
       <div class="modal-sugerencias-card" x-trap.noscroll="$store.sugerencias.abierto">
@@ -3223,7 +3288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalEl.setAttribute('x-cloak', '');
     modalEl.setAttribute('x-bind:hidden', '!$store.perfil.abierto');
     modalEl.setAttribute('x-bind:class', "{ 'modal-perfil--stack': $store.perfil.sobreAdmin, 'modal-perfil--popover': $store.perfil.anclado }");
-    modalEl.setAttribute('x-on:keydown.escape.window', '$store.perfil.cerrar()');
+    modalEl.setAttribute('x-on:click.self', '$store.perfil.cerrar()');
     modalEl.innerHTML = `
       <div class="modal-perfil-backdrop" x-on:click="$store.perfil.cerrar()"></div>
       <div class="modal-perfil-card" role="document" x-trap.noscroll="$store.perfil.abierto && !$store.perfil.anclado">
@@ -3586,6 +3651,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
           this.usuario = data;
+          const apodoPedido = data.apodo;
           window.supabase
             .rpc('estadisticas_perfil_comunidad', { p_apodo: data.apodo })
             .then(({ data: stats, error: statsError }) => {
@@ -3593,7 +3659,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn('No se pudieron cargar las estadísticas:', statsError.message);
                 return;
               }
-              this.estadisticas = stats || {};
+              if (this.publico && this.usuario && this.usuario.apodo === apodoPedido) {
+                this.estadisticas = stats || {};
+              }
             });
         } catch (e) {
           console.error('Error cargando perfil público:', e);
@@ -3625,7 +3693,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (userId) {
             const { data, error } = await window.supabase
               .from('usuarios_comunidad')
-              .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_user_id,kick_username')
+              .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username')
               .eq('id', userId)
               .maybeSingle();
             if (!error && data) {

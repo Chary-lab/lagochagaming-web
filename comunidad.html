@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ff66b2">
+    <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
     <meta name="description" content="Únete al chat de la comunidad de LaGochaGaming, comparte con otros fans, sube de rango y gana puntos mientras no hay stream.">
     <link rel="canonical" href="https://lagochagaming.com/comunidad">
@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.49.1">
+    <link rel="stylesheet" href="style.css?v=1.49.4">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -243,7 +243,7 @@
             <div class="tab-header" role="tablist" aria-label="Paneles de la comunidad">
                 <button type="button" class="tab-btn active" data-tab="canal" role="tab" id="tabbtn-canal" aria-selected="true" aria-controls="tab-canal">Canal</button>
                 <button type="button" class="tab-btn" data-tab="rangos" role="tab" id="tabbtn-rangos" aria-selected="false" aria-controls="tab-rangos" tabindex="-1">Rangos</button>
-                <button type="button" class="tab-btn" data-tab="tienda" role="tab" id="tabbtn-tienda" aria-selected="false" aria-controls="tab-tienda" tabindex="-1" x-show="!!localStorage.getItem('comunidad_session_token')">🛍️ Tienda</button>
+                <button type="button" class="tab-btn" data-tab="tienda" role="tab" id="tabbtn-tienda" aria-selected="false" aria-controls="tab-tienda" tabindex="-1" hidden>🛍️ Tienda</button>
                 <button type="button" class="tab-btn" data-tab="info" role="tab" id="tabbtn-info" aria-selected="false" aria-controls="tab-info" tabindex="-1">Info &amp; Reglas</button>
             </div>
 
@@ -272,7 +272,7 @@
                     <div class="user-profile-rows">
                         <div class="user-profile-row">
                             <div class="user-avatar-wrap">
-                                <img id="user-avatar-img" class="user-avatar-img" src="" alt="" hidden>
+                                <img id="user-avatar-img" class="user-avatar-img" alt="" width="40" height="40" hidden>
                                 <span id="user-avatar-inicial" class="user-avatar-inicial"></span>
                             </div>
                             <span id="user-info-display">MCCHARY</span>
@@ -451,7 +451,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.49.1" defer></script>
+    <script src="main.js?v=1.49.4" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -2792,20 +2792,20 @@ if (chatForm) {
         const btn = document.getElementById('tabbtn-tienda');
         const panel = document.getElementById('tab-tienda');
         const logueado = !!localStorage.getItem('comunidad_session_token');
+        const estabaActiva = !!(btn && btn.classList.contains('active'));
         if (btn) {
             btn.hidden = !logueado;
+            btn.tabIndex = logueado && estabaActiva ? 0 : -1;
             if (!logueado) {
                 btn.classList.remove('active');
                 btn.setAttribute('aria-selected', 'false');
-                btn.tabIndex = -1;
             }
+            if (!logueado && estabaActiva) window.cambiarTabComunidad?.('canal');
         }
-        if (!logueado && panel) {
-            panel.hidden = true;
-            panel.classList.remove('active');
-            if (btn && btn.classList.contains('active')) {
-                window.cambiarTabComunidad?.('canal');
-            }
+        if (panel) {
+            const visible = logueado && !!(btn && btn.classList.contains('active'));
+            panel.hidden = !visible;
+            if (!visible) panel.classList.remove('active');
         }
     };
 

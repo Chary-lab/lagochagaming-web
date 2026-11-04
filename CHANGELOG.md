@@ -3,6 +3,47 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.49.4] - 2026-11-04
+
+### Auditoría P2: RPC de administración y accesibilidad
+
+- Las acciones de administración en galería, sorteo y cine pasan por RPC `SECURITY DEFINER` (`admin_galeria_aprobar`, `admin_galeria_eliminar`, `streamer_config_sorteo`, `streamer_vaciar_tombola`, `cine_actualizar_estado`); ya no hay `update`, `delete` ni `upsert` directos desde el cliente.
+- Las cinco páginas usan `<main>` real como landmark del contenido.
+- El ganador del sorteo y los avisos del muro se anuncian con `aria-live`; los inputs de usuario de sorteo y autor de galería tienen etiqueta accesible.
+- La página 404 enlaza a Galería, Sorteo, GochiWatch y Comunidad.
+- La API de YouTube se descarga solo cuando hay un video de YouTube en GochiWatch.
+- Foco visible restaurado en enlaces de tarjetas, ranking y muro; objetivos táctiles de 44 px en la barra móvil; inputs a 16 px en móvil para evitar el zoom de iOS.
+- Estilos de impresión: se ocultan navbar, footer y chat; los títulos con degradado se imprimen en negro.
+- Limpieza de CSS muerto (`.btn-logout`, presencia antigua del panel) y breakpoint del sorteo ampliado a 1240 px para evitar overflow.
+
+## [1.49.3] - 2026-11-04
+
+### Auditoría P1: accesibilidad, chat y perfil
+
+- El like de la galería recupera su icono: corazón sólido y contorno añadidos al sprite local, también en el lightbox.
+- El lightbox atrapa el foco y bloquea el scroll de fondo con `x-trap.noscroll`.
+- El foco del panel global y del lightbox sigue atrapado en todas las páginas (`@alpinejs/focus` se carga donde hay `x-trap`).
+- El chat de Kick acepta clics en "Conectar" desde el primer segundo: los handlers se registran antes de descargar los emotes.
+- El chat de Kick recorta a 200 mensajes y libera sus identificadores, así un directo largo no acumula nodos.
+- Tu propio perfil muestra las insignias de Kick, y las estadísticas no pueden quedar pisadas por otro perfil abierto antes.
+- Los avisos emitidos antes de que Alpine arranque ya no se pierden; el tema guardado se aplica aunque falte el botón del navbar.
+- Escape cierra solo la capa superior (perfil, sugerencias, panel o modal).
+- La pestaña Tienda aparece y es navegable con teclado al iniciar sesión con PIN, sin recargar.
+- `escapeAttr` escapa `&` para no corromper entidades en apodos y URLs.
+
+## [1.49.2] - 2026-11-04
+
+### Auditoría: buzón, contraste y 404
+
+- El buzón de sugerencias queda restringido al rol `owner`, tanto en la política de la base de datos como en el panel de administración; un `admin` ya no ve la pestaña ni puede cargarla.
+- El panel de administración detecta también sesiones de Supabase Auth sin token de comunidad, y deja de cachear un fallo de red como "sin permisos".
+- `confirmarAccion()` ya no puede quedarse colgada: resuelve `false` si falta el modal y cancela la confirmación anterior.
+- Contraste corregido: pestaña activa, texto de Kick en tema claro, y botones de reproducir, subir, sortear y modo offline usan `--btn-text`; el acento claro pasa a `#047857`.
+- La página 404 usa rutas absolutas, así que carga estilos e ilustración en cualquier profundidad.
+- Los errores de sesión del panel de administración se muestran en la vista de login.
+- Roles canónicos corregidos: `McChary` queda como `owner` y `LaGochaGaming` como `admin` en `usuarios_comunidad`, en línea con `app_metadata` de Auth y con AGENTS.
+- `admin_auditar` resuelve el autor desde la sesión de comunidad cuando no hay JWT de Auth, así que las acciones de moderación dejan de firmarse como `admin` genérico.
+
 ## [1.49.1] - 2026-11-04
 
 ### Selector de emotes 7TV en el chat de Kick

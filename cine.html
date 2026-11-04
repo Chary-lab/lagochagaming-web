@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
-    <meta name="theme-color" content="#ff66b2">
+    <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GochiWatch (Cine) | LaGochaGaming</title>
@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="GochiWatch, cine sincronizado">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.49.1">
+    <link rel="stylesheet" href="style.css?v=1.49.4">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -67,7 +67,7 @@
 
     <!-- TOAST DE STREAM EN VIVO se inserta dinámicamente desde main.js -->
 
-    <div class="cine-layout page-layout" id="contenido" tabindex="-1">
+    <main class="cine-layout page-layout" id="contenido" tabindex="-1">
         <div class="cine-main-screen" x-data="{ }">
             <!-- BARRA DE TÍTULO Y BOTÓN DE PANEL -->
             <div class="cine-controls-bar">
@@ -200,10 +200,9 @@
     </div>
 
     <!-- SCRIPTS EXTERNOS -->
-    <script src="https://www.youtube.com/iframe_api" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.49.1" defer></script>
+    <script src="main.js?v=1.49.4" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
 
@@ -221,6 +220,17 @@
         let actualizandoLocalmente = false;
         let urlActual = '';
         let ytApiReady = false;
+        let ytApiCargando = false;
+        // La API de YouTube solo se descarga cuando hay un video de YouTube.
+        function cargarYouTubeAPI() {
+            if ((window.YT && window.YT.Player) || ytApiCargando) return;
+            ytApiCargando = true;
+            const script = document.createElement('script');
+            script.src = 'https://www.youtube.com/iframe_api';
+            script.async = true;
+            script.onerror = () => { ytApiCargando = false; };
+            document.head.appendChild(script);
+        }
         let sincronizarUltimoIntento = 0;
         let _ultimoSyncEnviado = null;
         let _ytLoadTimer = null;
@@ -470,11 +480,9 @@
                 const tiempo = tiempoActualCine();
                 const estado = 'play';
                 window._ultimoSyncEnviado = { estado, tiempo };
-                supabase.from('sync_cine').upsert({
-                    id: 1,
-                    estado,
-                    tiempo,
-                    updated_at: new Date().toISOString()
+                supabase.rpc('cine_actualizar_estado', {
+                    p_estado: estado,
+                    p_tiempo: tiempo
                 }).then(() => {}).catch(() => {});
             }, 8000);
 
@@ -654,14 +662,13 @@
             const processedUrl = procesarUrlEntrante(rawUrl);
 
             try {
-                const { error } = await supabase.from('sync_cine').upsert({
-                    id: 1,
-                    video_url: processedUrl,
-                    estado: 'pause',
-                    tiempo: 0,
-                    updated_at: new Date().toISOString()
+                const { data, error } = await supabase.rpc('cine_actualizar_estado', {
+                    p_estado: 'pause',
+                    p_tiempo: 0,
+                    p_video_url: processedUrl,
+                    p_actualizar_url: true
                 });
-                if (error) throw error;
+                if (error || !data || data.ok !== true) throw error;
                 mostrarToast('¡Video cargado y sincronizado con éxito!');
             } catch(e) { mostrarToast('Error al actualizar el video.', true); }
         }
@@ -691,12 +698,11 @@
             mostrarOverlayCarga('Reproductor apagado');
 
             try {
-                await supabase.from('sync_cine').upsert({
-                    id: 1,
-                    video_url: '',
-                    estado: 'pause',
-                    tiempo: 0,
-                    updated_at: new Date().toISOString()
+                await supabase.rpc('cine_actualizar_estado', {
+                    p_estado: 'pause',
+                    p_tiempo: 0,
+                    p_video_url: '',
+                    p_actualizar_url: true
                 });
                 mostrarToast('Reproductor cerrado para todos.');
             } catch(e) { mostrarToast('Error al apagar el reproductor.', true); }
@@ -708,11 +714,9 @@
             window._ultimoSyncEnviado = { estado, tiempo };
 
             try {
-                await supabase.from('sync_cine').upsert({
-                    id: 1,
-                    estado: estado,
-                    tiempo: tiempo,
-                    updated_at: new Date().toISOString()
+                await supabase.rpc('cine_actualizar_estado', {
+                    p_estado: estado,
+                    p_tiempo: tiempo
                 });
             } catch(e) { console.error(e); }
         }
@@ -753,6 +757,7 @@
             const ytId = extraerYouTubeId(finalUrl);
 
             if (ytId) {
+                cargarYouTubeAPI();
                 const cambioVideoYt = !ytPlayer || urlActual !== finalUrl;
                 urlActual = finalUrl;
                 actualizarControlesCine();
@@ -966,7 +971,7 @@
         <p>Cuando no hay sesión abierta, el reproductor lo indica y puedes pasar por el <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">directo de La Gocha en Kick</a> o por la <a href="comunidad">comunidad</a>.</p>
     </section>
 
-</div>
+</main>
 
     <footer class="main-footer">
         <div class="footer-container">

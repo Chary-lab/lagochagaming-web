@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
-    <meta name="theme-color" content="#ff66b2">
+    <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GochiSorteo | LaGochaGaming</title>
@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Sorteos de LaGochaGaming">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.49.1">
+    <link rel="stylesheet" href="style.css?v=1.49.4">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -66,7 +66,7 @@
 
     <!-- TOAST DE STREAM EN VIVO se inserta dinámicamente desde main.js -->
 
-    <div class="sorteo-layout page-layout" id="contenido" tabindex="-1">
+    <main class="sorteo-layout page-layout" id="contenido" tabindex="-1">
         <h1 class="visually-hidden">GochiSorteo</h1>
         <!-- SECCIÓN IZQUIERDA: HISTORIAL Y GANADORES -->
         <div class="sidebar-ganadores">
@@ -111,11 +111,11 @@
                     <button type="button" class="btn-primary sorteo-add-btn" data-action="add-public">Agregar</button>
                     <button type="button" class="btn-primary btn-muted sorteo-add-btn" data-action="clear-public">Limpiar</button>
                 </div>
-                <div id="feedback-manual" class="feedback-msg"></div>
+                <div id="feedback-manual" class="feedback-msg" role="status" aria-live="polite"></div>
 
                 <div class="ruleta-box">
                     <div class="ruleta-title">🎲 Estado del Sorteo 🎲</div>
-                    <div class="ruleta-nombre" id="ruleta-display-publico">¡Sorteo Listo!</div>
+                    <div class="ruleta-nombre" id="ruleta-display-publico" role="status" aria-live="polite">¡Sorteo Listo!</div>
                 </div>
                 <canvas id="confetti-canvas-publico" aria-hidden="true"></canvas>
 
@@ -165,12 +165,12 @@
                         </div>
                     </div>
 
-                    <div id="feedback-streamer-direct" class="feedback-msg"></div>
+                    <div id="feedback-streamer-direct" class="feedback-msg" role="status" aria-live="polite"></div>
                 </div>
 
                 <div class="ruleta-box">
                     <div class="ruleta-title">🎲 Ruleta Oficial GochiSorteo 🎲</div>
-                    <div class="ruleta-nombre" id="ruleta-display-streamer">¡Sorteo Listo!</div>
+                    <div class="ruleta-nombre" id="ruleta-display-streamer" role="status" aria-live="polite">¡Sorteo Listo!</div>
                 </div>
                 <canvas id="confetti-canvas-streamer" aria-hidden="true"></canvas>
 
@@ -385,10 +385,9 @@
 
             const nuevoEstado = !sorteoAbierto;
             try {
-                const { error } = await supabase
-                    .from('config_sorteo')
-                    .upsert({ id: 1, abierto: nuevoEstado });
-                if (error) throw error;
+                const { data, error } = await supabase
+                    .rpc('streamer_config_sorteo', { p_abierto: nuevoEstado });
+                if (error || !data || data.ok !== true) throw error || new Error('sin_permiso');
                 sorteoAbierto = nuevoEstado;
                 actualizarUIEstadoSorteo();
             } catch (e) {
@@ -451,12 +450,12 @@
                                     Ingresa tu nombre de usuario exacto de Kick para participar en directo:
                                 </p>
                                 <div class="form-group form-group-flush">
-                                    <input type="text" id="input-usuario-temporal" placeholder="Tu usuario de Kick..." autocomplete="off">
+                                    <input type="text" id="input-usuario-temporal" placeholder="Tu usuario de Kick..." aria-label="Tu usuario de Kick" autocomplete="off">
                                     <button type="button" class="btn-primary btn-join-draw" data-action="join-draw">
                                         🎁 ¡Unirme al GochiSorteo!
                                     </button>
                                 </div>
-                                <div id="feedback-publico-temporal" class="feedback-msg"></div>
+                                <div id="feedback-publico-temporal" class="feedback-msg" role="status" aria-live="polite"></div>
                             </div>
                         `;
                     }
@@ -722,11 +721,8 @@
             }
 
             try {
-                const { error } = await supabase
-                    .from('participantes_en_vivo')
-                    .delete()
-                    .gt('id', 0);
-                if (error) throw error;
+                const { data, error } = await supabase.rpc('streamer_vaciar_tombola');
+                if (error || !data || data.ok !== true) throw error || new Error('sin_permiso');
 
                 store.participantes = [];
                 localStorage.removeItem('gochi_registrado_user');
@@ -842,7 +838,7 @@
         <p>Si es tu primera vez, entra a la <a href="comunidad">comunidad</a> y crea tu apodo. Los sorteos se anuncian en el <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">directo de Kick</a>.</p>
     </section>
 
-</div>
+</main>
 
     <footer class="main-footer">
         <div class="footer-container">
@@ -874,7 +870,7 @@
         </div>
     </footer>
 
-    <script src="main.js?v=1.49.1" defer></script>
+    <script src="main.js?v=1.49.4" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
