@@ -3,6 +3,12 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.48.1] - 2026-11-04
+
+### Top Comunidad solo con el podio
+
+- El ranking lateral muestra únicamente los 3 primeros puestos. Los puestos 4 en adelante dejan de aparecer por ahora.
+
 ## [1.48.0] - 2026-11-04
 
 ### Actualizaciones reales de la app en Descargas
