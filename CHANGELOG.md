@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.53.1] - 2026-11-04
+
+### Pestañas con el lenguaje de Pines
+
+- Las pestañas de Comunidad, Sorteo y del panel de administración pasan a ser píldoras: fondo transparente, radio completo, tinte suave al pasar el ratón y acento con sombra en la activa.
+- El contenedor de pestañas del panel de administración es ahora una banda segmentada con fondo sutil y borde, en lugar de una fila con línea inferior.
+- El cambio vive en `style.css`, así que se ve igual si el CDN de Tailwind no carga.
+
 ## [1.53.0] - 2026-11-04
 
 ### Componentes interactivos con Tailwind bajo demanda

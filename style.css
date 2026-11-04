@@ -2560,24 +2560,25 @@ body.light-mode .reporte-foto-box {
     <style> de pagina). Cada pagina conserva su propio tamaño y su color de
     texto activo en su <style> local, que al ir despues gana en especificidad. */
  .tab-btn {
-     background: var(--card-bg-subtle);
+     background: transparent;
      color: var(--text-muted);
-     border: 1px solid var(--border-color);
-     border-radius: 10px;
+     border: 1px solid transparent;
+     border-radius: 999px;
      cursor: pointer;
-     transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+     transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
  }
 
  .tab-btn:hover {
      color: var(--text-main);
-     border-color: var(--accent-color);
+     background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+     border-color: transparent;
  }
 
  .tab-btn.active {
      background: var(--accent-color);
      color: var(--btn-text);
-     border-color: var(--accent-color);
-     box-shadow: var(--glow);
+     border-color: transparent;
+     box-shadow: 0 6px 18px color-mix(in srgb, var(--accent-color) 35%, transparent);
  }
 
  .tab-btn[hidden] {
@@ -3179,8 +3180,8 @@ body.light-mode {
             word-break: break-word;
             line-height: 1.2;
             text-align: center;
-            transition: all 0.2s ease;
-            border-radius: 8px;
+            transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 999px;
         }
         .tab-btn.active {
             color: var(--btn-text);
@@ -4497,32 +4498,34 @@ body.light-mode {
 
 .admin-tabs {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 12px;
+    padding: 4px;
+    background: var(--card-bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
     flex-wrap: wrap;
 }
 .admin-tab-btn {
-    padding: 10px 18px;
-    background: var(--card-bg-subtle);
+    padding: 9px 16px;
+    background: transparent;
     color: var(--text-muted);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border: 1px solid transparent;
+    border-radius: 999px;
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
 .admin-tab-btn:hover {
     color: var(--text-main);
-    border-color: var(--accent-color);
+    background: color-mix(in srgb, var(--accent-color) 12%, transparent);
 }
 .admin-tab-btn.active {
     background: var(--accent-color);
     color: var(--btn-text);
-    border-color: var(--accent-color);
-    box-shadow: var(--glow);
+    border-color: transparent;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--accent-color) 35%, transparent);
 }
 .admin-tab-panel {
     animation: fadeIn 0.2s ease;
