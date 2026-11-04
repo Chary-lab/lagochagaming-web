@@ -1314,7 +1314,7 @@ html.lg-app .lg-update-bar {
   background: linear-gradient(135deg, rgba(19, 33, 29, .98), rgba(8, 13, 11, .98));
   border: 1px solid rgba(62, 224, 198, .28);
   box-shadow: 0 16px 36px rgba(0, 0, 0, .52), inset 0 1px 0 rgba(255, 255, 255, .05);
-  color: var(--lg-text);
+  color: #f2f6f4;
   animation: lgUpdateIn .26s ease both;
 }
 
@@ -1347,7 +1347,7 @@ html.lg-app .lg-update-texto strong {
 
 html.lg-app .lg-update-texto small {
   font-size: .68rem;
-  color: var(--lg-muted);
+  color: #a9b6b2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

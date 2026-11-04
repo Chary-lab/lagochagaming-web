@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.11] - 2026-11-04
+
+### Insignias con nombre y aviso legible en tema claro
+
+- Las insignias de Kick del perfil muestran ahora su **nombre** (Moderador, Suscriptor, Fundador, VIP…) y solo añaden el detalle cuando aporta algo; antes se veía el código repetido (`VIP VIP`).
+- El aviso de actualización de la app usa colores propios, así que se lee bien también con el tema claro del sistema. Verificado a 390 px de ancho.
+
 ## [1.47.10] - 2026-11-04
 
 ### Perfil flotante, avisos modernos y ajustes ordenados

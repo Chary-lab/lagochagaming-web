@@ -717,6 +717,16 @@ window.ETIQUETA_INSIGNIA_KICK = {
     verified: 'OK',
     broadcaster: 'CANAL'
 };
+window.NOMBRE_INSIGNIA_KICK = {
+    moderator: 'Moderador',
+    vip: 'VIP',
+    subscriber: 'Suscriptor',
+    founder: 'Fundador',
+    sub_gifter: 'Regaló subs',
+    og: 'Veterano OG',
+    verified: 'Verificado',
+    broadcaster: 'Canal'
+};
 window.ICONO_INSIGNIA_KICK = {
     moderator: 'i-solid-shield-halved',
     vip: 'i-solid-gem',
@@ -739,6 +749,7 @@ window.insigniasKickDe = function insigniasKickDe(fila) {
         .map(b => ({
             tipo: b.type,
             etiqueta: window.ETIQUETA_INSIGNIA_KICK[b.type],
+            nombre: window.NOMBRE_INSIGNIA_KICK[b.type] || window.ETIQUETA_INSIGNIA_KICK[b.type],
             icono: window.ICONO_INSIGNIA_KICK[b.type],
             texto: b.text || b.type
         }));
@@ -2900,8 +2911,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <template x-for="b in $store.perfil.insignias" :key="b.tipo">
                   <span class="mp-insignia" x-bind:class="'kick-badge-' + b.tipo" x-bind:title="b.texto">
                     <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + b.icono"></use></svg>
-                    <span x-text="b.etiqueta"></span>
-                    <small x-text="b.texto"></small>
+                    <span x-text="b.nombre"></span>
+                    <small x-show="b.texto && b.texto.toLowerCase() !== b.nombre.toLowerCase() && b.texto.toLowerCase() !== b.tipo.toLowerCase()" x-text="b.texto"></small>
                   </span>
                 </template>
               </div>
