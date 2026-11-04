@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Sorteos de LaGochaGaming">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.6">
+    <link rel="stylesheet" href="style.css?v=1.43.7">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -90,7 +90,7 @@
         <div class="sorteo-container">
             <div class="mode-tabs" role="tablist" aria-label="Modos del sorteo">
                 <button type="button" id="tab-manual" class="tab-btn" data-action="tab-manual" role="tab" aria-selected="false" aria-controls="sec-modo-manual"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-pen-to-square"></use></svg> Modo Manual</button>
-                <button type="button" id="tab-streamer" class="tab-btn" data-action="tab-streamer" role="tab" aria-selected="false" aria-controls="sec-modo-streamer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> Modo Streamer (Exclusivo)</button>
+                <button type="button" id="tab-streamer" class="tab-btn" data-action="tab-streamer" role="tab" aria-selected="false" aria-controls="sec-modo-streamer" hidden><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sliders"></use></svg> Modo Streamer (Exclusivo)</button>
             </div>
 
             <div id="banner-estado-sorteo">
@@ -147,7 +147,7 @@
                     <div class="admin-toolbar admin-toolbar-center">
                         <button type="button" id="btn-toggle-sorteo" data-action="toggle-draw" class="btn-primary btn-success btn-sm">🟢 ABRIR SORTEO EN VIVO</button>
                         <button type="button" data-action="empty-tombola" class="btn-primary btn-danger btn-sm">🗑️ Limpiar Tómbola</button>
-                        <button type="button" data-action="logout-admin" class="btn-logout btn-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-from-bracket"></use></svg> Cerrar Sesión Admin</button>
+                        <button type="button" data-action="logout-admin" class="btn-logout btn-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-from-bracket"></use></svg> Cerrar Sesión</button>
                         <button type="button" data-action="exit-streamer" class="btn-primary btn-muted btn-sm">Salir</button>
                     </div>
 
@@ -206,26 +206,6 @@
         </div>
     </div>
 
-    <!-- Modal de Inicio de Sesión -->
-    <div id="modal-pin" class="gochi-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-sorteo-titulo">
-        <div class="gochi-modal-box">
-            <h3 id="modal-sorteo-titulo">🔒 ACCESO EXCLUSIVO GOCHA</h3>
-            <p>Ingresa tus datos de acceso:</p>
-
-            <form id="form-login-sorteo" novalidate>
-                <input type="email" id="streamer-email" class="gochi-modal-input" placeholder="Correo electrónico" aria-label="Correo electrónico" autocomplete="email">
-                <input type="password" id="streamer-password" class="gochi-modal-input" placeholder="Contraseña" aria-label="Contraseña" autocomplete="current-password">
-
-                <div id="feedback-pin" class="feedback-msg gochi-modal-feedback" role="status" aria-live="polite"></div>
-
-                <div class="gochi-modal-actions">
-                    <button type="submit" id="btn-entrar-sorteo" class="btn-primary">Entrar</button>
-                    <button type="button" data-action="close-login" class="btn-primary btn-muted">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
     <script>
         let sorteoAbierto = false;
@@ -265,14 +245,18 @@
             if (window.supabase) {
                 try {
                     const adminOk = await window.esAdminActual?.();
+                    streamerAutenticado = !!adminOk;
                     if (adminOk) {
-                        streamerAutenticado = true;
+                        document.getElementById('tab-streamer').hidden = false;
                         cambiarTab('streamer');
                     } else {
+                        document.getElementById('tab-streamer').hidden = true;
                         cambiarTab('manual');
                     }
                 } catch (e) {
                     console.error('Error obteniendo sesión:', e);
+                    document.getElementById('tab-streamer').hidden = true;
+                    cambiarTab('manual');
                 }
             } else {
                 mostrarToast('Supabase no está disponible en este entorno', true);
@@ -291,9 +275,13 @@
                     .subscribe();
             } catch(e) { console.log('Modo local detectado'); }
 
-            document.getElementById('form-login-sorteo')?.addEventListener('submit', (e) => {
-                e.preventDefault();
-                confirmarLoginStreamer();
+            // Login/logout de la cuenta general: la pestaña exclusiva solo existe para admin.
+            document.addEventListener('gocha:sesion', async () => {
+                const adminOk = !!(await window.esAdminActual?.());
+                streamerAutenticado = adminOk;
+                document.getElementById('tab-streamer').hidden = !adminOk;
+                if (adminOk) cambiarTab('streamer');
+                else cambiarTab('manual');
             });
         });
 
@@ -310,11 +298,10 @@
                 case 'spin-public': girarRuletaPublica(); break;
                 case 'toggle-draw': toggleEstadoSorteo(); break;
                 case 'empty-tombola': vaciarTombolaOnline(); break;
-                case 'logout-admin': window.cerrarSesionAdminGlobal?.(); break;
+                case 'logout-admin': window.cerrarSesion?.(); break;
                 case 'exit-streamer': salirModoStreamer(); break;
                 case 'add-bonus': agregarParticipanteAdminBonus(); break;
                 case 'spin-streamer': girarRuletaStreamer(); break;
-                case 'close-login': cerrarModalPin(); break;
                 case 'join-draw': enviarParticipacionTemporal(); break;
             }
         });
@@ -368,16 +355,7 @@
                 btnStreamer.setAttribute('aria-selected', 'false');
             } else if (tab === 'streamer') {
                 if (!streamerAutenticado) {
-                    document.getElementById('feedback-pin').innerText = '';
-                    document.getElementById('modal-pin').style.display = 'flex';
-                    if (window.activarTrampaFoco) {
-                        window.activarTrampaFoco(
-                            document.getElementById('modal-pin'),
-                            document.getElementById('streamer-email')
-                        );
-                    } else {
-                        document.getElementById('streamer-email').focus();
-                    }
+                    cambiarTab('manual');
                 } else {
                     secManual.style.display = 'none';
                     secStreamer.style.display = 'block';
@@ -389,63 +367,6 @@
             }
         }
 
-        function cerrarModalPin() {
-            document.getElementById('modal-pin').style.display = 'none';
-            document.getElementById('streamer-email').value = '';
-            document.getElementById('streamer-password').value = '';
-            document.getElementById('feedback-pin').innerText = '';
-            window.desactivarTrampaFoco?.(true);
-        }
-
-        async function confirmarLoginStreamer() {
-            const email = document.getElementById('streamer-email').value.trim();
-            const password = document.getElementById('streamer-password').value.trim();
-            const btnEntrar = document.getElementById('btn-entrar-sorteo');
-
-            if (!window.supabase) {
-                mostrarFeedback('feedback-pin', '❌ No se pudo conectar con el servidor', true);
-                return;
-            }
-
-            if (!email || !password) {
-                mostrarFeedback('feedback-pin', 'Rellena todos los campos', true);
-                return;
-            }
-
-            if (btnEntrar) btnEntrar.disabled = true;
-            try {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-                if (error) {
-                    mostrarFeedback('feedback-pin', '❌ Credenciales incorrectas', true);
-                    return;
-                }
-
-                window.refrescarCacheAdmin?.();
-                const adminOk = await window.esAdminActual?.();
-                if (!adminOk) {
-                    await supabase.auth.signOut().catch(() => {});
-                    window.refrescarCacheAdmin?.();
-                    streamerAutenticado = false;
-                    mostrarFeedback('feedback-pin', '❌ Esta cuenta no es de streamer', true);
-                    return;
-                }
-
-                streamerAutenticado = true;
-                cerrarModalPin();
-                document.getElementById('sec-modo-manual').style.display = 'none';
-                document.getElementById('sec-modo-streamer').style.display = 'block';
-                document.getElementById('tab-manual').classList.remove('active');
-                document.getElementById('tab-streamer').classList.add('active');
-                document.getElementById('tab-manual').setAttribute('aria-selected', 'false');
-                document.getElementById('tab-streamer').setAttribute('aria-selected', 'true');
-            } catch (e) {
-                mostrarFeedback('feedback-pin', '❌ No se pudo iniciar sesión', true);
-            } finally {
-                if (btnEntrar) btnEntrar.disabled = false;
-            }
-        }
-
         function salirModoStreamer() {
             document.getElementById('sec-modo-streamer').style.display = 'none';
             document.getElementById('sec-modo-manual').style.display = 'block';
@@ -453,6 +374,7 @@
             document.getElementById('tab-manual').classList.add('active');
             document.getElementById('tab-manual').setAttribute('aria-selected', 'true');
             document.getElementById('tab-streamer').setAttribute('aria-selected', 'false');
+            if (!streamerAutenticado) document.getElementById('tab-streamer').hidden = true;
         }
 
         async function toggleEstadoSorteo() {
@@ -954,7 +876,7 @@
         </div>
     </footer>
 
-    <script src="main.js?v=1.43.6" defer></script>
+    <script src="main.js?v=1.43.7" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

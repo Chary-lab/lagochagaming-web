@@ -1,8 +1,8 @@
 {
-    "versionCode":  9,
-    "versionName":  "1.6",
+    "versionCode":  10,
+    "versionName":  "1.7",
     "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256":  "97647882dd62a98523e59ddc2f7734823a3d3c9de9d68cac32571383916937f5",
-    "size":  4377330,
-    "notes":  "El chat de Kick vuelve a la app al conectar la cuenta."
+    "sha256":  "5b6acd26716047af750231d616bf2577b65d5c562d75445bb8da5dba4889b7d8",
+    "size":  4377994,
+    "notes":  "Herramientas de Streamer solo para admin y anillo de puntos animado."
 }

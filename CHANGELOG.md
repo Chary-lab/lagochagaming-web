@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.7] - 2026-11-03
+
+### Herramientas de Streamer y APK 1.7
+
+- Galería, Cine y Sorteo ya no tienen login de admin propio: las herramientas se
+  ocultan hasta iniciar sesión con una cuenta owner o admin desde el Login general.
+- El acceso oculto del pie de página se mantiene para tareas administrativas.
+- La app 1.7 muestra el anillo de puntos centrado, con relleno animado y pulso al
+  llegar al tope.
+- APK 1.7 (versionCode 10) actualizado en app/LaGochaGaming.apk.
+
 ## [1.43.6] - 2026-11-03
 
 ### Puntos diarios y Kick compartido

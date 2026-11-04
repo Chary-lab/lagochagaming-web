@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="GochiWatch, cine sincronizado">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.6">
+    <link rel="stylesheet" href="style.css?v=1.43.7">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -72,8 +72,8 @@
             <!-- BARRA DE TÍTULO Y BOTÓN DE PANEL -->
             <div class="cine-controls-bar">
                 <h1 class="cine-title"><svg class="icon cine-title-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-film"></use></svg> GochiWatch - Cine en Directo</h1>
-                <button type="button" id="btn-toggle-streamer" class="btn-admin-mode" data-action="toggle-streamer-panel" aria-expanded="false" aria-controls="streamerAdminPanel">
-                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> Panel Streamer
+                <button type="button" id="btn-toggle-streamer" class="btn-admin-mode" data-action="toggle-streamer-panel" aria-expanded="false" aria-controls="streamerAdminPanel" hidden>
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sliders"></use></svg> Herramientas de Streamer
                 </button>
             </div>
 
@@ -83,7 +83,7 @@
                 <details class="panel-ayuda">
                     <summary>¿Qué hace cada control?</summary>
                     <ul>
-                        <li><strong>Iniciar sesión:</strong> solo la cuenta admin/streamer puede abrir este panel.</li>
+                        <li><strong>Acceso:</strong> entra con tu cuenta de administración desde <strong>Login</strong> en la barra superior. Solo los roles owner y admin ven estas herramientas.</li>
                         <li><strong>Enlace:</strong> acepta YouTube, Google Drive y video directo <code>.mp4/.webm/.ogg</code>.</li>
                         <li><strong>Cargar Video:</strong> cambia la película para todos los espectadores.</li>
                         <li><strong>Play, pausa y barra:</strong> se sincronizan en tiempo real con el público.</li>
@@ -200,31 +200,11 @@
         </div>
     </div>
 
-    <!-- MODAL DE LOGIN PARA STREAMER -->
-    <div id="modal-pin-cine" class="gochi-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-cine-titulo">
-        <div class="gochi-modal-box">
-            <h3 id="modal-cine-titulo">🔒 ACCESO STREAMER CINE</h3>
-            <p>Ingresa tus datos para controlar la reproducción:</p>
-
-            <form id="form-login-cine" novalidate>
-                <input type="email" id="streamer-cine-email" class="gochi-modal-input" placeholder="Correo electrónico" aria-label="Correo electrónico" autocomplete="email">
-                <input type="password" id="streamer-cine-password" class="gochi-modal-input" placeholder="Contraseña" aria-label="Contraseña" autocomplete="current-password">
-
-                <div id="feedback-cine-pin" class="gochi-modal-feedback" role="status" aria-live="polite"></div>
-
-                <div class="gochi-modal-actions">
-                    <button type="submit" id="btn-entrar-cine" class="btn-primary">Entrar</button>
-                    <button type="button" data-action="close-login" class="btn-primary btn-muted">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- SCRIPTS EXTERNOS -->
     <script src="https://www.youtube.com/iframe_api" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.43.6" defer></script>
+    <script src="main.js?v=1.43.7" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
 
@@ -461,9 +441,12 @@
                 mostrarToast('Error al reproducir el video.', true);
             });
 
-            document.getElementById('form-login-cine')?.addEventListener('submit', (e) => {
-                e.preventDefault();
-                iniciarSesionStreamerCine();
+            // Login/logout de la cuenta general: muestra u oculta las herramientas.
+            document.addEventListener('gocha:sesion', async () => {
+                const adminOk = !!(await window.esAdminActual?.());
+                streamerCineAutenticado = adminOk;
+                if (adminOk) activarModoStreamerUI();
+                else ocultarModoStreamerCine();
             });
 
             if (btnUnirseCine) {
@@ -641,8 +624,7 @@
                 case 'toggle-streamer-panel': toggleModoStreamerCine(); break;
                 case 'load-video': actualizarUrlPelicula(); break;
                 case 'stop-video': cerrarReproductorTotal(); break;
-                case 'logout-admin': window.cerrarSesionAdminGlobal?.(); break;
-                case 'close-login': cerrarModalCinePin(); break;
+                case 'logout-admin': window.cerrarSesion?.(); break;
             }
         });
 
@@ -915,19 +897,37 @@
             const btn = document.getElementById('btn-toggle-streamer');
 
             if (!streamerCineAutenticado) {
-                abrirModalCinePin();
-            } else {
-                if (adminPanel.style.display === 'none' || adminPanel.style.display === '') {
-                    adminPanel.style.display = 'block';
-                    btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock-open"></use></svg> Ocultar Panel';
-                    btn.classList.add('active');
-                } else {
-                    adminPanel.style.display = 'none';
-                    btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> Panel Streamer';
-                    btn.classList.remove('active');
-                }
-                btn.setAttribute('aria-expanded', adminPanel.style.display === 'block' ? 'true' : 'false');
+                adminPanel.style.display = 'none';
+                btn.hidden = true;
+                btn.classList.remove('active');
+                btn.setAttribute('aria-expanded', 'false');
+                return;
             }
+            if (adminPanel.style.display === 'none' || adminPanel.style.display === '') {
+                adminPanel.style.display = 'block';
+                btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock-open"></use></svg> Ocultar Herramientas';
+                btn.classList.add('active');
+            } else {
+                adminPanel.style.display = 'none';
+                btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sliders"></use></svg> Herramientas de Streamer';
+                btn.classList.remove('active');
+            }
+            btn.setAttribute('aria-expanded', adminPanel.style.display === 'block' ? 'true' : 'false');
+        }
+
+        function ocultarModoStreamerCine() {
+            streamerCineAutenticado = false;
+            document.body.classList.remove('admin-mode-active');
+            const adminPanel = document.getElementById('streamerAdminPanel');
+            const btn = document.getElementById('btn-toggle-streamer');
+            if (adminPanel) adminPanel.style.display = 'none';
+            if (btn) {
+                btn.hidden = true;
+                btn.classList.remove('active');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sliders"></use></svg> Herramientas de Streamer';
+            }
+            actualizarControlesCine();
         }
 
         function ocultarOverlayCarga() {
@@ -947,70 +947,17 @@
             store.overlayUnirse = !!mostrarUnirse;
         }
 
-        function abrirModalCinePin() {
-            document.getElementById('feedback-cine-pin').textContent = '';
-            document.getElementById('modal-pin-cine').style.display = 'flex';
-            document.getElementById('streamer-cine-email').focus();
-        }
-
-        function cerrarModalCinePin() {
-            document.getElementById('modal-pin-cine').style.display = 'none';
-            document.getElementById('streamer-cine-email').value = '';
-            document.getElementById('streamer-cine-password').value = '';
-            document.getElementById('feedback-cine-pin').textContent = '';
-        }
-
-        async function iniciarSesionStreamerCine() {
-            const email = document.getElementById('streamer-cine-email').value.trim();
-            const password = document.getElementById('streamer-cine-password').value.trim();
-            const feedback = document.getElementById('feedback-cine-pin');
-            const btnEntrar = document.getElementById('btn-entrar-cine');
-
-            if (!window.supabase) {
-                feedback.textContent = '❌ No se pudo conectar con el servidor';
-                return;
-            }
-
-            if (!email || !password) {
-                feedback.textContent = 'Rellena todos los campos';
-                return;
-            }
-
-            if (btnEntrar) btnEntrar.disabled = true;
-            feedback.textContent = '';
-
-try {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) {
-                    feedback.textContent = '❌ Credenciales incorrectas';
-                    return;
-                }
-
-                const adminOk = await window.esAdminActual?.();
-                if (!adminOk) {
-                    await supabase.auth.signOut();
-                    feedback.textContent = '❌ No tienes permisos de streamer';
-                    return;
-                }
-
-                streamerCineAutenticado = true;
-                cerrarModalCinePin();
-                activarModoStreamerUI();
-                mostrarToast('¡Sesión iniciada con éxito!');
-            } catch (e) {
-                feedback.textContent = '❌ No se pudo iniciar sesión';
-            } finally {
-                if (btnEntrar) btnEntrar.disabled = false;
-            }
-        }
-
         function activarModoStreamerUI() {
-            document.getElementById('streamerAdminPanel').style.display = 'block';
-            document.body.classList.add('admin-mode-active');
+            const adminPanel = document.getElementById('streamerAdminPanel');
             const btn = document.getElementById('btn-toggle-streamer');
-            btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock-open"></use></svg> Ocultar Panel';
-            btn.classList.add('active');
-            btn.setAttribute('aria-expanded', 'true');
+            document.body.classList.add('admin-mode-active');
+            if (adminPanel) adminPanel.style.display = 'block';
+            if (btn) {
+                btn.hidden = false;
+                btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock-open"></use></svg> Ocultar Herramientas';
+                btn.classList.add('active');
+                btn.setAttribute('aria-expanded', 'true');
+            }
         }
     </script>
 
