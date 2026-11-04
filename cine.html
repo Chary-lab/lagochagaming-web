@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="GochiWatch, cine sincronizado">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.51.3">
+    <link rel="stylesheet" href="style.css?v=1.52.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -89,7 +89,7 @@
                         <li><strong>Play, pausa y barra:</strong> se sincronizan en tiempo real con el público.</li>
                         <li><strong>Apagar:</strong> detiene el video y limpia la pantalla para todos.</li>
                         <li><strong>Sincronizar:</strong> vuelve a pedir el tiempo exacto al servidor.</li>
-                        <li><strong>Unirme / Activar audio:</strong> arranca el video y habilita el sonido si el navegador lo bloqueó.</li>
+                        <li><strong>Unirme / Audio:</strong> arranca el video y permite silenciar o volver a activar el audio en tu equipo sin afectar a la sala.</li>
                         <li><strong>Reacciones:</strong> los emojis aparecen en la pantalla de toda la sala.</li>
                         <li><strong>Cerrar sesión:</strong> usa la flecha roja de la barra superior; aquí puedes ocultar las herramientas sin salir de tu cuenta.</li>
                     </ul>
@@ -118,7 +118,7 @@
                     </p>
                     <form class="cine-cola-form" @submit.prevent="$store.cineCola.agregar()">
                         <input type="text" class="admin-input" x-model="$store.cineCola.url" inputmode="url" autocomplete="off"
-                               aria-label="URL del video para la cola" placeholder="https://... video para encolar">
+                               maxlength="500" aria-label="URL del video para la cola" placeholder="https://... video para encolar">
                         <input type="text" class="admin-input cine-cola-titulo-input" x-model="$store.cineCola.titulo"
                                maxlength="120" autocomplete="off" aria-label="Título opcional del video" placeholder="Título (opcional)">
                         <button type="submit" class="btn-primary" x-bind:disabled="$store.cineCola.guardando"
@@ -245,7 +245,7 @@
     <!-- SCRIPTS EXTERNOS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.51.3" defer></script>
+    <script src="main.js?v=1.52.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
 
@@ -279,6 +279,10 @@
         let _ytLoadTimer = null;
         let _cargandoVideo = false;
         let ultimoEstadoRemoto = 'pause';
+        // El espectador no entra solo: el overlay de "Unirme" se queda hasta
+        // que pulsa el botón. El audio es local y se puede silenciar.
+        let reproduccionUnida = false;
+        let audioSilenciado = false;
 
         document.addEventListener('alpine:init', () => {
             window.Alpine.store('cine', {
@@ -510,12 +514,48 @@
             store.estadoTexto = texto;
             store.estadoClase = clase;
             store.joinVisible = !!urlActual && !cineError;
-            store.joinTexto = playing ? 'Activar audio' : 'Unirme a la reproducción';
-            store.joinIcono = playing ? 'i-solid-volume-high' : 'i-solid-play';
+            if (reproduccionUnida || streamerCineAutenticado) {
+                const mudo = audioEstaSilenciado();
+                audioSilenciado = mudo;
+                store.joinTexto = mudo ? 'Activar audio' : 'Desactivar audio';
+                store.joinIcono = mudo ? 'i-solid-volume-xmark' : 'i-solid-volume-high';
+            } else {
+                store.joinTexto = 'Unirme a la reproducción';
+                store.joinIcono = 'i-solid-play';
+            }
             const mostrarYouTube = !!cineError && fuenteActual === 'youtube' && !!urlActual;
             store.youtubeVisible = mostrarYouTube;
             if (mostrarYouTube) store.youtubeUrl = urlActual;
             actualizarFuenteBadge();
+            actualizarGateUnionCine();
+        }
+
+        function audioEstaSilenciado() {
+            if (esYouTube && ytPlayer && typeof ytPlayer.isMuted === 'function') {
+                try { return !!ytPlayer.isMuted(); } catch (e) { return audioSilenciado; }
+            }
+            return !!mp4Player && mp4Player.muted;
+        }
+
+        // El overlay de entrada sigue visible hasta que el espectador pulsa
+        // "Unirme"; ningún autoplay del navegador lo quita por su cuenta.
+        function actualizarGateUnionCine() {
+            const store = storeCine();
+            if (!store || cineError) return;
+            if (streamerCineAutenticado) {
+                if (urlActual) ocultarOverlayCarga();
+                return;
+            }
+            if (reproduccionUnida || !urlActual) return;
+            store.overlayVisible = true;
+            store.overlayError = false;
+            if (ultimoEstadoRemoto === 'play') {
+                store.overlayTexto = 'Pulsa para unirte a la reproducción';
+                store.overlayUnirse = true;
+            } else {
+                store.overlayTexto = 'El streamer tiene el video en pausa.';
+                store.overlayUnirse = false;
+            }
         }
 
         function marcarFuente(dataUrl) {
@@ -582,7 +622,19 @@
             });
             mp4Player.addEventListener('pause', () => { if (streamerCineAutenticado && !actualizandoLocalmente && !esYouTube) enviarComandoSync('pause', mp4Player.currentTime); });
             mp4Player.addEventListener('seeked', () => { if (streamerCineAutenticado && !actualizandoLocalmente && !esYouTube) enviarComandoSync('seek', mp4Player.currentTime); });
-            mp4Player.addEventListener('playing', () => { cineError = ''; ocultarOverlayCarga(); actualizarControlesCine(); });
+            mp4Player.addEventListener('playing', () => {
+                cineError = '';
+                if (reproduccionUnida || streamerCineAutenticado) {
+                    ocultarOverlayCarga();
+                } else {
+                    // Sin unirse no se reproduce, aunque el navegador lo permita.
+                    try { mp4Player.pause(); } catch (e) {}
+                }
+                actualizarControlesCine();
+            });
+            mp4Player.addEventListener('volumechange', () => {
+                if (reproduccionUnida || streamerCineAutenticado) actualizarControlesCine();
+            });
             mp4Player.addEventListener('pause', () => actualizarControlesCine());
             mp4Player.addEventListener('ended', () => actualizarControlesCine());
             mp4Player.addEventListener('error', () => {
@@ -647,10 +699,19 @@
 
         function unirseAReproduccion() {
             if (!urlActual) return;
+            if (reproduccionUnida) {
+                alternarAudioCine();
+                return;
+            }
             if (ultimoEstadoRemoto !== 'play') {
                 mostrarToast('El streamer tiene el video en pausa.', true);
                 return;
             }
+
+            reproduccionUnida = true;
+            audioSilenciado = false;
+            ocultarOverlayCarga();
+            actualizarControlesCine();
 
             // El gesto del usuario debe iniciar el play de inmediato para que
             // el navegador no lo bloquee; la sincronización va después.
@@ -668,6 +729,24 @@
             }
 
             cargarEstadoCine();
+        }
+
+        function alternarAudioCine() {
+            const mudo = !audioEstaSilenciado();
+            if (esYouTube && ytPlayer && typeof ytPlayer.mute === 'function') {
+                try {
+                    if (mudo) ytPlayer.mute();
+                    else {
+                        ytPlayer.unMute();
+                        ytPlayer.setVolume(100);
+                    }
+                } catch (e) {}
+            } else if (mp4Player) {
+                mp4Player.muted = mudo;
+            }
+            audioSilenciado = mudo;
+            mostrarToast(mudo ? 'Audio silenciado.' : 'Audio activado.');
+            actualizarControlesCine();
         }
 
         async function resincronizarCine() {
@@ -890,6 +969,8 @@
                 urlActual = '';
                 fuenteActual = '';
                 cineError = '';
+                reproduccionUnida = false;
+                audioSilenciado = false;
                 if (mp4Player) {
                     mp4Player.pause();
                     mp4Player.currentTime = 0;
@@ -916,6 +997,10 @@
             if (ytId) {
                 cargarYouTubeAPI();
                 const cambioVideoYt = !ytPlayer || urlActual !== finalUrl;
+                if (cambioVideoYt && !streamerCineAutenticado) {
+                    reproduccionUnida = false;
+                    audioSilenciado = false;
+                }
                 urlActual = finalUrl;
                 actualizarControlesCine();
                 // El iframe de YouTube puede tardar o estar bloqueado; MP4 no
@@ -958,8 +1043,11 @@
                                     cineError = '';
                                     try { event.target.seekTo(data.tiempo || 0, true); } catch (e) {}
                                     if (data.estado === 'play') {
-                                        mostrarOverlayCarga('Pulsa para unirte a la reproducción', false, true);
-                                        event.target.playVideo();
+                                        if (reproduccionUnida || streamerCineAutenticado) {
+                                            event.target.playVideo();
+                                        } else {
+                                            mostrarOverlayCarga('Pulsa para unirte a la reproducción', false, true);
+                                        }
                                     }
                                     actualizarControlesCine();
                                 },
@@ -978,7 +1066,13 @@
                                 'onStateChange': (event) => {
                                     if (event.data === YT.PlayerState.PLAYING) {
                                         cineError = '';
-                                        ocultarOverlayCarga();
+                                        if (reproduccionUnida || streamerCineAutenticado) {
+                                            ocultarOverlayCarga();
+                                        } else {
+                                            // Sin unirse no se reproduce ni se oculta el overlay.
+                                            try { event.target.pauseVideo(); } catch (e) {}
+                                            mostrarOverlayCarga('Pulsa para unirte a la reproducción', false, true);
+                                        }
                                     }
                                     actualizarControlesCine();
                                     if (streamerCineAutenticado && !actualizandoLocalmente) {
@@ -1001,14 +1095,13 @@
                             ytPlayer.seekTo(data.tiempo, true);
                         }
                         if (data.estado === 'play') {
-                            // Si el navegador bloqueo el autoplay, se ofrece el
-                            // boton para que el usuario habilite el sonido.
-                            try {
-                                if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-                                    mostrarOverlayCarga('Pulsa para unirte a la reproducción', false, true);
-                                }
-                            } catch (e) {}
-                            ytPlayer.playVideo();
+                            if (reproduccionUnida || streamerCineAutenticado) {
+                                ytPlayer.playVideo();
+                            } else {
+                                // El espectador debe dar el gesto de entrada.
+                                mostrarOverlayCarga('Pulsa para unirte a la reproducción', false, true);
+                                try { ytPlayer.pauseVideo(); } catch (e) {}
+                            }
                         } else if (data.estado === 'pause') ytPlayer.pauseVideo();
                     } catch (e) { /* ignorar errores de estado intermedio */ }
                     actualizandoLocalmente = false;
@@ -1029,6 +1122,10 @@
                 const source = document.getElementById('cineVideoSource');
                 if (source && source.src !== finalUrl) {
                     cineError = '';
+                    if (!streamerCineAutenticado) {
+                        reproduccionUnida = false;
+                        audioSilenciado = false;
+                    }
                     source.src = finalUrl;
                     source.type = tipoVideoPorUrl(finalUrl);
                     mp4Player.load();
@@ -1040,9 +1137,13 @@
                         mp4Player.currentTime = data.tiempo;
                     }
                     if (data.estado === 'play' && mp4Player.paused) {
-                        mp4Player.play().catch(() => {
+                        if (reproduccionUnida || streamerCineAutenticado) {
+                            mp4Player.play().catch(() => {
+                                mostrarOverlayCarga('Pulsa para unirte a la reproducción', false, true);
+                            });
+                        } else {
                             mostrarOverlayCarga('Pulsa para unirte a la reproducción', false, true);
-                        });
+                        }
                     } else if (data.estado === 'pause' && !mp4Player.paused) {
                         mp4Player.pause();
                     }

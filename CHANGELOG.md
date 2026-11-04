@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.52.0] - 2026-11-04
+
+### GochiWatch: unirse a la reproducción y audio local
+
+- El aviso "Pulsa para unirte a la reproducción" ya no desaparece solo: se mantiene hasta que el espectador pulsa Unirme, aunque el navegador reproduzca el video por su cuenta.
+- El espectador puede silenciar y reactivar el audio en su equipo sin afectar a la sala; el botón alterna "Desactivar audio" / "Activar audio".
+- El panel del streamer oculta el aviso de espera cuando ya hay un video cargado.
+
 ## [1.51.1] - 2026-11-04
 
 ### Ajustes visuales de la home
