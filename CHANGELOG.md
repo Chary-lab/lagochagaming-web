@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.8] - 2026-11-04
+
+### Panel de administración: borrar cuentas y última conexión
+
+- Nueva acción **Eliminar** en cada usuario normal del panel oculto. Pide confirmación y borra la cuenta con su contenido: mensajes, reacciones, fotos, saludos, sesiones, canjes y puntos. Queda registrado en Auditoría.
+- Las cuentas **owner** y **admin** están protegidas: no se pueden borrar.
+- Cada usuario muestra ahora **Última vez en línea** en formato relativo ("hace 5 min", "hace 2 días"), además del punto verde si está conectado.
+- Los usuarios vinculados a Kick muestran su etiqueta **KICK @usuario** en el panel y en su **perfil público**, con enlace a su canal.
+
 ## [1.47.7] - 2026-11-04
 
 ### Avatares: dos por defecto y el de Kick

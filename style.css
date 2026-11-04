@@ -4184,6 +4184,22 @@ body.light-mode {
     font-size: 0.75rem;
     color: var(--text-muted);
 }
+.admin-usuario-ultima {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+.admin-kick-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: rgba(83, 252, 24, 0.12);
+    border: 1px solid rgba(83, 252, 24, 0.35);
+    color: #53fc18;
+    font-size: 0.65rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
 .admin-usuario-online {
     display: inline-flex;
     align-items: center;
@@ -4263,6 +4279,15 @@ body.light-mode {
 }
 .btn-admin-accion.btn-shadowban:hover {
     background: #d97706;
+}
+.btn-admin-accion.btn-eliminar {
+    background: transparent;
+    border: 1px solid #7f1d1d;
+    color: #f87171;
+}
+.btn-admin-accion.btn-eliminar:hover {
+    background: #7f1d1d;
+    color: #fff;
 }
 
 .admin-paginacion {
@@ -4875,6 +4900,21 @@ body.light-mode {
     font-size: 0.72rem;
     font-weight: 600;
 }
+.mp-kick-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(83, 252, 24, 0.1);
+    border: 1px solid rgba(83, 252, 24, 0.35);
+    color: #53fc18;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+.mp-kick-link:hover { background: rgba(83, 252, 24, 0.2); }
+.mp-kick-link .icon { width: 12px; height: 12px; }
 .mp-desde {
     margin: 2px 0 6px;
     font-size: 0.72rem;

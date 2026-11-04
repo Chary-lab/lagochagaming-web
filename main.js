@@ -1667,12 +1667,15 @@ function insertarPanelAdminGlobal() {
                                         <span class="admin-usuario-meta">
                                             <span x-text="u.puntos + ' pts'"></span>
                                             <span class="rango-badge" :class="'rango-' + window.claveRango(u.rango, u.puntos)" x-text="window.etiquetaRango(u.rango, u.puntos)"></span>
+                                            <span class="admin-kick-badge" x-show="u.kick_user_id" x-text="'KICK @' + (u.kick_username || '')"></span>
                                         </span>
                                         <span class="admin-usuario-online" :class="{ online: u.en_linea }"
                                               :title="u.en_linea ? 'En línea ahora' : (u.ultima_actividad ? 'Última actividad: ' + $store.adminPanel.fecha(u.ultima_actividad) : 'Sin actividad reciente')">
                                             <span class="admin-online-dot" aria-hidden="true"></span>
                                             <span x-text="u.en_linea ? 'En línea' : 'Offline'"></span>
                                         </span>
+                                        <span class="admin-usuario-ultima"
+                                              x-text="u.en_linea ? 'Última conexión: ahora' : (u.ultima_actividad ? 'Última conexión: ' + $store.adminPanel.hace(u.ultima_actividad) : 'Última conexión: sin datos')"></span>
                                     </div>
                                 </div>
                                 <div class="admin-usuario-estado">
@@ -1685,6 +1688,8 @@ function insertarPanelAdminGlobal() {
                                 <div class="admin-usuario-acciones">
                                     <button type="button" class="btn-admin-accion btn-ban" x-on:click="$store.adminPanel.toggleBan(u)" x-text="u.baneado_activo ? 'Desbanear' : 'Banear'"></button>
                                     <button type="button" class="btn-admin-accion btn-shadowban" x-on:click="$store.adminPanel.toggleShadowban(u)" x-text="u.shadowban ? 'Quitar Shadowban' : 'Shadowban'"></button>
+                                    <button type="button" class="btn-admin-accion btn-eliminar" x-show="u.rol === 'user'"
+                                            x-on:click="$store.adminPanel.eliminarUsuario(u)">Eliminar</button>
                                 </div>
                             </div>
                         </template>
@@ -1850,6 +1855,24 @@ document.addEventListener('alpine:init', () => {
             if (!valor) return '';
             const d = new Date(valor);
             return Number.isNaN(d.getTime()) ? '' : d.toLocaleString('es-ES');
+        },
+
+        hace(valor) {
+            if (!valor) return 'sin datos';
+            const d = new Date(valor);
+            if (Number.isNaN(d.getTime())) return 'sin datos';
+            const seg = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
+            if (seg < 60) return 'hace ' + seg + ' s';
+            const min = Math.floor(seg / 60);
+            if (min < 60) return 'hace ' + min + ' min';
+            const h = Math.floor(min / 60);
+            if (h < 24) return 'hace ' + h + ' h';
+            const dias = Math.floor(h / 24);
+            if (dias < 30) return 'hace ' + dias + (dias === 1 ? ' día' : ' días');
+            const meses = Math.floor(dias / 30);
+            if (meses < 12) return 'hace ' + meses + (meses === 1 ? ' mes' : ' meses');
+            const anios = Math.floor(meses / 12);
+            return 'hace ' + anios + (anios === 1 ? ' año' : ' años');
         },
 
         formatearDetalle(detalle) {
@@ -2098,6 +2121,36 @@ document.addEventListener('alpine:init', () => {
                 this.cargarUsuarios(0);
             } catch (e) {
                 window.mostrarToast?.('Error al aplicar/quitar shadowban', true);
+            }
+        },
+
+        async eliminarUsuario(usuario) {
+            if (!usuario || !usuario.id) return;
+            const ok = window.confirm(
+                '¿Eliminar la cuenta de "' + usuario.apodo + '"?\n\n' +
+                'Se borran su perfil, mensajes, reacciones, fotos, saludos y puntos. No se puede deshacer.'
+            );
+            if (!ok) return;
+            try {
+                const { data, error } = await window.supabase.rpc('admin_eliminar_usuario', {
+                    p_token: this.tokenComunidad(),
+                    p_usuario_id: usuario.id,
+                    p_motivo: 'Eliminado desde el panel'
+                });
+                if (error || !data || !data.ok) {
+                    const mensajes = {
+                        protegido: 'No se puede eliminar a un admin u owner.',
+                        no_encontrado: 'Ese usuario ya no existe.',
+                        sin_permiso: 'Sin permiso.'
+                    };
+                    window.mostrarToast?.(mensajes[data?.error] || 'Error: ' + (data?.error || 'desconocido'), true);
+                    return;
+                }
+                window.mostrarToast?.('Cuenta eliminada: ' + (data.apodo || usuario.apodo));
+                this.cargarUsuarios(0);
+            } catch (e) {
+                console.error('Error eliminando usuario:', e);
+                window.mostrarToast?.('Error al eliminar la cuenta', true);
             }
         },
 
@@ -2801,6 +2854,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="mp-puntos" title="Puntos" x-text="(Number($store.perfil.usuario.puntos) || 0) + ' pts'"></span>
                 <span class="mp-genero" x-bind:hidden="!$store.perfil.publico || !$store.perfil.generoTexto"
                       x-text="$store.perfil.generoTexto"></span>
+                <a class="mp-kick-link" x-show="$store.perfil.publico && $store.perfil.usuario.kick_username"
+                   x-bind:href="'https://kick.com/' + encodeURIComponent($store.perfil.usuario.kick_username || '')"
+                   target="_blank" rel="noopener noreferrer"
+                   x-bind:title="'Kick vinculado: @' + ($store.perfil.usuario.kick_username || '')">
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg>
+                    <span x-text="'@' + ($store.perfil.usuario.kick_username || '')"></span>
+                </a>
                 <span class="mp-icono" x-bind:hidden="!$store.perfil.usuario.icono" x-text="$store.perfil.usuario.icono"></span>
               </div>
               <div class="mp-kick-badges" x-bind:hidden="!$store.perfil.insignias.length">
@@ -3029,7 +3089,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const { data, error } = await window.supabase
             .from('usuarios_comunidad')
-            .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at')
+            .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username')
             .ilike('apodo', apodo)
             .maybeSingle();
           if (error) throw error;
