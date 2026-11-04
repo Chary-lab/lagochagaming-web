@@ -84,6 +84,168 @@ window.escapeAttr = function escapeAttr(s) {
     }[c]));
 };
 
+// === EMOTES GLOBALES DE 7TV ===
+// El canal no tiene set propio: se usa el set global de 7TV y se cachea para
+// no pedirlo en cada página. Solo se aceptan ids alfanuméricos del CDN oficial.
+(function () {
+    const URL_GLOBAL = 'https://7tv.io/v3/emote-sets/global';
+    const CLAVE_CACHE = 'gocha_7tv_global_v1';
+    const TTL_CACHE = 12 * 60 * 60 * 1000;
+    let emotes = [];
+    let mapa = new Map();
+    let promesa = null;
+    let cargado = false;
+
+    const urlEmote = (id) => 'https://cdn.7tv.app/emote/' + id + '/2x.webp';
+
+    const normalizar = (datos) => {
+        const fuente = Array.isArray(datos) ? datos : (Array.isArray(datos?.emotes) ? datos.emotes : []);
+        const vistos = new Set();
+        return fuente.reduce((lista, emote) => {
+            const id = String(emote?.id ?? '');
+            const nombre = String(emote?.name ?? emote?.nombre ?? '');
+            if (!/^[A-Za-z0-9]+$/.test(id) || !nombre || vistos.has(id)) return lista;
+            vistos.add(id);
+            lista.push({ id, nombre, url: urlEmote(id) });
+            return lista;
+        }, []);
+    };
+
+    const aplicar = (lista) => {
+        emotes = lista;
+        mapa = new Map(lista.map((emote) => [emote.nombre, emote]));
+        try {
+            const store = window.Alpine?.store('emotes7tv');
+            if (store) {
+                store.lista = lista;
+                store.cargado = true;
+            }
+        } catch (e) {}
+    };
+
+    const leerCache = (permitirCaducada = false) => {
+        try {
+            const crudo = localStorage.getItem(CLAVE_CACHE);
+            if (!crudo) return null;
+            const cache = JSON.parse(crudo);
+            if (!cache || !Array.isArray(cache.emotes) || !cache.ts) return null;
+            if (!permitirCaducada && Date.now() - Number(cache.ts) > TTL_CACHE) return null;
+            return normalizar(cache.emotes);
+        } catch (e) {
+            return null;
+        }
+    };
+
+    const guardarCache = (lista) => {
+        try {
+            localStorage.setItem(CLAVE_CACHE, JSON.stringify({ ts: Date.now(), emotes: lista }));
+        } catch (e) {}
+    };
+
+    window.cargarEmotes7TV = function cargarEmotes7TV() {
+        if (promesa) return promesa;
+        if (cargado) return Promise.resolve(emotes);
+
+        const cache = leerCache();
+        if (cache && cache.length) {
+            aplicar(cache);
+            cargado = true;
+            return Promise.resolve(emotes);
+        }
+
+        promesa = (async () => {
+            const controlador = new AbortController();
+            const temporizador = setTimeout(() => controlador.abort(), 4000);
+            try {
+                const respuesta = await fetch(URL_GLOBAL, {
+                    headers: { Accept: 'application/json' },
+                    cache: 'no-store',
+                    signal: controlador.signal
+                });
+                if (!respuesta.ok) throw new Error('HTTP ' + respuesta.status);
+                const lista = normalizar(await respuesta.json());
+                if (!lista.length) throw new Error('Set global vacío');
+                aplicar(lista);
+                guardarCache(lista);
+            } catch (e) {
+                const anterior = leerCache(true);
+                if (anterior && anterior.length) aplicar(anterior);
+                console.warn('No se pudieron cargar los emotes de 7TV:', e);
+            } finally {
+                clearTimeout(temporizador);
+                cargado = true;
+                promesa = null;
+            }
+            return emotes;
+        })();
+        return promesa;
+    };
+
+    // Escapa todo el texto y sustituye únicamente palabras exactas del set
+    // global por imágenes del CDN. Nunca interpola texto del usuario sin escapar.
+    window.renderizarEmotes7TV = function renderizarEmotes7TV(texto) {
+        if (!emotes.length) return window.escapeHtml(texto);
+        return String(texto ?? '').split(/(\s+)/).map((parte) => {
+            if (!parte || /^\s+$/.test(parte)) return window.escapeHtml(parte);
+            const emote = mapa.get(parte);
+            if (!emote) return window.escapeHtml(parte);
+            const nombre = window.escapeAttr(emote.nombre);
+            return '<img class="chat-kick-emote chat-emote-7tv" src="' + window.escapeAttr(emote.url) +
+                '" alt="' + nombre + '" title="' + nombre + '" loading="lazy" decoding="async" width="24" height="24">';
+        }).join('');
+    };
+
+    window.insertarEmote7tv = function insertarEmote7tv(nombre) {
+        const campo = document.getElementById('chat-mensaje');
+        if (!campo || !nombre) return;
+        const inicio = Number.isInteger(campo.selectionStart) ? campo.selectionStart : campo.value.length;
+        const fin = Number.isInteger(campo.selectionEnd) ? campo.selectionEnd : inicio;
+        const antes = campo.value.slice(0, inicio);
+        const despues = campo.value.slice(fin);
+        const prefijo = antes && !/\s$/.test(antes) ? ' ' : '';
+        const sufijo = despues && !/^\s/.test(despues) ? ' ' : '';
+        const insertado = prefijo + nombre + sufijo;
+        const nuevo = antes + insertado + despues;
+        if (campo.maxLength > 0 && nuevo.length > campo.maxLength) {
+            window.mostrarToast?.('No queda espacio para ese emote.', true);
+            return;
+        }
+        campo.value = nuevo;
+        const cursor = antes.length + insertado.length;
+        campo.focus();
+        campo.setSelectionRange(cursor, cursor);
+        campo.dispatchEvent(new Event('input', { bubbles: true }));
+        window.Alpine?.store('emotes7tv')?.cerrar();
+    };
+
+    document.addEventListener('alpine:init', () => {
+        window.Alpine.store('emotes7tv', {
+            lista: [],
+            abierto: false,
+            cargando: false,
+            cargado: false,
+            error: '',
+            alternar() {
+                this.abierto = !this.abierto;
+                if (this.abierto && !this.cargado) this.cargar();
+            },
+            cerrar() {
+                this.abierto = false;
+            },
+            async cargar() {
+                if (this.cargando) return;
+                this.cargando = true;
+                this.error = '';
+                const lista = await window.cargarEmotes7TV();
+                this.lista = Array.isArray(lista) ? lista : [];
+                this.cargando = false;
+                this.cargado = true;
+                if (!this.lista.length) this.error = 'No se pudieron cargar los emotes.';
+            }
+        });
+    });
+})();
+
 // El rol de admin lo resuelve el servidor con la RPC es_admin(): acepta el JWT
 // de Auth o la sesión de comunidad (cabecera x-comunidad-token).
 let _adminCache = null;
@@ -2383,11 +2545,18 @@ window.CHAT_KICK = {
         localStorage.removeItem(api.claveToken);
     };
 
-    const conEmotes = (texto) => window.escapeHtml(texto).replace(
-        /\[emote:(\d+):([^\]]*)\]/g,
-        (todo, id, nombre) => '<img class="chat-kick-emote" src="https://files.kick.com/emotes/' + id +
-            '/fullsize" alt="' + nombre + '" title="' + nombre + '" loading="lazy" width="24" height="24">'
-    );
+    const conEmotes = (texto) => {
+        const crudo = String(texto ?? '');
+        return crudo.split(/(\[emote:\d+:[^\]]*\])/g).map((parte) => {
+            const kick = parte.match(/^\[emote:(\d+):([^\]]*)\]$/);
+            if (!kick) {
+                return window.renderizarEmotes7TV ? window.renderizarEmotes7TV(parte) : window.escapeHtml(parte);
+            }
+            const nombre = window.escapeAttr(kick[2]);
+            return '<img class="chat-kick-emote" src="https://files.kick.com/emotes/' + kick[1] +
+                '/fullsize" alt="' + nombre + '" title="' + nombre + '" loading="lazy" width="24" height="24">';
+        }).join('');
+    };
 
     const SIMBOLO_BADGE = { moderator: '🛡', founder: '👑', subscriber: '⭐', vip: '💎', verified: '✓' };
 
@@ -2600,6 +2769,9 @@ window.CHAT_KICK = {
         const hosts = Array.from(document.querySelectorAll('[data-chat-kick]'));
         if (!hosts.length) return;
         hosts.forEach(montar);
+
+        // El set global se comparte con el chat de comunidad y se cachea.
+        await window.cargarEmotes7TV?.();
 
         const sincronizar = () => {
             const sesion = window.CHAT_KICK.sesion ?? null;

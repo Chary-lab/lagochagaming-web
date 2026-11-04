@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.49.0] - 2026-11-04
+
+### Emotes globales de 7TV en los chats
+
+- El chat de Kick y el chat de Comunidad muestran los emotes del set global de 7TV escritos como palabra exacta.
+- Nuevo selector de emotes 7TV en el compositor de Comunidad, con inserción en la posición del cursor.
+- El set se cachea 12 horas en el navegador y falla en silencio si 7TV no responde; el chat sigue funcionando con texto normal.
+- No se usa un set propio del canal porque el canal no tiene perfil/set público en 7TV.
+
 ## [1.48.1] - 2026-11-04
 
 ### Top Comunidad solo con el podio

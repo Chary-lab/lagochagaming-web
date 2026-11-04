@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.48.1">
+    <link rel="stylesheet" href="style.css?v=1.49.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -152,7 +152,7 @@
                                 <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-trash-can"></use></svg>
                             </button>
                         </div>
-                        <div class="chat-msg-texto" x-text="msg.mensaje"></div>
+                        <div class="chat-msg-texto" x-html="window.renderizarEmotes7TV(msg.mensaje)"></div>
                         <div class="reacciones-badges" x-show="$store.reacciones.chips(msg.id).length" x-cloak>
                             <template x-for="chip in $store.reacciones.chips(msg.id)" :key="chip.emoji">
                                 <span class="reaccion-badge" :class="{ mia: chip.mia }"
@@ -199,9 +199,39 @@
                 <div class="chat-login-copy">Entra desde el menú <strong>Login</strong> de arriba: con apodo y PIN, o con Kick en un clic.</div>
             </div>
 
-            <form id="chat-form" class="chat-input-area chat-form">
+            <form id="chat-form" class="chat-input-area chat-form" x-data
+                  @keydown.escape="$store.emotes7tv.cerrar()">
                 <input type="text" id="chat-autor" aria-label="Tu apodo" placeholder="Tu apodo" maxlength="30" required autocomplete="username">
-                <textarea id="chat-mensaje" rows="1" maxlength="300" placeholder="Escribe un mensaje..." aria-label="Mensaje del chat" required></textarea>
+                <div class="chat-campo-wrap">
+                    <textarea id="chat-mensaje" rows="1" maxlength="300" placeholder="Escribe un mensaje..." aria-label="Mensaje del chat" required></textarea>
+                    <button type="button" class="chat-emote-btn" title="Emotes de 7TV" aria-label="Abrir emotes de 7TV"
+                            aria-controls="chat-emote-panel" :aria-expanded="$store.emotes7tv.abierto"
+                            @click.stop="$store.emotes7tv.alternar()">
+                        <span aria-hidden="true">7TV</span>
+                    </button>
+                    <div id="chat-emote-panel" class="chat-emote-panel" role="group" aria-label="Emotes de 7TV"
+                         hidden :hidden="!$store.emotes7tv.abierto"
+                         @click.outside="$store.emotes7tv.cerrar()">
+                        <div class="chat-emote-panel-cabecera">
+                            <span>Emotes de 7TV</span>
+                            <button type="button" class="chat-emote-cerrar" aria-label="Cerrar emotes"
+                                    @click="$store.emotes7tv.cerrar()">×</button>
+                        </div>
+                        <p class="chat-emote-panel-estado" :hidden="!$store.emotes7tv.cargando">Cargando emotes…</p>
+                        <p class="chat-emote-panel-estado chat-emote-panel-error"
+                           :hidden="$store.emotes7tv.cargando || !$store.emotes7tv.error"
+                           x-text="$store.emotes7tv.error"></p>
+                        <div class="chat-emote-grid" :hidden="$store.emotes7tv.cargando || !!$store.emotes7tv.error">
+                            <template x-for="emote in $store.emotes7tv.lista" :key="emote.id">
+                                <button type="button" class="chat-emote-item" :title="emote.nombre"
+                                        :aria-label="'Insertar ' + emote.nombre"
+                                        @click="window.insertarEmote7tv?.(emote.nombre)">
+                                    <img :src="emote.url" alt="" width="32" height="32" loading="lazy" decoding="async">
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
                 <button type="submit" class="btn-primary chat-submit-btn">Enviar</button>
                 <!-- Badge de racha de mensajes -->
                 <span id="streak-badge-chat" class="streak-badge streak-badge-chat"></span>
@@ -421,7 +451,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.48.1" defer></script>
+    <script src="main.js?v=1.49.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1564,6 +1594,9 @@ setInterval(actualizarTypingIndicator, 1200);
             async function cargarMensajesChat(antesDe = null) {
                 const store = obtenerStoreChat();
                 if (!store) return;
+                // El set global se comparte con el chat de Kick y se cachea.
+                // Se espera antes del primer render para que los emotes salgan ya.
+                if (!antesDe) await window.cargarEmotes7TV?.();
                 const token = localStorage.getItem('comunidad_session_token');
                 if (!window.supabase) {
                     store.cargando = false;
