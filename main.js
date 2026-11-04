@@ -414,6 +414,10 @@ window.KICK_COMUNIDAD = (function () {
     // El login del chat y el de comunidad tienen sus propios manejadores.
     async function volverDelHash() {
         if (window.COMUNIDAD_KICK_PROPIO) return false;
+        // El chat maneja su propia vuelta: no debe rebotar a Comunidad.
+        try {
+            if (new URLSearchParams(location.search).get('kick_obj') === 'chat') return false;
+        } catch (e) {}
         const hash = location.hash.startsWith('#') ? location.hash.slice(1) : '';
         if (!hash) return false;
         const params = new URLSearchParams(hash);
@@ -421,6 +425,10 @@ window.KICK_COMUNIDAD = (function () {
         const error = params.get('kick_error');
         if (!token && !error) return false;
         const objetivo = sessionStorage.getItem(CLAVE_OBJETIVO) || 'auto';
+        if (objetivo === 'chat') {
+            sessionStorage.removeItem(CLAVE_OBJETIVO);
+            return false;
+        }
         if (objetivo !== 'vincular' && objetivo !== 'entrar' && !error) return false;
         sessionStorage.removeItem(CLAVE_OBJETIVO);
         history.replaceState(null, '', location.pathname + location.search);
@@ -2264,6 +2272,7 @@ window.CHAT_KICK = {
                 if (sesion.estado === 401) localStorage.removeItem(api.claveToken);
             }
 
+            sessionStorage.setItem('gocha_kick_objetivo', 'chat');
             const res = await pedir({ accion: 'entrar', vuelta: window.vueltaKickApp('chat') });
             if (!res.ok || !res.datos.url) {
                 host._mostrarAviso(res.datos.error || 'No se pudo abrir el login de Kick.');
@@ -2294,6 +2303,7 @@ window.CHAT_KICK = {
             const error = params.get('kick_error');
             if (!token && !error) return false;
 
+            sessionStorage.removeItem('gocha_kick_objetivo');
             history.replaceState(null, '', location.pathname + location.search);
             if (error) {
                 hosts.forEach((host) => host._mostrarAviso(error));

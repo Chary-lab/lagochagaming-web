@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.10] - 2026-11-04
+
+### El chat ya no rebota a Comunidad al volver de Kick
+
+- La vuelta del OAuth del chat ya no se confunde con un login de Comunidad pendiente.
+- Se limpia el objetivo de Kick al terminar, para que un login anterior no desvíe el siguiente.
+- El chat vuelve a la misma página y activa el cuadro de escritura al conectar Kick.
+
 ## [1.43.9] - 2026-11-03
 
 ### Conectar con Kick tambien crea la cuenta y un solo cierre de sesion
