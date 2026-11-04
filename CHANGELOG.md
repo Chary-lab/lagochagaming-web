@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.8] - 2026-11-04
+
+### El sitio ya no se ve roto en modo de contraste alto
+
+- Con `forced-colors: active` (tema de contraste de Windows, extensión de accesibilidad o emulación de DevTools) el navegador borraba fondos e imágenes y dibujaba un borde blanco en cada caja: la galería parecía sin CSS. El bloque de `style.css` ahora opta por `forced-color-adjust: none` en `html`: se conserva la paleta del sitio y solo se mantiene el anillo de foco del sistema.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.7] - 2026-11-04
 
 ### Menos salto en ranking y fuentes

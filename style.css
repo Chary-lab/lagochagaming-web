@@ -6341,21 +6341,13 @@ body.light-mode .admin-login-card .admin-login-error { color: #b91c1c; }
 .historial-toggle:hover:not(:disabled) { color: var(--accent-color); border-color: var(--accent-color); }
 .historial-toggle:disabled { opacity: 0.6; cursor: progress; }
 
-/* === Modo de contraste alto (forced-colors) === */
+/* === Modo de contraste alto (forced-colors) ===
+   El tema propio ya es oscuro y de alto contraste. Si se deja que el navegador
+   fuerce sus colores, borra fondos e imágenes y dibuja un borde blanco en cada
+   caja: el sitio parece roto. Aquí se conserva la paleta del sitio y solo se
+   mantiene el anillo de foco del sistema. */
 @media (forced-colors: active) {
-    .video-card,
-    .gallery-card,
-    .social-column,
-    .admin-panel,
-    .gochi-modal-box,
-    .reporte-foto-box,
-    .chat-kick-campo,
-    .gochi-modal-input,
-    .admin-input,
-    .chat-input-area input,
-    .chat-input-area textarea,
-    .modal-sugerencias-card textarea,
-    .btn-primary { border: 1px solid CanvasText; }
+    html { forced-color-adjust: none; }
 
     a:focus-visible,
     button:focus-visible,
