@@ -425,6 +425,13 @@ body.light-mode .hero-bio {
 .chat-kick-campo { flex: 1; min-width: 0; background: var(--card-bg-subtle); border: 1px solid var(--border-color); border-radius: 8px; padding: 7px 9px; color: var(--text-main); font-size: 0.8rem; font-family: inherit; }
 .chat-kick-campo:focus { outline: none; border-color: var(--accent-color); }
 .chat-kick-campo:disabled { opacity: 0.6; }
+.chat-kick-campo-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; }
+.chat-kick-campo-wrap .chat-kick-campo { flex: 1; }
+.chat-kick-emote-btn { flex: 0 0 auto; width: 38px; height: 32px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg-subtle); color: var(--accent-color); font-family: inherit; font-size: 0.62rem; font-weight: 800; cursor: pointer; }
+.chat-kick-emote-btn:hover,
+.chat-kick-emote-btn[aria-expanded="true"] { border-color: var(--accent-color); }
+.chat-kick-emote-btn:disabled { opacity: 0.45; cursor: default; }
+.chat-kick .chat-kick-emote-panel { left: auto; right: 0; bottom: calc(100% + 8px); width: min(320px, calc(100vw - 32px)); max-height: min(240px, 40vh); }
 .chat-kick-enviar { border: none; border-radius: 8px; padding: 7px 12px; background: var(--gradient); color: #0f1f1a; font-weight: 800; font-size: 0.78rem; cursor: pointer; }
 .chat-kick-enviar:disabled { opacity: 0.45; cursor: default; }
 .chat-kick-aviso { margin: 0; padding: 0 10px 8px; font-size: 0.72rem; color: #ffb86b; }

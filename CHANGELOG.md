@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.49.1] - 2026-11-04
+
+### Selector de emotes 7TV en el chat de Kick
+
+- El compositor del chat de Kick incorpora el botón 7TV y el mismo selector de emotes globales que Comunidad.
+- El selector solo se activa con sesión de Kick y se cierra al enviar, con Escape, clic fuera o el botón de cerrar.
+- Los emotes escritos como palabra exacta siguen renderizándose en los mensajes; si 7TV falla, el chat mantiene el texto.
+
 ## [1.49.0] - 2026-11-04
 
 ### Emotes globales de 7TV en los chats

@@ -68,7 +68,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - No anidar nuevas acciones interactivas dentro de `role="button"` sin revisar propagación de click/teclado y accesibilidad.
 - Respetar `prefers-reduced-motion` en animaciones nuevas (el confeti ya lo hace).
 - Chat de Kick: los iframes llevan `data-chat-kick` + `data-src` (nunca `src`). `prepararFachadaChat()` en `main.js` crea la fachada y carga el iframe al hacer scroll, clic o al terminar la carga; no añadir listeners por elemento.
-- Emotes de 7TV: el canal no tiene set propio. `main.js` carga el set global (`https://7tv.io/v3/emote-sets/global`), lo cachea 12 h en `gocha_7tv_global_v1` y sustituye palabras exactas con `window.renderizarEmotes7TV(texto)`. El selector de Comunidad inserta con `window.insertarEmote7tv(nombre)`. No pedir emotes a Kick ni crear un set por canal.
+- Emotes de 7TV: el canal no tiene set propio. `main.js` carga el set global (`https://7tv.io/v3/emote-sets/global`), lo cachea 12 h en `gocha_7tv_global_v1` y sustituye palabras exactas con `window.renderizarEmotes7TV(texto)`. Los selectores de Comunidad y del chat de Kick insertan con `window.insertarEmote7tv(nombre, campo)`. No pedir emotes a Kick ni crear un set por canal.
 - Mantener los textos de UI en español y el tono actual.
 - Insignias de Kick: usar siempre `window.insigniasKickDe(fila)` (máximo 6, caducan a los 30 días). Devuelve `{tipo, etiqueta, nombre, detalle, icono, texto}` y pinta la píldora `.chat-kick-badge` con `kick-badge-<tipo>`. `nombre` es la etiqueta legible (Moderador, Suscriptor…) y `detalle` solo trae texto si aporta algo distinto. No duplicar el filtrado.
 - Puntos diarios: la píldora `#nav-puntos-dia` del navbar es la única vista de "hoy". Se actualiza con `window.pintarPuntosDia(datos)` y `window.refrescarPuntosDia()` (RPC `obtener_puntos_hoy`). No añadir otra línea de puntos en las páginas.
@@ -253,7 +253,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.49.0` (Emotes globales de 7TV en el chat de Kick y en el chat de Comunidad, con selector de emotes en el compositor; APK actual 1.13 / code 16).
+- Versión de esta release: `1.49.1` (Emotes globales de 7TV en los chats de Kick y Comunidad, con selector de emotes en ambos compositores; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

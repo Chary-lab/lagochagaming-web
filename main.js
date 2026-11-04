@@ -195,8 +195,8 @@ window.escapeAttr = function escapeAttr(s) {
         }).join('');
     };
 
-    window.insertarEmote7tv = function insertarEmote7tv(nombre) {
-        const campo = document.getElementById('chat-mensaje');
+    window.insertarEmote7tv = function insertarEmote7tv(nombre, campo) {
+        campo = campo || document.getElementById('chat-mensaje');
         if (!campo || !nombre) return;
         const inicio = Number.isInteger(campo.selectionStart) ? campo.selectionStart : campo.value.length;
         const fin = Number.isInteger(campo.selectionEnd) ? campo.selectionEnd : inicio;
@@ -2632,7 +2632,16 @@ window.CHAT_KICK = {
             '</div>',
             '<form class="chat-kick-form">',
             '  <label class="chat-kick-oculto" for="chat-kick-campo">Tu mensaje</label>',
-            '  <input class="chat-kick-campo" id="chat-kick-campo" type="text" maxlength="500" autocomplete="off" placeholder="Conecta con Kick para escribir" disabled>',
+            '  <div class="chat-kick-campo-wrap">',
+            '    <input class="chat-kick-campo" id="chat-kick-campo" type="text" maxlength="500" autocomplete="off" placeholder="Conecta con Kick para escribir" disabled>',
+            '    <button type="button" class="chat-kick-emote-btn" aria-label="Abrir emotes de 7TV" aria-expanded="false" disabled><span aria-hidden="true">7TV</span></button>',
+            '    <div class="chat-kick-emote-panel chat-emote-panel" role="group" aria-label="Emotes de 7TV" hidden>',
+            '      <div class="chat-emote-panel-cabecera"><span>Emotes de 7TV</span><button type="button" class="chat-emote-cerrar" aria-label="Cerrar emotes">×</button></div>',
+            '      <p class="chat-emote-panel-estado chat-kick-emote-estado">Cargando emotes…</p>',
+            '      <p class="chat-emote-panel-estado chat-emote-panel-error chat-kick-emote-error" hidden></p>',
+            '      <div class="chat-emote-grid chat-kick-emote-grid" hidden></div>',
+            '    </div>',
+            '  </div>',
             '  <button class="chat-kick-enviar" type="submit" disabled>Enviar</button>',
             '</form>',
             '<p class="chat-kick-aviso" role="status" hidden></p>'
@@ -2649,6 +2658,79 @@ window.CHAT_KICK = {
         const campo = host.querySelector('.chat-kick-campo');
         const enviar = host.querySelector('.chat-kick-enviar');
         const aviso = host.querySelector('.chat-kick-aviso');
+        const emoteBtn = host.querySelector('.chat-kick-emote-btn');
+        const emotePanel = host.querySelector('.chat-kick-emote-panel');
+        const emoteGrid = host.querySelector('.chat-kick-emote-grid');
+        const emoteEstado = host.querySelector('.chat-kick-emote-estado');
+        const emoteError = host.querySelector('.chat-kick-emote-error');
+        let emotesPanelCargado = false;
+        let emotesPanelCargando = false;
+
+        const cerrarEmotes = () => {
+            emotePanel.hidden = true;
+            emoteBtn.setAttribute('aria-expanded', 'false');
+        };
+
+        const cargarEmotesPanel = async () => {
+            if (emotesPanelCargado || emotesPanelCargando) return;
+            emotesPanelCargando = true;
+            emoteEstado.hidden = false;
+            emoteError.hidden = true;
+            emoteGrid.hidden = true;
+            const lista = await window.cargarEmotes7TV?.() ?? [];
+            emotesPanelCargando = false;
+            if (!Array.isArray(lista) || !lista.length) {
+                emoteEstado.hidden = true;
+                emoteError.textContent = 'No se pudieron cargar los emotes.';
+                emoteError.hidden = false;
+                return;
+            }
+            const fragmento = document.createDocumentFragment();
+            lista.forEach((emote) => {
+                const boton = document.createElement('button');
+                boton.type = 'button';
+                boton.className = 'chat-emote-item';
+                boton.title = emote.nombre;
+                boton.setAttribute('aria-label', 'Insertar ' + emote.nombre);
+                const img = document.createElement('img');
+                img.src = emote.url;
+                img.alt = '';
+                img.width = 32;
+                img.height = 32;
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                boton.appendChild(img);
+                boton.addEventListener('click', () => {
+                    window.insertarEmote7tv?.(emote.nombre, campo);
+                    cerrarEmotes();
+                    campo.focus();
+                });
+                fragmento.appendChild(boton);
+            });
+            emoteGrid.replaceChildren(fragmento);
+            emoteEstado.hidden = true;
+            emoteGrid.hidden = false;
+            emotesPanelCargado = true;
+        };
+
+        emoteBtn.addEventListener('click', async () => {
+            if (!emotePanel.hidden) {
+                cerrarEmotes();
+                return;
+            }
+            emotePanel.hidden = false;
+            emoteBtn.setAttribute('aria-expanded', 'true');
+            await cargarEmotesPanel();
+        });
+
+        emotePanel.querySelector('.chat-emote-cerrar').addEventListener('click', cerrarEmotes);
+        form.addEventListener('keydown', (evento) => {
+            if (evento.key === 'Escape') cerrarEmotes();
+        });
+        document.addEventListener('pointerdown', (evento) => {
+            if (emotePanel.hidden) return;
+            if (!emotePanel.contains(evento.target) && !emoteBtn.contains(evento.target)) cerrarEmotes();
+        });
 
         if (typeof window.actualizarEspectadoresKick === 'function' && window._kickEspectadores) {
             window.actualizarEspectadoresKick(window._kickEspectadores.total, window._kickEspectadores.vivo);
@@ -2698,12 +2780,15 @@ window.CHAT_KICK = {
                 }
                 campo.disabled = false;
                 enviar.disabled = false;
+                emoteBtn.disabled = false;
                 campo.placeholder = 'Escribe en el chat…';
             } else {
                 cuenta.hidden = true;
                 login.hidden = false;
                 campo.disabled = true;
                 enviar.disabled = true;
+                emoteBtn.disabled = true;
+                cerrarEmotes();
                 campo.placeholder = 'Conecta con Kick para escribir';
             }
         };
@@ -2730,6 +2815,7 @@ window.CHAT_KICK = {
 
             if (res.ok) {
                 campo.value = '';
+                cerrarEmotes();
                 mostrarAviso('');
                 campo.disabled = true;
                 bloqueo = 5;
