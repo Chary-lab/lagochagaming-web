@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.53.2">
+    <link rel="stylesheet" href="style.css?v=1.60.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -214,7 +214,11 @@
                     <a class="social-handle" href="https://www.instagram.com/oscurostefany/" target="_blank" rel="noopener noreferrer" aria-label="Abrir el perfil de Instagram de oscurostefany">@oscurostefany</a>
                 </h3>
                 <div id="ig-feed" class="ig-feed" aria-live="polite">
-                    <div class="ig-feed-cargando">Cargando publicaciones…</div>
+                    <div class="ig-feed-cargando" aria-hidden="true">
+                        <span class="gochi-skeleton gochi-skeleton--media"></span>
+                        <span class="gochi-skeleton gochi-skeleton--titulo"></span>
+                        <span class="gochi-skeleton gochi-skeleton--texto"></span>
+                    </div>
                 </div>
                 <p class="social-feed-nota">Se actualiza solo con las últimas publicaciones.</p>
             </div>
@@ -224,7 +228,11 @@
                     <a class="social-handle" href="https://www.tiktok.com/@lagochagaming11" target="_blank" rel="noopener noreferrer" aria-label="Abrir el perfil de TikTok de lagochagaming11">@lagochagaming11</a>
                 </h3>
                 <div id="tiktok-feed" class="ig-feed tt-feed" aria-live="polite">
-                    <div class="ig-feed-cargando">Cargando videos…</div>
+                    <div class="ig-feed-cargando" aria-hidden="true">
+                        <span class="gochi-skeleton gochi-skeleton--media"></span>
+                        <span class="gochi-skeleton gochi-skeleton--titulo"></span>
+                        <span class="gochi-skeleton gochi-skeleton--texto"></span>
+                    </div>
                 </div>
                 <p class="social-feed-nota">Se actualiza solo con los últimos videos publicados.</p>
             </div>
@@ -259,7 +267,7 @@
                  x-bind:hidden="!$store.muro.feedback" x-text="$store.muro.feedback"></div>
         </div>
         <div class="muro-grid">
-            <p class="muro-empty" x-bind:hidden="$store.muro.cargando || $store.muro.mensajes.length > 0"><img class="empty-illustration" src="img/mcchary/empty.webp" alt="" width="150" height="101" loading="lazy" decoding="async">Aún no hay saludos. ¡Sé el primero en escribir uno! 💖</p>
+            <p class="muro-empty gochi-vacio" x-bind:hidden="$store.muro.cargando || $store.muro.mensajes.length > 0"><img class="empty-illustration" src="img/mcchary/empty.webp" alt="" width="150" height="101" loading="lazy" decoding="async">Aún no hay saludos. ¡Sé el primero en escribir uno! 💖</p>
             <template x-for="msg in $store.muro.mensajes" :key="msg.id">
                 <div class="muro-card" x-bind:id="'muro-card-' + msg.id">
                     <div class="muro-card-header">
@@ -320,28 +328,28 @@
     <!-- ❓ PREGUNTAS FRECUENTES -->
     <section id="faq" class="content-section faq-section">
         <h2>Preguntas frecuentes</h2>
-        <div class="faq-list">
-            <details class="faq-item">
+        <div class="faq-list gochi-accordion">
+            <details class="faq-item gochi-accordion-item">
                 <summary>¿Quién es La Gocha?</summary>
                 <p>Stefany, conocida en stream como La Gocha o Gochita. Es streamer en Kick y creadora de contenido: TikTok shorts, reels de IG, directos, clips, comunidad y cine.</p>
             </details>
-            <details class="faq-item">
+            <details class="faq-item gochi-accordion-item">
                 <summary>¿Dónde puedo ver los directos?</summary>
                 <p>En Kick, en <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">kick.com/lagochagaming</a>. Los clips y vídeos también se comparten en la web y en YouTube.</p>
             </details>
-            <details class="faq-item">
+            <details class="faq-item gochi-accordion-item">
                 <summary>¿Cómo entro a la comunidad?</summary>
                 <p>Desde la <a href="comunidad">página de comunidad</a> puedes registrarte con un apodo y un PIN de 4 dígitos. Tendrás chat, puntos, rangos y perfil.</p>
             </details>
-            <details class="faq-item">
+            <details class="faq-item gochi-accordion-item">
                 <summary>¿Qué es GochiWatch?</summary>
                 <p>Es el cine de la comunidad: películas y vídeos sincronizados con la reproducción de La Gocha. Está en la <a href="cine">sección GochiWatch</a>.</p>
             </details>
-            <details class="faq-item">
+            <details class="faq-item gochi-accordion-item">
                 <summary>¿Cómo funcionan los sorteos?</summary>
                 <p>La Gocha abre sorteos en directo o manuales desde la web. El ganador se decide en el servidor y se publica en el <a href="sorteo">historial de sorteos</a>.</p>
             </details>
-            <details class="faq-item">
+            <details class="faq-item gochi-accordion-item">
                 <summary>¿Cómo subo fotos a la galería?</summary>
                 <p>Con tu sesión de comunidad, desde la <a href="galeria">galería</a>. Cada foto pasa por moderación antes de publicarse.</p>
             </details>
@@ -443,7 +451,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.53.2" defer></script>
+    <script src="main.js?v=1.60.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>

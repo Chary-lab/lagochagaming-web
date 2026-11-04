@@ -86,11 +86,23 @@ if (/\bintegrity\s*=\s*['"]sha/.test(mainJs)) {
 if (!/window\.GOCHA_TAILWIND/.test(mainJs) || !/window\.asegurarTailwind\s*=/.test(mainJs)) {
     error('main.js: falta el interruptor o la espera acotada de Tailwind (respaldo sin CDN)');
 }
+for (const api of ['gochiUI', 'gochiDropdown', 'gochiSkeleton', 'gochiChip', 'cerrarGochiMenus']) {
+    if (!new RegExp('window\\.' + api + '\\s*=').test(mainJs)) {
+        error(`main.js: falta window.${api} (API de componentes Gochi)`);
+    }
+}
 
 // CSS
 const css = leer('style.css');
 if (!/\.gochi-toast-item/.test(css) || !/\.gochi-toast-stack/.test(css)) {
     error('style.css: falta el respaldo visual del toast (.gochi-toast-stack/.gochi-toast-item)');
+}
+for (const clase of ['gochi-chip', 'gochi-campo', 'gochi-alerta', 'gochi-skeleton', 'gochi-card',
+    'gochi-switch', 'gochi-progress', 'gochi-accordion-item', 'gochi-breadcrumb', 'gochi-paginacion',
+    'gochi-tabla', 'gochi-vacio', 'gochi-menu-panel']) {
+    if (!new RegExp('\\.' + clase + '\\b').test(css)) {
+        error(`style.css: falta el respaldo del componente .${clase}`);
+    }
 }
 const abre = (css.match(/\{/g) || []).length;
 const cierra = (css.match(/\}/g) || []).length;

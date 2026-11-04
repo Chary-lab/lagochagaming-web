@@ -3,6 +3,23 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.60.0] - 2026-11-04
+
+### Sistema de componentes Gochi (Tailwind + Alpine + Pines)
+
+- Nueva capa de componentes `.gochi-*` al final de `style.css`: chips con tonos, campos, alertas, skeletons, tarjetas, switch, barra de progreso, acordeón, migas de pan, paginación, tabla responsive, estado vacío y panel de menú. Usa las variables del tema (oscuro, claro y OLED), así que se ve igual sin CDN.
+- `main.js` expone `window.gochiUI` (`toast`, `confirmar`, `chip`, `skeleton`, `dropdown`, `cerrarMenus`) y los ayudantes `gochiChip`, `gochiSkeleton`, `gochiDropdown` y `cerrarGochiMenus`. Un único listener de `pointerdown` y Escape cierra los menús abiertos.
+- El store `ui` gana `menus` para que los desplegables de página compartan estado con los del navbar.
+- Galería: el orden pasa a un desplegable `gochiDropdown` y desaparecen las pestañas `#tab-populares` / `#tab-recientes`.
+- Skeletons de carga en Galería (fotos), Comunidad (ranking y tienda) y panel de administración (usuarios), con el flag `cargando` del store para evitar parpadeos.
+- Estados vacíos con `.gochi-vacio` en Galería y en el muro de la home, en lugar de párrafos sueltos.
+- Migas de pan (`gochi-breadcrumb`) en Comunidad, Galería, Sorteo y Cine; en la home se omite por ser la raíz.
+- La FAQ de la home y el bloque "¿Cómo funciona?" de Comunidad usan `gochi-accordion`, sin perder el contenido en el HTML estático para los buscadores.
+- El panel de administración cambia el filtro "Solo baneados" a `gochi-switch` y la paginación usa las clases del sistema.
+- El perfil global adopta `gochi-campo` y `gochi-alerta[data-tono="error"]`, con skeleton mientras carga.
+- `scripts/check.js` valida que existan las clases `.gochi-*` en el CSS y la API `window.gochiUI` en `main.js`.
+- Auditoría completa del sitio antes de la release: sin IDs duplicados, sin errores de sintaxis, recursos y versiones de CDN coherentes.
+
 ## [1.53.2] - 2026-11-04
 
 ### Modales, lightbox y botones al estilo Pines

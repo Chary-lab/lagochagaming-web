@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.53.2">
+    <link rel="stylesheet" href="style.css?v=1.60.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -72,6 +72,12 @@
     <!-- CONTENIDO PRINCIPAL COMUNIDAD -->
     <main class="comunidad-layout page-layout" id="contenido" tabindex="-1">
         <h1 class="visually-hidden">Comunidad y chat de LaGochaGaming</h1>
+        <nav class="gochi-breadcrumb-nav" aria-label="Migas de pan">
+            <ol class="gochi-breadcrumb">
+                <li><a href="index.html">Inicio</a></li>
+                <li><span aria-current="page">Comunidad</span></li>
+            </ol>
+        </nav>
         <!-- COLUMNA IZQUIERDA: USUARIOS EN LÍNEA + LEADERBOARD -->
         <section id="online-users" class="online-users-column">
             <h2 class="chat-sidebar-title">
@@ -109,7 +115,11 @@
                             <span class="leaderboard-points"><span x-text="user.puntos"></span> pts</span>
                         </div>
                     </template>
-                    <div class="chat-empty-note" x-show="$store.ranking.cargando">Cargando ranking...</div>
+                    <div class="ranking-skeleton" x-show="$store.ranking.cargando" aria-hidden="true">
+                        <template x-for="n in 4" :key="'rank-skeleton-' + n">
+                            <span class="gochi-skeleton"></span>
+                        </template>
+                    </div>
                     <div class="chat-empty-note" x-show="!$store.ranking.cargando && !$store.ranking.error && !$store.ranking.usuarios.length" x-cloak>Sin participantes aún</div>
                     <div class="chat-empty-note" x-show="$store.ranking.error" x-text="$store.ranking.error" x-cloak></div>
                 </div>
@@ -338,6 +348,17 @@
             <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-chevron-left"></use></svg>
         </button>
         <div id="tienda-catalogo" class="tienda-grid" x-data="{}" tabindex="0" aria-label="Premios disponibles, desplázate en horizontal">
+            <template x-for="n in 4" :key="'tienda-skeleton-' + n">
+                <div class="tienda-item tienda-item--skeleton" aria-hidden="true"
+                     x-bind:hidden="!$store.tienda.cargando">
+                    <span class="gochi-skeleton gochi-skeleton--avatar"></span>
+                    <div class="tienda-item-info">
+                        <span class="gochi-skeleton gochi-skeleton--titulo"></span>
+                        <span class="gochi-skeleton gochi-skeleton--texto"></span>
+                        <span class="gochi-skeleton gochi-skeleton--chip"></span>
+                    </div>
+                </div>
+            </template>
             <template x-for="premio in $store.tienda.premios" :key="premio.id">
                 <div class="tienda-item" :class="{ agotado: premio.stock !== null && premio.stock <= 0, obtenido: $store.tienda.yaObtenido(premio) }">
                     <template x-if="premio.tipo === 'avatar' && premio.avatar_url">
@@ -360,8 +381,7 @@
                             x-text="$store.tienda.yaObtenido(premio) ? 'Ya lo tienes' : (premio.costo_puntos === 0 ? 'Gratis' : 'Comprar')"></button>
                 </div>
             </template>
-            <p class="gallery-empty" x-show="$store.tienda.cargando">Cargando tienda...</p>
-            <p class="gallery-empty" x-show="!$store.tienda.cargando && !$store.tienda.premios.length">No hay premios disponibles.</p>
+            <p class="gochi-vacio" x-bind:hidden="$store.tienda.cargando || $store.tienda.premios.length || $store.tienda.error">No hay premios disponibles.</p>
             <p class="chat-empty-error" x-show="$store.tienda.error" x-text="$store.tienda.error" x-cloak></p>
         </div>
         <button type="button" class="tienda-flecha tienda-flecha-next" id="tienda-flecha-next" aria-label="Siguientes premios" aria-controls="tienda-catalogo">
@@ -394,16 +414,23 @@
                     <li>Todo es humor, pásatela bien y ríete mucho.</li>
                 </ul>
                 <div class="tab-section">
-                    <h4 class="tab-content-title-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-circle-info"></use></svg> ¿Cómo funciona?</h4>
-                    <ul class="tab-list-sm">
-                        <li><strong>💎 Puntos:</strong> Ganas 1 punto cada 5 minutos estando conectado en el chat.</li>
-                        <li><strong>🔒 PIN de 4 dígitos:</strong> Protege tu cuenta y progreso. Nadie puede robar tus puntos sin tu PIN.</li>
-                        <li><strong>💬 Chat en vivo:</strong> Habla con la comunidad en tiempo real. Los mensajes se sincronizan al instante.</li>
-                        <li><strong>👥 Usuarios en línea:</strong> Lista a la izquierda con avatares de iniciales. Verás quién está conectado.</li>
-                        <li><strong>📺 Estado del stream:</strong> El círculo verde = EN VIVO, rojo = Offline. Verás los viewers actuales.</li>
-                        <li><strong>🔔 Notificaciones:</strong> Si el stream empieza, salta un aviso aunque estés en otra pestaña.</li>
-                        <li><strong>🎁 Futuro:</strong> Podrás canjear puntos por premios, roles y acceso a sorteos exclusivos.</li>
-                    </ul>
+                    <details class="gochi-accordion-item">
+                        <summary>
+                            <span><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-circle-info"></use></svg> ¿Cómo funciona?</span>
+                            <svg class="icon gochi-accordion-icono" aria-hidden="true"><use href="img/icons.svg#i-solid-plus"></use></svg>
+                        </summary>
+                        <div class="gochi-accordion-panel">
+                            <ul class="tab-list-sm">
+                                <li><strong>💎 Puntos:</strong> Ganas 1 punto cada 5 minutos estando conectado en el chat.</li>
+                                <li><strong>🔒 PIN de 4 dígitos:</strong> Protege tu cuenta y progreso. Nadie puede robar tus puntos sin tu PIN.</li>
+                                <li><strong>💬 Chat en vivo:</strong> Habla con la comunidad en tiempo real. Los mensajes se sincronizan al instante.</li>
+                                <li><strong>👥 Usuarios en línea:</strong> Lista a la izquierda con avatares de iniciales. Verás quién está conectado.</li>
+                                <li><strong>📺 Estado del stream:</strong> El círculo verde = EN VIVO, rojo = Offline. Verás los viewers actuales.</li>
+                                <li><strong>🔔 Notificaciones:</strong> Si el stream empieza, salta un aviso aunque estés en otra pestaña.</li>
+                                <li><strong>🎁 Futuro:</strong> Podrás canjear puntos por premios, roles y acceso a sorteos exclusivos.</li>
+                            </ul>
+                        </div>
+                    </details>
                 </div>
             </div>
         </div>
@@ -416,8 +443,15 @@
             <h3 id="modal-titulo-accion">¡Bienvenido a la Comunidad!</h3>
             <p id="modal-subtitulo-accion" class="modal-subtitle">Ingresa tu apodo y tu PIN de 4 dígitos.</p>
             <form id="form-nickname" novalidate>
-                <input type="text" id="nickname-modal-input" placeholder="Tu apodo" aria-label="Tu apodo" maxlength="20" autocomplete="username">
-                <input type="password" id="nickname-modal-pin" placeholder="PIN (4 dígitos)" aria-label="PIN de 4 dígitos" maxlength="4" pattern="[0-9]*" inputmode="numeric" autocomplete="current-password">
+                <div class="gochi-campo">
+                    <label class="gochi-campo-label" for="nickname-modal-input">Tu apodo</label>
+                    <input type="text" id="nickname-modal-input" placeholder="Tu apodo" maxlength="20" autocomplete="username">
+                </div>
+                <div class="gochi-campo">
+                    <label class="gochi-campo-label" for="nickname-modal-pin">PIN de 4 dígitos</label>
+                    <input type="password" id="nickname-modal-pin" placeholder="PIN (4 dígitos)" maxlength="4" pattern="[0-9]*" inputmode="numeric" autocomplete="current-password">
+                    <span class="gochi-campo-ayuda">Con el PIN recuperas tu progreso en cualquier dispositivo.</span>
+                </div>
                 <fieldset id="nickname-modal-genero" class="genero-selector" aria-describedby="nickname-genero-ayuda" hidden>
                     <legend>Elige tu género</legend>
                     <p id="nickname-genero-ayuda" class="form-hint">Se usa para tu avatar inicial. Puedes cambiarlo después en Ajustes.</p>
@@ -451,7 +485,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.53.2" defer></script>
+    <script src="main.js?v=1.60.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

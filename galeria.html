@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.53.2">
+    <link rel="stylesheet" href="style.css?v=1.60.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -67,6 +67,12 @@
     <!-- TOAST DE STREAM EN VIVO se inserta dinámicamente desde main.js -->
 
     <main class="content-section galeria-top" id="contenido" tabindex="-1">
+        <nav aria-label="Migas de pan">
+            <ol class="gochi-breadcrumb">
+                <li><a href="index.html">Inicio</a></li>
+                <li><span aria-current="page">Galería</span></li>
+            </ol>
+        </nav>
         <div class="admin-controls-panel">
             <h1>Galería de la comunidad</h1>
             <div class="admin-controls-actions">
@@ -130,9 +136,13 @@
              x-on:dragleave.prevent="$store.subida.arrastrando = false"
              x-on:drop.prevent="$store.subida.soltar($event)">
             <div class="upload-title-wrap">
-                <input type="text" class="gallery-title-input" aria-label="Título de la imagen" placeholder="Escribe un título para tu imagen..." maxlength="60" autocomplete="off" x-model="$store.subida.titulo">
-                <div id="admin-author-wrap" hidden>
-                    <input type="text" class="gallery-title-input" placeholder="Autor de la foto" aria-label="Autor de la foto" maxlength="30" value="LaGochaGaming" autocomplete="name" x-model="$store.subida.autorAdmin">
+                <div class="gochi-campo">
+                    <label class="gochi-campo-label" for="gallery-title-input">Título de la imagen</label>
+                    <input id="gallery-title-input" type="text" class="gallery-title-input" placeholder="Escribe un título para tu imagen..." maxlength="60" autocomplete="off" x-model="$store.subida.titulo">
+                </div>
+                <div id="admin-author-wrap" hidden class="gochi-campo">
+                    <label class="gochi-campo-label" for="gallery-author-input">Autor de la foto</label>
+                    <input id="gallery-author-input" type="text" class="gallery-title-input" placeholder="Autor de la foto" maxlength="30" value="LaGochaGaming" autocomplete="name" x-model="$store.subida.autorAdmin">
                     <p class="upload-hint">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-crown"></use></svg> Sesión de admin: la foto se publicará con este autor
                         (vacío = LaGochaGaming).
@@ -150,7 +160,9 @@
                 <a href="comunidad" class="btn-primary upload-login-link">Ir a la Comunidad</a>
             </div>
             <div>
-                <p x-bind:hidden="!$store.subida.feedback"
+                <p class="gochi-alerta" role="status" aria-live="polite"
+                   x-bind:hidden="!$store.subida.feedback"
+                   x-bind:data-tono="$store.subida.tipo === 'error' ? 'error' : 'exito'"
                    x-bind:class="$store.subida.tipo === 'error' ? 'msg-subida-error' : 'msg-subida-exito'"
                    x-text="$store.subida.feedback"></p>
             </div>
@@ -160,16 +172,38 @@
         <div class="filter-tabs-container">
             <h2 class="gallery-public-title">📸 Galería Pública</h2>
             <div class="filter-tabs">
-                <button type="button" id="tab-populares" class="tab-filter-btn active" data-action="filter-gallery" data-filter="populares">
-                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-fire"></use></svg> Más Populares
-                </button>
-                <button type="button" id="tab-recientes" class="tab-filter-btn" data-action="filter-gallery" data-filter="recientes">
-                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sparkles"></use></svg> Más Recientes
-                </button>
+                <div class="gochi-menu" data-gochi-menu>
+                    <button type="button" id="gallery-orden-btn" class="tab-filter-btn active" data-gochi-menu-trigger="menu-orden-galeria"
+                            aria-haspopup="menu" aria-expanded="false" aria-controls="menu-orden-galeria"
+                            data-tooltip="Cambiar el orden de la galería"
+                            @click="window.gochiDropdown('menu-orden-galeria')">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-fire"></use></svg>
+                        <span id="gallery-orden-label">Más Populares</span>
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-chevron-down"></use></svg>
+                    </button>
+                    <div id="menu-orden-galeria" class="gochi-menu-panel" role="menu" aria-labelledby="gallery-orden-btn" hidden>
+                        <button type="button" role="menuitemradio" aria-checked="true" data-action="filter-gallery" data-filter="populares">
+                            <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-fire"></use></svg> Más Populares
+                        </button>
+                        <button type="button" role="menuitemradio" aria-checked="false" data-action="filter-gallery" data-filter="recientes">
+                            <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sparkles"></use></svg> Más Recientes
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="gallery-grid" id="galleryGrid" x-data="{}">
+            <template x-for="n in 6" :key="'skeleton-' + n">
+                <div class="gallery-card gallery-card--skeleton" aria-hidden="true"
+                     x-bind:hidden="!$store.galeria.cargando || $store.galeria.fotos.length > 0">
+                    <span class="gochi-skeleton gochi-skeleton--media"></span>
+                    <div class="gallery-card-info">
+                        <span class="gochi-skeleton gochi-skeleton--titulo"></span>
+                        <span class="gochi-skeleton gochi-skeleton--texto"></span>
+                    </div>
+                </div>
+            </template>
             <template x-for="foto in $store.galeria.fotos" :key="foto.id">
                 <div class="gallery-card" @click="window.abrirLightboxDesdeTarjeta($event, foto, $el)">
                     <template x-for="badge in foto.badges" :key="badge.texto">
@@ -206,7 +240,7 @@
                     </div>
                 </div>
             </template>
-            <p class="gallery-empty" x-show="!$store.galeria.fotos.length" x-cloak><img class="empty-illustration" src="img/mcchary/empty.webp" alt="" width="150" height="101" loading="lazy" decoding="async">No hay imágenes públicas aprobadas aún. ¡Sé el primero en subir una! 📸</p>
+            <p class="gallery-empty gochi-vacio" x-bind:hidden="$store.galeria.cargando || $store.galeria.fotos.length" x-cloak><img class="empty-illustration" src="img/mcchary/empty.webp" alt="" width="150" height="101" loading="lazy" decoding="async">No hay imágenes públicas aprobadas aún. ¡Sé el primero en subir una! 📸</p>
         </div>
         <p id="galeria-no-disponible" class="gallery-empty" hidden>Galería no disponible. Recarga la página.</p>
     </main>
@@ -337,6 +371,7 @@
         document.addEventListener('alpine:init', () => {
         window.Alpine.store('galeria', {
             fotos: [],
+            cargando: false,
             lightbox: { abierta: false, foto: null, index: 0 },
             pendientes: [],
             pendientesEstado: 'inicial',
@@ -663,8 +698,13 @@
         function cambiarFiltroGaleria(filtro) {
             filtroActual = filtro;
             paginaActualGaleria = 0;
-            document.getElementById('tab-populares').classList.toggle('active', filtro === 'populares');
-            document.getElementById('tab-recientes').classList.toggle('active', filtro === 'recientes');
+            const esPopulares = filtro === 'populares';
+            const label = document.getElementById('gallery-orden-label');
+            if (label) label.textContent = esPopulares ? 'Más Populares' : 'Más Recientes';
+            document.querySelectorAll('#menu-orden-galeria [data-filter]').forEach((btn) => {
+                btn.setAttribute('aria-checked', String(btn.dataset.filter === filtro));
+            });
+            window.cerrarGochiMenus?.();
             loadApprovedImages();
         }
 
@@ -749,6 +789,7 @@
             if (!window.supabase) return;
             const store = obtenerStoreGaleria();
             if (!store) return;
+            store.cargando = true;
             try {
                 const desde = paginaActualGaleria * LIMITE_GALERIA;
                 const hasta = desde + LIMITE_GALERIA - 1;
@@ -803,7 +844,7 @@
                 if (adminAutenticado) {
                     document.body.classList.add('admin-mode-active');
                 }
-            } catch (err) { console.error('Error:', err); }
+            } catch (err) { console.error('Error:', err); } finally { store.cargando = false; }
         }
 
         function cargarMasGaleria() {
@@ -1230,7 +1271,7 @@
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.53.2" defer></script>
+    <script src="main.js?v=1.60.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

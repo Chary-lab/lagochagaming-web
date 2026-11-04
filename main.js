@@ -1429,6 +1429,92 @@ window.insertarComponentesUIGlobales = function insertarComponentesUIGlobales() 
     insertarPanelAdminGlobal();
 };
 
+// === API de componentes Gochi (Pines UI) ===
+// Punto único para que las páginas no repitan markup ni estilos. Los nombres
+// antiguos (mostrarToast, confirmarAccion) siguen funcionando como alias.
+window.gochiChip = function gochiChip(texto, tono = 'neutro') {
+    const chip = document.createElement('span');
+    chip.className = 'gochi-chip';
+    if (tono && tono !== 'neutro') chip.dataset.tono = tono;
+    chip.textContent = String(texto ?? '');
+    return chip;
+};
+
+window.gochiSkeleton = function gochiSkeleton(tipo = 'texto', cantidad = 1) {
+    const total = Math.max(1, Math.min(12, Number(cantidad) || 1));
+    const permitidos = new Set(['texto', 'titulo', 'media', 'avatar', 'chip']);
+    const clase = permitidos.has(tipo) ? tipo : 'texto';
+    const fragmento = document.createDocumentFragment();
+    for (let i = 0; i < total; i++) {
+        const bloque = document.createElement('span');
+        bloque.className = 'gochi-skeleton gochi-skeleton--' + clase;
+        bloque.setAttribute('aria-hidden', 'true');
+        fragmento.appendChild(bloque);
+    }
+    return fragmento;
+};
+
+window.gochiDropdown = function gochiDropdown(id, abrir) {
+    const store = window.Alpine?.store('ui');
+    if (!store || !id) return false;
+    const estaba = !!(store.menus && store.menus[id]);
+    const nuevo = typeof abrir === 'boolean' ? abrir : !estaba;
+    store.menus = {};
+    store.menus[id] = nuevo;
+    document.querySelectorAll('[data-gochi-menu-trigger]').forEach((btn) => {
+        btn.setAttribute('aria-expanded', String(btn.dataset.gochiMenuTrigger === id && nuevo));
+    });
+    const menu = document.getElementById(id);
+    if (menu) menu.hidden = !nuevo;
+    if (nuevo && menu) {
+        const primero = menu.querySelector('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])');
+        if (primero) setTimeout(() => primero.focus({ preventScroll: true }), 0);
+    }
+    return nuevo;
+};
+
+window.cerrarGochiMenus = function cerrarGochiMenus(devolverFoco = false) {
+    const store = window.Alpine?.store('ui');
+    const abiertos = store ? Object.keys(store.menus || {}).filter((id) => store.menus[id]) : [];
+    if (store) store.menus = {};
+    document.querySelectorAll('[data-gochi-menu-trigger]').forEach((btn) => {
+        btn.setAttribute('aria-expanded', 'false');
+    });
+    abiertos.forEach((id) => {
+        const menu = document.getElementById(id);
+        if (menu) menu.hidden = true;
+        if (devolverFoco) {
+            const trigger = document.querySelector(`[data-gochi-menu-trigger="${id}"]`);
+            if (trigger) trigger.focus({ preventScroll: true });
+        }
+    });
+};
+
+document.addEventListener('pointerdown', (evento) => {
+    const store = window.Alpine?.store('ui');
+    if (!store || !store.menus) return;
+    if (!Object.values(store.menus).some(Boolean)) return;
+    if (evento.target.closest?.('[data-gochi-menu]')) return;
+    window.cerrarGochiMenus();
+});
+
+document.addEventListener('keydown', (evento) => {
+    if (evento.key !== 'Escape') return;
+    const store = window.Alpine?.store('ui');
+    if (store && Object.values(store.menus || {}).some(Boolean)) {
+        window.cerrarGochiMenus(true);
+    }
+});
+
+window.gochiUI = {
+    toast: (mensaje, esError = false) => window.mostrarToast(mensaje, esError),
+    confirmar: (opciones) => window.confirmarAccion(opciones),
+    chip: (texto, tono) => window.gochiChip(texto, tono),
+    skeleton: (tipo, cantidad) => window.gochiSkeleton(tipo, cantidad),
+    dropdown: (id, abrir) => window.gochiDropdown(id, abrir),
+    cerrarMenus: () => window.cerrarGochiMenus()
+};
+
 // === TOOLTIP GLOBAL (delegado, un solo nodo) ===
 (function iniciarTooltips() {
     // En pantallas táctiles el tooltip se queda pegado tras el toque y tapa la UI.
@@ -1696,7 +1782,7 @@ document.addEventListener('keydown', (evento) => {
 
 // Estado global de UI (menú móvil) para Alpine.
 document.addEventListener('alpine:init', () => {
-    window.Alpine.store('ui', { menuAbierto: false, menuNav: '' });
+    window.Alpine.store('ui', { menuAbierto: false, menuNav: '', menus: {} });
     window.Alpine.store('toast', {
         cola: [],
         _seq: 0,
@@ -2103,14 +2189,19 @@ function insertarPanelAdminGlobal() {
                 <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'usuarios'" x-cloak>
                     <div class="admin-usuarios-toolbar">
                         <input type="text" class="admin-input" placeholder="Buscar por apodo..." aria-label="Buscar usuario" x-model="$store.adminPanel.buscar" x-on:keydown.enter="$store.adminPanel.cargarUsuarios(0)">
-                        <label class="admin-checkbox">
+                        <label class="admin-checkbox gochi-switch">
                             <input type="checkbox" x-model="$store.adminPanel.soloBaneados" x-on:change="$store.adminPanel.cargarUsuarios(0)">
+                            <span class="gochi-switch-track" aria-hidden="true"></span>
                             <span>Solo baneados</span>
                         </label>
                         <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarUsuarios(0)">Buscar</button>
                     </div>
-                    <p class="gallery-empty" x-show="$store.adminPanel.usuariosEstado === 'cargando'">Cargando usuarios...</p>
                     <p class="gallery-empty" x-show="$store.adminPanel.usuariosEstado === 'error'" x-text="$store.adminPanel.errorUsuarios" x-cloak></p>
+                    <div class="admin-cargando" x-show="$store.adminPanel.usuariosEstado === 'cargando'" aria-hidden="true">
+                        <span class="gochi-skeleton gochi-skeleton--texto"></span>
+                        <span class="gochi-skeleton gochi-skeleton--texto"></span>
+                        <span class="gochi-skeleton gochi-skeleton--texto"></span>
+                    </div>
                     <div class="admin-usuarios-grid" x-show="$store.adminPanel.usuariosEstado === 'lista'">
                         <template x-for="u in $store.adminPanel.usuarios" :key="u.id">
                             <article class="admin-usuario-card" :class="{ baneado: u.baneado_activo, shadowban: u.shadowban, 'es-staff': u.rol !== 'user' }">
@@ -2160,9 +2251,9 @@ function insertarPanelAdminGlobal() {
                         </template>
                         <p class="gallery-empty" x-show="!$store.adminPanel.usuarios.length">No hay usuarios.</p>
                     </div>
-                    <div class="admin-paginacion" x-show="$store.adminPanel.totalUsuarios > 50">
+                    <div class="admin-paginacion gochi-paginacion" x-show="$store.adminPanel.totalUsuarios > 50">
                         <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarUsuarios(-1)" :disabled="$store.adminPanel.paginaUsuarios === 0">← Anterior</button>
-                        <span class="pag-info" x-text="'Página ' + ($store.adminPanel.paginaUsuarios + 1) + ' de ' + Math.ceil($store.adminPanel.totalUsuarios / 50)"></span>
+                        <span class="pag-info gochi-paginacion-info" x-text="'Página ' + ($store.adminPanel.paginaUsuarios + 1) + ' de ' + Math.ceil($store.adminPanel.totalUsuarios / 50)"></span>
                         <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarUsuarios(1)" :disabled="($store.adminPanel.paginaUsuarios + 1) * 50 >= $store.adminPanel.totalUsuarios">Siguiente →</button>
                     </div>
                 </div>
@@ -3590,8 +3681,12 @@ document.addEventListener('DOMContentLoaded', () => {
         </nav>
         <div class="modal-perfil-body" role="tabpanel" aria-label="Perfil"
              x-bind:hidden="$store.perfil.vista !== 'perfil'">
-          <p class="mp-cargando" x-bind:hidden="!$store.perfil.cargando">Cargando perfil…</p>
-          <p class="mp-error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
+          <div class="mp-cargando" x-bind:hidden="!$store.perfil.cargando" aria-hidden="true">
+            <span class="gochi-skeleton gochi-skeleton--avatar"></span>
+            <span class="gochi-skeleton gochi-skeleton--titulo"></span>
+            <span class="gochi-skeleton gochi-skeleton--texto"></span>
+          </div>
+          <p class="mp-error gochi-alerta" data-tono="error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
           <div class="mp-perfil" x-bind:hidden="$store.perfil.cargando || !!$store.perfil.error">
             <div class="mp-profile-head">
               <div class="mp-avatar-wrap">
@@ -3702,14 +3797,14 @@ document.addEventListener('DOMContentLoaded', () => {
           <section class="mp-ajustes-bloque">
             <h5 class="mp-ajustes-titulo">Identidad <span>Cómo te ve la comunidad</span></h5>
             <div class="mp-ajustes-fila">
-              <label class="mp-field">Género
+              <label class="mp-field gochi-campo"><span class="gochi-campo-label">Género</span>
                 <select x-model="$store.perfil.genero">
                   <option value="femenino">Femenino</option>
                   <option value="masculino">Masculino</option>
                   <option value="no_definido">No definido</option>
                 </select>
               </label>
-              <label class="mp-field">Bio <span class="mp-contador" x-text="$store.perfil.bio.length + '/160'"></span>
+              <label class="mp-field gochi-campo"><span class="gochi-campo-label">Bio <span class="gochi-campo-contador" x-text="$store.perfil.bio.length + '/160'"></span></span>
                 <textarea maxlength="160" rows="2" x-model="$store.perfil.bio" placeholder="Cuéntanos algo sobre ti..."></textarea>
               </label>
             </div>
@@ -3748,7 +3843,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </section>
 
-          <p class="mp-error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
+          <p class="mp-error gochi-alerta" data-tono="error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
           <div class="mp-actions mp-actions--fija">
             <button type="button" class="btn-primary btn-muted" x-on:click="$store.perfil.vista = 'perfil'">Cancelar</button>
             <button type="button" class="btn-primary" x-bind:disabled="$store.perfil.guardando"

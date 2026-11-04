@@ -6496,3 +6496,719 @@ body.light-mode .admin-login-card .admin-login-error { color: #b91c1c; }
         transition: none;
     }
 }
+
+/* ==========================================================================
+   Componentes Gochi (inspirados en Pines UI)
+   Piel compartida para chips, campos, avisos, esqueletos, tarjetas,
+   interruptores, progreso, acordeón, migas, paginación y tablas.
+   Todo sale de las variables de :root: funciona en oscuro, claro y OLED.
+   ========================================================================== */
+
+/* --- Chip / insignia ------------------------------------------------------- */
+.gochi-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-pill);
+    background: color-mix(in srgb, var(--accent-color) 9%, transparent);
+    color: var(--text-main);
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.45;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.gochi-chip .icon {
+    width: 0.95em;
+    height: 0.95em;
+    flex: none;
+}
+
+.gochi-chip--sm {
+    padding: 1px 8px;
+    font-size: 0.72rem;
+}
+
+.gochi-chip[data-tono="acento"] {
+    border-color: color-mix(in srgb, var(--accent-color) 55%, transparent);
+    background: color-mix(in srgb, var(--accent-color) 16%, transparent);
+    color: var(--accent-color);
+}
+
+.gochi-chip[data-tono="exito"] {
+    border-color: rgba(74, 222, 128, 0.45);
+    background: rgba(74, 222, 128, 0.14);
+    color: #86efac;
+}
+
+.gochi-chip[data-tono="aviso"] {
+    border-color: rgba(251, 191, 36, 0.45);
+    background: rgba(251, 191, 36, 0.14);
+    color: #fcd34d;
+}
+
+.gochi-chip[data-tono="peligro"] {
+    border-color: rgba(248, 113, 113, 0.45);
+    background: rgba(248, 113, 113, 0.14);
+    color: #fca5a5;
+}
+
+.gochi-chip[data-tono="info"] {
+    border-color: rgba(96, 165, 250, 0.45);
+    background: rgba(96, 165, 250, 0.14);
+    color: #93c5fd;
+}
+
+body.light-mode .gochi-chip[data-tono="exito"] { color: #166534; }
+body.light-mode .gochi-chip[data-tono="aviso"] { color: #92400e; }
+body.light-mode .gochi-chip[data-tono="peligro"] { color: #991b1b; }
+body.light-mode .gochi-chip[data-tono="info"] { color: #1e40af; }
+
+/* --- Campo de formulario -------------------------------------------------- */
+.gochi-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.gochi-campo-label,
+.gochi-campo > label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.gochi-campo input,
+.gochi-campo textarea,
+.gochi-campo select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-md);
+    background: var(--card-bg-subtle);
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.92rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gochi-campo textarea {
+    resize: vertical;
+    min-height: 64px;
+}
+
+.gochi-campo input::placeholder,
+.gochi-campo textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.75;
+}
+
+.gochi-campo input:focus,
+.gochi-campo textarea:focus,
+.gochi-campo select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 22%, transparent);
+}
+
+.gochi-campo input:disabled,
+.gochi-campo textarea:disabled,
+.gochi-campo select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.gochi-campo-ayuda {
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--text-muted);
+}
+
+.gochi-campo-contador {
+    margin-left: auto;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.gochi-campo-error {
+    font-size: 0.75rem;
+    color: #fca5a5;
+}
+
+.gochi-campo[data-estado="error"] input,
+.gochi-campo[data-estado="error"] textarea,
+.gochi-campo[data-estado="error"] select {
+    border-color: rgba(248, 113, 113, 0.7);
+}
+
+/* --- Aviso ---------------------------------------------------------------- */
+.gochi-alerta {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-left-width: 3px;
+    border-radius: var(--r-md);
+    background: var(--card-bg-subtle);
+    color: var(--text-main);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.gochi-alerta .icon {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 2px;
+    flex: none;
+}
+
+.gochi-alerta[data-tono="info"] {
+    border-left-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.1);
+}
+
+.gochi-alerta[data-tono="aviso"] {
+    border-left-color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+}
+
+.gochi-alerta[data-tono="error"] {
+    border-left-color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+}
+
+.gochi-alerta[data-tono="exito"] {
+    border-left-color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+}
+
+body.light-mode .gochi-alerta { color: #1f2937; }
+
+/* --- Esqueleto de carga --------------------------------------------------- */
+.gochi-skeleton {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+    min-height: 12px;
+}
+
+.gochi-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-color) 14%, transparent), transparent);
+    animation: gochi-skeleton-brillo 1.4s ease-in-out infinite;
+}
+
+@keyframes gochi-skeleton-brillo {
+    100% { transform: translateX(100%); }
+}
+
+.gochi-skeleton--texto { height: 12px; }
+.gochi-skeleton--titulo { height: 18px; width: 55%; }
+.gochi-skeleton--media { aspect-ratio: 4 / 3; height: auto; min-height: 120px; }
+.gochi-skeleton--avatar { width: 40px; height: 40px; border-radius: 50%; min-height: 0; }
+.gochi-skeleton--chip { height: 22px; width: 86px; border-radius: var(--r-pill); }
+
+@media (prefers-reduced-motion: reduce) {
+    .gochi-skeleton::after { animation: none; }
+}
+
+/* --- Tarjeta -------------------------------------------------------------- */
+.gochi-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-lg);
+    background: var(--card-bg);
+    color: var(--text-main);
+    transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.gochi-card[data-estado="cargando"] { pointer-events: none; }
+.gochi-card[data-estado="vacio"],
+.gochi-card[data-estado="error"] {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    min-height: 180px;
+    border-style: dashed;
+    background: color-mix(in srgb, var(--card-bg-subtle) 60%, transparent);
+}
+
+.gochi-card-titulo {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--tinta, var(--text-main));
+    line-height: 1.35;
+}
+
+.gochi-card-texto {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.gochi-card-pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+}
+
+/* --- Interruptor ---------------------------------------------------------- */
+.gochi-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.82rem;
+    color: var(--text-main);
+}
+
+.gochi-switch input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gochi-switch-track {
+    position: relative;
+    flex: none;
+    width: 40px;
+    height: 23px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-pill);
+    background: var(--card-bg-subtle);
+    transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.gochi-switch-track::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: transform 0.16s ease, background-color 0.16s ease;
+}
+
+.gochi-switch input:checked + .gochi-switch-track {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.gochi-switch input:checked + .gochi-switch-track::after {
+    transform: translateX(17px);
+    background: var(--btn-text);
+}
+
+.gochi-switch input:focus-visible + .gochi-switch-track {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.gochi-switch input:disabled + .gochi-switch-track {
+    opacity: 0.55;
+}
+
+/* --- Progreso ------------------------------------------------------------- */
+.gochi-progress {
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    border-radius: var(--r-pill);
+    background: color-mix(in srgb, var(--text-muted) 16%, transparent);
+}
+
+.gochi-progress-fill {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: var(--gradient, linear-gradient(90deg, var(--accent-color), #38bdf8));
+    transition: width 0.3s ease;
+}
+
+/* --- Acordeón ------------------------------------------------------------- */
+.gochi-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.gochi-accordion-item {
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-lg);
+    background: var(--card-bg);
+    overflow: hidden;
+}
+
+.gochi-accordion-item > summary,
+.gochi-accordion-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    border: 0;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    list-style: none;
+}
+
+.gochi-accordion-item > summary::-webkit-details-marker { display: none; }
+
+.gochi-accordion-item > summary:hover,
+.gochi-accordion-trigger:hover {
+    background: color-mix(in srgb, var(--accent-color) 6%, transparent);
+}
+
+.gochi-accordion-item > summary:focus-visible,
+.gochi-accordion-trigger:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -2px;
+}
+
+.gochi-accordion-icono {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--accent-color);
+    transition: transform 0.18s ease;
+}
+
+.gochi-accordion-item[open] > summary .gochi-accordion-icono,
+.gochi-accordion-trigger[aria-expanded="true"] .gochi-accordion-icono {
+    transform: rotate(45deg);
+}
+
+.gochi-accordion-panel {
+    padding: 0 16px 14px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+.gochi-accordion-item > .gochi-accordion-panel { padding-top: 0; }
+
+/* --- Migas de pan --------------------------------------------------------- */
+.gochi-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 14px;
+    padding: 0;
+    list-style: none;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.gochi-breadcrumb li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gochi-breadcrumb li + li::before {
+    content: "/";
+    color: var(--border-color);
+    font-weight: 400;
+}
+
+.gochi-breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.gochi-breadcrumb a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.gochi-breadcrumb [aria-current="page"] {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* --- Paginación ----------------------------------------------------------- */
+.gochi-paginacion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0 4px;
+}
+
+.gochi-paginacion button {
+    min-width: 36px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-md);
+    background: var(--card-bg-subtle);
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.gochi-paginacion button:hover:not(:disabled) {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.gochi-paginacion button[aria-current="page"] {
+    border-color: var(--accent-color);
+    background: color-mix(in srgb, var(--accent-color) 16%, transparent);
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.gochi-paginacion button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.gochi-paginacion-info {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- Tabla responsive (tarjetas por debajo de 760px) ---------------------- */
+.gochi-tabla-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.gochi-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.gochi-tabla th,
+.gochi-tabla td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.gochi-tabla th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    background: var(--card-bg-subtle);
+}
+
+.gochi-tabla tbody tr:hover {
+    background: color-mix(in srgb, var(--accent-color) 5%, transparent);
+}
+
+@media (max-width: 760px) {
+    .gochi-tabla thead { display: none; }
+    .gochi-tabla,
+    .gochi-tabla tbody,
+    .gochi-tabla tr,
+    .gochi-tabla td { display: block; width: 100%; }
+    .gochi-tabla tr {
+        margin-bottom: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--r-md);
+        background: var(--card-bg-subtle);
+        overflow: hidden;
+    }
+    .gochi-tabla td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px dashed color-mix(in srgb, var(--border-color) 60%, transparent);
+    }
+    .gochi-tabla td:last-child { border-bottom: 0; }
+    .gochi-tabla td::before {
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+    }
+}
+
+/* --- Estado vacío compartido ---------------------------------------------- */
+.gochi-vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 26px 16px;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--r-lg);
+    background: color-mix(in srgb, var(--card-bg-subtle) 55%, transparent);
+    color: var(--text-muted);
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.gochi-vacio img {
+    width: 84px;
+    height: auto;
+    opacity: 0.9;
+}
+
+.gochi-vacio strong {
+    color: var(--text-main);
+}
+
+/* --- Menú desplegable ----------------------------------------------------- */
+.gochi-menu {
+    position: relative;
+    display: inline-flex;
+}
+
+.gochi-menu-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    min-width: 190px;
+    padding: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-lg);
+    background: var(--card-bg);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+}
+
+.gochi-menu-panel[hidden] { display: none; }
+
+.gochi-menu-panel button,
+.gochi-menu-panel a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: var(--r-md);
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.85rem;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.gochi-menu-panel button:hover,
+.gochi-menu-panel a:hover {
+    background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+    color: var(--accent-color);
+}
+
+.gochi-menu-panel button:focus-visible,
+.gochi-menu-panel a:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -2px;
+}
+
+.gochi-menu-panel [aria-checked="true"] {
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.gochi-menu-panel [aria-checked="true"]::after {
+    content: "✓";
+    margin-left: auto;
+}
+
+/* --- Esqueletos dentro de rejillas existentes ----------------------------- */
+.gallery-card--skeleton {
+    pointer-events: none;
+}
+
+.gallery-card--skeleton .gallery-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tienda-item--skeleton,
+.video-card--skeleton {
+    pointer-events: none;
+}
+
+.ranking-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 6px 4px;
+}
+
+.ranking-skeleton .gochi-skeleton {
+    height: 30px;
+}
+
+.admin-cargando {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px 2px;
+}
+
+.admin-cargando .gochi-skeleton {
+    height: 34px;
+}
+
+/* --- Utilidades ----------------------------------------------------------- */
+.gochi-no-scroll { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+    .gochi-card,
+    .gochi-paginacion button,
+    .gochi-accordion-icono,
+    .gochi-progress-fill {
+        transition: none;
+    }
+}
