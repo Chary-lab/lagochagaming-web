@@ -335,10 +335,10 @@
         if (caja.bottom > limite) {
           window.scrollTo({
             top: Math.max(0, window.pageYOffset + (caja.bottom - limite) + 12),
-            behavior: 'smooth'
+            behavior: scrollSuave()
           });
         } else if (caja.top < 56) {
-          window.scrollTo({ top: Math.max(0, window.pageYOffset + caja.top - 62), behavior: 'smooth' });
+          window.scrollTo({ top: Math.max(0, window.pageYOffset + caja.top - 62), behavior: scrollSuave() });
         }
       }, 340);
     }
@@ -346,6 +346,12 @@
 
   function chatAbierto() {
     return !!(chatOverlay && chatOverlay.classList.contains('lg-open'));
+  }
+
+  function scrollSuave() {
+    var reducir = !!settings.motion ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    return reducir ? 'auto' : 'smooth';
   }
 
   function cerrarChat() {

@@ -58,15 +58,12 @@ if (window.supabase) {
         window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
             global: { fetch: fetchConTokenComunidad }
         });
-        window.supabaseReady = true;
     } catch (e) {
         console.error('Error inicializando Supabase:', e);
         window.supabase = null;
-        window.supabaseReady = false;
     }
 } else {
     window.supabase = null;
-    window.supabaseReady = false;
 }
 
 // === HELPERS COMPARTIDOS ===
@@ -1017,7 +1014,8 @@ window.cerrarSesion = async function cerrarSesion() {
     }
 
     mostrarToast(teniaAuth ? 'Sesión cerrada' : 'Sesión de comunidad cerrada');
-    setTimeout(() => { window.location.reload(); }, 800);
+    // El toast dura 3 s: espera suficiente para que se lea antes de recargar.
+    setTimeout(() => { window.location.reload(); }, 1800);
 };
 
 window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() {
@@ -1878,6 +1876,10 @@ function insertarPanelAdminGlobal() {
                     <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'usuarios' }" x-on:click="$store.adminPanel.setTab('usuarios')" role="tab" :aria-selected="$store.adminPanel.tab === 'usuarios' ? 'true' : 'false'">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-users"></use></svg> Usuarios
                     </button>
+                    <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'reportes' }" x-on:click="$store.adminPanel.setTab('reportes')" role="tab" :aria-selected="$store.adminPanel.tab === 'reportes' ? 'true' : 'false'">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-ban"></use></svg> Reportes
+                        <span class="admin-tab-count" x-show="$store.adminPanel.reportes.length > 0" x-text="$store.adminPanel.reportes.length"></span>
+                    </button>
                     <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'descargas' }" x-on:click="$store.adminPanel.setTab('descargas')" role="tab" :aria-selected="$store.adminPanel.tab === 'descargas' ? 'true' : 'false'">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg> Descargas
                     </button>
@@ -1975,6 +1977,36 @@ function insertarPanelAdminGlobal() {
                         <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarUsuarios(-1)" :disabled="$store.adminPanel.paginaUsuarios === 0">← Anterior</button>
                         <span class="pag-info" x-text="'Página ' + ($store.adminPanel.paginaUsuarios + 1) + ' de ' + Math.ceil($store.adminPanel.totalUsuarios / 50)"></span>
                         <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarUsuarios(1)" :disabled="($store.adminPanel.paginaUsuarios + 1) * 50 >= $store.adminPanel.totalUsuarios">Siguiente →</button>
+                    </div>
+                </div>
+
+                <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'reportes'" x-cloak>
+                    <div class="buzon-toolbar">
+                        <h2><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-ban"></use></svg> Reportes de la galería</h2>
+                        <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarReportes()" :disabled="$store.adminPanel.reportesEstado === 'cargando'">Actualizar</button>
+                    </div>
+                    <p class="gallery-empty" x-show="$store.adminPanel.reportesEstado === 'cargando'">Cargando reportes...</p>
+                    <p class="gallery-empty" x-show="$store.adminPanel.reportesEstado === 'error'" x-text="$store.adminPanel.errorReportes" x-cloak></p>
+                    <div class="reportes-lista" x-show="$store.adminPanel.reportesEstado === 'lista'">
+                        <template x-for="r in $store.adminPanel.reportes" :key="r.id">
+                            <div class="reporte-item">
+                                <img class="reporte-miniatura" :src="r.galeria?.thumb_url || r.galeria?.image_url || 'img/mcchary/empty.webp'" alt="" loading="lazy" width="80" height="60">
+                                <div class="reporte-cuerpo">
+                                    <div class="reporte-cabecera">
+                                        <strong x-text="r.galeria?.title || 'Foto eliminada'"></strong>
+                                        <time class="buzon-fecha" :datetime="r.creada_en" x-text="$store.adminPanel.fecha(r.creada_en)"></time>
+                                    </div>
+                                    <span class="reporte-autor" x-text="'Autor: ' + (r.galeria?.autor || 'desconocido')"></span>
+                                    <span class="reporte-motivo" x-text="'Motivo: ' + (r.motivo || 'sin motivo')"></span>
+                                    <p class="reporte-detalle" x-show="r.detalle" x-text="r.detalle"></p>
+                                    <div class="buzon-acciones">
+                                        <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.marcarReporte(r)" :disabled="$store.adminPanel.reportesEstado === 'cargando'">Marcar revisado</button>
+                                        <button type="button" class="btn-admin-pag btn-peligro" x-on:click="$store.adminPanel.eliminarReporte(r)" :disabled="$store.adminPanel.reportesEstado === 'cargando'">Eliminar reporte</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <p class="gallery-empty" x-show="!$store.adminPanel.reportes.length">Sin reportes pendientes.</p>
                     </div>
                 </div>
 
@@ -2160,6 +2192,7 @@ document.addEventListener('alpine:init', () => {
         buscar: '',
         soloBaneados: false,
         _refrescoUsuarios: null,
+        _seqUsuarios: 0,
 
         auditLog: [],
         auditEstado: 'inicial',
@@ -2171,6 +2204,10 @@ document.addEventListener('alpine:init', () => {
         sugEstado: 'inicial',
         errorSug: '',
         noLeidas: 0,
+
+        reportes: [],
+        reportesEstado: 'inicial',
+        errorReportes: '',
 
         descargas: {},
         descEstado: 'inicial',
@@ -2287,6 +2324,7 @@ document.addEventListener('alpine:init', () => {
         cargarTab() {
             if (this.tab === 'buzon') return this.cargarSugerencias();
             if (this.tab === 'usuarios') return this.cargarUsuarios(0);
+            if (this.tab === 'reportes') return this.cargarReportes();
             if (this.tab === 'descargas') return this.cargarDescargas();
             if (this.tab === 'auditoria') return this.cargarAuditoria(0);
         },
@@ -2356,6 +2394,60 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        async cargarReportes() {
+            if (!this.admin) return;
+            this.reportesEstado = 'cargando';
+            this.errorReportes = '';
+            try {
+                const { data, error } = await window.supabase
+                    .from('galeria_reportes')
+                    .select('id,image_id,motivo,detalle,creada_en,galeria(title,thumb_url,image_url,autor)')
+                    .eq('revisado', false)
+                    .order('creada_en', { ascending: true })
+                    .limit(100);
+                if (error) throw error;
+                this.reportes = (data || []).map((r) => ({
+                    ...r,
+                    galeria: Array.isArray(r.galeria) ? (r.galeria[0] || null) : (r.galeria || null)
+                }));
+                this.reportesEstado = 'lista';
+            } catch (e) {
+                console.error('Error cargando reportes de galería:', e);
+                this.errorReportes = 'No se pudieron cargar los reportes.';
+                this.reportesEstado = 'error';
+            }
+        },
+
+        async marcarReporte(reporte) {
+            if (!reporte || !reporte.id) return;
+            try {
+                const { data, error } = await window.supabase.rpc('admin_marcar_reporte', { p_id: reporte.id });
+                if (error || !data || !data.ok) {
+                    window.mostrarToast?.('No se pudo marcar el reporte como revisado.', true);
+                    return;
+                }
+                this.reportes = this.reportes.filter((r) => r.id !== reporte.id);
+                window.mostrarToast?.('Reporte marcado como revisado');
+            } catch (e) {
+                window.mostrarToast?.('No se pudo marcar el reporte como revisado.', true);
+            }
+        },
+
+        async eliminarReporte(reporte) {
+            if (!reporte || !reporte.id) return;
+            try {
+                const { data, error } = await window.supabase.rpc('admin_eliminar_reporte', { p_id: reporte.id });
+                if (error || !data || !data.ok) {
+                    window.mostrarToast?.('No se pudo eliminar el reporte.', true);
+                    return;
+                }
+                this.reportes = this.reportes.filter((r) => r.id !== reporte.id);
+                window.mostrarToast?.('Reporte eliminado');
+            } catch (e) {
+                window.mostrarToast?.('No se pudo eliminar el reporte.', true);
+            }
+        },
+
         async cargarDescargas() {
             if (!this.admin) return;
             this.descEstado = 'cargando';
@@ -2401,6 +2493,7 @@ document.addEventListener('alpine:init', () => {
 
             this.usuariosEstado = 'cargando';
             this.errorUsuarios = '';
+            const seq = ++this._seqUsuarios;
             try {
                 const { data, error } = await window.supabase.rpc('admin_listar_usuarios', {
                     p_token: this.tokenComunidad(),
@@ -2409,6 +2502,9 @@ document.addEventListener('alpine:init', () => {
                     p_limite: 50,
                     p_offset: this.paginaUsuarios * 50
                 });
+                // Descarta respuestas viejas: una búsqueda rápida no debe pintar
+                // resultados de una petición anterior.
+                if (seq !== this._seqUsuarios) return;
                 if (error) throw error;
                 if (!data || !data.ok) {
                     this.errorUsuarios = data?.error || 'Error cargando usuarios';
@@ -2419,6 +2515,7 @@ document.addEventListener('alpine:init', () => {
                 this.totalUsuarios = data.total || 0;
                 this.usuariosEstado = 'lista';
             } catch (e) {
+                if (seq !== this._seqUsuarios) return;
                 console.error('Error cargando usuarios admin:', e);
                 this.errorUsuarios = 'Error inesperado';
                 this.usuariosEstado = 'error';
@@ -2854,10 +2951,8 @@ window.CHAT_KICK = {
         host._actualizarCuenta = actualizarCuenta;
         host._añadirMensaje = añadir;
         host._mostrarAviso = mostrarAviso;
-        host._lista = lista;
         host._vacio = vacio;
         host._punto = punto;
-        host._campo = campo;
 
         login.addEventListener('click', () => { host._conectar?.(); });
 
@@ -2913,6 +3008,10 @@ window.CHAT_KICK = {
         const hosts = Array.from(document.querySelectorAll('[data-chat-kick]'));
         if (!hosts.length) return;
         hosts.forEach(montar);
+        // Idempotente: si ya se inicializó (DOMContentLoaded o la app móvil),
+        // solo se montan los hosts nuevos y no se duplican listeners/canales.
+        if (iniciarChatKick._iniciado) return;
+        iniciarChatKick._iniciado = true;
 
         const sincronizar = () => {
             const sesion = window.CHAT_KICK.sesion ?? null;
@@ -3106,6 +3205,16 @@ window.CHAT_KICK = {
         escuchar();
     };
 })();
+
+// Alias que usa la interfaz móvil (`mobile/mobile.js`) al abrir la hoja del chat.
+// Ejecuta la misma inicialización del chat nativo de Kick y es idempotente.
+window.prepararFachadaChat = function prepararFachadaChat() {
+    try {
+        return window.iniciarChatKick?.();
+    } catch (e) {
+        console.error('prepararFachadaChat:', e);
+    }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     try { iniciarChatKick(); } catch (e) { console.error('iniciarChatKick:', e); }
@@ -3732,9 +3841,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       elegirAvatar(url) {
         this.avatarSeleccionado = url;
-      },
-      logout() {
-        window.cerrarSesion?.();
       },
 
       async guardar() {

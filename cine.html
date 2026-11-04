@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="GochiWatch, cine sincronizado">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.50.1">
+    <link rel="stylesheet" href="style.css?v=1.51.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -107,6 +107,49 @@
                     <span class="admin-status">🟢 Sincronización activa</span>
                     <span class="admin-source-hint" id="urlSourceHint">Fuente: esperando enlace</span>
                 </div>
+
+                <!-- COLA DE LA SALA (SOLO STREAMER) -->
+                <section class="cine-cola" aria-labelledby="cine-cola-titulo" x-cloak>
+                    <h3 class="cine-cola-title" id="cine-cola-titulo">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg> Cola de la sala
+                    </h3>
+                    <p class="admin-panel-hint">
+                        Los videos se guardan en orden. <strong>Reproducir</strong> carga y emite el video para toda la sala; no se quita de la cola.
+                    </p>
+                    <form class="cine-cola-form" @submit.prevent="$store.cineCola.agregar()">
+                        <input type="text" class="admin-input" x-model="$store.cineCola.url" inputmode="url" autocomplete="off"
+                               aria-label="URL del video para la cola" placeholder="https://... video para encolar">
+                        <input type="text" class="admin-input cine-cola-titulo-input" x-model="$store.cineCola.titulo"
+                               maxlength="120" autocomplete="off" aria-label="Título opcional del video" placeholder="Título (opcional)">
+                        <button type="submit" class="btn-primary" x-bind:disabled="$store.cineCola.guardando"
+                                x-text="$store.cineCola.guardando ? 'Añadiendo…' : 'Añadir a la cola'">Añadir a la cola</button>
+                    </form>
+                    <p class="cine-cola-error" x-text="$store.cineCola.error" x-bind:hidden="!$store.cineCola.error"></p>
+                    <p class="cine-cola-vacia" x-bind:hidden="!$store.cineCola.cargando">Cargando cola…</p>
+                    <p class="cine-cola-vacia" x-bind:hidden="$store.cineCola.cargando || $store.cineCola.items.length > 0">La cola está vacía. Añade un video para empezar.</p>
+                    <ol class="cine-cola-lista" x-bind:hidden="$store.cineCola.items.length === 0">
+                        <template x-for="(item, i) in $store.cineCola.items" :key="item.id">
+                            <li class="cine-cola-item">
+                                <span class="cine-cola-num" x-text="i + 1"></span>
+                                <span class="cine-cola-texto" x-text="item.titulo || item.video_url" x-bind:title="item.video_url"></span>
+                                <span class="cine-cola-acciones">
+                                    <button type="button" class="btn-cine-ghost cine-cola-btn"
+                                            x-bind:disabled="$store.cineCola.guardando"
+                                            x-bind:aria-label="'Reproducir ' + (item.titulo || 'video')"
+                                            @click="$store.cineCola.reproducir(item)">
+                                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg> Reproducir
+                                    </button>
+                                    <button type="button" class="btn-cine-ghost cine-cola-btn cine-cola-btn--quitar"
+                                            x-bind:disabled="$store.cineCola.guardando"
+                                            x-bind:aria-label="'Quitar ' + (item.titulo || 'video') + ' de la cola'"
+                                            @click="$store.cineCola.quitar(item)">
+                                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-trash-can"></use></svg> Quitar
+                                    </button>
+                                </span>
+                            </li>
+                        </template>
+                    </ol>
+                </section>
 
             </div>
 
@@ -200,11 +243,11 @@
     </div>
 
     <!-- SCRIPTS EXTERNOS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.50.1" defer></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
+    <script src="main.js?v=1.51.0" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
 
     <!-- LÓGICA DE JAVASCRIPT DEL CINE -->
     <script>
@@ -255,11 +298,110 @@
                 fuenteTexto: 'Video',
                 viewers: 0
             });
+
+            window.Alpine.store('cineCola', {
+                items: [],
+                url: '',
+                titulo: '',
+                cargando: false,
+                guardando: false,
+                error: '',
+                async cargar() {
+                    if (!window.supabase) return;
+                    this.cargando = true;
+                    this.error = '';
+                    try {
+                        const { data, error } = await window.supabase
+                            .from('cine_cola')
+                            .select('id,video_url,titulo,creado_en')
+                            .order('creado_en', { ascending: true })
+                            .limit(50);
+                        if (error) throw error;
+                        this.items = Array.isArray(data) ? data.slice(0, 50) : [];
+                    } catch (e) {
+                        this.error = 'No se pudo cargar la cola.';
+                    } finally {
+                        this.cargando = false;
+                    }
+                },
+                async agregar() {
+                    const url = (this.url || '').trim();
+                    this.error = '';
+                    if (!url) {
+                        this.error = 'Escribe la URL del video.';
+                        window.mostrarToast?.('Escribe la URL del video.', true);
+                        return;
+                    }
+                    let protocolo = '';
+                    try { protocolo = new URL(url).protocol; } catch (e) { protocolo = ''; }
+                    if (protocolo !== 'http:' && protocolo !== 'https:') {
+                        this.error = 'La URL debe empezar por http:// o https://';
+                        window.mostrarToast?.('La URL debe empezar por http:// o https://', true);
+                        return;
+                    }
+                    if (!window.supabase) {
+                        this.error = 'Sin conexión con el servidor.';
+                        window.mostrarToast?.('Sin conexión con el servidor.', true);
+                        return;
+                    }
+                    this.guardando = true;
+                    try {
+                        const { data, error } = await window.supabase.rpc('cine_cola_agregar', {
+                            p_video_url: url,
+                            p_titulo: (this.titulo || '').trim()
+                        });
+                        if (error) throw error;
+                        if (!data || data.ok !== true) throw new Error((data && data.error) || 'No se pudo encolar');
+                        this.url = '';
+                        this.titulo = '';
+                        window.mostrarToast?.('Video añadido a la cola.');
+                        await this.cargar();
+                    } catch (e) {
+                        this.error = 'No se pudo añadir el video a la cola.';
+                        window.mostrarToast?.(this.error, true);
+                    } finally {
+                        this.guardando = false;
+                    }
+                },
+                async quitar(item) {
+                    if (!item || !window.supabase) return;
+                    this.error = '';
+                    this.guardando = true;
+                    try {
+                        const { data, error } = await window.supabase.rpc('cine_cola_quitar', { p_id: item.id });
+                        if (error) throw error;
+                        if (!data || data.ok !== true) throw new Error((data && data.error) || 'No se pudo quitar');
+                        window.mostrarToast?.('Video quitado de la cola.');
+                        await this.cargar();
+                    } catch (e) {
+                        this.error = 'No se pudo quitar el video de la cola.';
+                        window.mostrarToast?.(this.error, true);
+                    } finally {
+                        this.guardando = false;
+                    }
+                },
+                async reproducir(item) {
+                    if (!item || !item.video_url) return;
+                    if (!(await window.aplicarVideoStreamer?.(item.video_url))) return;
+                    const store = window.Alpine?.store('cineCola');
+                    if (store) store.error = '';
+                }
+            });
         });
 
         function storeCine() {
             return window.Alpine?.store('cine') || null;
         }
+
+        function refrescarColaCine() {
+            const store = window.Alpine?.store('cineCola');
+            if (store && typeof store.cargar === 'function') store.cargar();
+        }
+
+        // Si el panel se activó antes de que Alpine registrara el store.
+        document.addEventListener('alpine:initialized', () => {
+            if (streamerCineAutenticado) refrescarColaCine();
+        });
         let fuenteActual = '';
         let cineError = '';
         let canalCineSocial = null;
@@ -646,20 +788,31 @@
         }
 
         async function actualizarUrlPelicula() {
-            if (!(await validarSesionStreamer())) {
-                mostrarToast('Tu sesión ha expirado.', true);
-                streamerCineAutenticado = false;
-                toggleModoStreamerCine();
-                return;
-            }
-
-            let rawUrl = document.getElementById('inputVideoUrl').value.trim();
+            const rawUrl = document.getElementById('inputVideoUrl').value.trim();
             if (!rawUrl) {
                 mostrarToast('Ingresa un enlace válido.', true);
                 return;
             }
+            await aplicarVideoStreamer(rawUrl);
+        }
 
-            const processedUrl = procesarUrlEntrante(rawUrl);
+        // Aplica un video para toda la sala. La usan el botón "Cargar Video"
+        // y la cola ("Reproducir"); no duplicar el flujo.
+        async function aplicarVideoStreamer(rawUrl) {
+            if (!(await validarSesionStreamer())) {
+                mostrarToast('Tu sesión ha expirado.', true);
+                streamerCineAutenticado = false;
+                toggleModoStreamerCine();
+                return false;
+            }
+
+            const limpio = (rawUrl || '').trim();
+            if (!limpio) {
+                mostrarToast('Ingresa un enlace válido.', true);
+                return false;
+            }
+
+            const processedUrl = procesarUrlEntrante(limpio);
 
             try {
                 const { data, error } = await supabase.rpc('cine_actualizar_estado', {
@@ -668,9 +821,13 @@
                     p_video_url: processedUrl,
                     p_actualizar_url: true
                 });
-                if (error || !data || data.ok !== true) throw error;
+                if (error || !data || data.ok !== true) throw error || new Error('cine_actualizar_estado');
                 mostrarToast('¡Video cargado y sincronizado con éxito!');
-            } catch(e) { mostrarToast('Error al actualizar el video.', true); }
+                return true;
+            } catch(e) {
+                mostrarToast('Error al actualizar el video.', true);
+                return false;
+            }
         }
 
         async function cerrarReproductorTotal() {
@@ -910,6 +1067,7 @@
                 adminPanel.style.display = 'block';
                 btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock-open"></use></svg> Ocultar Herramientas';
                 btn.classList.add('active');
+                refrescarColaCine();
             } else {
                 adminPanel.style.display = 'none';
                 btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sliders"></use></svg> Herramientas de Streamer';
@@ -961,6 +1119,7 @@
                 btn.classList.add('active');
                 btn.setAttribute('aria-expanded', 'true');
             }
+            refrescarColaCine();
         }
     </script>
 

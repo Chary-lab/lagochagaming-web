@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.50.1">
+    <link rel="stylesheet" href="style.css?v=1.51.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -144,7 +144,7 @@
             <label for="uploadInput" class="upload-label">
                 <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-upload"></use></svg> Seleccionar Imagen
             </label>
-            <p class="upload-hint">Formatos: JPG, PNG, GIF. Tamaño máximo: 5MB por imagen.</p>
+            <p class="upload-hint">Formatos: JPG, PNG, GIF, WEBP, AVIF. Tamaño máximo: 5MB por imagen.</p>
             <div id="aviso-sesion-galeria" class="upload-login-cta" hidden>
                 <p><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> Inicia sesión en la Comunidad para subir tus fotos.</p>
                 <a href="comunidad" class="btn-primary upload-login-link">Ir a la Comunidad</a>
@@ -171,26 +171,29 @@
 
         <div class="gallery-grid" id="galleryGrid" x-data="{}">
             <template x-for="foto in $store.galeria.fotos" :key="foto.id">
-                <div class="gallery-card" tabindex="0" role="button" :aria-label="'Ver foto: ' + (foto.title || 'Foto de la galería')" @click="window.abrirLightboxDesdeTarjeta($event, foto, $el)" @keydown.enter="window.abrirLightboxDesdeTarjeta($event, foto, $el)" @keydown.space.prevent="window.abrirLightboxDesdeTarjeta($event, foto, $el)">
+                <div class="gallery-card" @click="window.abrirLightboxDesdeTarjeta($event, foto, $el)">
                     <template x-for="badge in foto.badges" :key="badge.texto">
                         <span :class="'badge-tag ' + badge.clase" x-text="badge.texto"></span>
                     </template>
-                    <div class="gallery-card-image-wrap">
+                    <button type="button" class="gallery-card-image-wrap gallery-card-open"
+                            :aria-label="'Ver foto: ' + (foto.title || 'Foto de la galería')"
+                            @click.stop="window.abrirLightboxDesdeTarjeta($event, foto, $el)">
                         <img :src="foto.thumb_url || foto.image_url" :alt="foto.alt" loading="lazy" width="400" height="300">
-                    </div>
+                    </button>
                     <div class="gallery-card-info">
                         <div class="gallery-card-info-row">
                             <div class="gallery-card-texto">
                                 <span class="gallery-card-title" :title="foto.title" x-text="foto.title"></span>
-                                <span class="gallery-card-autor gallery-card-autor-link"
-                                      :title="'Ver perfil de ' + foto.autor" role="button" tabindex="0"
-                                      @click.stop="window.abrirPerfilUsuario?.(foto.autor)"
-                                      @keydown.enter.prevent.stop="window.abrirPerfilUsuario?.(foto.autor)"
-                                      @keydown.space.prevent.stop="window.abrirPerfilUsuario?.(foto.autor)">
+                                <button type="button" class="gallery-card-autor gallery-card-autor-link"
+                                      :title="'Ver perfil de ' + foto.autor"
+                                      @click.stop="window.abrirPerfilUsuario?.(foto.autor)">
                                     <span class="autor-avatar" x-text="foto.inicial"></span><span x-text="foto.autor"></span>
-                                </span>
+                                </button>
                             </div>
                              <div class="gallery-card-actions" @keydown.stop>
+                                <button type="button" class="btn-reportar-foto" data-action="report-photo" :data-image-id="foto.id" title="Reportar foto" aria-label="Reportar foto">
+                                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-ban"></use></svg>
+                                </button>
                                  <button type="button" class="btn-eliminar-publica" data-action="delete-image" :data-image-id="foto.id" title="Borrar foto de la galería" aria-label="Borrar foto de la galería">
                                     <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-trash-can"></use></svg>
                                 </button>
@@ -283,7 +286,43 @@
         </template>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
+    <div id="reporte-foto-modal" class="reporte-foto-overlay" x-data="{}"
+         x-trap.noscroll="$store.reporte.abierto"
+         :hidden="!$store.reporte.abierto" x-cloak
+         role="dialog" aria-modal="true" aria-labelledby="reporte-foto-titulo"
+         @keydown.escape="$store.reporte.cerrar()"
+         @click.self="$store.reporte.cerrar()">
+        <div class="reporte-foto-box" @click.stop>
+            <div class="reporte-foto-head">
+                <h2 id="reporte-foto-titulo">Reportar foto</h2>
+                <button type="button" class="reporte-foto-close" @click="$store.reporte.cerrar()" aria-label="Cerrar">
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-xmark"></use></svg>
+                </button>
+            </div>
+            <form class="reporte-foto-form" @submit.prevent="$store.reporte.enviar()">
+                <p class="reporte-foto-foto" x-text="$store.reporte.foto ? ('Foto: ' + ($store.reporte.foto.title || 'Sin título')) : ''"></p>
+                <label for="reporte-motivo">Motivo</label>
+                <select id="reporte-motivo" class="gochi-modal-input" x-model="$store.reporte.motivo" required>
+                    <option value="">Selecciona un motivo</option>
+                    <option value="desnudo">Desnudo o contenido sexual</option>
+                    <option value="violencia">Violencia</option>
+                    <option value="spam">Spam o publicidad</option>
+                    <option value="derechos">Derechos de autor</option>
+                    <option value="otro">Otro</option>
+                </select>
+                <label for="reporte-detalle">Detalle (opcional)</label>
+                <textarea id="reporte-detalle" class="gochi-modal-input reporte-foto-textarea" maxlength="200" rows="3" x-model="$store.reporte.detalle"></textarea>
+                <span class="reporte-foto-contador" x-text="$store.reporte.detalle.length + '/200'"></span>
+                <p class="reporte-foto-error" :hidden="!$store.reporte.error" x-text="$store.reporte.error"></p>
+                <div class="reporte-foto-acciones">
+                    <button type="button" class="gochi-confirm-btn gochi-confirm-btn--cancelar" @click="$store.reporte.cerrar()" :disabled="$store.reporte.enviando">Cancelar</button>
+                    <button type="submit" class="gochi-confirm-btn gochi-confirm-btn--confirmar" :disabled="$store.reporte.enviando || !$store.reporte.motivo" x-text="$store.reporte.enviando ? 'Enviando...' : 'Enviar reporte'"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script>
         let adminAutenticado = false;
         let filtroActual = 'populares'; // 'populares' o 'recientes'
@@ -302,6 +341,71 @@
             pendientes: [],
             pendientesEstado: 'inicial',
             errorPendientes: ''
+        });
+
+        window.Alpine.store('reporte', {
+            abierto: false,
+            foto: null,
+            motivo: '',
+            detalle: '',
+            enviando: false,
+            error: '',
+            abrir(foto) {
+                if (!foto) return;
+                this.foto = foto;
+                this.motivo = '';
+                this.detalle = '';
+                this.error = '';
+                this.enviando = false;
+                this.abierto = true;
+            },
+            cerrar() {
+                if (this.enviando) return;
+                this.abierto = false;
+                this.foto = null;
+            },
+            async enviar() {
+                if (this.enviando) return;
+                if (!this.foto) {
+                    this.error = 'No se pudo identificar la foto.';
+                    return;
+                }
+                if (!this.motivo) {
+                    this.error = 'Elige un motivo para el reporte.';
+                    return;
+                }
+                if (!window.supabase) {
+                    this.error = 'Supabase no está disponible. Recarga la página.';
+                    return;
+                }
+                this.enviando = true;
+                this.error = '';
+                try {
+                    const { data, error } = await window.supabase.rpc('reportar_foto_galeria', {
+                        p_image_id: Number(this.foto.id),
+                        p_motivo: this.motivo,
+                        p_detalle: this.detalle.trim()
+                    });
+                    if (error) throw error;
+                    if (!data || !data.ok) {
+                        const codigo = data && data.error;
+                        if (codigo === 'foto_invalida') this.error = 'Esa foto ya no está disponible.';
+                        else if (codigo === 'motivo_invalido') this.error = 'Elige un motivo válido.';
+                        else if (codigo === 'detalle_largo') this.error = 'El detalle no puede superar 200 caracteres.';
+                        else if (codigo === 'limite') this.error = 'Has enviado demasiados reportes. Inténtalo más tarde.';
+                        else this.error = 'No se pudo enviar el reporte. Inténtalo de nuevo.';
+                        return;
+                    }
+                    window.mostrarToast?.(data.duplicado ? 'Ya reportaste esta foto. Gracias.' : 'Gracias. Revisaremos la foto.');
+                    this.abierto = false;
+                    this.foto = null;
+                } catch (e) {
+                    console.error('Error enviando reporte:', e);
+                    this.error = 'No se pudo enviar el reporte. Inténtalo de nuevo.';
+                } finally {
+                    this.enviando = false;
+                }
+            }
         });
 
         window.Alpine.store('subida', {
@@ -344,7 +448,7 @@
                 }
                 const TIPOS_PERMITIDOS = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'];
                 if (!TIPOS_PERMITIDOS.includes(file.type)) {
-                    this.aviso('❌ Formato no admitido. Usa JPG, PNG, GIF o WEBP.', 'error');
+                    this.aviso('❌ Formato no admitido. Usa JPG, PNG, GIF, WEBP o AVIF.', 'error');
                     return;
                 }
                 const buf = await file.arrayBuffer();
@@ -543,6 +647,7 @@
                 case 'filter-gallery': cambiarFiltroGaleria(trigger.dataset.filter); break;
                 case 'delete-image': if (imageId) eliminarImagenPublica(imageId); break;
                 case 'toggle-like': if (imageId) toggleLike(imageId); break;
+                case 'report-photo': if (imageId) abrirReporteFoto(imageId); break;
                 case 'approve-image': if (imageId) aprobarImagen(imageId); break;
                 case 'save-author': if (imageId) guardarAutorImagen(imageId); break;
             }
@@ -1015,6 +1120,18 @@
             }
         }
 
+        // Abre el modal de reporte desde la tarjeta sin abrir el lightbox.
+        function abrirReporteFoto(imageId) {
+            const store = obtenerStoreGaleria();
+            const foto = store ? store.fotos.find(f => String(f.id) === String(imageId)) : null;
+            if (!foto) {
+                mostrarToast('No se pudo identificar la foto.', true);
+                return;
+            }
+            const reporte = window.Alpine?.store('reporte');
+            if (reporte) reporte.abrir(foto);
+        }
+
         async function eliminarImagenPublica(id) {
             if (!(await validarSesionStreamer())) {
                 adminAutenticado = false;
@@ -1113,8 +1230,8 @@
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.50.1" defer></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
+    <script src="main.js?v=1.51.0" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
             crossorigin="anonymous"></script>

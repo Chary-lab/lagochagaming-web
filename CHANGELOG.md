@@ -3,6 +3,20 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.51.0] - 2026-11-04
+
+### Deuda de auditoría: seguridad, nuevas funciones y diseño
+
+- Reportar foto: botón en cada tarjeta de la galería y modal con motivo y detalle. Los reportes se guardan en `galeria_reportes` (solo admin los lee) y el panel global gana la pestaña Reportes con marcar revisado y eliminar.
+- Cola de la sala en GochiWatch: el streamer encola videos (`cine_cola`) y los reproduce o quita desde el panel sin tocar la tabla.
+- Tokens de diseño en `style.css`: radios, espaciado y tamaños de fuente (`--r-*`, `--space-*`, `--fs-*`) aplicados a navbar, botones, tarjetas, modales e inputs.
+- SRI en las cinco páginas con CDN: supabase-js, Alpine, `@alpinejs/focus` y hls.js se cargan con `integrity` y `crossorigin`.
+- `comunidad_chat` deja de exponer mensajes ocultos por REST: la política SELECT filtra `oculto` y el shadowban ya no se salta leyendo la tabla.
+- `login_comunidad` añade bloqueo por cuenta (5 PIN fallidos en 15 minutos) además del límite por IP.
+- `pg_net` sale de `public` a `extensions`; los cron jobs y las llamadas `net.http_get` siguen intactos.
+- Cierre de auditoría en la interfaz: focus visible en inputs, flechas en las pestañas del sorteo, tarjeta de galería sin botones anidados, toast por encima de las confirmaciones, imágenes con dimensiones, `forced-colors`, scroll móvil con movimiento reducido y limpieza de código muerto.
+- `_headers` documenta el trabajo pendiente para cuando se migre de GitHub Pages; en Pages sigue sin aplicarse.
+
 ## [1.50.1] - 2026-11-04
 
 ### Cierre de auditoría: documentación y robots

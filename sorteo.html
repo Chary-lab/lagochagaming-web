@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Sorteos de LaGochaGaming">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.50.1">
+    <link rel="stylesheet" href="style.css?v=1.51.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -161,7 +161,7 @@
                             <select id="select-peso-admin" class="admin-bonus-select" aria-label="Peso del usuario">
                                 <option value="1">1x (Normal)</option>
                                 <option value="2">2x (Doble Suerte 🔥)</option>
-                                <option value="3">3x (Triple Suerte âš¡)</option>
+                                <option value="3">3x (Triple Suerte ⚡)</option>
                                 <option value="5">5x (Mega Suerte 👑)</option>
                             </select>
                             <button type="button" data-action="add-bonus" class="btn-primary">Añadir</button>
@@ -208,7 +208,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script>
         let sorteoAbierto = false;
         let modoManualAbierto = false;
@@ -367,6 +367,27 @@
                 }
             }
         }
+
+        // Navegación por teclado entre pestañas (patrón WAI-ARIA de tabs).
+        document.querySelectorAll('.mode-tabs [role="tab"]').forEach((btn) => {
+            btn.addEventListener('keydown', (e) => {
+                const teclas = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+                if (!teclas.includes(e.key)) return;
+                e.preventDefault();
+                const botones = Array.from(document.querySelectorAll('.mode-tabs [role="tab"]')).filter(b => !b.hidden);
+                if (!botones.length) return;
+                const i = botones.indexOf(btn);
+                let destino = i < 0 ? 0 : i;
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') destino = (i + 1) % botones.length;
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') destino = (i - 1 + botones.length) % botones.length;
+                if (e.key === 'Home') destino = 0;
+                if (e.key === 'End') destino = botones.length - 1;
+                const siguiente = botones[destino];
+                if (!siguiente) return;
+                cambiarTab(siguiente.id === 'tab-streamer' ? 'streamer' : 'manual');
+                siguiente.focus();
+            });
+        });
 
         function salirModoStreamer() {
             document.getElementById('sec-modo-streamer').style.display = 'none';
@@ -908,8 +929,8 @@
         </div>
     </footer>
 
-    <script src="main.js?v=1.50.1" defer></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
+    <script src="main.js?v=1.51.0" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
             crossorigin="anonymous"></script>

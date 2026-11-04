@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.50.1">
+    <link rel="stylesheet" href="style.css?v=1.51.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -92,7 +92,7 @@
                             <span class="leaderboard-user">
                                 <span class="leaderboard-avatar">
                                     <template x-if="user.avatar">
-                                        <img :src="user.avatar" alt="" loading="lazy">
+                                        <img :src="user.avatar" alt="" loading="lazy" width="26" height="26">
                                     </template>
                                     <template x-if="!user.avatar">
                                         <span class="leaderboard-avatar-inicial" x-text="user.inicial"></span>
@@ -257,7 +257,7 @@
                     <div id="viewers-count" class="viewers-count">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-eye"></use></svg> <span id="viewers-num">0</span> espectadores
                     </div>
-                    <img id="canal-preview" class="canal-preview" alt="Vista previa del canal" loading="lazy" decoding="async">
+                    <img id="canal-preview" class="canal-preview" alt="Vista previa del canal" loading="lazy" decoding="async" width="1280" height="720">
                     <div id="canal-info" class="canal-info"></div>
                     <div id="canal-offline" class="canal-offline">
                         <img src="img/mcchary/empty.webp" alt="La Gocha está dormida" class="canal-offline-img">
@@ -341,7 +341,7 @@
             <template x-for="premio in $store.tienda.premios" :key="premio.id">
                 <div class="tienda-item" :class="{ agotado: premio.stock !== null && premio.stock <= 0, obtenido: $store.tienda.yaObtenido(premio) }">
                     <template x-if="premio.tipo === 'avatar' && premio.avatar_url">
-                        <div class="tienda-item-avatar"><img :src="premio.avatar_url" :alt="premio.nombre" loading="lazy"></div>
+                        <div class="tienda-item-avatar"><img :src="premio.avatar_url" :alt="premio.nombre" loading="lazy" width="54" height="54"></div>
                     </template>
                     <div class="tienda-item-icon" x-show="premio.tipo !== 'avatar' || !premio.avatar_url" x-text="premio.icono"></div>
                     <div class="tienda-item-info">
@@ -449,10 +449,10 @@
     </div>
 
     <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.50.1" defer></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
+    <script src="main.js?v=1.51.0" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
             crossorigin="anonymous"></script>
