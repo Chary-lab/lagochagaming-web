@@ -2242,6 +2242,26 @@ window.CHAT_KICK = {
             hosts.forEach((host) => { if (host._actualizarCuenta) host._actualizarCuenta(sesion); });
         };
 
+        // Reutiliza la autorizacion de Kick guardada para la cuenta de comunidad.
+        // Solo funciona con una sesion valida: al cerrar sesion se invalida.
+        const reconectar = async () => {
+            const tokenComunidad = localStorage.getItem('comunidad_session_token');
+            if (!tokenComunidad) return null;
+            try {
+                const res = await fetch(api.funcion + '/kick-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accion: 'reconectar', token: tokenComunidad })
+                });
+                const datos = await res.json().catch(() => ({}));
+                if (!res.ok || !datos.ok || !datos.token || !datos.usuario) return null;
+                localStorage.setItem(api.claveToken, datos.token);
+                return { token: datos.token, usuario: datos.usuario };
+            } catch (e) {
+                return null;
+            }
+        };
+
         window.CHAT_KICK.conectar = async (host) => {
             // Conectar es el login general con Kick: si ya hay cuenta de
             // comunidad se vincula; si no, se crea o recupera automaticamente.
@@ -2270,6 +2290,18 @@ window.CHAT_KICK = {
                     return;
                 }
                 if (sesion.estado === 401) localStorage.removeItem(api.claveToken);
+            }
+
+            // Sin token de chat, pero con cuenta de comunidad vinculada: Kick
+            // ya autorizó antes y se reconecta sin abrir OAuth otra vez.
+            if (tokenComunidad) {
+                const renovada = await reconectar();
+                if (renovada) {
+                    window.CHAT_KICK.sesion = renovada;
+                    sincronizar();
+                    host._mostrarAviso('');
+                    return;
+                }
             }
 
             sessionStorage.setItem('gocha_kick_objetivo', 'chat');
@@ -2391,6 +2423,7 @@ window.CHAT_KICK = {
 
         await completarLogin();
         window.CHAT_KICK.sesion = await validarSesion();
+        if (!window.CHAT_KICK.sesion) window.CHAT_KICK.sesion = await reconectar();
         sincronizar();
         await cargarMensajes();
         escuchar();
@@ -2686,6 +2719,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <button type="button" class="btn-primary btn-muted"
                     x-show="!$store.perfil.kickUsuario"
                     x-on:click="$store.perfil.vincularKick()">Vincular Kick</button>
+            <button type="button" class="btn-primary btn-muted mp-kick-quitar"
+                    x-show="$store.perfil.kickUsuario"
+                    x-on:click="$store.perfil.desvincularKick()">Desvincular Kick</button>
           </div>
           <p class="mp-error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
           <div class="mp-actions">
@@ -2774,6 +2810,31 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       vincularKick() {
         window.KICK_COMUNIDAD?.vincular();
+      },
+      async desvincularKick() {
+        const token = localStorage.getItem('comunidad_session_token');
+        if (!token) return;
+        if (!window.confirm('¿Desvincular tu cuenta de Kick? Tendrás que volver a conectarla para escribir en el chat.')) return;
+        try {
+          const res = await fetch(SUPABASE_URL + '/functions/v1/kick-comunidad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accion: 'desvincular', token })
+          });
+          const datos = await res.json().catch(() => ({}));
+          if (!res.ok || !datos.ok) {
+            this.error = datos.error || 'No se pudo desvincular Kick.';
+            return;
+          }
+          if (typeof window.cerrarSesionKick === 'function') await window.cerrarSesionKick();
+          else localStorage.removeItem('gocha_kick_token');
+          this.usuario.kick_user_id = null;
+          this.usuario.kick_username = null;
+          window.actualizarSesionUsuarioComunidad({ kick_user_id: null, kick_username: null });
+          window.mostrarToast?.('Kick desvinculado.', false);
+        } catch (e) {
+          this.error = 'No se pudo desvincular Kick.';
+        }
       },
 
       abrir(vista) {

@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.44.0] - 2026-11-04
+
+### El chat reconecta Kick sin pedir OAuth otra vez
+
+- Al cerrar sesión, el chat se desconecta, pero Kick conserva la autorización vinculada a la cuenta.
+- Al volver a entrar con la misma cuenta, el chat se reconecta solo mientras Kick siga autorizado.
+- El servidor guarda una sola sesión de Kick por cuenta y rota el token del navegador.
+- Nuevo botón "Desvincular Kick" en el perfil para borrar la autorización guardada.
+- Sin APK nueva: todo vive en la web y en las funciones de Supabase.
+
 ## [1.43.10] - 2026-11-04
 
 ### El chat ya no rebota a Comunidad al volver de Kick
