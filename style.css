@@ -4566,42 +4566,51 @@ body.light-mode {
     accent-color: var(--accent-color);
 }
 
-.admin-usuarios-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
+.gochi-tabla--admin td {
+    vertical-align: top;
 }
-.admin-usuario-card {
-    position: relative;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.035), transparent 55%), var(--card-bg-subtle);
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+
+.gochi-tabla--admin th,
+.gochi-tabla--admin td {
+    padding: 8px 10px;
+    font-size: 0.82rem;
 }
-.admin-usuario-card:hover {
-    border-color: var(--accent-color);
-    box-shadow: var(--glow);
-    transform: translateY(-2px);
-}
-.admin-usuario-card.es-staff {
-    border-color: rgba(255, 212, 59, 0.35);
-}
-.admin-usuario-card.baneado {
-    border-color: #ff4d4d;
-    background: rgba(255, 77, 77, 0.05);
-}
-.admin-usuario-card.shadowban {
-    border-color: #ffd43b;
-    background: rgba(255, 212, 59, 0.05);
-}
-.admin-usuario-info {
+
+.admin-tabla-usuario {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+}
+
+.admin-tabla-usuario .admin-usuario-avatar-btn,
+.admin-tabla-usuario .admin-usuario-avatar-img,
+.admin-tabla-usuario .admin-usuario-avatar {
+    width: 40px;
+    height: 40px;
+}
+
+.fila-staff > td:first-child {
+    box-shadow: inset 3px 0 0 rgba(255, 212, 59, 0.55);
+}
+
+.fila-baneado > td {
+    background: rgba(255, 77, 77, 0.06);
+}
+
+.fila-shadowban > td {
+    background: rgba(255, 212, 59, 0.06);
+}
+
+.admin-tabla-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.admin-tabla-acciones .btn-admin-accion {
+    flex: 0 1 auto;
+    padding: 6px 10px;
+    font-size: 0.75rem;
 }
 .admin-usuario-avatar-btn {
     position: relative;
@@ -4684,7 +4693,7 @@ body.light-mode {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    align-items: flex-end;
+    align-items: flex-start;
 }
 .ban-hasta {
     font-size: 0.7rem;
@@ -4724,12 +4733,6 @@ body.light-mode {
     font-size: 0.68rem;
     color: #53fc18;
     opacity: 0.85;
-}
-.admin-usuario-acciones {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    margin-top: auto;
 }
 .btn-admin-accion.btn-perfil {
     background: var(--card-bg-subtle);
@@ -4807,24 +4810,15 @@ body.light-mode {
     color: var(--text-muted);
 }
 
-.auditoria-item {
-    background: var(--card-bg-subtle);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 10px;
-}
 .auditoria-accion {
     font-weight: 700;
     color: var(--accent-color);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    margin-bottom: 6px;
 }
 .auditoria-detalle {
     font-size: 0.75rem;
     color: var(--text-muted);
-    margin-bottom: 8px;
     max-height: 200px;
     overflow-y: auto;
 }
@@ -4838,13 +4832,6 @@ body.light-mode {
     white-space: pre-wrap;
     word-break: break-word;
 }
-.auditoria-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-}
-
 /* === TIENDA DE PUNTOS === */
 .tienda-carrusel {
     position: relative;
@@ -6218,8 +6205,6 @@ body.light-mode .admin-login-card .admin-login-error { color: #b91c1c; }
 .desc-columnas { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
 .desc-bloque { margin-bottom: 18px; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg-subtle); }
 .desc-bloque h3 { margin: 0 0 10px; font-size: 0.9rem; }
-.desc-fila { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: 0.85rem; border-bottom: 1px dashed var(--border-color); }
-.desc-fila:last-child { border-bottom: 0; }
 .desc-etiqueta { font-size: 0.78rem; color: var(--text-muted); }
 .desc-barras { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; min-height: 120px; padding-top: 8px; }
 .desc-barra { display: flex; flex: 1 1 0; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
@@ -7070,6 +7055,13 @@ body.light-mode .gochi-alerta { color: #1f2937; }
         letter-spacing: 0.04em;
         color: var(--text-muted);
     }
+    .gochi-tabla--admin td {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .gochi-tabla--admin .admin-tabla-acciones { width: 100%; }
+    .gochi-tabla--admin .admin-tabla-acciones .btn-admin-accion { flex: 1 1 auto; }
 }
 
 /* --- Estado vacío compartido ---------------------------------------------- */

@@ -2,7 +2,7 @@
 
 Documento de trabajo del rediseño de LaGochaGaming con **Tailwind 3.4.17 (Play CDN) + Alpine 3.17.5 + componentes Pines UI**, sin build, sin bundler y sin archivos nuevos de runtime.
 
-Estado: **1.61.0**. Fases F1–F5 cerradas y migradas a las superficies reales. F6 pendiente solo en medición (CWV en Redmi y CPU del chat con 50 mensajes); el resto del documento queda como registro del plan y de las decisiones.
+Estado: **1.61.1**. Fases F1–F5 cerradas y migradas a las superficies reales. F6 pendiente solo en medición (CWV en Redmi y CPU del chat con 50 mensajes); el resto del documento queda como registro del plan y de las decisiones.
 
 ---
 
@@ -36,7 +36,7 @@ Estado: **1.61.0**. Fases F1–F5 cerradas y migradas a las superficies reales. 
 
 ---
 
-## 3. Estado de la migración (1.61.0)
+## 3. Estado de la migración (1.61.1)
 
 ### 3.1 Componentes Pines
 
@@ -45,7 +45,7 @@ Estado: **1.61.0**. Fases F1–F5 cerradas y migradas a las superficies reales. 
 - **Badge / chip** — `gochi-chip` en estados y roles del panel, y `gochiChip()` en la metadata de clips. ✅
 - **Switch** — `gochi-switch` en el panel de administración. ✅
 - **Progress** — `gochi-progress` en las barras de rango de Comunidad. ✅
-- **Tabla responsive** — `gochi-tabla` existe con respaldo ≤760 px, pero el panel admin usa tarjetas y listas: no hay `<table>` en el sitio. Queda como componente de reserva. 🟡
+- **Tabla responsive** — `gochi-tabla` + `gochi-tabla-wrap` en Usuarios, Descargas y Auditoría del panel global (4 columnas en Usuarios, conexión bajo el apodo); ≤760 px cada fila pasa a tarjeta con `data-label`. ✅
 - **Paginación** — `gochi-paginacion` en el panel admin; el resto de listas conserva su "cargar más". ✅
 - **Alerta inline** — `gochi-alerta` en formularios y feedback de subida. ✅
 - **Breadcrumb** — `gochi-breadcrumb` en Comunidad, Galería, Sorteo y Cine, coherente con el JSON-LD. ✅
@@ -174,7 +174,7 @@ Cada fase es un commit desplegable, con bump de `VERSION`, entrada en `CHANGELOG
 | Badge | estados/roles del panel, clips | ✅ |
 | Switch / Checkbox | admin | ✅ |
 | Progress | barras de rango | ✅ |
-| Table | respaldo sin uso (no hay tablas) | 🟡 |
+| Table | panel admin (usuarios, descargas, auditoría) | ✅ |
 | Pagination | admin; resto con "cargar más" | ✅ |
 | Alert | errores de formulario | ✅ |
 | Breadcrumb | subpáginas | ✅ |
@@ -219,7 +219,7 @@ Los 42 elementos de Pines no se copian enteros: solo entra lo que sustituye UI e
 
 ## 10. Cierre
 
-F1–F5 entregadas entre 1.54.0 y 1.61.0. Cada fase fue un commit `vX.Y.Z - resumen` con bump de `VERSION`, `CHANGELOG.md`, `?v=` actualizado y checks verdes.
+F1–F5 entregadas entre 1.54.0 y 1.61.1. Cada fase fue un commit `vX.Y.Z - resumen` con bump de `VERSION`, `CHANGELOG.md`, `?v=` actualizado y checks verdes.
 
 Pendiente de F6:
 1. Medir CWV en el Redmi con el pack activo.

@@ -2211,56 +2211,77 @@ function insertarPanelAdminGlobal() {
                         <span class="gochi-skeleton gochi-skeleton--texto"></span>
                         <span class="gochi-skeleton gochi-skeleton--texto"></span>
                     </div>
-                    <div class="admin-usuarios-grid" x-show="$store.adminPanel.usuariosEstado === 'lista'">
-                        <template x-for="u in $store.adminPanel.usuarios" :key="u.id">
-                            <article class="admin-usuario-card" :class="{ baneado: u.baneado_activo, shadowban: u.shadowban, 'es-staff': u.rol !== 'user' }">
-                                <div class="admin-usuario-info">
-                                    <button type="button" class="admin-usuario-avatar-btn"
-                                            x-on:click="$store.adminPanel.verPerfil(u)"
-                                            x-bind:title="'Ver perfil de ' + u.apodo"
-                                            x-bind:aria-label="'Ver perfil de ' + u.apodo">
-                                        <img class="admin-usuario-avatar-img" x-show="$store.adminPanel.avatarDe(u)"
-                                             x-bind:src="$store.adminPanel.avatarDe(u)" alt="" loading="lazy">
-                                        <span class="admin-usuario-avatar" x-show="!$store.adminPanel.avatarDe(u)"
-                                              x-text="(u.apodo || '?').charAt(0).toUpperCase()"></span>
-                                        <span class="admin-avatar-dot" :class="{ online: u.en_linea }" aria-hidden="true"></span>
-                                    </button>
-                                    <div class="admin-usuario-datos">
-                                        <div class="admin-usuario-linea">
-                                            <button type="button" class="admin-usuario-apodo admin-link-perfil"
-                                                    x-on:click="$store.adminPanel.verPerfil(u)" x-text="u.apodo"></button>
-                                            <span class="admin-rol-badge gochi-chip gochi-chip--sm" data-tono="aviso" x-show="u.rol !== 'user'" x-text="u.rol"></span>
-                                            <span class="admin-kick-badge gochi-chip gochi-chip--sm" data-tono="info" x-show="u.kick_user_id" x-text="'KICK'"></span>
-                                        </div>
-                                        <span class="admin-usuario-meta">
-                                            <span class="admin-stat"><strong x-text="u.puntos"></strong> pts</span>
-                                            <span class="rango-badge" :class="'rango-' + window.claveRango(u.rango, u.puntos)" x-text="window.etiquetaRango(u.rango, u.puntos)"></span>
-                                        </span>
-                                        <span class="admin-usuario-ultima"
-                                              x-text="u.en_linea ? 'En línea ahora' : (u.ultima_actividad ? 'Última conexión: ' + $store.adminPanel.hace(u.ultima_actividad) : 'Última conexión: sin datos')"></span>
-                                        <span class="admin-usuario-kick" x-show="u.kick_username"
-                                              x-text="'Kick: @' + u.kick_username"></span>
-                                    </div>
-                                </div>
-                                <div class="admin-usuario-estado">
-                                    <span class="gochi-chip gochi-chip--sm"
-                                          :data-tono="u.baneado_activo ? 'peligro' : (u.shadowban ? 'aviso' : 'exito')"
-                                          x-text="u.baneado_activo ? '🔴 Baneado' : (u.shadowban ? '🟡 Shadowban' : 'Sin sanción')"></span>
-                                    <template x-if="u.baneado_hasta && u.baneado_activo">
-                                        <span class="ban-hasta" x-text="'Hasta: ' + $store.adminPanel.fecha(u.baneado_hasta)"></span>
-                                    </template>
-                                </div>
-                                <div class="admin-usuario-acciones">
-                                    <button type="button" class="btn-admin-accion btn-perfil" x-on:click="$store.adminPanel.verPerfil(u)">Ver perfil</button>
-                                    <button type="button" class="btn-admin-accion btn-ban" x-on:click="$store.adminPanel.toggleBan(u)" x-text="u.baneado_activo ? 'Desbanear' : 'Banear'"></button>
-                                    <button type="button" class="btn-admin-accion btn-shadowban" x-on:click="$store.adminPanel.toggleShadowban(u)" x-text="u.shadowban ? 'Quitar Shadowban' : 'Shadowban'"></button>
-                                    <button type="button" class="btn-admin-accion btn-eliminar" x-show="u.rol === 'user'"
-                                            x-on:click="$store.adminPanel.eliminarUsuario(u)">Eliminar</button>
-                                </div>
-                            </article>
-                        </template>
-                        <p class="gallery-empty" x-show="!$store.adminPanel.usuarios.length">No hay usuarios.</p>
+                    <div class="gochi-tabla-wrap" x-show="$store.adminPanel.usuariosEstado === 'lista'">
+                        <table class="gochi-tabla gochi-tabla--admin">
+                            <caption class="visually-hidden">Usuarios de la comunidad</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Usuario</th>
+                                    <th scope="col">Puntos</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="u in $store.adminPanel.usuarios" :key="u.id">
+                                    <tr :class="{ 'fila-baneado': u.baneado_activo, 'fila-shadowban': u.shadowban, 'fila-staff': u.rol !== 'user' }">
+                                        <td data-label="Usuario">
+                                            <div class="admin-tabla-usuario">
+                                                <button type="button" class="admin-usuario-avatar-btn"
+                                                        x-on:click="$store.adminPanel.verPerfil(u)"
+                                                        x-bind:title="'Ver perfil de ' + u.apodo"
+                                                        x-bind:aria-label="'Ver perfil de ' + u.apodo">
+                                                    <img class="admin-usuario-avatar-img" x-show="$store.adminPanel.avatarDe(u)"
+                                                         x-bind:src="$store.adminPanel.avatarDe(u)" alt="" loading="lazy">
+                                                    <span class="admin-usuario-avatar" x-show="!$store.adminPanel.avatarDe(u)"
+                                                          x-text="(u.apodo || '?').charAt(0).toUpperCase()"></span>
+                                                    <span class="admin-avatar-dot" :class="{ online: u.en_linea }" aria-hidden="true"></span>
+                                                </button>
+                                                <div class="admin-usuario-datos">
+                                                    <div class="admin-usuario-linea">
+                                                        <button type="button" class="admin-usuario-apodo admin-link-perfil"
+                                                                x-on:click="$store.adminPanel.verPerfil(u)" x-text="u.apodo"></button>
+                                                        <span class="admin-rol-badge gochi-chip gochi-chip--sm" data-tono="aviso" x-show="u.rol !== 'user'" x-text="u.rol"></span>
+                                                        <span class="admin-kick-badge gochi-chip gochi-chip--sm" data-tono="info" x-show="u.kick_user_id" x-text="'KICK'"></span>
+                                                    </div>
+                                                    <span class="admin-usuario-kick" x-show="u.kick_username"
+                                                          x-text="'@' + u.kick_username"></span>
+                                                    <span class="admin-usuario-ultima"
+                                                          x-text="u.en_linea ? 'En línea ahora' : (u.ultima_actividad ? $store.adminPanel.hace(u.ultima_actividad) : 'Sin datos')"></span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td data-label="Puntos">
+                                            <span class="admin-usuario-meta">
+                                                <span class="admin-stat"><strong x-text="u.puntos"></strong> pts</span>
+                                                <span class="rango-badge" :class="'rango-' + window.claveRango(u.rango, u.puntos)" x-text="window.etiquetaRango(u.rango, u.puntos)"></span>
+                                            </span>
+                                        </td>
+                                        <td data-label="Estado">
+                                            <div class="admin-usuario-estado">
+                                                <span class="gochi-chip gochi-chip--sm"
+                                                      :data-tono="u.baneado_activo ? 'peligro' : (u.shadowban ? 'aviso' : 'exito')"
+                                                      x-text="u.baneado_activo ? '🔴 Baneado' : (u.shadowban ? '🟡 Shadowban' : 'Sin sanción')"></span>
+                                                <template x-if="u.baneado_hasta && u.baneado_activo">
+                                                    <span class="ban-hasta" x-text="'Hasta: ' + $store.adminPanel.fecha(u.baneado_hasta)"></span>
+                                                </template>
+                                            </div>
+                                        </td>
+                                        <td data-label="Acciones">
+                                            <div class="admin-tabla-acciones">
+                                                <button type="button" class="btn-admin-accion btn-perfil" x-on:click="$store.adminPanel.verPerfil(u)">Ver perfil</button>
+                                                <button type="button" class="btn-admin-accion btn-ban" x-on:click="$store.adminPanel.toggleBan(u)" x-text="u.baneado_activo ? 'Desbanear' : 'Banear'"></button>
+                                                <button type="button" class="btn-admin-accion btn-shadowban" x-on:click="$store.adminPanel.toggleShadowban(u)" x-text="u.shadowban ? 'Quitar Shadowban' : 'Shadowban'"></button>
+                                                <button type="button" class="btn-admin-accion btn-eliminar" x-show="u.rol === 'user'"
+                                                        x-on:click="$store.adminPanel.eliminarUsuario(u)">Eliminar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
                     </div>
+                    <p class="gallery-empty" x-show="$store.adminPanel.usuariosEstado === 'lista' && !$store.adminPanel.usuarios.length">No hay usuarios.</p>
                     <div class="admin-paginacion gochi-paginacion" x-show="$store.adminPanel.totalUsuarios > 50">
                         <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarUsuarios(-1)" :disabled="$store.adminPanel.paginaUsuarios === 0">← Anterior</button>
                         <span class="pag-info gochi-paginacion-info" x-text="'Página ' + ($store.adminPanel.paginaUsuarios + 1) + ' de ' + Math.ceil($store.adminPanel.totalUsuarios / 50)"></span>
@@ -2344,22 +2365,38 @@ function insertarPanelAdminGlobal() {
                         <div class="desc-columnas">
                             <div class="desc-bloque">
                                 <h3>Por versión descargada</h3>
-                                <template x-for="v in ($store.adminPanel.descargas.porVersion || [])" :key="'v-' + v.version">
-                                    <div class="desc-fila">
-                                        <span x-text="v.version || 'sin versión'"></span>
-                                        <strong x-text="v.total"></strong>
-                                    </div>
-                                </template>
+                                <table class="gochi-tabla">
+                                    <caption class="visually-hidden">Descargas por versión descargada</caption>
+                                    <thead>
+                                        <tr><th scope="col">Versión</th><th scope="col">Descargas</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="v in ($store.adminPanel.descargas.porVersion || [])" :key="'v-' + v.version">
+                                            <tr>
+                                                <td data-label="Versión" x-text="v.version || 'sin versión'"></td>
+                                                <td data-label="Descargas"><strong x-text="v.total"></strong></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                                 <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porVersion || []).length">Sin datos.</p>
                             </div>
                             <div class="desc-bloque">
                                 <h3>Por origen</h3>
-                                <template x-for="o in ($store.adminPanel.descargas.porOrigen || [])" :key="'o-' + o.origen">
-                                    <div class="desc-fila">
-                                        <span x-text="o.origen"></span>
-                                        <strong x-text="o.total"></strong>
-                                    </div>
-                                </template>
+                                <table class="gochi-tabla">
+                                    <caption class="visually-hidden">Descargas por origen</caption>
+                                    <thead>
+                                        <tr><th scope="col">Origen</th><th scope="col">Descargas</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="o in ($store.adminPanel.descargas.porOrigen || [])" :key="'o-' + o.origen">
+                                            <tr>
+                                                <td data-label="Origen" x-text="o.origen"></td>
+                                                <td data-label="Descargas"><strong x-text="o.total"></strong></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                                 <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porOrigen || []).length">Sin datos.</p>
                             </div>
                         </div>
@@ -2367,37 +2404,59 @@ function insertarPanelAdminGlobal() {
                         <div class="desc-columnas">
                             <div class="desc-bloque">
                                 <h3>Versiones instaladas</h3>
-                                <template x-for="v in ($store.adminPanel.descargas.porVersionInstalada || [])" :key="'vi-' + v.version">
-                                    <div class="desc-fila">
-                                        <span x-text="v.version === '?' ? 'sin versión' : 'v' + v.version"></span>
-                                        <strong x-text="v.total"></strong>
-                                    </div>
-                                </template>
+                                <table class="gochi-tabla">
+                                    <caption class="visually-hidden">Dispositivos por versión instalada</caption>
+                                    <thead>
+                                        <tr><th scope="col">Versión</th><th scope="col">Dispositivos</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="v in ($store.adminPanel.descargas.porVersionInstalada || [])" :key="'vi-' + v.version">
+                                            <tr>
+                                                <td data-label="Versión" x-text="v.version === '?' ? 'sin versión' : 'v' + v.version"></td>
+                                                <td data-label="Dispositivos"><strong x-text="v.total"></strong></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                                 <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porVersionInstalada || []).length">Sin datos todavía.</p>
                             </div>
                             <div class="desc-bloque">
                                 <h3>Actualizaciones por salto</h3>
-                                <template x-for="a in ($store.adminPanel.descargas.porActualizacion || [])" :key="'a-' + a.desde_version + '-' + a.hasta_version">
-                                    <div class="desc-fila">
-                                        <span x-text="'v' + (a.desde_version || '?') + ' → v' + a.hasta_version"></span>
-                                        <strong x-text="a.total"></strong>
-                                    </div>
-                                </template>
+                                <table class="gochi-tabla">
+                                    <caption class="visually-hidden">Actualizaciones por salto de versión</caption>
+                                    <thead>
+                                        <tr><th scope="col">Salto</th><th scope="col">Total</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="a in ($store.adminPanel.descargas.porActualizacion || [])" :key="'a-' + a.desde_version + '-' + a.hasta_version">
+                                            <tr>
+                                                <td data-label="Salto" x-text="'v' + (a.desde_version || '?') + ' → v' + a.hasta_version"></td>
+                                                <td data-label="Total"><strong x-text="a.total"></strong></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                                 <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porActualizacion || []).length">Sin datos todavía.</p>
                             </div>
                         </div>
 
                         <div class="desc-bloque">
                             <h3>Últimas actualizaciones</h3>
-                            <div class="desc-lista">
-                                <template x-for="(a, i) in ($store.adminPanel.descargas.ultimasActualizaciones || [])" :key="'ua-' + i">
-                                    <div class="desc-fila">
-                                        <span x-text="$store.adminPanel.fecha(a.creado_en)"></span>
-                                        <span class="desc-etiqueta" x-text="'v' + (a.desde_version || '?') + ' → v' + a.hasta_version"></span>
-                                    </div>
-                                </template>
-                                <p class="gallery-empty" x-show="!($store.adminPanel.descargas.ultimasActualizaciones || []).length">Sin datos todavía.</p>
-                            </div>
+                            <table class="gochi-tabla">
+                                <caption class="visually-hidden">Últimas actualizaciones detectadas</caption>
+                                <thead>
+                                    <tr><th scope="col">Fecha</th><th scope="col">Salto</th></tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="(a, i) in ($store.adminPanel.descargas.ultimasActualizaciones || [])" :key="'ua-' + i">
+                                        <tr>
+                                            <td data-label="Fecha" x-text="$store.adminPanel.fecha(a.creado_en)"></td>
+                                            <td data-label="Salto" class="desc-etiqueta" x-text="'v' + (a.desde_version || '?') + ' → v' + a.hasta_version"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            <p class="gallery-empty" x-show="!($store.adminPanel.descargas.ultimasActualizaciones || []).length">Sin datos todavía.</p>
                             <p class="desc-etiqueta">Se detectan al abrir la app. Datos anónimos, sin cuenta ni identidad.</p>
                         </div>
 
@@ -2419,15 +2478,21 @@ function insertarPanelAdminGlobal() {
 
                         <div class="desc-bloque">
                             <h3>Últimas descargas</h3>
-                            <div class="desc-lista">
-                                <template x-for="(d, i) in ($store.adminPanel.descargas.ultimas || [])" :key="'u-' + i">
-                                    <div class="desc-fila">
-                                        <span x-text="$store.adminPanel.fecha(d.creada_en)"></span>
-                                        <span class="desc-etiqueta" x-text="(d.version || '?') + ' · ' + (d.origen || 'web')"></span>
-                                    </div>
-                                </template>
-                                <p class="gallery-empty" x-show="!($store.adminPanel.descargas.ultimas || []).length">Sin datos.</p>
-                            </div>
+                            <table class="gochi-tabla">
+                                <caption class="visually-hidden">Últimas descargas registradas</caption>
+                                <thead>
+                                    <tr><th scope="col">Fecha</th><th scope="col">Versión y origen</th></tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="(d, i) in ($store.adminPanel.descargas.ultimas || [])" :key="'u-' + i">
+                                        <tr>
+                                            <td data-label="Fecha" x-text="$store.adminPanel.fecha(d.creada_en)"></td>
+                                            <td data-label="Versión y origen" class="desc-etiqueta" x-text="(d.version || '?') + ' · ' + (d.origen || 'web')"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            <p class="gallery-empty" x-show="!($store.adminPanel.descargas.ultimas || []).length">Sin datos.</p>
                         </div>
                     </div>
                 </div>
@@ -2435,17 +2500,28 @@ function insertarPanelAdminGlobal() {
                 <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'auditoria'" x-cloak>
                     <p class="gallery-empty" x-show="$store.adminPanel.auditEstado === 'cargando'">Cargando auditoría...</p>
                     <p class="gallery-empty" x-show="$store.adminPanel.auditEstado === 'error'" x-text="$store.adminPanel.errorAudit" x-cloak></p>
-                    <div class="admin-auditoria-lista" x-show="$store.adminPanel.auditEstado === 'lista'">
-                        <template x-for="a in $store.adminPanel.auditLog" :key="a.id">
-                            <div class="auditoria-item">
-                                <div class="auditoria-accion" x-text="a.accion"></div>
-                                <div class="auditoria-detalle" x-html="$store.adminPanel.formatearDetalle(a.detalle)"></div>
-                                <div class="auditoria-meta">
-                                    <span x-text="a.admin_apodo || 'Sistema'"></span>
-                                    <span x-text="$store.adminPanel.fecha(a.created_at)"></span>
-                                </div>
-                            </div>
-                        </template>
+                    <div class="gochi-tabla-wrap" x-show="$store.adminPanel.auditEstado === 'lista'">
+                        <table class="gochi-tabla gochi-tabla--admin">
+                            <caption class="visually-hidden">Registro de auditoría de moderación</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Acción</th>
+                                    <th scope="col">Detalle</th>
+                                    <th scope="col">Admin</th>
+                                    <th scope="col">Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="a in $store.adminPanel.auditLog" :key="a.id">
+                                    <tr>
+                                        <td data-label="Acción" class="auditoria-accion" x-text="a.accion"></td>
+                                        <td data-label="Detalle"><div class="auditoria-detalle" x-html="$store.adminPanel.formatearDetalle(a.detalle)"></div></td>
+                                        <td data-label="Admin"><span x-text="a.admin_apodo || 'Sistema'"></span></td>
+                                        <td data-label="Fecha"><time :datetime="a.created_at" x-text="$store.adminPanel.fecha(a.created_at)"></time></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
                         <p class="gallery-empty" x-show="!$store.adminPanel.auditLog.length">Sin registros de auditoría.</p>
                     </div>
                     <div class="admin-paginacion" x-show="$store.adminPanel.totalAudit > 50">

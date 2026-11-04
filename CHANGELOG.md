@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.1] - 2026-11-04
+
+### Panel de administración en tablas del pack
+
+- Usuarios, Descargas y Auditoría del panel global se pintan con `gochi-tabla` + `gochi-tabla-wrap` (`data-label` en cada celda). Por debajo de 760 px cada fila se convierte en tarjeta con etiquetas y acciones a ancho completo.
+- Usuarios: 4 columnas (Usuario, Puntos, Estado, Acciones); la última conexión pasa bajo el apodo en la propia celda. Se elimina el grid de tarjetas (`.admin-usuarios-grid`, `.admin-usuario-card`, `.admin-usuario-info`, `.admin-usuario-acciones`, `.auditoria-item`, `.auditoria-meta`, `.desc-fila`).
+- Estilos nuevos de fila: `.fila-staff`, `.fila-baneado`, `.fila-shadowban`, `.admin-tabla-acciones` y `.auditoria-detalle` con scroll acotado.
+- `scripts/check.js` comprueba los estilos nuevos y el patrón `gochi-tabla--admin`.
+
 ## [1.61.0] - 2026-11-04
 
 ### Migración final al pack (Tailwind + Alpine + Pines)
