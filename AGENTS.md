@@ -99,8 +99,8 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 ### 4.3 Componentes Gochi (Tailwind + Alpine + Pines)
 
 - La capa de componentes vive al final de `style.css` (`.gochi-*`) y usa solo las variables del tema. Es el respaldo obligatorio: nada puede depender del CDN de Tailwind para verse bien.
-- Catálogo: `gochi-chip` (`data-tono` acento/éxito/aviso/peligro/info, `--sm`), `gochi-campo` (label, ayuda, error, contador, `data-estado="error"`), `gochi-alerta` (`data-tono` éxito/error/aviso/info), `gochi-skeleton` (`--texto`, `--titulo`, `--avatar`, `--media`, `--chip`), `gochi-card` (`data-estado` cargando/error/vacío), `gochi-switch`, `gochi-progress`, `gochi-accordion` (item, trigger, panel, icono), `gochi-breadcrumb`, `gochi-paginacion`, `gochi-tabla-wrap` + `gochi-tabla` (responsive ≤760 px), `gochi-vacio`, `gochi-menu` + `gochi-menu-panel` y los ya existentes `gochi-toast-*`, `gochi-modal-*`, `gochi-confirm-*` y `gochi-tooltip`.
-- API en `main.js`: `window.gochiUI` (`toast`, `confirmar`, `chip`, `skeleton`, `dropdown`, `cerrarMenus`) y los ayudantes sueltos `gochiChip(texto, tono)`, `gochiSkeleton(tipo, cantidad)`, `gochiDropdown(id, abrir)` y `cerrarGochiMenus(devolverFoco)`. Escapan el texto antes de pintar.
+- Catálogo: `gochi-chip` (`data-tono` acento/éxito/aviso/peligro/info, `--sm`), `gochi-campo` (label, ayuda, error, contador, `data-estado="error"`), `gochi-alerta` (`data-tono` éxito/error/aviso/info), `gochi-skeleton` (`--texto`, `--titulo`, `--avatar`, `--media`, `--chip`), `gochi-card` (`data-estado` cargando/error/vacío, `--media` para imagen a sangre), `gochi-switch`, `gochi-progress`, `gochi-accordion` (item, trigger, panel, icono), `gochi-breadcrumb`, `gochi-paginacion`, `gochi-tabla-wrap` + `gochi-tabla` (responsive ≤760 px), `gochi-vacio`, `gochi-menu` + `gochi-menu-panel` y los ya existentes `gochi-toast-*`, `gochi-modal-*`, `gochi-confirm-*` y `gochi-tooltip`.
+- API en `main.js`: `window.gochiUI` (`toast`, `confirmar`, `chip`, `skeleton`, `dropdown`, `cerrarMenus`, `abrirHoja`, `cerrarHoja`) y los ayudantes sueltos `gochiChip(texto, tono)`, `gochiSkeleton(tipo, cantidad)`, `gochiDropdown(id, abrir)` y `cerrarGochiMenus(devolverFoco)`. Escapan el texto antes de pintar.
 - Los desplegables de página usan `gochiDropdown` y el store `ui.menus`; un único listener de `pointerdown` y Escape cierra el menú abierto y devuelve el foco. No añadir listeners por elemento.
 - Patrón de carga: un flag `cargando` en el store de la página pinta `gochi-skeleton` con `x-for`; al terminar se limpia y entra la lista real o `gochi-vacio`.
 - Accesibilidad: `aria-expanded` en triggers de acordeón y menús, `aria-busy` mientras carga, y `prefers-reduced-motion` desactiva las animaciones.
@@ -268,7 +268,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.60.3` (sistema de componentes `.gochi-*` con Tailwind 3.4.17 bajo demanda y respaldo en `style.css`, skeletons, acordeones, desplegables Alpine y estados vacíos; sin directivas Alpine huérfanas; navbar con fallback al apodo de la sesión, guard del 409 de `kick-chat` y lightbox con `x-bind:hidden`; APK actual 1.13 / code 16).
+- Versión de esta release: `1.61.0` (migración final al pack: tarjetas `gochi-card`/`--media`, progreso de rango, chips del panel y de clips, `abrirHoja`/`cerrarHoja` en `gochiUI`; `gochi-tabla` queda de respaldo porque no hay tablas; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

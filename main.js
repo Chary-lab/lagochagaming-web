@@ -1518,7 +1518,10 @@ window.gochiUI = {
     chip: (texto, tono) => window.gochiChip(texto, tono),
     skeleton: (tipo, cantidad) => window.gochiSkeleton(tipo, cantidad),
     dropdown: (id, abrir) => window.gochiDropdown(id, abrir),
-    cerrarMenus: () => window.cerrarGochiMenus()
+    cerrarMenus: () => window.cerrarGochiMenus(),
+    // Hoja lateral: hoy la única del sitio es el panel de administración.
+    abrirHoja: (tab) => window.Alpine?.store('adminPanel')?.abrir(tab),
+    cerrarHoja: () => window.Alpine?.store('adminPanel')?.cerrar()
 };
 
 // === TOOLTIP GLOBAL (delegado, un solo nodo) ===
@@ -2226,8 +2229,8 @@ function insertarPanelAdminGlobal() {
                                         <div class="admin-usuario-linea">
                                             <button type="button" class="admin-usuario-apodo admin-link-perfil"
                                                     x-on:click="$store.adminPanel.verPerfil(u)" x-text="u.apodo"></button>
-                                            <span class="admin-rol-badge" x-show="u.rol !== 'user'" x-text="u.rol"></span>
-                                            <span class="admin-kick-badge" x-show="u.kick_user_id" x-text="'KICK'"></span>
+                                            <span class="admin-rol-badge gochi-chip gochi-chip--sm" data-tono="aviso" x-show="u.rol !== 'user'" x-text="u.rol"></span>
+                                            <span class="admin-kick-badge gochi-chip gochi-chip--sm" data-tono="info" x-show="u.kick_user_id" x-text="'KICK'"></span>
                                         </div>
                                         <span class="admin-usuario-meta">
                                             <span class="admin-stat"><strong x-text="u.puntos"></strong> pts</span>
@@ -2240,7 +2243,8 @@ function insertarPanelAdminGlobal() {
                                     </div>
                                 </div>
                                 <div class="admin-usuario-estado">
-                                    <span class="estado-badge" :class="{ activo: !u.baneado_activo && !u.shadowban, baneado: u.baneado_activo, shadowban: u.shadowban }"
+                                    <span class="gochi-chip gochi-chip--sm"
+                                          :data-tono="u.baneado_activo ? 'peligro' : (u.shadowban ? 'aviso' : 'exito')"
                                           x-text="u.baneado_activo ? '🔴 Baneado' : (u.shadowban ? '🟡 Shadowban' : 'Sin sanción')"></span>
                                     <template x-if="u.baneado_hasta && u.baneado_activo">
                                         <span class="ban-hasta" x-text="'Hasta: ' + $store.adminPanel.fecha(u.baneado_hasta)"></span>

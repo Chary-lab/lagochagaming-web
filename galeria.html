@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.60.3">
+    <link rel="stylesheet" href="style.css?v=1.61.0">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -100,7 +100,7 @@
                 <h2><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-clock-rotate-left"></use></svg> Imágenes Pendientes por Aprobar (<span id="cantPendientes" x-text="$store.galeria.pendientesEstado === 'error' ? '?' : $store.galeria.pendientes.length">0</span>)</h2>
                 <div class="gallery-grid">
                     <template x-for="foto in $store.galeria.pendientes" :key="foto.id">
-                        <div class="gallery-card gallery-card-pending">
+                        <div class="gallery-card gallery-card-pending gochi-card gochi-card--media">
                             <div class="gallery-card-image-wrap">
                                 <img :src="foto.image_url" :alt="foto.alt" loading="lazy" decoding="async" width="400" height="300">
                             </div>
@@ -195,7 +195,7 @@
 
         <div class="gallery-grid" id="galleryGrid" x-data="{}">
             <template x-for="n in 6" :key="'skeleton-' + n">
-                <div class="gallery-card gallery-card--skeleton" aria-hidden="true"
+                <div class="gallery-card gallery-card--skeleton gochi-card gochi-card--media" aria-hidden="true"
                      x-bind:hidden="!$store.galeria.cargando || $store.galeria.fotos.length > 0">
                     <span class="gochi-skeleton gochi-skeleton--media"></span>
                     <div class="gallery-card-info">
@@ -205,7 +205,7 @@
                 </div>
             </template>
             <template x-for="foto in $store.galeria.fotos" :key="foto.id">
-                <div class="gallery-card" @click="window.abrirLightboxDesdeTarjeta($event, foto, $el)">
+                <div class="gallery-card gochi-card gochi-card--media" @click="window.abrirLightboxDesdeTarjeta($event, foto, $el)">
                     <template x-for="badge in foto.badges" :key="badge.texto">
                         <span :class="'badge-tag ' + badge.clase" x-text="badge.texto"></span>
                     </template>
@@ -1271,7 +1271,7 @@
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.60.3" defer></script>
+    <script src="main.js?v=1.61.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

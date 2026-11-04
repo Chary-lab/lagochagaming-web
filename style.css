@@ -2790,6 +2790,12 @@ body.light-mode {
             color: var(--text-muted);
             line-height: 1.35;
         }
+        .clip-meta-chips {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
         .youtube-fallback {
             display: none;
             padding: 20px;
@@ -4679,28 +4685,6 @@ body.light-mode {
     flex-direction: column;
     gap: 4px;
     align-items: flex-end;
-}
-.estado-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-.estado-badge.activo {
-    background: rgba(83, 252, 24, 0.15);
-    color: #53fc18;
-    border: 1px solid #53fc18;
-}
-.estado-badge.baneado {
-    background: rgba(255, 77, 77, 0.15);
-    color: #ff4d4d;
-    border: 1px solid #ff4d4d;
-}
-.estado-badge.shadowban {
-    background: rgba(255, 212, 59, 0.15);
-    color: #ffd43b;
-    border: 1px solid #ffd43b;
 }
 .ban-hasta {
     font-size: 0.7rem;
@@ -6743,6 +6727,13 @@ body.light-mode .gochi-alerta { color: #1f2937; }
     background: var(--card-bg);
     color: var(--text-main);
     transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* Variante para tarjetas con media a sangre (galería, clips, videos). */
+.gochi-card--media {
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
 }
 
 .gochi-card[data-estado="cargando"] { pointer-events: none; }

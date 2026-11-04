@@ -2,7 +2,7 @@
 
 Documento de trabajo del rediseño de LaGochaGaming con **Tailwind 3.4.17 (Play CDN) + Alpine 3.17.5 + componentes Pines UI**, sin build, sin bundler y sin archivos nuevos de runtime.
 
-Estado: **1.53.2 en producción** (`ea86cb6`). Este documento describe lo que falta y el plan para cerrarlo.
+Estado: **1.61.0**. Fases F1–F5 cerradas y migradas a las superficies reales. F6 pendiente solo en medición (CWV en Redmi y CPU del chat con 50 mensajes); el resto del documento queda como registro del plan y de las decisiones.
 
 ---
 
@@ -36,34 +36,33 @@ Estado: **1.53.2 en producción** (`ea86cb6`). Este documento describe lo que fa
 
 ---
 
-## 3. Lo que falta
+## 3. Estado de la migración (1.61.0)
 
-### 3.1 Componentes Pines sin equivalente
+### 3.1 Componentes Pines
 
-- **Acordeón** — la FAQ de la home y el bloque "Info" de Comunidad siguen con `<details>` crudos, sin transición ni estado visual.
-- **Skeleton** — galería, clips de Kick, ranking y tienda muestran "Cargando..." en texto; falta el patrón de bloques con brillo.
-- **Badge / chip unificado** — rangos, insignias de Kick, contadores de admin y estados ("En vivo", "Pendiente") usan cuatro estilos distintos.
-- **Switch / checkbox / radio estilizados** — quedan controles nativos en ajustes de perfil y filtros del admin.
-- **Progress** — la píldora de puntos diarios tiene su propio anillo; descargas de la app usa barras propias. No hay componente común.
-- **Tabla responsive** — las tablas del admin (usuarios, descargas, auditoría) desbordan en móvil; no hay patrón tarjeta.
-- **Paginación / "cargar más"** — cada lista implementa su botón a mano (muro, galería, auditoría).
-- **Alerta inline** — los errores de formulario se pintan con clases sueltas (`admin-login-error`, `modal-error`, `upload-feedback`).
-- **Breadcrumb** — existe JSON-LD `BreadcrumbList` pero no migas visibles.
+- **Acordeón** — `gochi-accordion` en la FAQ de la home y el bloque "Info" de Comunidad, con `aria-expanded`/`aria-controls`. ✅
+- **Skeleton** — `gochi-skeleton` en galería, clips de Kick, ranking y tienda. ✅
+- **Badge / chip** — `gochi-chip` en estados y roles del panel, y `gochiChip()` en la metadata de clips. ✅
+- **Switch** — `gochi-switch` en el panel de administración. ✅
+- **Progress** — `gochi-progress` en las barras de rango de Comunidad. ✅
+- **Tabla responsive** — `gochi-tabla` existe con respaldo ≤760 px, pero el panel admin usa tarjetas y listas: no hay `<table>` en el sitio. Queda como componente de reserva. 🟡
+- **Paginación** — `gochi-paginacion` en el panel admin; el resto de listas conserva su "cargar más". ✅
+- **Alerta inline** — `gochi-alerta` en formularios y feedback de subida. ✅
+- **Breadcrumb** — `gochi-breadcrumb` en Comunidad, Galería, Sorteo y Cine, coherente con el JSON-LD. ✅
 
-### 3.2 Superficies sin migrar
+### 3.2 Superficies migradas
 
-- **Formularios**: login/registro de comunidad, editor de perfil, subida de galería, tienda. Inputs con estilos dispares.
-- **Tarjetas**: galería, premios de tienda, clips de Kick, últimos videos. Cada una con su radio, sombra y hover.
-- **Filtros**: la galería ordena por botones; el ranking no tiene filtro. Ahí encaja el dropdown ya construido.
-- **Estados vacíos**: cada página inventa su bloque (texto + ilustración) con clases distintas.
+- **Formularios**: login/registro de comunidad, editor de perfil, subida de galería y tienda con `gochi-campo`/`gochi-alerta`.
+- **Tarjetas**: galería (normal, pendiente y skeleton), premios de tienda y clips de Kick con `gochi-card`; `gochi-card--media` cuando la imagen va a sangre.
+- **Filtros**: orden de galería con `gochiDropdown`.
+- **Estados vacíos**: `gochi-vacio` en home, comunidad y galería.
 
-### 3.3 Deuda técnica del pack
+### 3.3 Deuda técnica restante
 
-- El dropdown no es reutilizable: está cableado al navbar (`ui.menuNav` con dos claves fijas).
 - El modal no tiene componente genérico: cada modal repite overlay, caja, `x-trap` y cierre.
 - `MutationObserver` de Alpine sobre el chat de Comunidad: falta medir CPU con 50+ mensajes.
 - Sin medición de Core Web Vitals con el CDN activo (407 KB + compilación en cliente).
-- `check.js` valida el cargador, pero no los patrones nuevos (chips, skeleton, alertas).
+- Medición de F6 pendiente en dispositivo real; no dar por hecho el rendimiento del Play CDN.
 
 ---
 
@@ -165,21 +164,21 @@ Cada fase es un commit desplegable, con bump de `VERSION`, entrada en `CHANGELOG
 | Pines | Uso aquí | Estado |
 |---|---|---|
 | Toast | avisos globales | ✅ |
-| Dropdown | navbar; filtros | 🟡 navbar |
+| Dropdown | navbar; orden de galería | ✅ |
 | Modal | confirmación; login/registro | 🟡 falta genérico |
-| Slide-over | panel admin | ✅ |
+| Slide-over | panel admin; `abrirHoja`/`cerrarHoja` | ✅ |
 | Tabs | comunidad, sorteo, admin, perfil | ✅ |
 | Tooltip | iconos y acciones | ✅ |
-| Accordion | FAQ, info | ⬜ |
-| Skeleton | listas y tarjetas | ⬜ |
-| Badge | rangos, Kick, contadores | ⬜ |
-| Switch / Checkbox | ajustes y admin | ⬜ |
-| Progress | puntos, descargas | ⬜ |
-| Table | admin en móvil | ⬜ |
-| Pagination | muro, galería, auditoría | ⬜ |
-| Alert | errores de formulario | ⬜ |
-| Breadcrumb | subpáginas | ⬜ |
-| Card | galería, tienda, clips | ⬜ |
+| Accordion | FAQ, info | ✅ |
+| Skeleton | listas y tarjetas | ✅ |
+| Badge | estados/roles del panel, clips | ✅ |
+| Switch / Checkbox | admin | ✅ |
+| Progress | barras de rango | ✅ |
+| Table | respaldo sin uso (no hay tablas) | 🟡 |
+| Pagination | admin; resto con "cargar más" | ✅ |
+| Alert | errores de formulario | ✅ |
+| Breadcrumb | subpáginas | ✅ |
+| Card | galería, tienda, clips | ✅ |
 
 Los 42 elementos de Pines no se copian enteros: solo entra lo que sustituye UI existente.
 
@@ -218,13 +217,12 @@ Los 42 elementos de Pines no se copian enteros: solo entra lo que sustituye UI e
 
 ---
 
-## 10. Orden recomendado
+## 10. Cierre
 
-1. F1 (fundamentos) — mayor impacto visual con menor riesgo.
-2. F2 (tarjetas) — reutiliza F1.
-3. F3 (dropdown/filtros) — reutiliza el navbar.
-4. F4 (admin/tablas) — la zona más densa.
-5. F5 (acordeón/migas) — contenido y SEO.
-6. F6 (cierre) — medición y documentación.
+F1–F5 entregadas entre 1.54.0 y 1.61.0. Cada fase fue un commit `vX.Y.Z - resumen` con bump de `VERSION`, `CHANGELOG.md`, `?v=` actualizado y checks verdes.
 
-Cada fase: un commit `vX.Y.Z - resumen`, push solo con el sitio estable y verificación en vivo de `VERSION`.
+Pendiente de F6:
+1. Medir CWV en el Redmi con el pack activo.
+2. Medir CPU del `MutationObserver` del chat con 50 mensajes.
+3. Decidir si el Play CDN sigue compensando frente al CSS precompilado.
+4. Si se mide en dispositivo, anotar el resultado aquí y en `CHANGELOG.md`.

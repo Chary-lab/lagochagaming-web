@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.0] - 2026-11-04
+
+### Migración final al pack (Tailwind + Alpine + Pines)
+
+- Tarjetas: galería (públicas, pendientes y skeleton), premios de la tienda y clips de Kick usan `gochi-card`; nueva variante `gochi-card--media` para tarjetas con imagen a sangre (sin padding ni gap).
+- Progreso: las dos barras de rango de Comunidad usan `gochi-progress` + `gochi-progress-fill` manteniendo los IDs que actualiza el JS.
+- Chips: el estado de cada usuario del panel (activo/baneado/shadowban), el rol y la marca KICK usan `gochi-chip`; se elimina el CSS muerto de `.estado-badge`.
+- Clips de Kick: duración y vistas se pintan con `gochiChip()` (con respaldo de texto si la API no está cargada).
+- `window.gochiUI` expone `abrirHoja` y `cerrarHoja`, que delegan en el store `adminPanel`.
+- `scripts/check.js` valida `gochi-card--media` y la API de hoja.
+
+El componente `gochi-tabla` queda como respaldo para futuras tablas: hoy el panel admin usa tarjetas y listas, no hay `<table>` en el sitio.
+
 ## [1.60.3] - 2026-11-04
 
 ### Correcciones tras prueba E2E
