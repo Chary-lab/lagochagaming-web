@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.3] - 2026-11-04
+
+### Tooltip Cerrar dentro del modal
+
+- El globo de los `data-tooltip` se limita ahora al recuadro del modal que lo contiene (`.modal-perfil-card`, `.gochi-modal-box`, `.admin-global-card`, `[role="dialog"]`). En el botón ✕ del perfil público ya no se sale de la tarjeta.
+- Si no cabe encima del elemento, el globo pasa a colocarse debajo, y se mantiene dentro del viewport.
+
 ## [1.61.2] - 2026-11-04
 
 ### Limpieza de huerfanos

@@ -1546,8 +1546,23 @@ window.gochiUI = {
         b.hidden = false;
         const r = el.getBoundingClientRect();
         const br = b.getBoundingClientRect();
-        const x = Math.max(8, Math.min(r.left + r.width / 2 - br.width / 2, window.innerWidth - br.width - 8));
-        const y = Math.max(8, r.top - br.height - 8);
+        // El globo no debe salirse del modal que lo contiene: en los botones de
+        // cerrar (esquina superior derecha) se sale de la tarjeta y tapa el fondo.
+        const caja = el.closest('.modal-perfil-card, .gochi-modal-box, .admin-global-card, [role="dialog"]');
+        let minX = 8, maxX = window.innerWidth - br.width - 8;
+        let minY = 8, maxY = window.innerHeight - br.height - 8;
+        if (caja) {
+            const c = caja.getBoundingClientRect();
+            minX = Math.max(minX, c.left + 8);
+            maxX = Math.min(maxX, c.right - br.width - 8);
+            minY = Math.max(minY, c.top + 8);
+            maxY = Math.min(maxY, c.bottom - br.height - 8);
+        }
+        const limitar = (v, min, max) => Math.min(Math.max(v, min), Math.max(min, max));
+        let x = limitar(r.left + r.width / 2 - br.width / 2, minX, maxX);
+        let y = r.top - br.height - 8;
+        if (y < minY) y = r.bottom + 8;
+        y = limitar(y, minY, maxY);
         b.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
     };
     const ocultar = () => { if (burbuja) burbuja.hidden = true; };
