@@ -1659,23 +1659,33 @@ function insertarPanelAdminGlobal() {
                     <p class="gallery-empty" x-show="$store.adminPanel.usuariosEstado === 'error'" x-text="$store.adminPanel.errorUsuarios" x-cloak></p>
                     <div class="admin-usuarios-grid" x-show="$store.adminPanel.usuariosEstado === 'lista'">
                         <template x-for="u in $store.adminPanel.usuarios" :key="u.id">
-                            <div class="admin-usuario-card" :class="{ baneado: u.baneado_activo, shadowban: u.shadowban }">
+                            <article class="admin-usuario-card" :class="{ baneado: u.baneado_activo, shadowban: u.shadowban, 'es-staff': u.rol !== 'user' }">
                                 <div class="admin-usuario-info">
-                                    <span class="admin-usuario-avatar" x-text="(u.apodo || '?').charAt(0).toUpperCase()"></span>
+                                    <button type="button" class="admin-usuario-avatar-btn"
+                                            x-on:click="$store.adminPanel.verPerfil(u)"
+                                            x-bind:title="'Ver perfil de ' + u.apodo"
+                                            x-bind:aria-label="'Ver perfil de ' + u.apodo">
+                                        <img class="admin-usuario-avatar-img" x-show="$store.adminPanel.avatarDe(u)"
+                                             x-bind:src="$store.adminPanel.avatarDe(u)" alt="" loading="lazy">
+                                        <span class="admin-usuario-avatar" x-show="!$store.adminPanel.avatarDe(u)"
+                                              x-text="(u.apodo || '?').charAt(0).toUpperCase()"></span>
+                                        <span class="admin-avatar-dot" :class="{ online: u.en_linea }" aria-hidden="true"></span>
+                                    </button>
                                     <div class="admin-usuario-datos">
-                                        <span class="admin-usuario-apodo" x-text="u.apodo"></span>
+                                        <div class="admin-usuario-linea">
+                                            <button type="button" class="admin-usuario-apodo admin-link-perfil"
+                                                    x-on:click="$store.adminPanel.verPerfil(u)" x-text="u.apodo"></button>
+                                            <span class="admin-rol-badge" x-show="u.rol !== 'user'" x-text="u.rol"></span>
+                                            <span class="admin-kick-badge" x-show="u.kick_user_id" x-text="'KICK'"></span>
+                                        </div>
                                         <span class="admin-usuario-meta">
-                                            <span x-text="u.puntos + ' pts'"></span>
+                                            <span class="admin-stat"><strong x-text="u.puntos"></strong> pts</span>
                                             <span class="rango-badge" :class="'rango-' + window.claveRango(u.rango, u.puntos)" x-text="window.etiquetaRango(u.rango, u.puntos)"></span>
-                                            <span class="admin-kick-badge" x-show="u.kick_user_id" x-text="'KICK @' + (u.kick_username || '')"></span>
-                                        </span>
-                                        <span class="admin-usuario-online" :class="{ online: u.en_linea }"
-                                              :title="u.en_linea ? 'En línea ahora' : (u.ultima_actividad ? 'Última actividad: ' + $store.adminPanel.fecha(u.ultima_actividad) : 'Sin actividad reciente')">
-                                            <span class="admin-online-dot" aria-hidden="true"></span>
-                                            <span x-text="u.en_linea ? 'En línea' : 'Offline'"></span>
                                         </span>
                                         <span class="admin-usuario-ultima"
-                                              x-text="u.en_linea ? 'Última conexión: ahora' : (u.ultima_actividad ? 'Última conexión: ' + $store.adminPanel.hace(u.ultima_actividad) : 'Última conexión: sin datos')"></span>
+                                              x-text="u.en_linea ? 'En línea ahora' : (u.ultima_actividad ? 'Última conexión: ' + $store.adminPanel.hace(u.ultima_actividad) : 'Última conexión: sin datos')"></span>
+                                        <span class="admin-usuario-kick" x-show="u.kick_username"
+                                              x-text="'Kick: @' + u.kick_username"></span>
                                     </div>
                                 </div>
                                 <div class="admin-usuario-estado">
@@ -1686,12 +1696,13 @@ function insertarPanelAdminGlobal() {
                                     </template>
                                 </div>
                                 <div class="admin-usuario-acciones">
+                                    <button type="button" class="btn-admin-accion btn-perfil" x-on:click="$store.adminPanel.verPerfil(u)">Ver perfil</button>
                                     <button type="button" class="btn-admin-accion btn-ban" x-on:click="$store.adminPanel.toggleBan(u)" x-text="u.baneado_activo ? 'Desbanear' : 'Banear'"></button>
                                     <button type="button" class="btn-admin-accion btn-shadowban" x-on:click="$store.adminPanel.toggleShadowban(u)" x-text="u.shadowban ? 'Quitar Shadowban' : 'Shadowban'"></button>
                                     <button type="button" class="btn-admin-accion btn-eliminar" x-show="u.rol === 'user'"
                                             x-on:click="$store.adminPanel.eliminarUsuario(u)">Eliminar</button>
                                 </div>
-                            </div>
+                            </article>
                         </template>
                         <p class="gallery-empty" x-show="!$store.adminPanel.usuarios.length">No hay usuarios.</p>
                     </div>
@@ -2122,6 +2133,21 @@ document.addEventListener('alpine:init', () => {
             } catch (e) {
                 window.mostrarToast?.('Error al aplicar/quitar shadowban', true);
             }
+        },
+
+        avatarDe(u) {
+            if (!u) return '';
+            if (u.avatar_url) return u.avatar_url;
+            if (u.genero === 'femenino') return '/img/avatars/avatar-female.webp';
+            if (u.genero === 'masculino') return '/img/avatars/avatar-male.webp';
+            return '';
+        },
+
+        verPerfil(u) {
+            if (!u) return;
+            const apodo = u.apodo;
+            this.cerrar();
+            window.setTimeout(() => window.abrirPerfilUsuario?.(apodo), 220);
         },
 
         async eliminarUsuario(usuario) {

@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.9] - 2026-11-04
+
+### Panel de usuarios: ver perfil y tarjetas nuevas
+
+- Cada usuario del panel tiene ahora **Ver perfil**: abre su perfil público tal como lo ve la comunidad (antes el panel tapaba la ventana).
+- La tarjeta muestra el **avatar real** (Kick, subido o por defecto), el punto verde de conectado sobre la foto, el rol (ADMIN/OWNER) y el usuario de Kick.
+- Acciones en cuadrícula: Ver perfil, Banear, Shadowban y Eliminar.
+
 ## [1.47.8] - 2026-11-04
 
 ### Panel de administración: borrar cuentas y última conexión
