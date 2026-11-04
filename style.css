@@ -443,7 +443,7 @@ body.light-mode .hero-bio {
     }
 
 /* Sections - ancho contenido estructural como antes */
-.content-section { max-width: 1600px; margin: 35px auto; padding: 0 20px; }
+.content-section { width: 100%; max-width: 1600px; margin: 35px auto; padding: 0 20px; }
 
 .youtube-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 .video-card { background-color: var(--card-bg); border-radius: var(--r-xl); padding: 22px; display: flex; flex-direction: column; align-items: center; border: 1px solid var(--border-color); box-shadow: var(--glow); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
@@ -752,7 +752,7 @@ body.light-mode .hero-bio {
 }
 
 /* YouTube Compacto */
-.youtube-wrapper { border-color: var(--border-color); padding: 28px; border-radius: 20px; background-color: var(--card-bg); margin-top: 30px; }
+.youtube-wrapper { border-color: var(--border-color); padding: 28px; border-radius: 20px; background-color: var(--card-bg); margin: 30px auto 0; max-width: 980px; }
 .youtube-box-compact { position: relative; width: 100%; aspect-ratio: 16/9; min-height: 0; border-radius: 16px; overflow: hidden; background: var(--card-bg-subtle); }
 .youtube-iframe-compact { display: block; width: 100%; height: 100%; border: none; }
 .youtube-fallback { display: none; }
@@ -6037,7 +6037,7 @@ body.light-mode {
 
 
 /* === FAQ home === */
-.faq-list { max-width: 920px; margin: 0 auto; display: grid; gap: 10px; }
+.faq-list { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: start; }
 .faq-item { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 18px; }
 .faq-item summary { cursor: pointer; font-weight: 700; color: var(--text-main); list-style: none; display: flex; justify-content: space-between; gap: 10px; }
 .faq-item summary::-webkit-details-marker { display: none; }
@@ -6045,6 +6045,7 @@ body.light-mode {
 .faq-item[open] summary::after { content: '\2013'; }
 .faq-item p { margin: 10px 0 0; color: var(--text-muted); line-height: 1.6; }
 .faq-item a { color: var(--accent-color); }
+@media (max-width: 760px) { .faq-list { grid-template-columns: 1fr; } }
 
 
 /* === Crédito del creador y sugerencias === */

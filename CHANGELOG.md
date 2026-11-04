@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.51.1] - 2026-11-04
+
+### Ajustes visuales de la home
+
+- El video de YouTube vuelve a ocupar su ancho: las secciones recuperan el 100% del ancho y el reproductor se limita a 980 px centrados.
+- Las preguntas frecuentes se muestran en dos columnas (3 y 3) en escritorio y vuelven a una columna por debajo de 760 px.
+
 ## [1.51.0] - 2026-11-04
 
 ### Deuda de auditoría: seguridad, nuevas funciones y diseño
