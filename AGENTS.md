@@ -203,7 +203,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 5. Verificar con `apksigner verify --print-certs` (mismo SHA-256) y `aapt dump badging` (versionCode/versionName correctos).
 6. Copiar `dist\LaGochaGaming.apk` a `app/LaGochaGaming.apk` y `dist\update\version.json` a `app/version.json` (con `notes` legibles).
 7. En `main.js`: enlace `app-descarga?v=X.Y&o=web` y texto del menú `vX.Y · N,N MB`.
-8. En `D:\Gocha\mobile\mobile.js` y en los assets del APK: texto “App móvil · vX.Y”.
+8. En `D:\Gocha\mobile\mobile.js` y en los assets del APK: texto “App móvil · vX.Y”. También en `README.md` (versión actual y `versionCode` del APK).
 9. `node scripts/check.js`, `node --check main.js`, bump de `VERSION` y entrada en `CHANGELOG.md`, commit `vX.Y.Z - resumen`.
 10. Tras el push, comprobar en vivo `VERSION`, `app/version.json` y el SHA-256 del APK descargado (GitHub Pages puede tardar ~10 min en cachear).
 - Las actualizaciones que descarga la propia app no pasan por `app-descarga` (el actualizador solo acepta el host `lagochagaming.com`), así que no cuentan en el contador.

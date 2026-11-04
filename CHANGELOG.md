@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.46.1] - 2026-11-04
+
+### La web deja de mostrar una versión vieja de la app
+
+- El menú **App** y el pie de la app móvil muestran ya la 1.10, no la 1.8/1.9.
+- El enlace de descarga pide `app-descarga?v=1.10`, así el contador no atribuye descargas a la versión antigua.
+- `README.md` actualizado a la 1.10 (versionCode 13).
+
 ## [1.46.0] - 2026-11-04
 
 ### Fuera el reproductor nativo de la app
