@@ -689,6 +689,7 @@ window.KICK_COMUNIDAD = (function () {
                 return false;
             }
             window.actualizarSesionUsuarioComunidad(datos.usuario || {});
+            localStorage.removeItem('gocha_kick_sin_vincular');
             window.dispatchEvent(new CustomEvent('kick-vinculado', { detail: datos.usuario || {} }));
             window.mostrarToast?.('Kick vinculado. Ya puedes entrar sin PIN.', false);
             return true;
@@ -741,6 +742,7 @@ window.guardarSesionComunidad = function guardarSesionComunidad(datos) {
     if (!datos || !datos.token || !datos.usuario) return false;
     const u = datos.usuario;
     localStorage.removeItem('comunidad_logout_explicito');
+    localStorage.removeItem('gocha_kick_sin_vincular');
     localStorage.setItem('comunidad_session_token', datos.token);
     localStorage.setItem('comunidad_nickname', u.apodo || '');
     if (u.id) localStorage.setItem('comunidad_user_id', String(u.id));
@@ -1110,6 +1112,7 @@ window.cerrarSesion = async function cerrarSesion() {
     localStorage.removeItem('comunidad_session_token');
     localStorage.removeItem('comunidad_user_id');
     localStorage.removeItem('comunidad_session_usuario');
+    localStorage.removeItem('gocha_kick_sin_vincular');
     window.limpiarCachesSesionComunidad();
 
     // El login general también cierra la sesión de Kick del chat y del OAuth.
@@ -1140,7 +1143,10 @@ window.cerrarSesion = async function cerrarSesion() {
 };
 
 window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() {
-    const apodo = localStorage.getItem('comunidad_nickname');
+    // La sesión manda: si existe token con usuario pero falta la clave suelta
+    // del apodo, el navbar no debe caer en "Login" con la cuenta abierta.
+    const sesion = window.obtenerSesionUsuarioComunidad();
+    const apodo = localStorage.getItem('comunidad_nickname') || sesion.apodo || '';
     const navUserInfo = document.getElementById('nav-user-info');
     const navLogin = document.getElementById('nav-login');
     if (navLogin) navLogin.hidden = !!apodo;
@@ -3302,12 +3308,20 @@ window.CHAT_KICK = {
         const reconectar = async () => {
             const tokenComunidad = localStorage.getItem('comunidad_session_token');
             if (!tokenComunidad) return null;
+            // El 409 significa "esta cuenta no tiene Kick vinculado". Se recuerda
+            // para no repetir la petición fallida en cada carga; se borra al
+            // vincular Kick o al iniciar sesión con Kick.
+            if (localStorage.getItem('gocha_kick_sin_vincular') === tokenComunidad) return null;
             try {
                 const res = await fetch(api.funcion + '/kick-chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ accion: 'reconectar', token: tokenComunidad })
                 });
+                if (res.status === 409) {
+                    localStorage.setItem('gocha_kick_sin_vincular', tokenComunidad);
+                    return null;
+                }
                 const datos = await res.json().catch(() => ({}));
                 if (!res.ok || !datos.ok || !datos.token || !datos.usuario) return null;
                 localStorage.setItem(api.claveToken, datos.token);

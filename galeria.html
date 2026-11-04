@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.60.2">
+    <link rel="stylesheet" href="style.css?v=1.60.3">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -102,7 +102,7 @@
                     <template x-for="foto in $store.galeria.pendientes" :key="foto.id">
                         <div class="gallery-card gallery-card-pending">
                             <div class="gallery-card-image-wrap">
-                                <img :src="foto.image_url" :alt="foto.alt" loading="lazy" width="400" height="300">
+                                <img :src="foto.image_url" :alt="foto.alt" loading="lazy" decoding="async" width="400" height="300">
                             </div>
                             <div class="gallery-card-info gallery-card-info-column">
                                 <span class="gallery-card-title-full" x-text="foto.title"></span>
@@ -212,7 +212,7 @@
                     <button type="button" class="gallery-card-image-wrap gallery-card-open"
                             :aria-label="'Ver foto: ' + (foto.title || 'Foto de la galería')"
                             @click.stop="window.abrirLightboxDesdeTarjeta($event, foto, $el)">
-                        <img :src="foto.thumb_url || foto.image_url" :alt="foto.alt" loading="lazy" width="400" height="300">
+                        <img :src="foto.thumb_url || foto.image_url" :alt="foto.alt" loading="lazy" decoding="async" width="400" height="300">
                     </button>
                     <div class="gallery-card-info">
                         <div class="gallery-card-info-row">
@@ -279,7 +279,7 @@
     </footer>
 
     <div id="lightbox" x-data="{ }" x-trap.noscroll="$store.galeria.lightbox.abierta"
-         x-show="$store.galeria.lightbox.abierta"
+         x-bind:hidden="!$store.galeria.lightbox.abierta"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100"
@@ -1271,7 +1271,7 @@
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.60.2" defer></script>
+    <script src="main.js?v=1.60.3" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

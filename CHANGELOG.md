@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.60.3] - 2026-11-04
+
+### Correcciones tras prueba E2E
+
+- Sesión de comunidad: el navbar mostraba "Login" con la cuenta abierta si faltaba `comunidad_nickname` en localStorage; ahora cae al apodo de `comunidad_session_usuario`.
+- Chat de Kick: con una cuenta de comunidad sin Kick vinculado, `kick-chat` devolvía 409 en cada carga y ensuciaba la consola. El cliente recuerda el 409 por token (`gocha_kick_sin_vincular`) y deja de repetir la petición hasta vincular Kick o iniciar sesión de nuevo.
+- Galería: el lightbox vuelve a ocultarse al cerrar (`x-show` no oculta en este build) y las tarjetas cargan la imagen con `decoding=async`.
+
+### Tooling
+
+- `scripts/check.js` valida que el `?v=` de `style.css` y `main.js` coincida con `VERSION` (`--fix` lo reescribe) y detecta directivas Alpine fuera de cualquier `x-data` o `x-store`.
+
 ## [1.60.2] - 2026-11-04
 
 ### Alpine sin inicializar

@@ -47,6 +47,23 @@ if (!/^\d+\.\d+\.\d+$/.test(version)) {
     error(`VERSION no es SemVer: "${version}"`);
 }
 
+// Cache busters: todo ?v= de style.css/main.js debe coincidir con VERSION.
+// Con --fix se reescribe el valor en vez de fallar.
+const FIX = process.argv.includes('--fix');
+for (const pagina of [...PAGES, '404.html']) {
+    if (!existe(pagina)) continue;
+    const html = leer(pagina);
+    const nuevo = html.replace(/((?:style\.css|main\.js))\?v=[^"']+/g, `$1?v=${version}`);
+    if (nuevo !== html) {
+        if (FIX) {
+            fs.writeFileSync(path.join(ROOT, pagina), nuevo, 'utf8');
+            console.log(`${pagina}: cache buster actualizado a ${version}`);
+        } else {
+            error(`${pagina}: cache ?v= desactualizado; ejecuta node scripts/check.js --fix`);
+        }
+    }
+}
+
 // main.js
 const mainJs = leer('main.js');
 comprobarSintaxis('main.js', mainJs);
@@ -109,6 +126,59 @@ const cierra = (css.match(/\}/g) || []).length;
 if (abre !== cierra) error(`style.css: llaves desbalanceadas (${abre} vs ${cierra})`);
 if (/Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|Ãƒ|Ã‚|ðŸ|â€/.test(css)) {
     error('style.css: texto con encoding roto (mojibake)');
+}
+
+// Directivas Alpine (@click, :hidden, x-show…) sin un ancestro x-data:
+// Alpine las ignora en silencio y el control queda muerto.
+const ETIQUETAS_VACIAS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+    'link', 'meta', 'param', 'source', 'track', 'wbr']);
+const EXENTAS = new Set(['x-data', 'x-cloak', 'x-ignore', 'x-transition']);
+
+function directivasHuerfanas(html) {
+    const limpio = html
+        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+        .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+        .replace(/<!--[\s\S]*?-->/g, '');
+    const pila = [];
+    const huerfanas = [];
+    const re = /<(\/?)([a-zA-Z][\w:-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g;
+    let m;
+    while ((m = re.exec(limpio))) {
+        const tag = m[2].toLowerCase();
+        const attrs = m[3] || '';
+        if (m[1] === '/') {
+            for (let i = pila.length - 1; i >= 0; i--) {
+                if (pila[i].tag === tag) { pila.length = i; break; }
+            }
+            continue;
+        }
+        const nombres = [];
+        for (const a of attrs.matchAll(/([^\s=<>"'/]+)(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?/g)) {
+            nombres.push(a[1]);
+        }
+        const propias = nombres.some((n) => n.toLowerCase() === 'x-data');
+        const hereda = pila.some((n) => n.data);
+        const directivas = nombres.filter((n) => {
+            const nombre = n.toLowerCase();
+            if (!(nombre.startsWith(':') || nombre.startsWith('@') || nombre.startsWith('x-'))) return false;
+            return !EXENTAS.has(nombre.split('.')[0]);
+        });
+        if (directivas.length && !propias && !hereda) {
+            const clase = (attrs.match(/class="([^"]*)"/) || [, ''])[1].split(/\s+/)[0];
+            huerfanas.push(`${tag}${clase ? '.' + clase : ''} [${directivas.join(', ')}]`);
+        }
+        const autocierre = /\/\s*$/.test(attrs) || ETIQUETAS_VACIAS.has(tag);
+        if (!autocierre) pila.push({ tag, data: propias || hereda });
+    }
+    return huerfanas;
+}
+
+for (const pagina of PAGES) {
+    if (!existe(pagina)) continue;
+    const huerfanas = directivasHuerfanas(leer(pagina));
+    if (huerfanas.length) {
+        error(`${pagina}: directivas Alpine sin x-data -> ${huerfanas.slice(0, 5).join(' | ')}`);
+    }
 }
 
 // _headers
