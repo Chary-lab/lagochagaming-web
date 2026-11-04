@@ -268,12 +268,12 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.60.2` (sistema de componentes `.gochi-*` con Tailwind 3.4.17 bajo demanda y respaldo en `style.css`, skeletons, acordeones, desplegables Alpine y estados vacíos; sin directivas Alpine huérfanas en ninguna página; APK actual 1.13 / code 16).
+- Versión de esta release: `1.60.3` (sistema de componentes `.gochi-*` con Tailwind 3.4.17 bajo demanda y respaldo en `style.css`, skeletons, acordeones, desplegables Alpine y estados vacíos; sin directivas Alpine huérfanas; navbar con fallback al apodo de la sesión, guard del 409 de `kick-chat` y lightbox con `x-bind:hidden`; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
 
-1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, CSP básica).
+1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, CSP básica, `?v=` contra `VERSION` y directivas Alpine sin `x-data`/`x-store`). Si el bump de `VERSION` deja los busters viejos, `node scripts/check.js --fix` los reescribe.
 2. `node --check main.js`.
 3. Levantar servidor local: `python -m http.server 8765` y probar en `http://127.0.0.1:8765/`.
 4. Smoke test mínimo:
