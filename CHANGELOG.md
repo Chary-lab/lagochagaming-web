@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.14] - 2026-11-04
+
+### Documentación al día
+
+- `AGENTS.md`: reglas del panel **Mi perfil** (popover anclado, cierre por clic fuera/toggle, hoja inferior en móvil, apilado sobre el panel admin), avatares y bucket cerrado a anónimos, sincronización de `kick_avatar_url`, `admin_eliminar_usuario` y forma nueva de las insignias.
+- `README.md`: sección **Perfiles y avatares** con el comportamiento público, los 4 avatares y el panel de administración.
+- `D:\Apk Gocha\AGENTS.md`: versión actual del APK corregida a 16 / 1.13.
+
+Sin cambios funcionales en la web.
+
 ## [1.47.13] - 2026-11-04
 
 ### Ajustes compactos, sin scroll

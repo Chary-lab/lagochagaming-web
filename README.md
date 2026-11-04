@@ -10,6 +10,14 @@ Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin b
 - `sorteo.html` — sorteo manual, tómbola online y modo streamer.
 - `cine.html` — GochiWatch: sincronización de películas/videos.
 
+## Perfiles y avatares
+
+- **Mi perfil** se abre como panel anclado bajo el botón del navbar (en móvil, hoja inferior). Clic fuera o en el mismo botón lo cierra; la página sigue usable.
+- **Perfil público**: `window.abrirPerfilUsuario(apodo)`. Muestra cabecera, insignias de Kick con nombre y detalle, bio, redes y actividad.
+- **Avatares**: 2 por defecto (masculino/femenino), 2 de tienda (200 pts) y la foto de Kick mientras la cuenta esté vinculada (`kick_avatar_url`). Al desvincular Kick se borra y vuelve a los de género.
+- **Insignias de Kick**: `window.insigniasKickDe(fila)` → `{tipo, etiqueta, nombre, detalle, icono, texto}`, máximo 6 y caducan a los 30 días.
+- **Panel admin**: usuarios con avatar, última conexión, KICK, ban/shadowban/eliminar y **Ver perfil** sin cerrar el panel. El acceso solo aparece con sesión admin u owner.
+
 ## Stack
 
 - HTML5 + CSS3 responsive (`style.css`).

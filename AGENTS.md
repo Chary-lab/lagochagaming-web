@@ -68,13 +68,13 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Respetar `prefers-reduced-motion` en animaciones nuevas (el confeti ya lo hace).
 - Chat de Kick: los iframes llevan `data-chat-kick` + `data-src` (nunca `src`). `prepararFachadaChat()` en `main.js` crea la fachada y carga el iframe al hacer scroll, clic o al terminar la carga; no añadir listeners por elemento.
 - Mantener los textos de UI en español y el tono actual.
-- Insignias de Kick: usar siempre `window.insigniasKickDe(fila)` (máximo 6, caducan a los 30 días). Devuelve `{tipo, etiqueta, icono, texto}` y pinta la píldora `.chat-kick-badge` con `kick-badge-<tipo>`. No duplicar el filtrado.
+- Insignias de Kick: usar siempre `window.insigniasKickDe(fila)` (máximo 6, caducan a los 30 días). Devuelve `{tipo, etiqueta, nombre, detalle, icono, texto}` y pinta la píldora `.chat-kick-badge` con `kick-badge-<tipo>`. `nombre` es la etiqueta legible (Moderador, Suscriptor…) y `detalle` solo trae texto si aporta algo distinto. No duplicar el filtrado.
 - Puntos diarios: la píldora `#nav-puntos-dia` del navbar es la única vista de "hoy". Se actualiza con `window.pintarPuntosDia(datos)` y `window.refrescarPuntosDia()` (RPC `obtener_puntos_hoy`). No añadir otra línea de puntos en las páginas.
 - No usar `Get-Content`/`Set-Content` de PowerShell 5.1 para reemplazos masivos en archivos UTF-8: leen ANSI y rompen acentos/emojis. Usar el editor o Node/Python con UTF-8 explícito.
 
 ### 4.1 Alpine: reglas obligatorias
 
-- Stores globales en `main.js`: `perfil` (modal), `ui` (menú móvil), `toast`, `adminPanel` (panel de administración global) y `sugerencias` (buzón del owner).
+- Stores globales en `main.js`: `perfil` (panel de perfil, ver §4.2), `ui` (menú móvil), `toast`, `adminPanel` (panel de administración global) y `sugerencias` (buzón del owner).
 - Stores por página: `media`/`muro` (index), `galeria`/`subida` (galería), `chat`/`ranking`/`rangosChat`/`reacciones`/`tienda` (comunidad), `sorteo` y `cine`.
 - Listas y tarjetas con `x-for` y `:key`. Formularios con `x-model` (o `:value` + `@input` en objetos anidados). Textos y feedback con `x-text` + `:hidden`.
 - Visibilidad con `:hidden="!abierto"` y la regla global `[hidden]`; `x-cloak` para lo que deba ocultarse antes de inicializar. Evitar `x-show` en elementos con `display: flex` (en este build puede no volver a ocultarlos).
@@ -83,6 +83,15 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - El reset global usa `box-sizing: border-box`; cualquier `width: 100%` con padding ya no desborda. Revisar overflow horizontal a 1400 px y 390 px al tocar layouts.
 - `innerHTML` solo para markup estático propio; nunca con datos de usuario.
 - Realtime y RPC actualizan el store; la vista reacciona sola.
+
+### 4.2 Panel de perfil (`perfil`)
+
+- Escritorio (≥900 px): `abrir()` pone `anclado=true` y `colocarPopover()` calcula `--perfil-top`, `--perfil-right`, `--perfil-flecha` y `--perfil-max-alto` desde `#nav-user-info .nav-user-btn`. Se comporta como el desplegable `#nav-app`.
+- El contenedor `.modal-perfil--popover` lleva `pointer-events: none` y la tarjeta `pointer-events: auto`: sin backdrop, sin ✕, sin `x-trap.noscroll`. **Nunca** dejar que la capa cubra la página: se tragaba los clics y bloqueaba el sitio.
+- Cierre: clic fuera (listener `pointerdown` en `crearModal()`), Escape o el mismo botón del navbar. `abrir()` hace toggle con `if (this.abierto && !this.publico) { this.cerrar(); return; }`.
+- Móvil (<900 px): hoja inferior con backdrop y botón de cierre.
+- Desde el panel admin: `window.abrirPerfilUsuario(apodo, { sobreAdmin: true })` añade `modal-perfil--stack` (z-index 10060) y el panel sigue montado debajo; al cerrar el perfil se vuelve al panel sin clics extra.
+- El perfil público se ordena por secciones (`.mp-seccion`): cabecera, insignias, bio, redes y actividad. No volver a amontonar todo en la cabecera.
 
 ## 5. Supabase: reglas no negociables
 
@@ -126,7 +135,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango` (puntos por acción, historial con idempotencia y topes diarios por rango; solo `service_role`, se escriben desde RPC `SECURITY DEFINER`).
 - `sugerencias` (texto 5–500, `ip_hash`, `leida`, `creada_en`; sin acceso `anon`; solo `owner` lee, marca y borra con `es_owner()` y las RPC `owner_marcar_sugerencia` / `owner_eliminar_sugerencia`).
 - `app_descargas` (contador real de descargas del APK: `version`, `origen` web/apk/directo, `ip_hash`, `user_agent`, `creado_en`; RLS activo sin políticas, solo entra la Edge Function con `service_role`).
-- RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `sesion_comunidad_vinculada`, `latido_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `owner_marcar_sugerencia`, `owner_eliminar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`, `admin_eliminar_mensaje_chat`, `admin_auditar`, `obtener_puntos_hoy`, `estadisticas_perfil_comunidad`, `obtener_avatares_disponibles`, `otorgar_puntos_accion`, `registrar_puntos` y `actualizar_autor_galeria`.
+- RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `sesion_comunidad_vinculada`, `latido_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `owner_marcar_sugerencia`, `owner_eliminar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_eliminar_usuario`, `admin_obtener_audit_log`, `admin_eliminar_mensaje_chat`, `admin_auditar`, `obtener_puntos_hoy`, `estadisticas_perfil_comunidad`, `obtener_avatares_disponibles`, `otorgar_puntos_accion`, `registrar_puntos` y `actualizar_autor_galeria`.
 
 ### 5.5 Invariantes de integridad
 
@@ -139,7 +148,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Muro: rate limit por autor normalizado; mensajes máximo 280 caracteres (servidor y cliente).
 - Sorteo: nombre único sin distinguir mayúsculas (`lower(username)`), límite de 500 participantes, rate limit por IP y ganador decidido SOLO en el servidor. No insertar ganadores desde el cliente.
 - Galería: subida anónima permitida por diseño (bucket `fotos-galeria`, prefijo `gallery/`, 5MB, JPG/PNG/GIF/WEBP/AVIF). Si la RPC falla después de subir, puede quedar un archivo huérfano; no prometer limpieza automática.
-- Avatares: bucket público `avatares-comunidad` (500KB), subida anónima solo bajo `avatar/`, sin update; borrado solo admin. Los avatares beta locales viven en `/img/avatars/avatar-male.webp` y `/img/avatars/avatar-female.webp` y se asignan por género cuando no hay avatar propio.
+- Avatares: bucket público `avatares-comunidad` (500KB), **sin INSERT anónimo** (política eliminada el 2026-11-04; 0 objetos). Las subidas pasan por la Edge Function `kick-comunidad` con sesión de comunidad. Borrado solo admin. Los avatares por defecto viven en `/img/avatars/avatar-male.webp` y `/img/avatars/avatar-female.webp` y se asignan por género cuando no hay avatar propio. La foto de Kick se guarda aparte en `usuarios_comunidad.kick_avatar_url`, se sincroniza en cada login de Kick y se borra al desvincular.
 - Perfil: `bio` máximo 160, `links_json` solo claves `instagram`, `discord`, `tiktok` y `kick` con URLs `http/https` máximo 300 (la BD aún acepta las antiguas, la UI ya no las edita); `avatar_url` acepta los avatares beta locales, el bucket propio o un avatar comprado en la tienda. `genero` es `masculino`/`femenino`/`no_definido`, tiene lectura pública y el registro nuevo exige masculino o femenino. `creado_en` también es público y alimenta “Miembro desde”. El editor vive solo en el modal global de `main.js`; el perfil público se abre con `window.abrirPerfilUsuario(apodo)`.
 - Sesión de comunidad: `comunidad_session_usuario` guarda el objeto completo (id, apodo, puntos, rango, icono, género, avatar, bio, enlaces) y es la fuente de verdad del navbar/modal; limpiarlo junto con el token al cerrar o invalidar sesión.
 - Tienda: el canje descuenta puntos y stock en una transacción con locks; los iconos son uno por usuario (`icono_equipado`) y los avatares se equipan al canjear. Usar las columnas reales de `tienda_canjes` (`nombre`, `costo_puntos`, `entregado_at`); no existe `metadata` ni `puntos_gastados`. No insertar canjes ni premios desde el cliente.
@@ -160,6 +169,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Cliente: `window.KICK_COMUNIDAD` en `main.js` (`vinculado`, `vincular`, `abrirOAuth`, `volverDelHash`). El objetivo del OAuth viaja en `sessionStorage` (`gocha_kick_objetivo`): `entrar` o `vincular`.
 - Registro con Kick: `#btn-registro-kick` del modal de registro usa el mismo OAuth que "Conectar con Kick" y deja `gocha_kick_intencion=registro`. Al volver, `entrarConKickComunidad()` lo convierte en `gocha_ajustes_pendientes=1` y la página abre `Alpine.store('perfil').abrir('ajustes')` para completar género y avatar.
 - Insignias de Kick: `window.insigniasKickDe()` (§4); no pedir `rol` al cliente.
+- Avatar de Kick: al vincular/iniciar sesión, `kick-comunidad` sincroniza la foto en `usuarios_comunidad.kick_avatar_url`. Si el usuario tiene elegido el avatar de Kick, se refresca en cada login. Al desvincular se limpia la columna y vuelve al avatar por género. La RPC de perfil solo acepta como avatar la foto de Kick del propio usuario.
 - Espectadores: la cabecera del chat muestra `N Views` en `.chat-kick-espectadores`. Se pinta con `window.actualizarEspectadoresKick(total, enVivo)` desde el sondeo global de `verificarEstadoStream()`; no crear sondeos nuevos ni un segundo contador en la página.
 - Player web: `#stream-player` es el iframe de `player.kick.com` y se queda así. Su CORS solo admite orígenes de Kick, así que reproducir el HLS directo (`playback_url` de `https://kick.com/api/v2/channels/lagochagaming`) en la web exige proxy y cuesta 2–3 GB por hora y espectador: no hacerlo sin autorización.
 - Player en la app: desde la 1.10 la app usa el mismo iframe de `player.kick.com` que la web. El reproductor nativo ExoPlayer (`PlayerActivity`, puente `abrirDirecto`, tarjeta `.lg-directo-nativo`) se eliminó: no reintroducirlo sin autorización. No añadir botón “Ver en HD” en la web.
@@ -232,7 +242,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.47.1` (AGENTS.md al día: arranque limpio en la app 1.12 sin overlay ni splash duplicado, chat móvil bajo sin blur; sobre 1.47.0).
+- Versión de esta release: `1.47.14` (docs al día + perfil flotante anclado tipo APP, perfil público por secciones con insignias legibles, ajustes compactos sin scroll, aviso de actualización de la app rediseñado; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
