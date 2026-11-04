@@ -46,7 +46,8 @@
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/></svg>',
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M6.1 8.5A7.5 7.5 0 0 1 19.4 12M4.6 12a7.5 7.5 0 0 0 13.3 3.5"/></svg>',
-    external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M20 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/></svg>'
+    external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M20 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/></svg>',
+    bulb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.4 10.9c.5.4.9 1 .9 1.6v.5h5v-.5c0-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>'
   };
 
   function icon(name) {
@@ -142,6 +143,13 @@
             '<button type="button" class="lg-action-btn" data-action="update">' + icon('refresh') + 'Buscar actualizaciones<small>Comprobar versión nueva</small></button>' +
             '<button type="button" class="lg-action-btn" data-action="reload">' + icon('refresh') + 'Recargar aplicación</button>' +
             '<a class="lg-action-btn" href="https://lagochagaming.com" target="_blank" rel="noopener noreferrer">' + icon('external') + 'Abrir versión web<small>Navegador</small></a>' +
+          '</div></div>' +
+          '<div class="lg-settings-group"><h3>Creador</h3><div class="lg-card">' +
+            '<div class="lg-creator">' +
+              '<img src="img/mcchary/creator.webp" alt="McChary, creador del sitio" width="46" height="42" loading="lazy" decoding="async">' +
+              '<div class="lg-creator-info"><strong>Creado por <b>McChary</b></strong><span>Creator Engineer</span></div>' +
+            '</div>' +
+            '<button type="button" class="lg-action-btn" data-action="sugerencias">' + icon('bulb') + 'Sugerencias<small>Enviar una idea</small></button>' +
           '</div></div>' +
           '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.13 · Hecha para la comunidad</span></div>' +
         '</div>' +
@@ -1148,6 +1156,14 @@
       else if (name === 'update') {
         if (window.LaGochaNative) native('checkUpdates');
         else toast('Abre la app para buscar actualizaciones');
+      }
+      else if (name === 'sugerencias') {
+        haptic();
+        closeAllOverlays();
+        window.setTimeout(function () {
+          if (typeof window.abrirSugerencias === 'function') window.abrirSugerencias();
+          else toast('Sugerencias solo en la versión web');
+        }, 180);
       }
       else if (name === 'reload') location.reload();
     }

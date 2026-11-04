@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.4] - 2026-11-04
+
+### Sugerencias y firma del creador en la app
+
+- Ajustes recupera el bloque **Creador**: retrato, “Creado por McChary” y *Creator Engineer*, igual que el pie de la web.
+- Debajo, el botón **Sugerencias** abre el mismo buzón que en la web (máximo 2 por día) y envía la idea al creador.
+- El pie completo de la web sigue oculto en la app para no repetir navegación; solo se trae esta parte.
+
 ## [1.47.3] - 2026-11-04
 
 ### Aviso de versión nueva dentro de la app

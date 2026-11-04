@@ -1197,6 +1197,50 @@ html.lg-app .lg-about span {
   font-size: .68rem;
 }
 
+/* Firma del creador dentro de Ajustes: misma idea que el pie de la web. */
+html.lg-app .lg-creator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-bottom: 1px solid var(--lg-line);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(255, 102, 178, .12), transparent 62%);
+}
+
+html.lg-app .lg-creator img {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .35));
+}
+
+html.lg-app .lg-creator-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+html.lg-app .lg-creator-info strong {
+  color: var(--lg-text);
+  font: 700 .86rem/1.2 'Inter', system-ui, sans-serif;
+}
+
+html.lg-app .lg-creator-info strong b {
+  color: var(--lg-pink);
+  font-weight: 800;
+}
+
+html.lg-app .lg-creator-info span {
+  color: var(--lg-muted);
+  font-size: .64rem;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
+
 html.lg-app #lg-chat-sheet .lg-sheet {
   height: min(56vh, 480px);
   max-height: 56vh;
