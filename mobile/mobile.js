@@ -1374,6 +1374,57 @@
 
   avisarVersionNueva();
 
+  /* ---------- Telemetría anónima de instalación y actualizaciones ---------- */
+  var TELEMETRIA_URL = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-telemetria';
+  var TELEMETRIA_AT = 'lg_telemetria_at';
+  var TELEMETRIA_VERSION = 'lg_telemetria_version';
+  var DISPOSITIVO_KEY = 'lg_dispositivo_id';
+
+  function idDispositivo() {
+    try {
+      var id = localStorage.getItem(DISPOSITIVO_KEY);
+      if (id) return id;
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+        id = window.crypto.randomUUID();
+      } else {
+        id = 'd-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+      }
+      localStorage.setItem(DISPOSITIVO_KEY, id);
+      return id;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function reportarInstalacion() {
+    var instalada = native('getVersion');
+    if (!instalada || !/^\d+(\.\d+)*$/.test(String(instalada))) return;
+    var id = idDispositivo();
+    if (!id) return;
+    var ahora = Date.now();
+    var versionEnviada = null;
+    var enviado = 0;
+    try {
+      versionEnviada = localStorage.getItem(TELEMETRIA_VERSION);
+      enviado = parseInt(localStorage.getItem(TELEMETRIA_AT), 10) || 0;
+    } catch (e) {}
+    if (versionEnviada === String(instalada) && ahora - enviado < 21600000) return;
+    fetch(TELEMETRIA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, version: String(instalada) }),
+      keepalive: true
+    }).then(function (res) {
+      if (!res.ok) return;
+      try {
+        localStorage.setItem(TELEMETRIA_VERSION, String(instalada));
+        localStorage.setItem(TELEMETRIA_AT, String(ahora));
+      } catch (e) {}
+    }).catch(function () {});
+  }
+
+  reportarInstalacion();
+
   (function prefetchPages() {
     var idx = navIndex(activeNavId());
     var targets = [];

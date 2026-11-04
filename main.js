@@ -1802,11 +1802,23 @@ function insertarPanelAdminGlobal() {
                                 <span class="desc-stat-num" x-text="$store.adminPanel.descargas.ultimos30 ?? 0"></span>
                                 <span class="desc-stat-label">30 días</span>
                             </div>
+                            <div class="desc-stat">
+                                <span class="desc-stat-num" x-text="$store.adminPanel.descargas.dispositivos ?? 0"></span>
+                                <span class="desc-stat-label">Dispositivos</span>
+                            </div>
+                            <div class="desc-stat">
+                                <span class="desc-stat-num" x-text="$store.adminPanel.descargas.activos7 ?? 0"></span>
+                                <span class="desc-stat-label">Activos 7 días</span>
+                            </div>
+                            <div class="desc-stat">
+                                <span class="desc-stat-num" x-text="$store.adminPanel.descargas.actualizaciones ?? 0"></span>
+                                <span class="desc-stat-label">Actualizaciones</span>
+                            </div>
                         </div>
 
                         <div class="desc-columnas">
                             <div class="desc-bloque">
-                                <h3>Por versión</h3>
+                                <h3>Por versión descargada</h3>
                                 <template x-for="v in ($store.adminPanel.descargas.porVersion || [])" :key="'v-' + v.version">
                                     <div class="desc-fila">
                                         <span x-text="v.version || 'sin versión'"></span>
@@ -1825,6 +1837,43 @@ function insertarPanelAdminGlobal() {
                                 </template>
                                 <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porOrigen || []).length">Sin datos.</p>
                             </div>
+                        </div>
+
+                        <div class="desc-columnas">
+                            <div class="desc-bloque">
+                                <h3>Versiones instaladas</h3>
+                                <template x-for="v in ($store.adminPanel.descargas.porVersionInstalada || [])" :key="'vi-' + v.version">
+                                    <div class="desc-fila">
+                                        <span x-text="v.version === '?' ? 'sin versión' : 'v' + v.version"></span>
+                                        <strong x-text="v.total"></strong>
+                                    </div>
+                                </template>
+                                <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porVersionInstalada || []).length">Sin datos todavía.</p>
+                            </div>
+                            <div class="desc-bloque">
+                                <h3>Actualizaciones por salto</h3>
+                                <template x-for="a in ($store.adminPanel.descargas.porActualizacion || [])" :key="'a-' + a.desde_version + '-' + a.hasta_version">
+                                    <div class="desc-fila">
+                                        <span x-text="'v' + (a.desde_version || '?') + ' → v' + a.hasta_version"></span>
+                                        <strong x-text="a.total"></strong>
+                                    </div>
+                                </template>
+                                <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porActualizacion || []).length">Sin datos todavía.</p>
+                            </div>
+                        </div>
+
+                        <div class="desc-bloque">
+                            <h3>Últimas actualizaciones</h3>
+                            <div class="desc-lista">
+                                <template x-for="(a, i) in ($store.adminPanel.descargas.ultimasActualizaciones || [])" :key="'ua-' + i">
+                                    <div class="desc-fila">
+                                        <span x-text="$store.adminPanel.fecha(a.creado_en)"></span>
+                                        <span class="desc-etiqueta" x-text="'v' + (a.desde_version || '?') + ' → v' + a.hasta_version"></span>
+                                    </div>
+                                </template>
+                                <p class="gallery-empty" x-show="!($store.adminPanel.descargas.ultimasActualizaciones || []).length">Sin datos todavía.</p>
+                            </div>
+                            <p class="desc-etiqueta">Se detectan al abrir la app. Datos anónimos, sin cuenta ni identidad.</p>
                         </div>
 
                         <div class="desc-bloque">

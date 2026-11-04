@@ -136,6 +136,8 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango` (puntos por acción, historial con idempotencia y topes diarios por rango; solo `service_role`, se escriben desde RPC `SECURITY DEFINER`).
 - `sugerencias` (texto 5–500, `ip_hash`, `leida`, `creada_en`; sin acceso `anon`; solo `owner` lee, marca y borra con `es_owner()` y las RPC `owner_marcar_sugerencia` / `owner_eliminar_sugerencia`).
 - `app_descargas` (contador real de descargas del APK: `version`, `origen` web/apk/directo, `ip_hash`, `user_agent`, `creado_en`; RLS activo sin políticas, solo entra la Edge Function con `service_role`).
+- `app_instalaciones` (instalaciones anónimas de la app: hash del ID local, versión actual, primera/última vez, `ip_hash`, `user_agent`; RLS activo sin políticas, solo `service_role`).
+- `app_actualizaciones` (cambios de versión detectados al abrir la app: `desde_version`, `hasta_version`, `creado_en`; RLS activo sin políticas, solo `service_role`).
 - RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `sesion_comunidad_vinculada`, `latido_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `owner_marcar_sugerencia`, `owner_eliminar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_eliminar_usuario`, `admin_obtener_audit_log`, `admin_eliminar_mensaje_chat`, `admin_auditar`, `obtener_puntos_hoy`, `estadisticas_perfil_comunidad`, `obtener_avatares_disponibles`, `otorgar_puntos_accion`, `registrar_puntos` y `actualizar_autor_galeria`.
 
 ### 5.5 Invariantes de integridad
@@ -176,6 +178,13 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Player en la app: desde la 1.10 la app usa el mismo iframe de `player.kick.com` que la web. El reproductor nativo ExoPlayer (`PlayerActivity`, puente `abrirDirecto`, tarjeta `.lg-directo-nativo`) se eliminó: no reintroducirlo sin autorización. No añadir botón “Ver en HD” en la web.
 - El aviso “Visit KICK for HD quality” vive dentro del iframe y no se puede quitar desde fuera. Cualquier intento de taparlo con capas rompe los controles de Kick.
 - Chat móvil en la app: `mobile/mobile.css` fija la hoja del chat en `min(56vh, 480px)` con velo transparente y sin `backdrop-filter`, para que el stream siga nítido y visible. El fab `.lg-chat-fab` alterna abrir/cerrar (`alternarChat()` en `mobile.js`) y se queda por encima de la hoja con `body.lg-chat-open`. Con el chat abierto la página sigue deslizándose: `body.lg-chat-open` deja `overflow-y:auto` + `touch-action:pan-y` y el overlay pasa los toques a la página salvo la hoja y el fab (`pointer-events`). No volver a subir la hoja a 84vh, ni a ponerle blur, ni a bloquear el scroll de fondo.
+
+### 5.8 Telemetría de la app
+
+- Edge Function `app-telemetria` (`verify_jwt=false`): recibe `POST { id, version }` desde `mobile/mobile.js`. El `id` es un UUID aleatorio guardado en `localStorage` (`lg_dispositivo_id`); el servidor guarda solo su hash SHA-256, nunca la IP ni una cuenta.
+- `app_instalaciones` registra la versión actual y la última vez que se abrió la app. `app_actualizaciones` guarda un salto `desde_version → hasta_version` cuando la versión reportada es mayor que la anterior. Una instalación nueva no genera salto.
+- El cliente reporta al abrir si cambió la versión o si pasaron 6 horas. La pestaña **Descargas** muestra dispositivos, activos 7 días, versiones instaladas, actualizaciones por salto y las últimas actualizaciones. Es telemetría diferida: solo se entera cuando la app se abre después de actualizar.
+- Límite anti-abuso: 40 instalaciones nuevas por IP y hora. El endpoint no se usa para autorizar nada.
 
 ## 6. Seguridad
 
@@ -243,7 +252,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.47.16` (regla de AGENTS: nada de `alert()`, `confirm()` ni `prompt()`; APK actual 1.13 / code 16).
+- Versión de esta release: `1.48.0` (Descargas con telemetría anónima de instalaciones y actualizaciones de la app; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
@@ -323,5 +332,5 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - CDNs sin SRI (jsDelivr: Supabase JS, Alpine, hls.js; Google Fonts).
 - Advisors de Supabase marcan RPCs `SECURITY DEFINER` ejecutables por `anon`; es intencional para usuarios de comunidad sin Supabase Auth. Revisar cada nueva RPC con el mismo criterio.
 - Índices marcados como "unused" son de bajo volumen; no eliminarlos sin medir.
-- El contador de descargas no ve las actualizaciones internas de la app ni las descargas directas del `.apk` fuera de `app-descarga`.
+- El contador de descargas no ve las actualizaciones internas de la app ni las descargas directas del `.apk` fuera de `app-descarga`. La pestaña Descargas estima las actualizaciones con telemetría anónima cuando la app se abre, así que pueden tardar hasta que el usuario vuelva a entrar.
 - Los espectadores del chat se refrescan con el sondeo de 30 s; pueden ir 30–60 s por detrás del número del iframe.

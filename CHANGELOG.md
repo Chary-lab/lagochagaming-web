@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.48.0] - 2026-11-04
+
+### Actualizaciones reales de la app en Descargas
+
+- Nueva telemetría anónima de instalaciones: ID aleatorio por dispositivo, versión actual y última vez que se abrió la app.
+- El panel **Descargas** muestra dispositivos, activos de los últimos 7 días, versiones instaladas, actualizaciones totales, saltos `v1.12 → v1.13` y las últimas actualizaciones.
+- Solo se registra cuando la app se abre después de actualizar; una instalación nueva no inventa una versión anterior.
+- Tablas `app_instalaciones` y `app_actualizaciones` con RLS sin políticas, solo accesibles por la Edge Function `app-telemetria`.
+- El contador de descargas sigue separado: las actualizaciones internas se miden por telemetría, no por `app-descarga`.
+
 ## [1.47.16] - 2026-11-04
 
 ### Regla de confirmaciones en AGENTS

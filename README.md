@@ -73,7 +73,13 @@ Las instrucciones de build, firma y publicación del APK viven en
 El enlace del menú pasa por la Edge Function `app-descarga`, que cuenta la
 descarga en `app_descargas` y redirige al APK. El panel de admin tiene una
 pestaña **Descargas** con total, únicos, hoy, 7/30 días y desglose por versión.
-Las actualizaciones internas de la app no pasan por ese enlace y no se cuentan.
+
+Las actualizaciones internas de la app no pasan por ese enlace. Se miden aparte
+con la Edge Function `app-telemetria`: `mobile/mobile.js` envía un ID anónimo de
+dispositivo y la versión instalada al abrir la app. Si la versión subió, se
+guarda el salto `v1.12 → v1.13`. El panel muestra dispositivos, activos de los
+últimos 7 días, versiones instaladas y las últimas actualizaciones. Solo se
+entera cuando el usuario vuelve a abrir la app después de actualizar.
 
 ## Versión y despliegue
 
