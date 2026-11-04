@@ -10,6 +10,16 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 - El video de YouTube vuelve a ocupar su ancho: las secciones recuperan el 100% del ancho y el reproductor se limita a 980 px centrados.
 - Las preguntas frecuentes se muestran en dos columnas (3 y 3) en escritorio y vuelven a una columna por debajo de 760 px.
 
+## [1.51.2] - 2026-11-04
+
+### Auditoría de Edge Functions
+
+- Los proxies de imágenes de `kick-clips`, `instagram-feed` y `tiktok-feed` validan también el host final después de las redirecciones y cortan respuestas de más de 6 MB.
+- `kick-chat` limpia los `state` de OAuth de más de 15 minutos al iniciar otro login y rechaza cuerpos de más de 8 KB.
+- `kick-oauth-callback` rechaza los `state` de más de 10 minutos, aunque sigan en la tabla.
+- `app-telemetria` usa `upsert` sobre `dispositivo_hash`: dos primeras aperturas simultáneas ya no devuelven 500.
+- Revisadas sin cambios: `kick-chat-setup` (secreto de cabecera), `kick-chat-webhook` (firma RSA de Kick), `kick-setup-temp` y `kick-oauth-exchange` (410), `kick-comunidad` (CORS cerrado, prueba de las dos cuentas al vincular) y `app-descarga`.
+
 ## [1.51.0] - 2026-11-04
 
 ### Deuda de auditoría: seguridad, nuevas funciones y diseño
