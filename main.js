@@ -1538,7 +1538,11 @@ window.gochiUI = {
         document.body.appendChild(burbuja);
         return burbuja;
     };
+    let actual = null;
+    let tMostrar = null;
+    let observador = null;
     const colocar = (el) => {
+        if (!el.isConnected) { ocultar(); return; }
         const texto = el.dataset.tooltip;
         if (!texto) return;
         const b = crear();
@@ -1564,21 +1568,35 @@ window.gochiUI = {
         if (y < minY) y = r.bottom + 8;
         y = limitar(y, minY, maxY);
         b.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+        // El perfil crece al cargar la actividad: si el globo ya está visible,
+        // se recoloca cuando cambia el tamaño del botón o de su tarjeta.
+        if ('ResizeObserver' in window) {
+            observador = observador || new ResizeObserver(() => {
+                if (actual && burbuja && !burbuja.hidden) colocar(actual);
+            });
+            observador.disconnect();
+            observador.observe(el);
+            if (caja) observador.observe(caja);
+        }
     };
-    const ocultar = () => { if (burbuja) burbuja.hidden = true; };
+    const ocultar = () => {
+        clearTimeout(tMostrar);
+        actual = null;
+        if (observador) { observador.disconnect(); observador = null; }
+        if (burbuja) burbuja.hidden = true;
+    };
     const conTooltip = (evento) => evento.target.closest?.('[data-tooltip]');
     document.addEventListener('pointerover', (evento) => {
         const el = conTooltip(evento);
-        if (el) colocar(el);
+        if (!el) return;
+        if (el === actual && burbuja && !burbuja.hidden) return;
+        actual = el;
+        clearTimeout(tMostrar);
+        // Pequeña espera: al abrir un modal el cursor cae encima del ✕ antes de
+        // que la tarjeta termine de colocarse y el globo salía descuadrado.
+        tMostrar = setTimeout(() => { if (actual === el) colocar(el); }, 220);
     });
     document.addEventListener('pointerout', (evento) => {
-        if (conTooltip(evento)) ocultar();
-    });
-    document.addEventListener('focusin', (evento) => {
-        const el = conTooltip(evento);
-        if (el) colocar(el);
-    });
-    document.addEventListener('focusout', (evento) => {
         if (conTooltip(evento)) ocultar();
     });
     window.addEventListener('scroll', ocultar, { passive: true });

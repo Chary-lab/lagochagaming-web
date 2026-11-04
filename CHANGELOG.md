@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.4] - 2026-11-04
+
+### Tooltip sin globo prematuro
+
+- El tooltip global espera 220 ms de hover antes de pintarse y se recoloca con `ResizeObserver` cuando el botón o su tarjeta cambian de tamaño. Al abrir un perfil, `x-trap` enfocaba la ✕ y el globo aparecía con la tarjeta a medio construir.
+- Se quitan los disparadores `focusin`/`focusout`: el tooltip visible queda como ayuda de ratón y los botones conservan su `aria-label`.
+- Si el elemento pierde el DOM, el globo se oculta en vez de quedarse flotando.
+
 ## [1.61.3] - 2026-11-04
 
 ### Tooltip Cerrar dentro del modal
