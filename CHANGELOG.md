@@ -5,6 +5,12 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
 ## [1.44.2] - 2026-11-04
 
+### Contador de descargas reales
+
+- Cada descarga del APK pasa ahora por un contador: queda guardada la versión, el origen y la fecha.
+- El panel de administración estrena la pestaña **Descargas** con totales, únicas, hoy, 7 y 30 días, reparto por versión y por origen, gráfico de 14 días y las últimas descargas.
+- Solo los administradores pueden ver las estadísticas; el contador no expone IPs (se guarda un hash).
+
 ### APK 1.8 con el chat arreglado
 
 - La app estrena la versión 1.8: la caja de escritura del chat ya queda visible dentro de la hoja.

@@ -5408,6 +5408,22 @@ body.light-mode {
 .footer-admin-link { border: 0; background: transparent; color: var(--text-muted); font: inherit; font-size: 0.72rem; cursor: pointer; padding: 0 4px; }
 .footer-admin-link:hover, .footer-admin-link:focus-visible { color: var(--accent-color); }
 .footer-admin-link .icon { width: 11px; height: 11px; vertical-align: -1px; }
+.desc-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.desc-stat { display: flex; flex-direction: column; gap: 2px; padding: 14px 12px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg-subtle); text-align: center; }
+.desc-stat-num { font-size: 1.5rem; font-weight: 800; color: var(--accent-color); line-height: 1.1; }
+.desc-stat-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+.desc-columnas { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.desc-bloque { margin-bottom: 18px; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg-subtle); }
+.desc-bloque h3 { margin: 0 0 10px; font-size: 0.9rem; }
+.desc-fila { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: 0.85rem; border-bottom: 1px dashed var(--border-color); }
+.desc-fila:last-child { border-bottom: 0; }
+.desc-etiqueta { font-size: 0.78rem; color: var(--text-muted); }
+.desc-barras { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; min-height: 120px; padding-top: 8px; }
+.desc-barra { display: flex; flex: 1 1 0; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.desc-barra-valor { font-size: 0.68rem; color: var(--text-muted); }
+.desc-barra-tubo { display: flex; align-items: flex-end; width: 100%; height: 80px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); overflow: hidden; }
+.desc-barra-relleno { display: block; width: 100%; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--accent-color), #a855f7); }
+.desc-barra-dia { font-size: 0.62rem; color: var(--text-muted); white-space: nowrap; }
 @media (max-width: 640px) {
     .admin-global-modal { padding: 8px; }
     .admin-global-card { padding: 16px; max-height: 94vh; }

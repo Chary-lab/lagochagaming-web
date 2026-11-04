@@ -931,7 +931,7 @@ window.insertarNavbar = function insertarNavbar() {
             </summary>
             <div class="nav-app-panel">
                 <p class="nav-app-titulo">Gochita App</p>
-                <a class="nav-app-opcion" href="app/LaGochaGaming.apk?v=1.8" download type="application/vnd.android.package-archive" data-umami-event="descarga-apk">
+                <a class="nav-app-opcion" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=1.8&o=web" rel="noopener" data-umami-event="descarga-apk">
                     <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
                     <span class="nav-app-texto"><strong>Android</strong><small>v1.8 · 4,2 MB · Android 7+</small></span>
                     <span class="nav-app-accion">Descargar</span>
@@ -1594,6 +1594,9 @@ function insertarPanelAdminGlobal() {
                     <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'usuarios' }" x-on:click="$store.adminPanel.setTab('usuarios')" role="tab" :aria-selected="$store.adminPanel.tab === 'usuarios' ? 'true' : 'false'">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-users"></use></svg> Usuarios
                     </button>
+                    <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'descargas' }" x-on:click="$store.adminPanel.setTab('descargas')" role="tab" :aria-selected="$store.adminPanel.tab === 'descargas' ? 'true' : 'false'">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg> Descargas
+                    </button>
                     <button type="button" class="admin-tab-btn" :class="{ active: $store.adminPanel.tab === 'auditoria' }" x-on:click="$store.adminPanel.setTab('auditoria')" role="tab" :aria-selected="$store.adminPanel.tab === 'auditoria' ? 'true' : 'false'">
                         <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-shield-halved"></use></svg> Auditoría
                     </button>
@@ -1675,6 +1678,91 @@ function insertarPanelAdminGlobal() {
                     </div>
                 </div>
 
+                <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'descargas'" x-cloak>
+                    <div class="buzon-toolbar">
+                        <h2><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg> Descargas de la app</h2>
+                        <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.cargarDescargas()" :disabled="$store.adminPanel.descEstado === 'cargando'">Actualizar</button>
+                    </div>
+                    <p class="gallery-empty" x-show="$store.adminPanel.descEstado === 'cargando'">Cargando descargas...</p>
+                    <p class="gallery-empty" x-show="$store.adminPanel.descEstado === 'error'" x-text="$store.adminPanel.errorDesc" x-cloak></p>
+                    <div x-show="$store.adminPanel.descEstado === 'lista'" x-cloak>
+                        <div class="desc-stats">
+                            <div class="desc-stat">
+                                <span class="desc-stat-num" x-text="$store.adminPanel.descargas.total ?? 0"></span>
+                                <span class="desc-stat-label">Totales</span>
+                            </div>
+                            <div class="desc-stat">
+                                <span class="desc-stat-num" x-text="$store.adminPanel.descargas.unicos ?? 0"></span>
+                                <span class="desc-stat-label">Únicas</span>
+                            </div>
+                            <div class="desc-stat">
+                                <span class="desc-stat-num" x-text="$store.adminPanel.descargas.hoy ?? 0"></span>
+                                <span class="desc-stat-label">Hoy</span>
+                            </div>
+                            <div class="desc-stat">
+                                <span class="desc-stat-num" x-text="$store.adminPanel.descargas.ultimos7 ?? 0"></span>
+                                <span class="desc-stat-label">7 días</span>
+                            </div>
+                            <div class="desc-stat">
+                                <span class="desc-stat-num" x-text="$store.adminPanel.descargas.ultimos30 ?? 0"></span>
+                                <span class="desc-stat-label">30 días</span>
+                            </div>
+                        </div>
+
+                        <div class="desc-columnas">
+                            <div class="desc-bloque">
+                                <h3>Por versión</h3>
+                                <template x-for="v in ($store.adminPanel.descargas.porVersion || [])" :key="'v-' + v.version">
+                                    <div class="desc-fila">
+                                        <span x-text="v.version || 'sin versión'"></span>
+                                        <strong x-text="v.total"></strong>
+                                    </div>
+                                </template>
+                                <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porVersion || []).length">Sin datos.</p>
+                            </div>
+                            <div class="desc-bloque">
+                                <h3>Por origen</h3>
+                                <template x-for="o in ($store.adminPanel.descargas.porOrigen || [])" :key="'o-' + o.origen">
+                                    <div class="desc-fila">
+                                        <span x-text="o.origen"></span>
+                                        <strong x-text="o.total"></strong>
+                                    </div>
+                                </template>
+                                <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porOrigen || []).length">Sin datos.</p>
+                            </div>
+                        </div>
+
+                        <div class="desc-bloque">
+                            <h3>Últimos 14 días</h3>
+                            <div class="desc-barras">
+                                <template x-for="d in ($store.adminPanel.descargas.porDia || [])" :key="'d-' + d.dia">
+                                    <div class="desc-barra" :title="d.dia + ': ' + d.total">
+                                        <span class="desc-barra-valor" x-text="d.total"></span>
+                                        <span class="desc-barra-tubo">
+                                            <span class="desc-barra-relleno" :style="'height:' + $store.adminPanel.alturaBarra(d.total) + '%'"></span>
+                                        </span>
+                                        <span class="desc-barra-dia" x-text="$store.adminPanel.diaCorto(d.dia)"></span>
+                                    </div>
+                                </template>
+                            </div>
+                            <p class="gallery-empty" x-show="!($store.adminPanel.descargas.porDia || []).length">Sin datos.</p>
+                        </div>
+
+                        <div class="desc-bloque">
+                            <h3>Últimas descargas</h3>
+                            <div class="desc-lista">
+                                <template x-for="(d, i) in ($store.adminPanel.descargas.ultimas || [])" :key="'u-' + i">
+                                    <div class="desc-fila">
+                                        <span x-text="$store.adminPanel.fecha(d.creada_en)"></span>
+                                        <span class="desc-etiqueta" x-text="(d.version || '?') + ' · ' + (d.origen || 'web')"></span>
+                                    </div>
+                                </template>
+                                <p class="gallery-empty" x-show="!($store.adminPanel.descargas.ultimas || []).length">Sin datos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="admin-tab-panel" x-show="$store.adminPanel.tab === 'auditoria'" x-cloak>
                     <p class="gallery-empty" x-show="$store.adminPanel.auditEstado === 'cargando'">Cargando auditoría...</p>
                     <p class="gallery-empty" x-show="$store.adminPanel.auditEstado === 'error'" x-text="$store.adminPanel.errorAudit" x-cloak></p>
@@ -1734,6 +1822,10 @@ document.addEventListener('alpine:init', () => {
         sugEstado: 'inicial',
         errorSug: '',
         noLeidas: 0,
+
+        descargas: {},
+        descEstado: 'inicial',
+        errorDesc: '',
 
         fecha(valor) {
             if (!valor) return '';
@@ -1821,6 +1913,7 @@ document.addEventListener('alpine:init', () => {
         cargarTab() {
             if (this.tab === 'buzon') return this.cargarSugerencias();
             if (this.tab === 'usuarios') return this.cargarUsuarios(0);
+            if (this.tab === 'descargas') return this.cargarDescargas();
             if (this.tab === 'auditoria') return this.cargarAuditoria(0);
         },
 
@@ -1880,6 +1973,42 @@ document.addEventListener('alpine:init', () => {
             } catch (e) {
                 window.mostrarToast?.('No se pudo borrar la sugerencia.', true);
             }
+        },
+
+        async cargarDescargas() {
+            if (!this.admin) return;
+            this.descEstado = 'cargando';
+            this.errorDesc = '';
+            try {
+                const { data, error } = await window.supabase.rpc('app_descargas_stats', {
+                    p_token: this.tokenComunidad()
+                });
+                if (error) throw error;
+                if (!data || data.ok === false) {
+                    this.errorDesc = data?.error || 'No se pudieron cargar las descargas.';
+                    this.descEstado = 'error';
+                    return;
+                }
+                this.descargas = data;
+                this.descEstado = 'lista';
+            } catch (e) {
+                console.error('Error cargando descargas:', e);
+                this.errorDesc = 'No se pudieron cargar las descargas.';
+                this.descEstado = 'error';
+            }
+        },
+
+        alturaBarra(total) {
+            const dias = this.descargas?.porDia || [];
+            const maximo = Math.max(1, ...dias.map(d => Number(d.total) || 0));
+            const valor = Number(total) || 0;
+            return Math.max(valor > 0 ? 6 : 0, Math.round((valor / maximo) * 100));
+        },
+
+        diaCorto(dia) {
+            if (!dia) return '';
+            const partes = String(dia).split('-');
+            return partes.length === 3 ? partes[2] + '/' + partes[1] : String(dia);
         },
 
         async cargarUsuarios(delta, mantenerPagina = false) {
