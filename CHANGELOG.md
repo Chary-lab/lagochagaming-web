@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.50.0] - 2026-11-04
+
+### Historial completo de GochiSorteo
+
+- El sidebar de ganadores muestra el total registrado y un botón para expandir el historial hasta 200 ganadores sin recargar la página.
+- «Ver menos» vuelve a los últimos 20 y el botón se desactiva mientras carga.
+- Limpieza: retirados los restos huérfanos del botón Salir del chat de Kick (`CHAT_KICK.salir` y `host._salir`), eliminado en 1.43.8.
+
 ## [1.49.4] - 2026-11-04
 
 ### Auditoría P2: RPC de administración y accesibilidad

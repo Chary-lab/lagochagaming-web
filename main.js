@@ -2990,18 +2990,8 @@ window.CHAT_KICK = {
             location.href = res.datos.url;
         };
 
-        window.CHAT_KICK.salir = async (host) => {
-            const sesion = window.CHAT_KICK.sesion;
-            if (sesion) await pedir({ accion: 'salir' }, sesion.token);
-            window.CHAT_KICK.sesion = null;
-            localStorage.removeItem(api.claveToken);
-            sincronizar();
-            host._mostrarAviso('');
-        };
-
         hosts.forEach((host) => {
             host._conectar = () => window.CHAT_KICK.conectar(host);
-            host._salir = () => window.CHAT_KICK.salir(host);
         });
 
         // El set global se comparte con el chat de comunidad y se cachea.

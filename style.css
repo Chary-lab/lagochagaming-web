@@ -6087,6 +6087,10 @@ body.light-mode .admin-login-card .admin-login-error { color: #b91c1c; }
 .error-nav a:hover,
 .error-nav a:focus-visible { color: var(--accent-color); border-bottom-color: currentColor; outline: 2px solid var(--accent-color); outline-offset: 2px; }
 
+.historial-toggle { display: block; width: 100%; margin-top: 6px; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: transparent; color: var(--text-muted); font: inherit; font-size: 0.82rem; cursor: pointer; }
+.historial-toggle:hover:not(:disabled) { color: var(--accent-color); border-color: var(--accent-color); }
+.historial-toggle:disabled { opacity: 0.6; cursor: progress; }
+
 @media print {
     .navbar, .main-footer, .hero-section, .chat-sidebar, .skip-link, .chat-kick-fab { display: none !important; }
     body { background: #fff !important; color: #000 !important; }
