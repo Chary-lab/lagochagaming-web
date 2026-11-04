@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.5] - 2026-11-04
+
+### Acceso de administración en la app
+
+- Ajustes → **Creador** estrena la fila **Acceso de administración**, el candado que en la web vive escondido en el pie.
+- Abre el panel global de administración (login, buzón de sugerencias, usuarios, descargas y auditoría) sobre la misma app, sin salir al navegador.
+- Con sesión de admin, las herramientas de cada sección aparecen solas: moderación en Galería y Comunidad, panel maestro del reproductor en GochiWatch y modo streamer en Sorteo.
+
 ## [1.47.4] - 2026-11-04
 
 ### Sugerencias y firma del creador en la app
