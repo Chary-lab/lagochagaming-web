@@ -1230,6 +1230,26 @@ html.lg-app #lg-chat-body .chat-box-cine {
   background: #0b0e13 !important;
 }
 
+/* El chat real del inicio es flex: si el contenedor se fuerza a block, los
+   mensajes empujan el formulario fuera de la hoja y no se puede escribir. */
+html.lg-app #lg-chat-body .chat-sidebar.chat-kick {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+}
+
+html.lg-app #lg-chat-body .chat-kick-mensajes {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+}
+
+html.lg-app #lg-chat-body .chat-kick-top,
+html.lg-app #lg-chat-body .chat-kick-form,
+html.lg-app #lg-chat-body .chat-kick-aviso {
+  flex: 0 0 auto !important;
+}
+
 html.lg-app #lg-chat-body iframe {
   width: 100% !important;
   height: 100% !important;

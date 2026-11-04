@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.44.1] - 2026-11-04
+
+### El chat de la app vuelve a mostrar el cuadro de escritura
+
+- La hoja del chat mantiene el contenedor en columna flexible: los mensajes hacen scroll y el formulario queda visible.
+- Se sincronizó `mobile/mobile.css` con los assets de la APK.
+- Sin APK nueva: la app carga el CSS remoto.
+
 ## [1.44.0] - 2026-11-04
 
 ### El chat reconecta Kick sin pedir OAuth otra vez
