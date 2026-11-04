@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.3] - 2026-11-04
+
+### Aviso de versión nueva dentro de la app
+
+- La app compara su versión con `app/version.json` al abrir y, si hay una más nueva, muestra una barra bajo el encabezado: “Nueva versión X disponible”.
+- El botón **Actualizar** abre el diálogo nativo de descarga, con notas, progreso y verificación del APK.
+- La ✕ silencia ese aviso para esa versión; al publicar otra vuelve a salir.
+- Comprobación cada 6 horas como máximo: no pide el JSON en cada página.
+- No requiere APK nueva: llega con la interfaz móvil que la app descarga.
+
 ## [1.47.2] - 2026-11-04
 
 ### El chat deja mover la página

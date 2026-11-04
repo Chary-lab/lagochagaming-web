@@ -1206,6 +1206,91 @@
     });
   });
 
+  /* ---------- Aviso de versión nueva (solo dentro de la app) ---------- */
+  var UPDATE_CACHE = 'lg_update_checked';
+  var UPDATE_SKIP = 'lg_update_skip';
+
+  function versionMayor(remota, instalada) {
+    var a = String(remota).split('.');
+    var b = String(instalada).split('.');
+    for (var i = 0; i < Math.max(a.length, b.length); i++) {
+      var x = parseInt(a[i], 10) || 0;
+      var y = parseInt(b[i], 10) || 0;
+      if (x !== y) return x > y;
+    }
+    return false;
+  }
+
+  function pintarAvisoVersion(info) {
+    if (document.getElementById('lg-update-bar')) return;
+
+    var barra = document.createElement('div');
+    barra.id = 'lg-update-bar';
+    barra.className = 'lg-update-bar';
+    barra.setAttribute('role', 'status');
+
+    var texto = document.createElement('span');
+    texto.className = 'lg-update-texto';
+    texto.textContent = 'Nueva versión ' + info.versionName + ' disponible';
+    barra.appendChild(texto);
+
+    var boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = 'lg-update-btn';
+    boton.textContent = 'Actualizar';
+    boton.addEventListener('click', function () {
+      haptic();
+      native('checkUpdates');
+    });
+    barra.appendChild(boton);
+
+    var cerrar = document.createElement('button');
+    cerrar.type = 'button';
+    cerrar.className = 'lg-update-x';
+    cerrar.setAttribute('aria-label', 'Ocultar aviso');
+    cerrar.textContent = '\u2715';
+    cerrar.addEventListener('click', function () {
+      try { localStorage.setItem(UPDATE_SKIP, String(info.versionName)); } catch (e) {}
+      barra.remove();
+    });
+    barra.appendChild(cerrar);
+
+    document.body.appendChild(barra);
+  }
+
+  function revisarVersionRemota(info) {
+    if (!info || !info.versionName) return;
+    var instalada = native('getVersion');
+    if (!instalada) return;
+    var saltada = null;
+    try { saltada = localStorage.getItem(UPDATE_SKIP); } catch (e) {}
+    if (saltada === String(info.versionName)) return;
+    if (!versionMayor(info.versionName, instalada)) return;
+    pintarAvisoVersion(info);
+  }
+
+  function avisarVersionNueva() {
+    var api = window.LaGochaNative;
+    if (!api || typeof api.getVersion !== 'function' || typeof api.checkUpdates !== 'function') return;
+    var ahora = Date.now();
+    var cache = null;
+    try { cache = JSON.parse(localStorage.getItem(UPDATE_CACHE) || 'null'); } catch (e) {}
+    if (cache && cache.at && cache.info && ahora - cache.at < 21600000) {
+      revisarVersionRemota(cache.info);
+      return;
+    }
+    fetch('/app/version.json?t=' + ahora, { cache: 'no-store' })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (info) {
+        if (!info) return;
+        try { localStorage.setItem(UPDATE_CACHE, JSON.stringify({ at: ahora, info: info })); } catch (e) {}
+        revisarVersionRemota(info);
+      })
+      .catch(function () {});
+  }
+
+  avisarVersionNueva();
+
   (function prefetchPages() {
     var idx = navIndex(activeNavId());
     var targets = [];
