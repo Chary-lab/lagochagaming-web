@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.50.1] - 2026-11-04
+
+### Cierre de auditoría: documentación y robots
+
+- `AGENTS.md` refleja la versión vigente y el alcance de la auditoría.
+- `robots.txt` deja de bloquear `/admin` y `/config`, rutas que no existen en el sitio público.
+
 ## [1.50.0] - 2026-11-04
 
 ### Historial completo de GochiSorteo

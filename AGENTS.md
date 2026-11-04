@@ -253,7 +253,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.49.1` (Emotes globales de 7TV en los chats de Kick y Comunidad, con selector de emotes en ambos compositores; APK actual 1.13 / code 16).
+- Versión de esta release: `1.50.0` (auditoría completa: buzón solo owner, contraste, RPC de administración en galería/sorteo/cine, accesibilidad, historial de sorteo expandible; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
