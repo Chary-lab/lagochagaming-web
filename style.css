@@ -4653,6 +4653,11 @@ body.light-mode {
 }
 
 /* --- Píldora de puntos diarios del navbar --- */
+@property --p {
+    syntax: '<percentage>';
+    inherits: true;
+    initial-value: 0%;
+}
 .nav-puntos-dia {
     --p: 0%;
     position: relative;
@@ -4669,10 +4674,12 @@ body.light-mode {
     font-weight: 800;
     line-height: 1;
     cursor: default;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, --p 0.9s cubic-bezier(0.22, 0.8, 0.3, 1);
 }
 .nav-puntos-dia[hidden] { display: none; }
 .nav-puntos-ring {
+    position: relative;
+    top: 1px;
     width: 20px;
     height: 20px;
     flex-shrink: 0;
@@ -4680,16 +4687,32 @@ body.light-mode {
     background: conic-gradient(var(--accent-color) var(--p), rgba(127, 127, 127, 0.25) 0);
     -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
     mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    transition: box-shadow 0.3s ease;
 }
 .nav-puntos-texto {
     display: inline-flex;
-    align-items: baseline;
+    align-items: center;
     gap: 1px;
+    line-height: 1;
     font-variant-numeric: tabular-nums;
 }
 .nav-puntos-sep { opacity: 0.55; font-weight: 600; }
-.nav-puntos-dia--completo { border-color: var(--accent-color); }
-.nav-puntos-dia--completo .nav-puntos-ring { background: var(--accent-color); }
+.nav-puntos-dia--completo {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+.nav-puntos-dia--completo .nav-puntos-ring {
+    background: conic-gradient(var(--accent-color) 100%, var(--accent-color) 0);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent-color) 55%, transparent);
+}
+.nav-puntos-dia--remate .nav-puntos-ring {
+    animation: nav-puntos-remate 0.95s ease;
+}
+@keyframes nav-puntos-remate {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.18); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-color) 22%, transparent), 0 0 16px color-mix(in srgb, var(--accent-color) 65%, transparent); }
+    100% { transform: scale(1); }
+}
 .nav-puntos-dia--suma { animation: nav-puntos-pulso 0.7s ease; }
 @keyframes nav-puntos-pulso {
     0% { transform: scale(1); }
@@ -4717,7 +4740,9 @@ body.light-mode {
     .nav-puntos-dia { padding: 0 6px; }
 }
 @media (prefers-reduced-motion: reduce) {
+    .nav-puntos-dia { transition: border-color 0.2s ease, box-shadow 0.2s ease; }
     .nav-puntos-dia--suma,
+    .nav-puntos-dia--remate .nav-puntos-ring,
     .nav-puntos-suma--viva { animation: none; }
 }
 .nav-user-icono { font-size: 0.9rem; line-height: 1; }

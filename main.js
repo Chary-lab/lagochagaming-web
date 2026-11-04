@@ -349,6 +349,15 @@ window.KICK_COMUNIDAD = (function () {
 
     async function abrirOAuth(objetivo) {
         try {
+            // Un solo OAuth para todo: si Kick ya esta conectado (por el chat o
+            // por el icono), se reutiliza el token y solo se entra a Comunidad.
+            if (objetivo === 'entrar' && localStorage.getItem('gocha_kick_token')) {
+                if (typeof window.entrarConKickComunidad === 'function') {
+                    return await window.entrarConKickComunidad();
+                }
+                window.location.href = 'comunidad?kick=1';
+                return false;
+            }
             sessionStorage.setItem(CLAVE_OBJETIVO, objetivo);
             const vuelta = window.vueltaKickApp(objetivo);
             const res = await fetch(FN + '/kick-chat', {
@@ -984,12 +993,19 @@ window.pintarPuntosDia = function pintarPuntosDia(datos) {
     const elTope = document.getElementById('nav-puntos-tope');
     if (elHoy) elHoy.textContent = hoy;
     if (elTope) elTope.textContent = tope;
+    const previo = Number(btn.dataset.hoy ?? '-1');
+    const alcanzoTope = hoy >= tope && previo < tope;
     btn.style.setProperty('--p', Math.min(100, Math.round((hoy / tope) * 100)) + '%');
     btn.classList.toggle('nav-puntos-dia--completo', hoy >= tope);
     btn.hidden = false;
     btn.title = 'Hoy: ' + hoy + ' / ' + tope + ' pts';
     btn.setAttribute('aria-label', 'Puntos de hoy: ' + hoy + ' de ' + tope);
-    const previo = Number(btn.dataset.hoy ?? '-1');
+    if (alcanzoTope) {
+        btn.classList.remove('nav-puntos-dia--remate');
+        void btn.offsetWidth;
+        btn.classList.add('nav-puntos-dia--remate');
+        setTimeout(() => btn.classList.remove('nav-puntos-dia--remate'), 1000);
+    }
     if (previo >= 0 && hoy > previo) animarSumaPuntos(btn, hoy - previo);
     btn.dataset.hoy = String(hoy);
 };
@@ -2092,6 +2108,20 @@ window.CHAT_KICK = {
         };
 
         window.CHAT_KICK.conectar = async (host) => {
+            // El login de arriba y el del chat comparten el mismo token de Kick.
+            // Si ya hay sesion, se reutiliza y no se abre otro OAuth.
+            const tokenGuardado = localStorage.getItem(api.claveToken);
+            if (tokenGuardado) {
+                const sesion = await pedir({ accion: 'sesion' }, tokenGuardado);
+                if (sesion.ok && sesion.datos.usuario) {
+                    window.CHAT_KICK.sesion = { token: tokenGuardado, usuario: sesion.datos.usuario };
+                    sincronizar();
+                    host._mostrarAviso('');
+                    return;
+                }
+                if (sesion.estado === 401) localStorage.removeItem(api.claveToken);
+            }
+
             const res = await pedir({ accion: 'entrar', vuelta: window.vueltaKickApp('chat') });
             if (!res.ok || !res.datos.url) {
                 host._mostrarAviso(res.datos.error || 'No se pudo abrir el login de Kick.');

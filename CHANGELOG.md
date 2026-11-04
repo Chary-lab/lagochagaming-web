@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.6] - 2026-11-03
+
+### Puntos diarios y Kick compartido
+
+- Anillo de puntos diarios centrado y con relleno animado hasta el tope; al
+  llegar a 60 hace un pulso con brillo.
+- El login de arriba y "Conectar" del chat comparten el token de Kick: si ya
+  hay sesión, el chat no abre un segundo OAuth.
+- Sin cambios de APK: sigue valiendo la 1.6 (versionCode 9).
+
 ## [1.43.5] - 2026-11-03
 
 ### El chat de Kick también vuelve a la app
