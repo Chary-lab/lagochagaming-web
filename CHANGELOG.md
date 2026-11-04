@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.44.2] - 2026-11-04
+
+### APK 1.8 con el chat arreglado
+
+- La app estrena la versión 1.8: la caja de escritura del chat ya queda visible dentro de la hoja.
+- La app invalida el CSS viejo cacheado, así el arreglo se ve al instante tras actualizar.
+- Incluye la reconexión de Kick sin pedir OAuth cuando la cuenta ya está vinculada.
+
 ## [1.44.1] - 2026-11-04
 
 ### El chat de la app vuelve a mostrar el cuadro de escritura

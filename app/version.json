@@ -1,8 +1,8 @@
 {
-    "versionCode":  10,
-    "versionName":  "1.7",
+    "versionCode":  11,
+    "versionName":  "1.8",
     "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256":  "5b6acd26716047af750231d616bf2577b65d5c562d75445bb8da5dba4889b7d8",
-    "size":  4377994,
-    "notes":  "Herramientas de Streamer solo para admin y anillo de puntos animado."
+    "sha256":  "7a59e84d45328ff6f8484b54c1627575d567ab9ea3b94ec480c02217a690e8db",
+    "size":  4378342,
+    "notes":  "Chat con la caja de escritura visible en la app y reconexion de Kick sin pedir OAuth."
 }

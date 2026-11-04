@@ -931,9 +931,9 @@ window.insertarNavbar = function insertarNavbar() {
             </summary>
             <div class="nav-app-panel">
                 <p class="nav-app-titulo">Gochita App</p>
-                <a class="nav-app-opcion" href="app/LaGochaGaming.apk?v=1.7" download type="application/vnd.android.package-archive" data-umami-event="descarga-apk">
+                <a class="nav-app-opcion" href="app/LaGochaGaming.apk?v=1.8" download type="application/vnd.android.package-archive" data-umami-event="descarga-apk">
                     <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
-                    <span class="nav-app-texto"><strong>Android</strong><small>v1.7 · 4,2 MB · Android 7+</small></span>
+                    <span class="nav-app-texto"><strong>Android</strong><small>v1.8 · 4,2 MB · Android 7+</small></span>
                     <span class="nav-app-accion">Descargar</span>
                 </a>
                 <div class="nav-app-opcion nav-app-opcion--pronto">
