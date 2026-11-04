@@ -3578,7 +3578,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalEl.innerHTML = `
       <div class="modal-perfil-backdrop" x-on:click="$store.perfil.cerrar()"></div>
       <div class="modal-perfil-card" role="document" x-trap.noscroll="$store.perfil.abierto && !$store.perfil.anclado">
-        <button type="button" class="modal-perfil-close" x-on:click="$store.perfil.cerrar()" aria-label="Cerrar">&times;</button>
+        <button type="button" class="modal-perfil-close" x-on:click="$store.perfil.cerrar()" aria-label="Cerrar" data-tooltip="Cerrar">&times;</button>
         <h3 id="modal-perfil-titulo" x-text="$store.perfil.titulo">Mi perfil</h3>
         <nav class="modal-perfil-tabs" role="tablist" aria-label="Perfil y ajustes" x-bind:hidden="$store.perfil.publico">
           <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'perfil' }"

@@ -6431,3 +6431,68 @@ body.light-mode .admin-login-card .admin-login-error { color: #b91c1c; }
     .content-section h2,
     .hero-title { background: none !important; -webkit-text-fill-color: currentColor !important; color: #000 !important; }
 }
+
+/* === Pulido de modales, lightbox y botones (solo piel, sin tamaños) ===
+   Estas reglas llegan después de las media queries: no cambian medidas ni
+   visibilidad, solo acabado, para no pisar el responsive. */
+.gochi-modal-box,
+.reporte-foto-box,
+.modal-kick-registro,
+.media-modal-card,
+.modal-perfil-card {
+    border-color: color-mix(in srgb, var(--accent-color) 38%, var(--border-color));
+    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.55), var(--glow);
+}
+
+.gochi-modal-box {
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 7%, var(--card-bg)), var(--card-bg) 45%);
+}
+
+.lightbox-backdrop {
+    backdrop-filter: blur(6px);
+}
+
+.lightbox-stage {
+    filter: drop-shadow(0 26px 60px rgba(0, 0, 0, 0.6));
+}
+
+.lightbox-btn-prev,
+.lightbox-btn-next,
+.lightbox-btn-close,
+.lightbox-btn-like,
+.lightbox-close-fixed,
+.reporte-foto-close,
+.modal-perfil-close {
+    transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.lightbox-btn-prev:active,
+.lightbox-btn-next:active,
+.lightbox-btn-close:active,
+.lightbox-btn-like:active,
+.lightbox-close-fixed:active,
+.reporte-foto-close:active,
+.modal-perfil-close:active,
+.btn-primary:active,
+.btn-secondary:active,
+.gochi-confirm-btn:active {
+    transform: scale(0.96);
+}
+
+.modal-perfil-tabs button,
+.modal-perfil-tabs button[aria-selected="true"] {
+    border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lightbox-btn-prev,
+    .lightbox-btn-next,
+    .lightbox-btn-close,
+    .lightbox-btn-like,
+    .lightbox-close-fixed,
+    .reporte-foto-close,
+    .modal-perfil-close {
+        transition: none;
+    }
+}

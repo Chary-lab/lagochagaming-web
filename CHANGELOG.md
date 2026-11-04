@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.53.2] - 2026-11-04
+
+### Modales, lightbox y botones al estilo Pines
+
+- Los diálogos (login, registro, Kick, confirmación, perfil y reporte) comparten borde con tinte de acento y una sombra más profunda.
+- El lightbox de Galería oscurece el fondo con desenfoque, la foto gana sombra propia y los botones responden con una pulsación breve.
+- Los botones principales y secundarios también reaccionan al pulsado; con `prefers-reduced-motion` no hay transiciones.
+- Tooltips en los iconos del lightbox, del modal de perfil y de los modales de la home y Comunidad.
+
 ## [1.53.1] - 2026-11-04
 
 ### Pestañas con el lenguaje de Pines
