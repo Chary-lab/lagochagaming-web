@@ -752,7 +752,12 @@ window.insigniasKickDe = function insigniasKickDe(fila) {
             nombre: window.NOMBRE_INSIGNIA_KICK[b.type] || window.ETIQUETA_INSIGNIA_KICK[b.type],
             icono: window.ICONO_INSIGNIA_KICK[b.type],
             texto: b.text || b.type
-        }));
+        }))
+        .map(b => {
+            const norm = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const detalle = b.texto && norm(b.texto) !== norm(b.nombre) && norm(b.texto) !== norm(b.tipo) ? b.texto : '';
+            return Object.assign({}, b, { detalle });
+        });
 };
 
 
@@ -2912,7 +2917,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   <span class="mp-insignia" x-bind:class="'kick-badge-' + b.tipo" x-bind:title="b.texto">
                     <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + b.icono"></use></svg>
                     <span x-text="b.nombre"></span>
-                    <small x-show="b.texto && b.texto.toLowerCase() !== b.nombre.toLowerCase() && b.texto.toLowerCase() !== b.tipo.toLowerCase()" x-text="b.texto"></small>
+                    <small x-show="b.detalle" x-text="b.detalle"></small>
                   </span>
                 </template>
               </div>
@@ -3160,7 +3165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       abrir(vista) {
         crearModal();
-        if (this.abierto && !this.publico && !this.anclado) { this.cerrar(); return; }
+        if (this.abierto && !this.publico) { this.cerrar(); return; }
         this.publico = false;
         this.sobreAdmin = false;
         this.titulo = 'Mi perfil';

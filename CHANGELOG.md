@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.12] - 2026-11-04
+
+### Mi perfil: panel real, se abre y se cierra con clic
+
+- Arreglado el bloqueo: la capa del perfil ya no se come los clics de la página. Clic fuera cierra, clic en el botón del navbar abre/cierra, y el resto de la web sigue usable.
+- Sin ✕ en escritorio: se cierra tocando fuera o el mismo botón, como el panel de APP.
+- Estilo alineado con APP: ancho fijo, título en mayúsculas y cabecera limpia.
+- Insignias sin texto duplicado (`Regaló subs` ya no repite `Sub Gifter`).
+
 ## [1.47.11] - 2026-11-04
 
 ### Insignias con nombre y aviso legible en tema claro
