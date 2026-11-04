@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.46.0] - 2026-11-04
+
+### Fuera el reproductor nativo de la app
+
+- La app vuelve a mostrar el directo con el iframe de Kick, igual que la web.
+- Se elimina el código del reproductor propio: tarjeta “Ver el directo”, clase `lg-player-nativo`, estilos `.lg-directo-nativo` y el puente `abrirDirecto`.
+- Motivo: el reproductor nativo no convenció.
+
 ## [1.45.0] - 2026-11-04
 
 ### Espectadores en la cabecera del chat

@@ -1,8 +1,8 @@
 {
-    "versionCode":  12,
-    "versionName":  "1.9",
+    "versionCode":  13,
+    "versionName":  "1.10",
     "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256":  "47c6ed4a782d346a5d19ed80983afe89dfe6a49273747d3f97172223b2b616e7",
-    "size":  7085454,
-    "notes":  "Reproductor propio del directo en la app (sin avisos de Kick y con selector de calidad) y espectadores en vivo en el chat."
+    "sha256":  "d952022ae20966d5216a48c9a79e54efe507fec6540d7408dc398d0eb349e88f",
+    "size":  4378362,
+    "notes":  "Se quita el reproductor nativo: el directo vuelve al reproductor de Kick y la app pesa menos."
 }

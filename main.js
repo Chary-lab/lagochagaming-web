@@ -2150,9 +2150,6 @@ window.CHAT_KICK = {
     window.actualizarEspectadoresKick = function actualizarEspectadoresKick(total, enVivo) {
         const valor = { total: Number(total) || 0, vivo: !!enVivo };
         window._kickEspectadores = valor;
-        if (typeof window.mostrarDirectoNativoApp === 'function') {
-            window.mostrarDirectoNativoApp(valor.vivo);
-        }
         document.querySelectorAll('.chat-kick-espectadores').forEach((el) => {
             if (!valor.vivo || valor.total <= 0) {
                 el.hidden = true;
@@ -2583,48 +2580,6 @@ window.CHAT_KICK = {
         sincronizar();
         await cargarMensajes();
         escuchar();
-    };
-})();
-
-// === REPRODUCTOR NATIVO EN LA APP ===
-// La app trae ExoPlayer: aquí se cambia el iframe de Kick por una tarjeta que lo abre,
-// así no aparece el aviso "Visit KICK for HD quality" al tocar la pantalla.
-(function prepararPlayerNativoApp() {
-    const nativo = window.LaGochaNative;
-    if (!nativo || typeof nativo.abrirDirecto !== 'function') return;
-    document.documentElement.classList.add('lg-player-nativo');
-
-    let tarjeta = null;
-
-    const crear = () => {
-        const contenedor = document.querySelector('.video-container');
-        if (!contenedor) return null;
-        const previa = contenedor.querySelector('.lg-directo-nativo');
-        if (previa) return previa;
-        const boton = document.createElement('button');
-        boton.type = 'button';
-        boton.className = 'lg-directo-nativo';
-        boton.hidden = true;
-        boton.innerHTML = '<span class="lg-directo-nativo-icono" aria-hidden="true"></span>' +
-            '<span class="lg-directo-nativo-texto">Ver el directo</span>' +
-            '<span class="lg-directo-nativo-sub">Reproductor propio, sin avisos de Kick</span>';
-        boton.addEventListener('click', () => {
-            try { nativo.abrirDirecto(); } catch (e) { console.error('player nativo:', e); }
-        });
-        contenedor.appendChild(boton);
-        return boton;
-    };
-
-    window.mostrarDirectoNativoApp = (enVivo) => {
-        if (!tarjeta) tarjeta = crear();
-        if (!tarjeta) return;
-        if (enVivo) {
-            const offline = document.getElementById('stream-offline');
-            if (offline) offline.hidden = true;
-            tarjeta.hidden = false;
-        } else {
-            tarjeta.hidden = true;
-        }
     };
 })();
 

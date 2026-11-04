@@ -162,7 +162,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Insignias de Kick: `window.insigniasKickDe()` (§4); no pedir `rol` al cliente.
 - Espectadores: la cabecera del chat muestra `N Views` en `.chat-kick-espectadores`. Se pinta con `window.actualizarEspectadoresKick(total, enVivo)` desde el sondeo global de `verificarEstadoStream()`; no crear sondeos nuevos ni un segundo contador en la página.
 - Player web: `#stream-player` es el iframe de `player.kick.com` y se queda así. Su CORS solo admite orígenes de Kick, así que reproducir el HLS directo (`playback_url` de `https://kick.com/api/v2/channels/lagochagaming`) en la web exige proxy y cuesta 2–3 GB por hora y espectador: no hacerlo sin autorización.
-- Player en la app: la app trae ExoPlayer nativo (`D:\Apk Gocha`, `PlayerActivity`). `main.js` detecta el puente (`window.LaGochaNative.abrirDirecto`), añade `html.lg-player-nativo`, oculta el iframe y muestra la tarjeta `.lg-directo-nativo`; al tocarla se abre el reproductor nativo con calidades. No añadir botón “Ver en HD” en la web.
+- Player en la app: desde la 1.10 la app usa el mismo iframe de `player.kick.com` que la web. El reproductor nativo ExoPlayer (`PlayerActivity`, puente `abrirDirecto`, tarjeta `.lg-directo-nativo`) se eliminó: no reintroducirlo sin autorización. No añadir botón “Ver en HD” en la web.
 - El aviso “Visit KICK for HD quality” vive dentro del iframe y no se puede quitar desde fuera. Cualquier intento de taparlo con capas rompe los controles de Kick.
 
 ## 6. Seguridad
@@ -294,7 +294,6 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - No asumir que `_headers` funciona en GitHub Pages.
 - No montar proxy HLS ni reproductor propio en la web para quitar el aviso de Kick: cuesta ancho de banda y rompe la política del CDN.
 - No publicar una APK sin verificar el SHA-256 de la firma y el `versionCode`; no cambiar la keystore.
-- No cambiar `PlayerActivity` ni añadir nativo sin subir la versión de la app y `ASSET_CACHE_VERSION`.
 - No commitear con la app rota o sin probar.
 
 ## 12. Riesgos aceptados / deuda conocida
@@ -310,7 +309,5 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - CDNs sin SRI (jsDelivr: Supabase JS, Alpine, hls.js; Google Fonts).
 - Advisors de Supabase marcan RPCs `SECURITY DEFINER` ejecutables por `anon`; es intencional para usuarios de comunidad sin Supabase Auth. Revisar cada nueva RPC con el mismo criterio.
 - Índices marcados como "unused" son de bajo volumen; no eliminarlos sin medir.
-- Player nativo de la app: sin probar en un dispositivo real (no hay emulador en este equipo). Cualquier cambio ahí es “compilado”, no “verificado”.
 - El contador de descargas no ve las actualizaciones internas de la app ni las descargas directas del `.apk` fuera de `app-descarga`.
 - Los espectadores del chat se refrescan con el sondeo de 30 s; pueden ir 30–60 s por detrás del número del iframe.
-- La APK creció a ~6,8 MB por media3; si el tamaño importa, revisar antes de añadir más dependencias nativas.
