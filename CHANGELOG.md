@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.9] - 2026-11-04
+
+### Prefetch ligero y sin 404
+
+- Las páginas precargaban `comunidad`, `galeria`, `sorteo` y `cine` sin extensión. GitHub Pages no resuelve URLs limpias: cada visita gastaba 3–4 peticiones que terminaban en 404 (ruido en consola y en Search Console). Ahora el prefetch apunta a `*.html`.
+- La home precarga solo `comunidad.html` y las subpáginas solo `./`: cada carga baja de 4 documentos precargados (~174 KB) a 1. El resto sigue navegando con caché normal.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.8] - 2026-11-04
 
 ### El sitio ya no se ve roto en modo de contraste alto
