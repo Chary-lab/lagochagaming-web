@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Sorteos de LaGochaGaming">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.8">
+    <link rel="stylesheet" href="style.css?v=1.43.9">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -147,8 +147,7 @@
                     <div class="admin-toolbar admin-toolbar-center">
                         <button type="button" id="btn-toggle-sorteo" data-action="toggle-draw" class="btn-primary btn-success btn-sm">🟢 ABRIR SORTEO EN VIVO</button>
                         <button type="button" data-action="empty-tombola" class="btn-primary btn-danger btn-sm">🗑️ Limpiar Tómbola</button>
-                        <button type="button" data-action="logout-admin" class="btn-logout btn-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-from-bracket"></use></svg> Cerrar Sesión</button>
-                        <button type="button" data-action="exit-streamer" class="btn-primary btn-muted btn-sm">Salir</button>
+                        <button type="button" data-action="exit-streamer" class="btn-primary btn-muted btn-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sliders"></use></svg> Ocultar Herramientas</button>
                     </div>
 
                     <!-- HERRAMIENTA BONUS PARTICIPANTES ADMIN -->
@@ -298,7 +297,6 @@
                 case 'spin-public': girarRuletaPublica(); break;
                 case 'toggle-draw': toggleEstadoSorteo(); break;
                 case 'empty-tombola': vaciarTombolaOnline(); break;
-                case 'logout-admin': window.cerrarSesion?.(); break;
                 case 'exit-streamer': salirModoStreamer(); break;
                 case 'add-bonus': agregarParticipanteAdminBonus(); break;
                 case 'spin-streamer': girarRuletaStreamer(); break;
@@ -876,7 +874,7 @@
         </div>
     </footer>
 
-    <script src="main.js?v=1.43.8" defer></script>
+    <script src="main.js?v=1.43.9" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

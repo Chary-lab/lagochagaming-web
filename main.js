@@ -439,6 +439,168 @@ window.KICK_COMUNIDAD = (function () {
     return { vinculado, vincular, abrirOAuth, volverDelHash };
 })();
 
+// === Cuenta unica: Kick entra, vincula o crea la cuenta de comunidad ===
+// "Conectar" del chat y el boton de Kick de Comunidad comparten este flujo.
+window.guardarSesionComunidad = function guardarSesionComunidad(datos) {
+    if (!datos || !datos.token || !datos.usuario) return false;
+    const u = datos.usuario;
+    localStorage.removeItem('comunidad_logout_explicito');
+    localStorage.setItem('comunidad_session_token', datos.token);
+    localStorage.setItem('comunidad_nickname', u.apodo || '');
+    if (u.id) localStorage.setItem('comunidad_user_id', String(u.id));
+    localStorage.setItem('comunidad_session_usuario', JSON.stringify(u));
+    window.actualizarUsuarioNavComunidad?.();
+    window.latidoComunidad?.();
+    return true;
+};
+
+// Pregunta que hacer cuando el apodo de Kick ya existe en la comunidad.
+// Devuelve { pin } o { apodo } o null si se cancela.
+window.preguntarConflictoKick = function preguntarConflictoKick(info) {
+    return new Promise((resolver) => {
+        document.querySelectorAll('.kick-conflicto-overlay').forEach((viejo) => viejo.remove());
+        const apodo = (info && info.apodo) || 'esa cuenta';
+        const mensaje = (info && info.mensaje) || '';
+        const overlay = document.createElement('div');
+        overlay.className = 'kick-conflicto-overlay';
+        overlay.innerHTML = `
+            <div class="kick-conflicto-card" role="dialog" aria-modal="true" aria-labelledby="kick-conflicto-titulo">
+                <h3 id="kick-conflicto-titulo">Ese apodo ya existe</h3>
+                <p class="kick-conflicto-texto">Ya hay una cuenta <strong>“${window.escapeHtml(apodo)}”</strong> en la comunidad. Si es tuya, confírmala con tu PIN. Si no, elige otro apodo para tu cuenta de Kick.</p>
+                <p class="kick-conflicto-aviso" ${mensaje ? '' : 'hidden'}>${window.escapeHtml(mensaje)}</p>
+                <form class="kick-conflicto-form" data-modo="pin" novalidate>
+                    <label for="kick-conflicto-pin">PIN de 4 dígitos</label>
+                    <input id="kick-conflicto-pin" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off" placeholder="••••">
+                    <p class="kick-conflicto-error" role="alert" hidden></p>
+                    <button type="submit" class="btn-primary">Vincular con PIN</button>
+                </form>
+                <div class="kick-conflicto-sep"><span>o</span></div>
+                <form class="kick-conflicto-form" data-modo="apodo" novalidate>
+                    <label for="kick-conflicto-apodo">Crear una cuenta nueva con otro apodo</label>
+                    <input id="kick-conflicto-apodo" type="text" maxlength="20" autocomplete="off" placeholder="Tu nuevo apodo">
+                    <p class="kick-conflicto-error" role="alert" hidden></p>
+                    <button type="submit" class="btn-primary btn-muted">Crear cuenta con este apodo</button>
+                </form>
+                <button type="button" class="kick-conflicto-cancelar">Ahora no</button>
+            </div>`;
+        document.body.appendChild(overlay);
+        const cerrar = (valor) => {
+            overlay.remove();
+            resolver(valor);
+        };
+        const formPin = overlay.querySelector('[data-modo="pin"]');
+        const formApodo = overlay.querySelector('[data-modo="apodo"]');
+        const errorPin = formPin.querySelector('.kick-conflicto-error');
+        const errorApodo = formApodo.querySelector('.kick-conflicto-error');
+        const inputPin = formPin.querySelector('input');
+        const inputApodo = formApodo.querySelector('input');
+        inputPin.focus();
+        formPin.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pin = inputPin.value.trim();
+            if (!/^[0-9]{4}$/.test(pin)) {
+                errorPin.hidden = false;
+                errorPin.textContent = 'Escribe los 4 dígitos de tu PIN.';
+                return;
+            }
+            cerrar({ pin });
+        });
+        formApodo.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nuevo = inputApodo.value.trim();
+            if (nuevo.length < 3 || nuevo.length > 20) {
+                errorApodo.hidden = false;
+                errorApodo.textContent = 'El apodo debe tener entre 3 y 20 caracteres.';
+                return;
+            }
+            if (nuevo.toLowerCase() === String(apodo).toLowerCase()) {
+                errorApodo.hidden = false;
+                errorApodo.textContent = 'Ese es el apodo que ya existe. Elige otro.';
+                return;
+            }
+            cerrar({ apodo: nuevo });
+        });
+        overlay.querySelector('.kick-conflicto-cancelar').addEventListener('click', () => cerrar(null));
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) cerrar(null); });
+        overlay.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrar(null); });
+    });
+};
+
+// Aviso de cuenta nueva: completar el perfil ahora o dejarlo para despues.
+window.ofrecerCompletarPerfilKick = function ofrecerCompletarPerfilKick() {
+    if (document.querySelector('.kick-perfil-overlay')) return;
+    const overlay = document.createElement('div');
+    overlay.className = 'kick-conflicto-overlay kick-perfil-overlay';
+    overlay.innerHTML = `
+        <div class="kick-conflicto-card" role="dialog" aria-modal="true" aria-labelledby="kick-perfil-titulo">
+            <h3 id="kick-perfil-titulo">¡Tu cuenta está lista!</h3>
+            <p class="kick-conflicto-texto">Creamos tu cuenta de comunidad con tus datos de Kick. Puedes completar tu perfil ahora o hacerlo después desde tu cuenta.</p>
+            <div class="kick-perfil-acciones">
+                <button type="button" class="btn-primary" data-accion="ahora">Completar ahora</button>
+                <button type="button" class="btn-primary btn-muted" data-accion="despues">Ver después</button>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+    const cerrar = () => overlay.remove();
+    overlay.querySelector('[data-accion="ahora"]').addEventListener('click', () => {
+        cerrar();
+        if (typeof window.abrirModalPerfil === 'function') window.abrirModalPerfil('ajustes');
+    });
+    overlay.querySelector('[data-accion="despues"]').addEventListener('click', cerrar);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) cerrar(); });
+};
+
+// Entra con la sesion de Kick ya guardada. Si el apodo choca, pregunta.
+// Devuelve los datos de la sesion de comunidad, { cancelado: true } o { error }.
+window.entrarConKickCuenta = async function entrarConKickCuenta(opciones) {
+    const silenciarAviso = !!(opciones && opciones.silenciarAviso);
+    const tokenKick = localStorage.getItem('gocha_kick_token');
+    if (!tokenKick) return { error: 'sin_kick' };
+    let extra = {};
+    for (let intento = 0; intento < 4; intento++) {
+        let res;
+        let datos;
+        try {
+            res = await fetch(SUPABASE_URL + '/functions/v1/kick-comunidad', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tokenKick },
+                body: JSON.stringify(Object.assign({ accion: 'entrar' }, extra))
+            });
+            datos = await res.json().catch(() => ({}));
+        } catch (e) {
+            return { error: 'sin_conexion', mensaje: 'No se pudo conectar con la comunidad.' };
+        }
+
+        if (datos.error === 'conflicto_apodo' || datos.error === 'apodo_duplicado' || datos.error === 'apodo_ocupado') {
+            const elegido = await window.preguntarConflictoKick(datos);
+            if (!elegido) return { cancelado: true };
+            extra = elegido;
+            continue;
+        }
+        if (datos.error === 'pin_invalido' || datos.error === 'apodo_invalido') {
+            const elegido = await window.preguntarConflictoKick({
+                apodo: datos.apodo || extra.apodo || '',
+                mensaje: datos.mensaje || 'Revisa los datos e inténtalo de nuevo.'
+            });
+            if (!elegido) return { cancelado: true };
+            extra = elegido;
+            continue;
+        }
+        if (res.status === 401) {
+            localStorage.removeItem('gocha_kick_token');
+            return { error: 'kick_caducado', mensaje: datos.mensaje || datos.error };
+        }
+        if (!res.ok || !datos.ok) {
+            return { error: datos.error || 'entrar', mensaje: datos.mensaje };
+        }
+
+        window.guardarSesionComunidad(datos);
+        if (datos.nuevo && !silenciarAviso) window.ofrecerCompletarPerfilKick?.();
+        return datos;
+    }
+    return { error: 'conflicto', mensaje: 'No se pudo completar el acceso.' };
+};
+
 window.addEventListener('kick-vinculado', (e) => {
     const store = window.Alpine?.store?.('perfil');
     if (store) store.usuario = Object.assign({}, store.usuario, e.detail || {});
@@ -662,29 +824,6 @@ window.cerrarSesion = async function cerrarSesion() {
 
     mostrarToast(teniaAuth ? 'Sesión cerrada' : 'Sesión de comunidad cerrada');
     setTimeout(() => { window.location.reload(); }, 800);
-};
-
-window.cerrarSesionAdminGlobal = async function cerrarSesionAdminGlobal() {
-    if (window.supabase) {
-        try {
-            await window.supabase.auth.signOut();
-        } catch (e) {}
-    }
-    window.refrescarCacheAdmin?.();
-
-    document.body.classList.remove('admin-mode-active');
-
-    const btnLogout = document.getElementById('btn-logout-galeria');
-    if (btnLogout) btnLogout.style.display = 'none';
-    const adminPanel = document.getElementById('streamerAdminPanel');
-    if (adminPanel) adminPanel.style.display = 'none';
-    const btnToggle = document.getElementById('btn-toggle-admin');
-    if (btnToggle) {
-        btnToggle.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock"></use></svg> Modo Moderación';
-        btnToggle.classList.remove('active');
-    }
-
-    window.location.reload();
 };
 
 window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() {
@@ -1551,10 +1690,6 @@ function insertarPanelAdminGlobal() {
                     </div>
                 </div>
             </div>
-
-            <footer class="admin-global-foot" x-show="$store.adminPanel.admin">
-                <button type="button" class="btn-admin-pag" x-on:click="$store.adminPanel.logout()">Cerrar sesión admin</button>
-            </footer>
         </div>
     `;
     document.body.appendChild(modal);
@@ -1666,35 +1801,6 @@ document.addEventListener('alpine:init', () => {
                 console.error('Error comprobando sesión admin:', e);
                 this.cargando = false;
                 this.loginError = 'No se pudo comprobar la sesión.';
-            }
-        },
-
-        async logout() {
-            const token = localStorage.getItem('comunidad_session_token');
-            if (window.supabase && token) {
-                try { await window.supabase.rpc('cerrar_sesion_comunidad', { p_token: token }); } catch (e) {}
-            }
-            localStorage.removeItem('comunidad_session_token');
-            localStorage.removeItem('comunidad_nickname');
-            localStorage.removeItem('comunidad_user_id');
-            localStorage.removeItem('comunidad_session_usuario');
-            window.limpiarCachesSesionComunidad?.();
-            window.refrescarCacheAdmin?.();
-            window.actualizarUsuarioNavComunidad?.();
-            this.sesion = false;
-            this.admin = false;
-            this.owner = false;
-            this.email = '';
-            this.tab = 'usuarios';
-            this.usuarios = [];
-            this.auditLog = [];
-            this.sugerencias = [];
-            this.sugEstado = 'inicial';
-            this.usuariosEstado = 'inicial';
-            this.auditEstado = 'inicial';
-            if (this._refrescoUsuarios) {
-                clearInterval(this._refrescoUsuarios);
-                this._refrescoUsuarios = null;
             }
         },
 
@@ -2129,21 +2235,27 @@ window.CHAT_KICK = {
         };
 
         window.CHAT_KICK.conectar = async (host) => {
-            // Un solo login: el chat no crea cuentas por su cuenta. Si no hay
-            // sesión general, se abre el acceso de la comunidad.
-            const tokenComunidad = localStorage.getItem('comunidad_session_token');
-            if (!tokenComunidad) {
-                host._mostrarAviso('Inicia sesión en tu cuenta para conectar Kick.');
-                if (typeof window.lgOpenAccount === 'function') window.lgOpenAccount('login');
-                else if (typeof window.abrirLoginMenu === 'function') window.abrirLoginMenu('login');
-                return;
-            }
-            // El login de arriba y el del chat comparten el mismo token de Kick.
-            // Si ya hay sesion, se reutiliza y no se abre otro OAuth.
+            // Conectar es el login general con Kick: si ya hay cuenta de
+            // comunidad se vincula; si no, se crea o recupera automaticamente.
             const tokenGuardado = localStorage.getItem(api.claveToken);
+            const tokenComunidad = localStorage.getItem('comunidad_session_token');
+
+            // El login general y el del chat comparten el token de Kick.
+            // Si ya existe, se reutiliza y no se abre otro OAuth.
             if (tokenGuardado) {
                 const sesion = await pedir({ accion: 'sesion' }, tokenGuardado);
                 if (sesion.ok && sesion.datos.usuario) {
+                    if (!tokenComunidad) {
+                        const cuenta = await window.entrarConKickCuenta();
+                        if (cuenta && cuenta.cancelado) {
+                            host._mostrarAviso('No se completó el acceso. Vuelve a intentarlo.');
+                            return;
+                        }
+                        if (cuenta && cuenta.error) {
+                            host._mostrarAviso(cuenta.mensaje || 'No se pudo entrar a la comunidad.');
+                            return;
+                        }
+                    }
                     window.CHAT_KICK.sesion = { token: tokenGuardado, usuario: sesion.datos.usuario };
                     sincronizar();
                     host._mostrarAviso('');
@@ -2188,6 +2300,25 @@ window.CHAT_KICK = {
                 return false;
             }
             localStorage.setItem(api.claveToken, token);
+
+            // Con Kick ya autenticado se completa la cuenta general:
+            // con sesion abierta se vincula; sin sesion se crea o recupera.
+            if (localStorage.getItem('comunidad_session_token')) {
+                const vinculado = await window.KICK_COMUNIDAD.vincular();
+                if (!vinculado) {
+                    localStorage.removeItem(api.claveToken);
+                    hosts.forEach((host) => host._mostrarAviso('No se pudo vincular tu Kick a esta cuenta.'));
+                    return false;
+                }
+            } else {
+                const cuenta = await window.entrarConKickCuenta();
+                if (!cuenta || cuenta.cancelado || cuenta.error) {
+                    localStorage.removeItem(api.claveToken);
+                    const aviso = cuenta?.mensaje || (cuenta?.cancelado ? 'No se completó el acceso. Vuelve a intentarlo.' : '');
+                    if (aviso) hosts.forEach((host) => host._mostrarAviso(aviso));
+                    return false;
+                }
+            }
             return true;
         };
 
@@ -2552,9 +2683,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <button type="button" class="btn-primary" x-bind:disabled="$store.perfil.guardando"
                     x-on:click="$store.perfil.guardar()">Guardar cambios</button>
           </div>
-          <button type="button" class="btn-logout mp-logout" x-on:click="$store.perfil.logout()">
-            <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-from-bracket"></use></svg> Cerrar sesión
-          </button>
         </div>
       </div>`;
     document.body.appendChild(modalEl);

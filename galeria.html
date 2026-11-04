@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.8">
+    <link rel="stylesheet" href="style.css?v=1.43.9">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -73,9 +73,6 @@
                 <button type="button" id="btn-toggle-admin" class="btn-admin-mode" data-action="toggle-admin" aria-expanded="false" aria-controls="panelAdminUnificado" hidden>
                     <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sliders"></use></svg> Herramientas de Streamer
                 </button>
-                <button type="button" id="btn-logout-galeria" class="btn-logout btn-sm" data-action="logout" hidden>
-                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-from-bracket"></use></svg> Cerrar Sesión
-                </button>
             </div>
         </div>
 
@@ -89,7 +86,7 @@
                     <li><strong>Borrar foto:</strong> elimina una foto publicada de la galería.</li>
                     <li><strong>Subida:</strong> título, autor (admin) y límites (5MB, JPG/PNG/GIF/WEBP/AVIF).</li>
                     <li><strong>Usuarios, auditoría y buzón:</strong> están en el panel global, accesible desde “Acceso” en el footer.</li>
-                    <li><strong>Cerrar sesión:</strong> sale de la cuenta y oculta las herramientas.</li>
+                    <li><strong>Cerrar sesión:</strong> usa la flecha roja de la barra superior; aquí puedes ocultar las herramientas sin salir de tu cuenta.</li>
                 </ul>
             </details>
 
@@ -446,14 +443,12 @@
         // al entrar con el formulario y cuando la sesión cambia en otra pestaña.
         function aplicarEstadoAdmin() {
             const panel = document.getElementById('panelAdminUnificado');
-            const btnLogout = document.getElementById('btn-logout-galeria');
             const btn = document.getElementById('btn-toggle-admin');
             const store = obtenerStoreGaleria();
 
             if (adminAutenticado) {
                 document.body.classList.add('admin-mode-active');
                 if (panel) panel.hidden = false;
-                if (btnLogout) { btnLogout.hidden = false; btnLogout.style.display = 'inline-flex'; }
                 if (btn) {
                     btn.hidden = false;
                     btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock-open"></use></svg> Ocultar Herramientas';
@@ -465,7 +460,6 @@
             } else {
                 document.body.classList.remove('admin-mode-active');
                 if (panel) panel.hidden = true;
-                if (btnLogout) { btnLogout.hidden = true; btnLogout.style.display = 'none'; }
                 if (btn) {
                     btn.hidden = true;
                     btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sliders"></use></svg> Herramientas de Streamer';
@@ -546,7 +540,6 @@
             const imageId = trigger.dataset.imageId;
             switch (trigger.dataset.action) {
                 case 'toggle-admin': toggleModoAdmin(); break;
-                case 'logout': window.cerrarSesion?.(); break;
                 case 'filter-gallery': cambiarFiltroGaleria(trigger.dataset.filter); break;
                 case 'delete-image': if (imageId) eliminarImagenPublica(imageId); break;
                 case 'toggle-like': if (imageId) toggleLike(imageId); break;
@@ -1056,7 +1049,6 @@
         function toggleModoAdmin() {
             const panel = document.getElementById('panelAdminUnificado');
             const btn = document.getElementById('btn-toggle-admin');
-            const btnLogout = document.getElementById('btn-logout-galeria');
 
             if (!adminAutenticado) {
                 aplicarEstadoAdmin();
@@ -1064,13 +1056,11 @@
             }
             if (panel && panel.hidden) {
                 panel.hidden = false;
-                if (btnLogout) { btnLogout.hidden = false; btnLogout.style.display = 'inline-flex'; }
                 btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lock-open"></use></svg> Ocultar Herramientas';
                 btn.classList.add('active');
                 loadPendingImages();
             } else {
                 if (panel) panel.hidden = true;
-                if (btnLogout) { btnLogout.hidden = true; btnLogout.style.display = 'none'; }
                 btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sliders"></use></svg> Herramientas de Streamer';
                 btn.classList.remove('active');
             }
@@ -1123,7 +1113,7 @@
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.43.8" defer></script>
+    <script src="main.js?v=1.43.9" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.43.9] - 2026-11-03
+
+### Conectar con Kick tambien crea la cuenta y un solo cierre de sesion
+
+- "Conectar" del chat ahora es el login general con Kick: vincula la cuenta si ya hay sesion, o crea/recupera la cuenta de comunidad automaticamente.
+- Si el apodo de Kick ya existe, se pide el PIN para vincular o se elige otro apodo.
+- Las cuentas nuevas reciben un aviso para completar el perfil ahora o dejarlo para despues.
+- El unico cierre de sesion web es la flecha roja del navbar; se quitaron los cierres duplicados de perfil y de las herramientas de streamer.
+- Sorteo usa "Ocultar Herramientas" como Galeria y Cine.
+
 ## [1.43.8] - 2026-11-03
 
 ### Un solo login y anillo solo con sesión

@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.8">
+    <link rel="stylesheet" href="style.css?v=1.43.9">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -421,7 +421,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.43.8" defer></script>
+    <script src="main.js?v=1.43.9" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1107,34 +1107,26 @@ setInterval(actualizarTypingIndicator, 1200);
                 }
                 if (boton) boton.disabled = true;
                 try {
-                    const res = await fetch(KICK_FN + '/kick-comunidad', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-                        body: JSON.stringify({ accion: 'entrar' })
-                    });
-                    const datos = await res.json().catch(() => ({}));
-                    if (!res.ok || !datos.token) {
-                        if (boton) boton.disabled = false;
-                        if (res.status === 401) {
-                            localStorage.removeItem('gocha_kick_token');
-                            return entrarConKickComunidad();
+                    const datos = await window.entrarConKickCuenta({ silenciarAviso: true });
+                    if (datos && datos.cancelado) return;
+                    if (!datos || datos.error || !datos.token) {
+                        if (datos && datos.error === 'kick_caducado') {
+                            return await entrarConKickComunidad();
                         }
-                        if (datos.error === 'existe_sin_vincular') {
-                            alert(datos.mensaje || 'Esa cuenta ya existe. Entra con tu apodo y PIN, y vincula Kick desde tu perfil.');
-                            return;
-                        }
-                        alert(datos.mensaje || datos.error || 'No se pudo entrar con Kick.');
+                        alert(datos?.mensaje || 'No se pudo entrar con Kick.');
                         return;
                     }
+                    // guardarSesion tambien refresca la UI de comunidad antes de recargar.
                     guardarSesion(datos.usuario, datos.token);
-                    if (localStorage.getItem('gocha_kick_intencion') === 'registro') {
+                    if (datos.nuevo || localStorage.getItem('gocha_kick_intencion') === 'registro') {
                         localStorage.removeItem('gocha_kick_intencion');
                         localStorage.setItem('gocha_ajustes_pendientes', '1');
                     }
                     location.reload();
                 } catch (e) {
-                    if (boton) boton.disabled = false;
                     alert('No se pudo entrar con Kick.');
+                } finally {
+                    if (boton) boton.disabled = false;
                 }
             }
 
@@ -1202,12 +1194,10 @@ setInterval(actualizarTypingIndicator, 1200);
                 }
             }
 
-            // Tras registrarse con Kick se abren los ajustes para completar el perfil.
+            // Tras crear la cuenta con Kick se ofrece completar el perfil o dejarlo para después.
             if (localStorage.getItem('gocha_ajustes_pendientes') === '1') {
                 localStorage.removeItem('gocha_ajustes_pendientes');
-                const abrirAjustesPendientes = () => window.Alpine?.store('perfil')?.abrir('ajustes');
-                if (window.Alpine) abrirAjustesPendientes();
-                else document.addEventListener('alpine:initialized', abrirAjustesPendientes, { once: true });
+                window.ofrecerCompletarPerfilKick?.();
             }
 
             function guardarSesion(usuario, token) {

@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="GochiWatch, cine sincronizado">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.43.8">
+    <link rel="stylesheet" href="style.css?v=1.43.9">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -91,7 +91,7 @@
                         <li><strong>Sincronizar:</strong> vuelve a pedir el tiempo exacto al servidor.</li>
                         <li><strong>Unirme / Activar audio:</strong> arranca el video y habilita el sonido si el navegador lo bloqueó.</li>
                         <li><strong>Reacciones:</strong> los emojis aparecen en la pantalla de toda la sala.</li>
-                        <li><strong>Cerrar Sesión:</strong> sale del panel y del modo streamer.</li>
+                        <li><strong>Cerrar sesión:</strong> usa la flecha roja de la barra superior; aquí puedes ocultar las herramientas sin salir de tu cuenta.</li>
                     </ul>
                 </details>
                 <p class="admin-panel-hint">
@@ -102,7 +102,6 @@
                     <input type="text" id="inputVideoUrl" class="admin-input" aria-label="Enlace del video" placeholder="YouTube, Drive o .mp4/.webm/.ogg...">
                     <button type="button" data-action="load-video" class="btn-primary">Cargar Video</button>
                     <button type="button" data-action="stop-video" class="btn-primary btn-danger">🛑 Apagar</button>
-                    <button type="button" data-action="logout-admin" class="btn-logout"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-from-bracket"></use></svg> Cerrar Sesión</button>
                 </div>
                 <div class="admin-source-row">
                     <span class="admin-status">🟢 Sincronización activa</span>
@@ -204,7 +203,7 @@
     <script src="https://www.youtube.com/iframe_api" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.43.8" defer></script>
+    <script src="main.js?v=1.43.9" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
 
@@ -624,7 +623,6 @@
                 case 'toggle-streamer-panel': toggleModoStreamerCine(); break;
                 case 'load-video': actualizarUrlPelicula(); break;
                 case 'stop-video': cerrarReproductorTotal(); break;
-                case 'logout-admin': window.cerrarSesion?.(); break;
             }
         });
 
