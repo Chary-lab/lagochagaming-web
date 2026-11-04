@@ -2145,9 +2145,7 @@ document.addEventListener('alpine:init', () => {
 
         verPerfil(u) {
             if (!u) return;
-            const apodo = u.apodo;
-            this.cerrar();
-            window.setTimeout(() => window.abrirPerfilUsuario?.(apodo), 220);
+            window.abrirPerfilUsuario?.(u.apodo, { sobreAdmin: true });
         },
 
         async eliminarUsuario(usuario) {
@@ -2847,10 +2845,11 @@ document.addEventListener('DOMContentLoaded', () => {
     modalEl.setAttribute('x-data', '{ }');
     modalEl.setAttribute('x-cloak', '');
     modalEl.setAttribute('x-bind:hidden', '!$store.perfil.abierto');
+    modalEl.setAttribute('x-bind:class', "{ 'modal-perfil--stack': $store.perfil.sobreAdmin, 'modal-perfil--popover': $store.perfil.anclado }");
     modalEl.setAttribute('x-on:keydown.escape.window', '$store.perfil.cerrar()');
     modalEl.innerHTML = `
       <div class="modal-perfil-backdrop" x-on:click="$store.perfil.cerrar()"></div>
-      <div class="modal-perfil-card" role="document" x-trap.noscroll="$store.perfil.abierto">
+      <div class="modal-perfil-card" role="document" x-trap.noscroll="$store.perfil.abierto && !$store.perfil.anclado">
         <button type="button" class="modal-perfil-close" x-on:click="$store.perfil.cerrar()" aria-label="Cerrar">&times;</button>
         <h3 id="modal-perfil-titulo" x-text="$store.perfil.titulo">Mi perfil</h3>
         <nav class="modal-perfil-tabs" role="tablist" aria-label="Perfil y ajustes" x-bind:hidden="$store.perfil.publico">
@@ -2865,47 +2864,70 @@ document.addEventListener('DOMContentLoaded', () => {
              x-bind:hidden="$store.perfil.vista !== 'perfil'">
           <p class="mp-cargando" x-bind:hidden="!$store.perfil.cargando">Cargando perfil…</p>
           <p class="mp-error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
-          <div class="mp-profile-head" x-bind:hidden="$store.perfil.cargando || !!$store.perfil.error">
-            <div class="mp-avatar-wrap">
-              <img class="mp-avatar" x-bind:src="$store.perfil.avatar" x-bind:hidden="!$store.perfil.avatar"
-                   x-bind:alt="'Avatar de ' + $store.perfil.nombre">
-              <span class="mp-avatar-inicial" x-bind:hidden="!!$store.perfil.avatar" x-text="$store.perfil.inicial"></span>
-            </div>
-            <div class="mp-profile-info">
-              <h4 class="mp-apodo" x-bind:class="'rango-texto-' + $store.perfil.rango.clave" x-text="$store.perfil.nombre"></h4>
-              <div class="mp-badges">
-                <span class="rango-badge" x-bind:class="'rango-' + $store.perfil.rango.clave"
-                      x-bind:title="'Rango: ' + $store.perfil.rango.nombre"
-                      x-text="$store.perfil.rango.emoji + ' ' + $store.perfil.rango.nombre"></span>
-                <span class="mp-puntos" title="Puntos" x-text="(Number($store.perfil.usuario.puntos) || 0) + ' pts'"></span>
-                <span class="mp-genero" x-bind:hidden="!$store.perfil.publico || !$store.perfil.generoTexto"
-                      x-text="$store.perfil.generoTexto"></span>
-                <a class="mp-kick-link" x-show="$store.perfil.publico && $store.perfil.usuario.kick_username"
-                   x-bind:href="'https://kick.com/' + encodeURIComponent($store.perfil.usuario.kick_username || '')"
-                   target="_blank" rel="noopener noreferrer"
-                   x-bind:title="'Kick vinculado: @' + ($store.perfil.usuario.kick_username || '')">
-                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg>
-                    <span x-text="'@' + ($store.perfil.usuario.kick_username || '')"></span>
-                </a>
-                <span class="mp-icono" x-bind:hidden="!$store.perfil.usuario.icono" x-text="$store.perfil.usuario.icono"></span>
+          <div class="mp-perfil" x-bind:hidden="$store.perfil.cargando || !!$store.perfil.error">
+            <div class="mp-profile-head">
+              <div class="mp-avatar-wrap">
+                <img class="mp-avatar" x-bind:src="$store.perfil.avatar" x-bind:hidden="!$store.perfil.avatar"
+                     x-bind:alt="'Avatar de ' + $store.perfil.nombre">
+                <span class="mp-avatar-inicial" x-bind:hidden="!!$store.perfil.avatar" x-text="$store.perfil.inicial"></span>
               </div>
-              <div class="mp-kick-badges" x-bind:hidden="!$store.perfil.insignias.length">
+              <div class="mp-profile-info">
+                <div class="mp-nombre-linea">
+                  <h4 class="mp-apodo" x-bind:class="'rango-texto-' + $store.perfil.rango.clave" x-text="$store.perfil.nombre"></h4>
+                  <span class="mp-genero" x-bind:hidden="!$store.perfil.publico || !$store.perfil.generoTexto"
+                        x-text="$store.perfil.generoTexto"></span>
+                  <a class="mp-kick-link" x-show="$store.perfil.publico && $store.perfil.usuario.kick_username"
+                     x-bind:href="'https://kick.com/' + encodeURIComponent($store.perfil.usuario.kick_username || '')"
+                     target="_blank" rel="noopener noreferrer"
+                     x-bind:title="'Kick vinculado: @' + ($store.perfil.usuario.kick_username || '')">
+                      <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg>
+                      <span x-text="'@' + ($store.perfil.usuario.kick_username || '')"></span>
+                  </a>
+                </div>
+                <div class="mp-badges">
+                  <span class="rango-badge" x-bind:class="'rango-' + $store.perfil.rango.clave"
+                        x-bind:title="'Rango: ' + $store.perfil.rango.nombre"
+                        x-text="$store.perfil.rango.emoji + ' ' + $store.perfil.rango.nombre"></span>
+                  <span class="mp-puntos" title="Puntos" x-text="(Number($store.perfil.usuario.puntos) || 0) + ' pts'"></span>
+                </div>
+                <p class="mp-desde" x-bind:hidden="!$store.perfil.miembro" x-text="'Miembro desde ' + $store.perfil.miembro"></p>
+              </div>
+            </div>
+
+            <section class="mp-seccion" x-show="$store.perfil.insignias.length">
+              <h5 class="mp-seccion-titulo">Insignias de Kick</h5>
+              <div class="mp-kick-badges">
                 <template x-for="b in $store.perfil.insignias" :key="b.tipo">
-                  <span class="chat-kick-badge" x-bind:class="'kick-badge-' + b.tipo" x-bind:title="b.texto">
+                  <span class="mp-insignia" x-bind:class="'kick-badge-' + b.tipo" x-bind:title="b.texto">
                     <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + b.icono"></use></svg>
                     <span x-text="b.etiqueta"></span>
+                    <small x-text="b.texto"></small>
                   </span>
                 </template>
               </div>
-              <p class="mp-desde" x-bind:hidden="!$store.perfil.miembro" x-text="'Miembro desde ' + $store.perfil.miembro"></p>
-              <p class="mp-bio" x-bind:hidden="!$store.perfil.usuario.bio" x-text="$store.perfil.usuario.bio"></p>
-              <div class="mp-links" x-bind:hidden="!$store.perfil.linksVisibles.length">
+            </section>
+
+            <section class="mp-seccion" x-show="$store.perfil.usuario.bio">
+              <h5 class="mp-seccion-titulo">Bio</h5>
+              <p class="mp-bio" x-text="$store.perfil.usuario.bio"></p>
+            </section>
+
+            <section class="mp-seccion" x-show="$store.perfil.linksVisibles.length">
+              <h5 class="mp-seccion-titulo">Redes</h5>
+              <div class="mp-links">
                 <template x-for="l in $store.perfil.linksVisibles" :key="l.clave">
-                  <a class="mp-link" x-bind:href="l.url" x-bind:title="l.label" x-bind:aria-label="l.label"
-                     target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + l.icon"></use></svg></a>
+                  <a class="mp-link" x-bind:href="l.url" x-bind:title="l.label"
+                     target="_blank" rel="noopener noreferrer">
+                    <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + l.icon"></use></svg>
+                    <span x-text="l.label"></span>
+                  </a>
                 </template>
               </div>
-              <div class="mp-stats" x-bind:hidden="!$store.perfil.tieneEstadisticas">
+            </section>
+
+            <section class="mp-seccion" x-show="$store.perfil.tieneEstadisticas">
+              <h5 class="mp-seccion-titulo">Actividad</h5>
+              <div class="mp-stats">
                 <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.mensajes || 0"></span><span class="mp-stat-label">Mensajes</span></div>
                 <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.reacciones_dadas || 0"></span><span class="mp-stat-label">Reacciones</span></div>
                 <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.reacciones_recibidas || 0"></span><span class="mp-stat-label">Recibidas</span></div>
@@ -2913,7 +2935,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.likes_galeria || 0"></span><span class="mp-stat-label">Likes</span></div>
                 <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.puntos_hoy || 0"></span><span class="mp-stat-label">Hoy</span></div>
               </div>
-            </div>
+            </section>
           </div>
         </div>
         <div class="modal-perfil-body" role="tabpanel" aria-label="Ajustes"
@@ -2922,61 +2944,84 @@ document.addEventListener('DOMContentLoaded', () => {
              x-bind:hidden="$store.perfil.genero !== 'no_definido' && !!$store.perfil.usuario.avatar_url">
             Completa tu perfil: elige tu género y tu avatar.
           </p>
-          <div class="mp-avatar-wrap">
-            <img class="mp-avatar" x-bind:src="$store.perfil.previewAvatar" x-bind:hidden="!$store.perfil.previewAvatar"
-                 alt="Vista previa del avatar">
-            <span class="mp-avatar-inicial" x-bind:hidden="!!$store.perfil.previewAvatar" x-text="$store.perfil.inicial"></span>
-          </div>
-          <div class="mp-avatar-choices" aria-label="Avatares disponibles">
-            <template x-for="a in $store.perfil.avatares" :key="a.url">
-              <button type="button" class="mp-avatar-choice"
-                      x-bind:class="{ selected: ($store.perfil.avatarSeleccionado === undefined ? $store.perfil.avatar : $store.perfil.avatarSeleccionado) === a.url }"
-                      x-bind:title="a.nombre || 'Avatar'" x-bind:aria-label="'Elegir ' + (a.nombre || 'avatar')"
-                      x-on:click="$store.perfil.elegirAvatar(a.url)">
-                <img x-bind:src="a.url" x-bind:alt="a.nombre || 'Avatar'" loading="lazy">
-                <span class="mp-avatar-tag" x-show="a.origen === 'kick'">KICK</span>
-              </button>
-            </template>
-            <span class="mp-vacio" x-bind:hidden="$store.perfil.avatares.length">No se pudieron cargar los avatares.</span>
-          </div>
-          <label class="mp-field">Género
-            <select x-model="$store.perfil.genero">
-              <option value="femenino">Femenino</option>
-              <option value="masculino">Masculino</option>
-              <option value="no_definido">No definido</option>
-            </select>
-          </label>
-          <label class="mp-field">Bio <span class="mp-contador" x-text="$store.perfil.bio.length + '/160'"></span>
-            <textarea maxlength="160" x-model="$store.perfil.bio" placeholder="Cuéntanos algo sobre ti..."></textarea>
-          </label>
-          <fieldset class="mp-links-grid">
-            <legend>Redes</legend>
-            <template x-for="clave in $store.perfil.linkKeys" :key="clave">
-              <label class="mp-link-field">
-                <span><svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + $store.perfil.linkIconos[clave]"></use></svg>
-                  <span x-text="$store.perfil.linkLabels[clave]"></span></span>
-                <input type="url" x-bind:value="$store.perfil.links[clave]"
-                       x-on:input="$store.perfil.links[clave] = $event.target.value"
-                       placeholder="https://..." autocomplete="url">
-              </label>
-            </template>
-          </fieldset>
-          <div class="mp-kick" x-show="$store.perfil.kickDisponible">
-            <div class="mp-kick-texto">
-              <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg>
-              <span x-text="$store.perfil.kickUsuario
-                ? 'Kick vinculado: @' + $store.perfil.kickUsuario
-                : 'Vincula tu Kick para entrar sin PIN y mostrar tus insignias en el chat.'"></span>
+
+          <section class="mp-ajustes-bloque">
+            <div class="mp-ajustes-cabecera">
+              <span class="mp-ajustes-preview">
+                <img class="mp-avatar" x-bind:src="$store.perfil.previewAvatar" x-bind:hidden="!$store.perfil.previewAvatar"
+                     alt="Vista previa del avatar">
+                <span class="mp-avatar-inicial" x-bind:hidden="!!$store.perfil.previewAvatar" x-text="$store.perfil.inicial"></span>
+              </span>
+              <span class="mp-ajustes-cabecera-texto">
+                <strong>Tu avatar</strong>
+                <small>2 por defecto · 2 de tienda · Foto de Kick</small>
+              </span>
             </div>
-            <button type="button" class="btn-primary btn-muted"
-                    x-show="!$store.perfil.kickUsuario"
-                    x-on:click="$store.perfil.vincularKick()">Vincular Kick</button>
-            <button type="button" class="btn-primary btn-muted mp-kick-quitar"
-                    x-show="$store.perfil.kickUsuario"
-                    x-on:click="$store.perfil.desvincularKick()">Desvincular Kick</button>
-          </div>
+            <div class="mp-avatar-choices" aria-label="Avatares disponibles">
+              <template x-for="a in $store.perfil.avatares" :key="a.url">
+                <button type="button" class="mp-avatar-choice"
+                        x-bind:class="{ selected: ($store.perfil.avatarSeleccionado === undefined ? $store.perfil.avatar : $store.perfil.avatarSeleccionado) === a.url }"
+                        x-bind:title="a.nombre || 'Avatar'" x-bind:aria-label="'Elegir ' + (a.nombre || 'avatar')"
+                        x-on:click="$store.perfil.elegirAvatar(a.url)">
+                  <img x-bind:src="a.url" x-bind:alt="a.nombre || 'Avatar'" loading="lazy">
+                  <span class="mp-avatar-tag" x-show="a.origen === 'kick'">KICK</span>
+                </button>
+              </template>
+            </div>
+            <span class="mp-vacio" x-bind:hidden="$store.perfil.avatares.length">No se pudieron cargar los avatares.</span>
+          </section>
+
+          <section class="mp-ajustes-bloque">
+            <h5 class="mp-ajustes-titulo">Identidad <span>Cómo te ve la comunidad</span></h5>
+            <div class="mp-ajustes-fila">
+              <label class="mp-field">Género
+                <select x-model="$store.perfil.genero">
+                  <option value="femenino">Femenino</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="no_definido">No definido</option>
+                </select>
+              </label>
+              <label class="mp-field">Bio <span class="mp-contador" x-text="$store.perfil.bio.length + '/160'"></span>
+                <textarea maxlength="160" rows="3" x-model="$store.perfil.bio" placeholder="Cuéntanos algo sobre ti..."></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="mp-ajustes-bloque">
+            <h5 class="mp-ajustes-titulo">Redes <span>Aparecen como iconos en tu perfil</span></h5>
+            <div class="mp-links-grid">
+              <template x-for="clave in $store.perfil.linkKeys" :key="clave">
+                <label class="mp-link-field">
+                  <span><svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + $store.perfil.linkIconos[clave]"></use></svg>
+                    <span x-text="$store.perfil.linkLabels[clave]"></span></span>
+                  <input type="url" x-bind:value="$store.perfil.links[clave]"
+                         x-on:input="$store.perfil.links[clave] = $event.target.value"
+                         placeholder="https://..." autocomplete="url">
+                </label>
+              </template>
+            </div>
+          </section>
+
+          <section class="mp-ajustes-bloque" x-show="$store.perfil.kickDisponible">
+            <h5 class="mp-ajustes-titulo">Kick <span>Inicio sin PIN e insignias en el chat</span></h5>
+            <div class="mp-kick">
+              <div class="mp-kick-texto">
+                <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-k"></use></svg>
+                <span x-text="$store.perfil.kickUsuario
+                  ? 'Vinculado como @' + $store.perfil.kickUsuario
+                  : 'Aún no has vinculado tu cuenta de Kick.'"></span>
+              </div>
+              <button type="button" class="btn-primary btn-muted"
+                      x-show="!$store.perfil.kickUsuario"
+                      x-on:click="$store.perfil.vincularKick()">Vincular Kick</button>
+              <button type="button" class="btn-primary btn-muted mp-kick-quitar"
+                      x-show="$store.perfil.kickUsuario"
+                      x-on:click="$store.perfil.desvincularKick()">Desvincular</button>
+            </div>
+          </section>
+
           <p class="mp-error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
-          <div class="mp-actions">
+          <div class="mp-actions mp-actions--fija">
             <button type="button" class="btn-primary btn-muted" x-on:click="$store.perfil.vista = 'perfil'">Cancelar</button>
             <button type="button" class="btn-primary" x-bind:disabled="$store.perfil.guardando"
                     x-on:click="$store.perfil.guardar()">Guardar cambios</button>
@@ -2984,6 +3029,17 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>`;
     document.body.appendChild(modalEl);
+    document.addEventListener('pointerdown', (event) => {
+      const store = window.Alpine && window.Alpine.store ? window.Alpine.store('perfil') : null;
+      if (!store || !store.abierto || !store.anclado) return;
+      if (modalEl.contains(event.target)) return;
+      if (event.target.closest && event.target.closest('#nav-user-info .nav-user-btn')) return;
+      store.cerrar();
+    });
+    window.addEventListener('resize', () => {
+      const store = window.Alpine && window.Alpine.store ? window.Alpine.store('perfil') : null;
+      if (store && store.abierto && store.anclado) store.colocarPopover();
+    });
     return modalEl;
   }
 
@@ -2991,6 +3047,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.Alpine.store('perfil', {
       abierto: false,
       publico: false,
+      sobreAdmin: false,
+      anclado: false,
       vista: 'perfil',
       titulo: 'Mi perfil',
       cargando: false,
@@ -3091,19 +3149,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
       abrir(vista) {
         crearModal();
+        if (this.abierto && !this.publico && !this.anclado) { this.cerrar(); return; }
         this.publico = false;
+        this.sobreAdmin = false;
         this.titulo = 'Mi perfil';
         this.error = '';
         this.vista = vista === 'ajustes' ? 'ajustes' : 'perfil';
+        this.anclado = window.innerWidth >= 900;
+        this.colocarPopover();
         this.abierto = true;
         setNavExpanded(true);
         this.cargar();
       },
 
-      async abrirUsuario(apodo) {
+      colocarPopover() {
+        const btn = document.querySelector('#nav-user-info .nav-user-btn');
+        if (!btn || !modalEl) return;
+        const r = btn.getBoundingClientRect();
+        const derecha = Math.max(12, window.innerWidth - r.right);
+        const ancho = Math.min(420, window.innerWidth - 24);
+        const izquierda = window.innerWidth - derecha - ancho;
+        const flecha = Math.max(16, Math.min(ancho - 28, ancho - ((r.left + r.right) / 2 - izquierda) - 7));
+        modalEl.style.setProperty('--perfil-top', (r.bottom + 10) + 'px');
+        modalEl.style.setProperty('--perfil-right', derecha + 'px');
+        modalEl.style.setProperty('--perfil-flecha', flecha + 'px');
+        modalEl.style.setProperty('--perfil-max-alto', Math.max(280, window.innerHeight - r.bottom - 26) + 'px');
+      },
+
+      async abrirUsuario(apodo, opciones) {
         if (!apodo || !window.supabase) return;
         crearModal();
         this.publico = true;
+        this.sobreAdmin = !!(opciones && opciones.sobreAdmin);
+        this.anclado = false;
         this.titulo = 'Perfil público';
         this.vista = 'perfil';
         this.error = '';
@@ -3289,8 +3367,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.abrirModalPerfil = function abrirModalPerfil(vista) {
     window.Alpine?.store('perfil')?.abrir(vista);
   };
-  window.abrirPerfilUsuario = function abrirPerfilUsuario(apodo) {
-    window.Alpine?.store('perfil')?.abrirUsuario(apodo);
+  window.abrirPerfilUsuario = function abrirPerfilUsuario(apodo, opciones) {
+    window.Alpine?.store('perfil')?.abrirUsuario(apodo, opciones);
   };
 })();
 

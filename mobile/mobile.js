@@ -1300,9 +1300,21 @@
     barra.className = 'lg-update-bar';
     barra.setAttribute('role', 'status');
 
+    var icono = document.createElement('span');
+    icono.className = 'lg-update-icono';
+    icono.setAttribute('aria-hidden', 'true');
+    icono.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>';
+    barra.appendChild(icono);
+
     var texto = document.createElement('span');
     texto.className = 'lg-update-texto';
-    texto.textContent = 'Nueva versión ' + info.versionName + ' disponible';
+    var titulo = document.createElement('strong');
+    titulo.textContent = 'Actualización lista';
+    var sub = document.createElement('small');
+    var detalle = info.notes ? String(info.notes).split('\n')[0].slice(0, 48) : 'Mejoras y arreglos';
+    sub.textContent = 'v' + info.versionName + ' · ' + detalle;
+    texto.appendChild(titulo);
+    texto.appendChild(sub);
     barra.appendChild(texto);
 
     var boton = document.createElement('button');

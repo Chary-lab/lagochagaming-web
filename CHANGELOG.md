@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.10] - 2026-11-04
+
+### Perfil flotante, avisos modernos y ajustes ordenados
+
+- **Mi perfil** ya no abre una ventana que tapa la página: se despliega bajo el botón del navbar, como el menú de APP, y deja seguir viendo la web. En móvil baja como hoja inferior.
+- **Perfil público** reorganizado en secciones: cabecera con avatar, apodo, rango, puntos, género y Kick; luego **Insignias de Kick** con nombre y descripción de cada una, Bio, Redes con texto y Actividad. Nada de iconos sueltos sin explicar.
+- **Ajustes** agrupados en bloques (Tu avatar / Identidad / Redes / Kick) con vista previa, en vez de un formulario largo.
+- **Aviso de actualización** rediseñado: tarjeta flotante con icono, versión y notas, botón *Actualizar* y cierre claro. Sustituye la barra genérica.
+- **Ver perfil desde el panel admin** ya no cierra el panel: el perfil flota encima y al cerrarlo sigues donde estabas.
+
 ## [1.47.9] - 2026-11-04
 
 ### Panel de usuarios: ver perfil y tarjetas nuevas

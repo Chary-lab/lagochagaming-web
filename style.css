@@ -4693,6 +4693,58 @@ body.light-mode {
 .modal-perfil[hidden] { display: none; }
 .modal-perfil-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.6); }
 .modal-perfil-card { position: relative; background: var(--card-bg); border-radius: 16px; padding: 24px; max-width: 480px; width: 90%; max-height: 85vh; overflow: auto; }
+
+/* Perfil propio: se despliega bajo el boton del navbar, sin backdrop ni bloquear la pagina. */
+.modal-perfil--popover { align-items: flex-start; justify-content: flex-end; }
+.modal-perfil--popover .modal-perfil-backdrop { display: none; }
+.modal-perfil--popover .modal-perfil-card {
+    position: fixed;
+    top: var(--perfil-top, 76px);
+    right: var(--perfil-right, 16px);
+    left: auto;
+    width: min(420px, calc(100vw - 24px));
+    max-height: var(--perfil-max-alto, 70vh);
+    padding: 18px 18px 16px;
+    box-shadow: 0 22px 55px rgba(0, 0, 0, .55);
+    animation: mpPopIn .18s ease both;
+}
+.modal-perfil--popover .modal-perfil-card::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: var(--perfil-flecha, 34px);
+    width: 14px;
+    height: 14px;
+    background: inherit;
+    border-left: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    transform: rotate(45deg);
+}
+@keyframes mpPopIn {
+    from { opacity: 0; transform: translateY(-6px) scale(.985); }
+    to { opacity: 1; transform: none; }
+}
+/* Perfil abierto desde el panel admin: flota encima y el panel sigue montado debajo. */
+.modal-perfil--stack { z-index: 10060; }
+.modal-perfil--stack .modal-perfil-backdrop { background: rgba(0, 0, 0, .55); }
+@media (max-width: 720px) {
+    .modal-perfil--popover { align-items: flex-end; justify-content: center; }
+    .modal-perfil--popover .modal-perfil-backdrop { display: block; background: rgba(0, 0, 0, .35); }
+    .modal-perfil--popover .modal-perfil-card {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        max-height: 80vh;
+        border-radius: 18px 18px 0 0;
+        animation: mpSheetIn .22s ease both;
+    }
+    .modal-perfil--popover .modal-perfil-card::before { display: none; }
+}
+@keyframes mpSheetIn {
+    from { transform: translateY(24px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
 .modal-perfil-close { position: absolute; top: 8px; right: 12px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
 .modal-perfil-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
 .modal-perfil-tabs button { padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; border-radius: 8px; cursor: pointer; }
@@ -4883,8 +4935,14 @@ body.light-mode {
 .mp-avatar-wrap { display: flex; justify-content: center; margin-bottom: 10px; }
 .mp-profile-head {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 14px;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background:
+        radial-gradient(120% 140% at 0% 0%, rgba(62, 224, 198, .10), transparent 62%),
+        var(--card-bg-subtle);
 }
 .mp-profile-head .mp-avatar-wrap {
     flex: 0 0 auto;
@@ -4893,8 +4951,8 @@ body.light-mode {
 }
 .mp-profile-head .mp-avatar,
 .mp-profile-head .mp-avatar-inicial {
-    width: 84px;
-    height: 84px;
+    width: 76px;
+    height: 76px;
     border-width: 2px;
 }
 .mp-profile-info {
@@ -4909,6 +4967,49 @@ body.light-mode {
 .mp-profile-info .mp-apodo { margin: 0 0 2px; }
 .mp-profile-info .mp-bio { margin: 0 0 8px; }
 .mp-profile-info .mp-links { justify-content: flex-start; margin: 0; }
+.mp-nombre-linea {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.mp-nombre-linea .mp-apodo { margin: 0; }
+
+/* Secciones del perfil: cada bloque con titulo, sin amontonar datos. */
+.mp-perfil { display: flex; flex-direction: column; gap: 14px; }
+.mp-seccion {
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--card-bg-subtle);
+}
+.mp-seccion-titulo {
+    margin: 0 0 9px;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.mp-insignia {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 9px;
+    border-radius: 9px;
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--accent-color);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.mp-insignia small {
+    font-size: 0.64rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+.mp-insignia .icon { width: 15px; height: 15px; }
 .mp-avatar,
 .mp-avatar-inicial {
     width: 104px;
@@ -5022,14 +5123,15 @@ body.light-mode {
 }
 .mp-bio { margin: 10px 0; text-align: center; white-space: pre-wrap; overflow-wrap: anywhere; }
 .mp-icono { font-size: 1rem; }
-.mp-links { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 10px 0 16px; }
+.mp-links { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-start; margin: 0; }
 .mp-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    padding: 0;
+    gap: 6px;
+    width: auto;
+    height: 32px;
+    padding: 0 10px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     background: var(--card-bg-subtle);
@@ -5088,6 +5190,70 @@ body.light-mode {
 }
 .mp-links-grid legend { padding: 0 6px; font-size: 0.85rem; font-weight: 600; }
 .mp-link-field { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: var(--text-muted); }
+
+/* Ajustes: bloques compactos en vez de un formulario largo y suelto. */
+.mp-ajustes-bloque {
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.03), transparent 60%), var(--card-bg-subtle);
+}
+.mp-ajustes-titulo {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0 0 10px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-main);
+}
+.mp-ajustes-titulo span {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-muted);
+}
+.mp-ajustes-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.mp-ajustes-preview .mp-avatar,
+.mp-ajustes-preview .mp-avatar-inicial {
+    width: 60px;
+    height: 60px;
+    border-width: 2px;
+    font-size: 1.4rem;
+}
+.mp-ajustes-cabecera-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mp-ajustes-cabecera-texto strong { font-size: 0.9rem; color: var(--text-main); }
+.mp-ajustes-cabecera-texto small { font-size: 0.7rem; color: var(--text-muted); }
+.mp-ajustes-fila {
+    display: grid;
+    grid-template-columns: minmax(0, 170px) minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+}
+.mp-ajustes-bloque .mp-field { margin: 0; }
+.mp-ajustes-bloque .mp-links-grid { margin: 0; padding: 0; border: 0; }
+.mp-ajustes-bloque .mp-kick { margin-top: 0; }
+.mp-seccion .mp-bio { margin: 0; text-align: left; }
+.mp-actions--fija {
+    position: sticky;
+    bottom: -18px;
+    margin-top: 4px;
+    padding: 10px 0 2px;
+    background: linear-gradient(180deg, transparent, var(--card-bg) 45%);
+}
+@media (max-width: 520px) {
+    .mp-ajustes-fila { grid-template-columns: 1fr; }
+    .mp-ajustes-bloque { padding: 12px; }
+}
 @media (max-width: 520px) {
     .mp-links-grid { grid-template-columns: 1fr; }
     .modal-perfil-card { padding: 22px 16px 18px; }
