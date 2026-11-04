@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.60.1] - 2026-11-04
+
+### Correcciones de la capa Gochi
+
+- Las migas de pan dejan de romper el layout: `.gochi-breadcrumb-nav` ocupa toda la fila (`grid-column: 1 / -1`) antes de entrar en la rejilla. En Comunidad, Sorteo y Cine se había convertido en la primera celda de `.page-layout` y desplazaba las columnas (barra lateral abajo, chat comprimido y vídeo vacío).
+- Galería usa también `.gochi-breadcrumb-nav`, así hereda el mismo comportamiento fuera de rejilla.
+- El ranking de Comunidad ya no parte los puntos en dos líneas: `.leaderboard-item` con `gap` y `.leaderboard-points` con `nowrap` y `flex-shrink: 0`.
+- El avatar del cabecero del chat de Kick se emite oculto y sin `src` cuando no hay foto, en vez de dejar un `<img>` vacío que pedía la propia página como imagen.
+
 ## [1.60.0] - 2026-11-04
 
 ### Sistema de componentes Gochi (Tailwind + Alpine + Pines)

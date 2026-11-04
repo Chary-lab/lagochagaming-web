@@ -3047,7 +3047,7 @@ window.CHAT_KICK = {
             '  <span class="chat-kick-titulo">Chat de Kick</span>',
             '  <span class="chat-kick-espectadores" hidden><span class="chat-kick-espectadores-num">0</span> Views</span>',
             '  <div class="chat-kick-cuenta" hidden>',
-            '    <img class="chat-kick-avatar" alt="" width="20" height="20">',
+            '    <img class="chat-kick-avatar" alt="" width="20" height="20" hidden>',
             '    <span class="chat-kick-usuario"></span>',
             '  </div>',
             '  <button type="button" class="chat-kick-login"><span aria-hidden="true">K</span> Conectar</button>',
@@ -3209,6 +3209,7 @@ window.CHAT_KICK = {
                     avatar.src = sesion.usuario.avatar;
                     avatar.hidden = false;
                 } else {
+                    avatar.removeAttribute('src');
                     avatar.hidden = true;
                 }
                 campo.disabled = false;

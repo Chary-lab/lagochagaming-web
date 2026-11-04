@@ -268,7 +268,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.60.0` (sistema de componentes `.gochi-*` con Tailwind 3.4.17 bajo demanda y respaldo en `style.css`, skeletons, migas de pan, acordeones, desplegables Alpine y estados vacíos; APK actual 1.13 / code 16).
+- Versión de esta release: `1.60.1` (sistema de componentes `.gochi-*` con Tailwind 3.4.17 bajo demanda y respaldo en `style.css`, skeletons, acordeones, desplegables Alpine y estados vacíos; migas de pan que ya no rompen la rejilla de Comunidad/Sorteo/Cine, ranking sin cortes de línea y avatar de Kick sin `src` vacío; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
