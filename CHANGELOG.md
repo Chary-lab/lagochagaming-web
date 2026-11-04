@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.2] - 2026-11-04
+
+### Limpieza de huerfanos
+
+- Eliminado pack-tail-alpi-pines.md (plan ya cerrado) y su excepcion en .gitignore.
+- Borradas clases CSS sin uso: chat-kick-salir, gochi-modal-feedback, mp-logout, mp-icono, mp-avatar-acciones, mp-contador, dmin-global-foot, tn-secondary, chat-kick-fab, gochi-campo-error, gochi-card-titulo, gochi-card-texto, gochi-card-pie, gochi-accordion-trigger, ideo-card--skeleton, gochi-no-scroll y los selectores .mp-actions .btn-logout.
+- La regla de impresion oculta .lg-chat-fab (la clase real del boton movil) en lugar de chat-kick-fab.
+
 ## [1.61.1] - 2026-11-04
 
 ### Panel de administración en tablas del pack

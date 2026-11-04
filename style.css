@@ -386,8 +386,6 @@ body.light-mode .hero-bio {
 .chat-kick-cuenta { display: flex; align-items: center; gap: 6px; margin-left: auto; min-width: 0; }
 .chat-kick-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
 .chat-kick-usuario { font-size: 0.78rem; font-weight: 700; color: var(--text-main); max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.chat-kick-salir { background: none; border: none; color: var(--text-muted); font-size: 0.7rem; cursor: pointer; padding: 2px 4px; border-radius: 6px; }
-.chat-kick-salir:hover { color: #ff8080; }
 .chat-kick-login { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 0.75rem; font-weight: 700; padding: 5px 10px; border-radius: 999px; cursor: pointer; transition: border-color 0.2s ease; }
 .chat-kick-login span { color: #53fc18; font-weight: 900; }
 .chat-kick-login:hover { border-color: #53fc18; }
@@ -1632,14 +1630,6 @@ body.light-mode .gochi-confirm {
 .gochi-modal-input:focus {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.18);
-}
-
-.gochi-modal-feedback {
-    min-height: 1em;
-    margin-bottom: 15px;
-    color: #ff4d4d;
-    font-size: 0.85rem;
-    font-weight: bold;
 }
 
 .gochi-modal-actions {
@@ -5503,10 +5493,6 @@ body.light-mode {
     color: var(--text-muted);
     opacity: 0.9;
 }
-.mp-logout {
-    width: 100%;
-    margin-top: 10px;
-}
 .mp-pendiente {
     margin: 0 0 12px;
     padding: 8px 10px;
@@ -5519,7 +5505,6 @@ body.light-mode {
     text-align: center;
 }
 .mp-bio { margin: 10px 0; text-align: center; white-space: pre-wrap; overflow-wrap: anywhere; }
-.mp-icono { font-size: 1rem; }
 .mp-links { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-start; margin: 0; }
 .mp-link {
     display: inline-flex;
@@ -5557,7 +5542,6 @@ body.light-mode {
 .mp-kick-texto { flex: 1 1 180px; }
 .mp-kick .btn-primary { padding: 6px 10px; font-size: 0.8rem; }
 .mp-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; margin-top: 16px; }
-.mp-avatar-acciones { display: flex; justify-content: center; margin-bottom: 6px; }
 .mp-field { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; font-size: 0.9rem; font-weight: 600; }
 .mp-field select,
 .mp-field textarea,
@@ -5575,7 +5559,6 @@ body.light-mode {
 .mp-field select:focus,
 .mp-field textarea:focus,
 .mp-link-field input:focus { outline: 2px solid var(--accent-color); outline-offset: 1px; }
-.mp-contador { margin-left: auto; font-size: 0.78rem; font-weight: 400; color: var(--text-muted); }
 .mp-links-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -5676,7 +5659,6 @@ body.light-mode {
     .modal-perfil-card { padding: 22px 16px 18px; }
     .mp-actions { justify-content: stretch; }
     .mp-actions .btn-primary { flex: 1 1 auto; }
-    .mp-actions .btn-logout { flex: 0 0 auto; }
 }
 
 /* --- Selector de genero en el registro --- */
@@ -6016,7 +5998,6 @@ body.light-mode {
     .mp-profile-info .mp-bio { font-size: 0.9rem; }
     .mp-actions { justify-content: stretch; }
     .mp-actions .btn-primary { flex: 1 1 auto; }
-    .mp-actions .btn-logout { flex: 0 0 auto; }
 }
 @media (max-width: 600px) {
     .tienda-flecha {
@@ -6050,9 +6031,6 @@ body.light-mode {
     }
     .tienda-item-meta { flex-direction: column; align-items: flex-start; gap: 4px; }
     .btn-tienda-comprar { padding: 8px 10px; font-size: 0.72rem; }
-}
-@media (max-width: 520px) {
-    .mp-actions .btn-logout { align-self: flex-end; }
 }
 
 /* === Relieve del nombre según el rango (línea de tiempo cósmica) === */
@@ -6180,7 +6158,6 @@ body.light-mode .admin-login-card .admin-login-error { color: #b91c1c; }
 .admin-global-close { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; flex-shrink: 0; border: 1px solid var(--border-color); border-radius: 999px; background: var(--card-bg-subtle); color: var(--text-main); font-size: 1.35rem; line-height: 1; cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease; }
 .admin-global-close:hover { background: var(--accent-color); border-color: var(--accent-color); color: var(--btn-text); }
 .admin-global-close:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
-.admin-global-foot { display: flex; justify-content: flex-end; margin-top: 16px; }
 .admin-global-card .admin-login-card { border: 0; box-shadow: none; background: transparent; padding: 0; }
 
 @keyframes adminFondoEntra {
@@ -6385,8 +6362,7 @@ body.light-mode .admin-login-card .admin-login-error { color: #b91c1c; }
     .chat-input-area input,
     .chat-input-area textarea,
     .modal-sugerencias-card textarea,
-    .btn-primary,
-    .btn-secondary { border: 1px solid CanvasText; }
+    .btn-primary { border: 1px solid CanvasText; }
 
     a:focus-visible,
     button:focus-visible,
@@ -6397,7 +6373,7 @@ body.light-mode .admin-login-card .admin-login-error { color: #b91c1c; }
 }
 
 @media print {
-    .navbar, .main-footer, .hero-section, .chat-sidebar, .skip-link, .chat-kick-fab { display: none !important; }
+    .navbar, .main-footer, .hero-section, .chat-sidebar, .skip-link, .lg-chat-fab { display: none !important; }
     body { background: #fff !important; color: #000 !important; }
     .content-section h2,
     .hero-title { background: none !important; -webkit-text-fill-color: currentColor !important; color: #000 !important; }
@@ -6446,7 +6422,6 @@ body.light-mode .admin-login-card .admin-login-error { color: #b91c1c; }
 .reporte-foto-close:active,
 .modal-perfil-close:active,
 .btn-primary:active,
-.btn-secondary:active,
 .gochi-confirm-btn:active {
     transform: scale(0.96);
 }
@@ -6611,11 +6586,6 @@ body.light-mode .gochi-chip[data-tono="info"] { color: #1e40af; }
     font-variant-numeric: tabular-nums;
 }
 
-.gochi-campo-error {
-    font-size: 0.75rem;
-    color: #fca5a5;
-}
-
 .gochi-campo[data-estado="error"] input,
 .gochi-campo[data-estado="error"] textarea,
 .gochi-campo[data-estado="error"] select {
@@ -6733,27 +6703,6 @@ body.light-mode .gochi-alerta { color: #1f2937; }
     background: color-mix(in srgb, var(--card-bg-subtle) 60%, transparent);
 }
 
-.gochi-card-titulo {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--tinta, var(--text-main));
-    line-height: 1.35;
-}
-
-.gochi-card-texto {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-}
-
-.gochi-card-pie {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: auto;
-}
-
 /* --- Interruptor ---------------------------------------------------------- */
 .gochi-switch {
     position: relative;
@@ -6848,8 +6797,7 @@ body.light-mode .gochi-alerta { color: #1f2937; }
     overflow: hidden;
 }
 
-.gochi-accordion-item > summary,
-.gochi-accordion-trigger {
+.gochi-accordion-item > summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -6868,13 +6816,11 @@ body.light-mode .gochi-alerta { color: #1f2937; }
 
 .gochi-accordion-item > summary::-webkit-details-marker { display: none; }
 
-.gochi-accordion-item > summary:hover,
-.gochi-accordion-trigger:hover {
+.gochi-accordion-item > summary:hover {
     background: color-mix(in srgb, var(--accent-color) 6%, transparent);
 }
 
-.gochi-accordion-item > summary:focus-visible,
-.gochi-accordion-trigger:focus-visible {
+.gochi-accordion-item > summary:focus-visible {
     outline: 2px solid var(--accent-color);
     outline-offset: -2px;
 }
@@ -6887,8 +6833,7 @@ body.light-mode .gochi-alerta { color: #1f2937; }
     transition: transform 0.18s ease;
 }
 
-.gochi-accordion-item[open] > summary .gochi-accordion-icono,
-.gochi-accordion-trigger[aria-expanded="true"] .gochi-accordion-icono {
+.gochi-accordion-item[open] > summary .gochi-accordion-icono {
     transform: rotate(45deg);
 }
 
@@ -7164,8 +7109,7 @@ body.light-mode .gochi-alerta { color: #1f2937; }
     gap: 8px;
 }
 
-.tienda-item--skeleton,
-.video-card--skeleton {
+.tienda-item--skeleton {
     pointer-events: none;
 }
 
@@ -7190,9 +7134,6 @@ body.light-mode .gochi-alerta { color: #1f2937; }
 .admin-cargando .gochi-skeleton {
     height: 34px;
 }
-
-/* --- Utilidades ----------------------------------------------------------- */
-.gochi-no-scroll { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
     .gochi-card,
