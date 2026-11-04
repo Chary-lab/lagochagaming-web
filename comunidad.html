@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.47.14">
+    <link rel="stylesheet" href="style.css?v=1.47.15">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -421,7 +421,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
 
-    <script src="main.js?v=1.47.14" defer></script>
+    <script src="main.js?v=1.47.15" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1113,7 +1113,7 @@ setInterval(actualizarTypingIndicator, 1200);
                         if (datos && datos.error === 'kick_caducado') {
                             return await entrarConKickComunidad();
                         }
-                        alert(datos?.mensaje || 'No se pudo entrar con Kick.');
+                        mostrarToast(datos?.mensaje || 'No se pudo entrar con Kick.', true);
                         return;
                     }
                     // guardarSesion tambien refresca la UI de comunidad antes de recargar.
@@ -1124,7 +1124,7 @@ setInterval(actualizarTypingIndicator, 1200);
                     }
                     location.reload();
                 } catch (e) {
-                    alert('No se pudo entrar con Kick.');
+                    mostrarToast('No se pudo entrar con Kick.', true);
                 } finally {
                     if (boton) boton.disabled = false;
                 }
@@ -1161,7 +1161,7 @@ setInterval(actualizarTypingIndicator, 1200);
                 sessionStorage.removeItem(CLAVE_KICK_OBJETIVO);
                 history.replaceState(null, '', location.pathname + location.search);
                 if (error) {
-                    alert(error);
+                    mostrarToast(error, true);
                     return;
                 }
                 localStorage.setItem('gocha_kick_token', token);

@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.15] - 2026-11-04
+
+### Confirmaciones nativas fuera
+
+- Nueva confirmación global con icono, tono por tipo (`peligro`, `aviso`, `info`, `exito`) y botones propios; nada del diálogo gris del navegador.
+- Eliminar cuenta, borrar sugerencia y desvincular Kick usan la confirmación de la web.
+- Los avisos de error de Kick en Comunidad usan toast en vez de `alert()`.
+
 ## [1.47.14] - 2026-11-04
 
 ### Documentación al día

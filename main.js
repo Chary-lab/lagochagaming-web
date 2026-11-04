@@ -1108,12 +1108,18 @@ window.insertarComponentesUIGlobales = function insertarComponentesUIGlobales() 
         modal.setAttribute('aria-labelledby', 'gochi-confirm-titulo');
         modal.setAttribute('aria-describedby', 'gochi-confirm-mensaje');
         modal.innerHTML = `
-            <div class="gochi-modal-box">
-                <h3 id="gochi-confirm-titulo">Confirmar</h3>
-                <p id="gochi-confirm-mensaje"></p>
+            <div class="gochi-modal-box gochi-confirm" role="document">
+                <div class="gochi-confirm-icon" aria-hidden="true">
+                    <svg class="icon"><use href="img/icons.svg#i-solid-triangle-exclamation"></use></svg>
+                </div>
+                <div class="gochi-confirm-copy">
+                    <span class="gochi-confirm-eyebrow" id="gochi-confirm-eyebrow">Confirmación</span>
+                    <h3 id="gochi-confirm-titulo">Confirmar</h3>
+                    <p id="gochi-confirm-mensaje"></p>
+                </div>
                 <div class="gochi-modal-actions">
-                    <button id="gochi-confirm-cancelar" class="btn-primary btn-muted">Cancelar</button>
-                    <button id="gochi-confirm-confirmar" class="btn-primary">Confirmar</button>
+                    <button type="button" id="gochi-confirm-cancelar" class="gochi-confirm-btn gochi-confirm-btn--cancelar">Cancelar</button>
+                    <button type="button" id="gochi-confirm-confirmar" class="gochi-confirm-btn gochi-confirm-btn--confirmar">Confirmar</button>
                 </div>
             </div>
         `;
@@ -1224,35 +1230,73 @@ window.iniciarPuntosGlobal = function iniciarPuntosGlobal() {
     window.refrescarPuntosDia?.();
 };
 
-window.mostrarConfirmacionModal = function mostrarConfirmacionModal({ titulo, mensaje, textoConfirmar = 'Confirmar', enConfirmar }) {
+window.mostrarConfirmacionModal = function mostrarConfirmacionModal({
+    titulo,
+    mensaje,
+    textoConfirmar = 'Confirmar',
+    textoCancelar = 'Cancelar',
+    tono = 'peligro',
+    icono,
+    enConfirmar,
+    alCancelar
+} = {}) {
     const modal = document.getElementById('gochi-confirm-modal');
     if (!modal) return;
+    const caja = modal.querySelector('.gochi-confirm');
     const titEl = document.getElementById('gochi-confirm-titulo');
     const msgEl = document.getElementById('gochi-confirm-mensaje');
+    const eyebrowEl = document.getElementById('gochi-confirm-eyebrow');
     const btnConf = document.getElementById('gochi-confirm-confirmar');
     const btnCanc = document.getElementById('gochi-confirm-cancelar');
+    const iconoEl = modal.querySelector('.gochi-confirm-icon use');
+
+    const tonos = {
+        peligro: { icono: 'i-solid-triangle-exclamation', etiqueta: 'Atención' },
+        aviso: { icono: 'i-solid-circle-info', etiqueta: 'Aviso' },
+        info: { icono: 'i-solid-circle-info', etiqueta: 'Información' },
+        exito: { icono: 'i-solid-check', etiqueta: 'Listo' }
+    };
+    const estilo = tonos[tono] || tonos.peligro;
+
+    if (caja) {
+        caja.classList.remove('gochi-confirm--peligro', 'gochi-confirm--aviso', 'gochi-confirm--info', 'gochi-confirm--exito');
+        caja.classList.add('gochi-confirm--' + (tonos[tono] ? tono : 'peligro'));
+    }
+    if (iconoEl) iconoEl.setAttribute('href', 'img/icons.svg#' + (icono || estilo.icono));
+    if (eyebrowEl) eyebrowEl.textContent = estilo.etiqueta;
     if (titEl) titEl.textContent = titulo || 'Confirmar';
     if (msgEl) msgEl.textContent = mensaje || '';
     if (btnConf) btnConf.textContent = textoConfirmar;
+    if (btnCanc) btnCanc.textContent = textoCancelar;
 
-    const onConfirm = () => {
-        if (typeof enConfirmar === 'function') enConfirmar();
-        cerrarConfirmModal();
+    const cerrar = (confirmado) => {
+        modal.style.display = 'none';
+        window.desactivarTrampaFoco();
+        btnConf.onclick = null;
+        btnCanc.onclick = null;
+        if (confirmado) {
+            if (typeof enConfirmar === 'function') enConfirmar();
+        } else if (typeof alCancelar === 'function') {
+            alCancelar();
+        }
     };
 
     modal.style.display = 'flex';
-    btnConf.onclick = null;
-    btnCanc.onclick = null;
-    btnConf.onclick = onConfirm;
-    btnCanc.onclick = cerrarConfirmModal;
+    btnConf.onclick = () => cerrar(true);
+    btnCanc.onclick = () => cerrar(false);
     window.activarTrampaFoco(modal, btnCanc);
 };
 
-function cerrarConfirmModal() {
-    const modal = document.getElementById('gochi-confirm-modal');
-    if (modal) modal.style.display = 'none';
-    window.desactivarTrampaFoco();
-}
+// Promise-based helper: await window.confirmarAccion({...}) devuelve true/false.
+window.confirmarAccion = function confirmarAccion(opciones = {}) {
+    return new Promise((resolver) => {
+        window.mostrarConfirmacionModal({
+            ...opciones,
+            enConfirmar: () => resolver(true),
+            alCancelar: () => resolver(false)
+        });
+    });
+};
 
 // Cierra con Escape o clic en el fondo cualquier modal visible que tenga un botón de cierre.
 function cerrarModalVisible() {
@@ -2029,7 +2073,14 @@ document.addEventListener('alpine:init', () => {
         },
 
         async eliminarSugerencia(sugerencia) {
-            if (!window.confirm('¿Borrar esta sugerencia definitivamente?')) return;
+            const ok = await window.confirmarAccion({
+                titulo: 'Borrar sugerencia',
+                mensaje: '¿Borrar esta sugerencia definitivamente? No se puede deshacer.',
+                textoConfirmar: 'Borrar',
+                tono: 'peligro',
+                icono: 'i-solid-trash-can'
+            });
+            if (!ok) return;
             try {
                 const { data, error } = await window.supabase.rpc('owner_eliminar_sugerencia', { p_id: sugerencia.id });
                 if (error || !data || !data.ok) {
@@ -2166,10 +2217,13 @@ document.addEventListener('alpine:init', () => {
 
         async eliminarUsuario(usuario) {
             if (!usuario || !usuario.id) return;
-            const ok = window.confirm(
-                '¿Eliminar la cuenta de "' + usuario.apodo + '"?\n\n' +
-                'Se borran su perfil, mensajes, reacciones, fotos, saludos y puntos. No se puede deshacer.'
-            );
+            const ok = await window.confirmarAccion({
+                titulo: 'Eliminar cuenta',
+                mensaje: '¿Eliminar la cuenta de "' + usuario.apodo + '"? Se borran su perfil, mensajes, reacciones, fotos, saludos y puntos. No se puede deshacer.',
+                textoConfirmar: 'Eliminar',
+                tono: 'peligro',
+                icono: 'i-solid-trash-can'
+            });
             if (!ok) return;
             try {
                 const { data, error } = await window.supabase.rpc('admin_eliminar_usuario', {
@@ -3140,7 +3194,14 @@ document.addEventListener('DOMContentLoaded', () => {
       async desvincularKick() {
         const token = localStorage.getItem('comunidad_session_token');
         if (!token) return;
-        if (!window.confirm('¿Desvincular tu cuenta de Kick? Tendrás que volver a conectarla para escribir en el chat.')) return;
+        const ok = await window.confirmarAccion({
+          titulo: 'Desvincular Kick',
+          mensaje: '¿Desvincular tu cuenta de Kick? Tendrás que volver a conectarla para escribir en el chat.',
+          textoConfirmar: 'Desvincular',
+          tono: 'aviso',
+          icono: 'i-solid-right-from-bracket'
+        });
+        if (!ok) return;
         try {
           const res = await fetch(SUPABASE_URL + '/functions/v1/kick-comunidad', {
             method: 'POST',
