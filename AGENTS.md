@@ -204,8 +204,9 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 6. Copiar `dist\LaGochaGaming.apk` a `app/LaGochaGaming.apk` y `dist\update\version.json` a `app/version.json` (con `notes` legibles).
 7. En `main.js`: enlace `app-descarga?v=X.Y&o=web` y texto del menú `vX.Y · N,N MB`.
 8. En `D:\Gocha\mobile\mobile.js` y en los assets del APK: texto “App móvil · vX.Y”. También en `README.md` (versión actual y `versionCode` del APK).
-9. `node scripts/check.js`, `node --check main.js`, bump de `VERSION` y entrada en `CHANGELOG.md`, commit `vX.Y.Z - resumen`.
-10. Tras el push, comprobar en vivo `VERSION`, `app/version.json` y el SHA-256 del APK descargado (GitHub Pages puede tardar ~10 min en cachear).
+9. Buscar restos de la versión anterior antes de commitear: `Select-String -Path "D:\Gocha\*.html","D:\Gocha\main.js","D:\Gocha\mobile\mobile.js","D:\Gocha\README.md" -Pattern 'v1\.\d+|\?v=1\.\d'`. La versión de la app se repite en 6 sitios (ver §5 de `D:\Apk Gocha\AGENTS.md`); actualizarlos todos.
+10. `node scripts/check.js`, `node --check main.js`, bump de `VERSION` y entrada en `CHANGELOG.md`, commit `vX.Y.Z - resumen`.
+11. Tras el push, comprobar en vivo `VERSION`, `app/version.json` y el SHA-256 del APK descargado (GitHub Pages puede tardar ~10 min en cachear).
 - Las actualizaciones que descarga la propia app no pasan por `app-descarga` (el actualizador solo acepta el host `lagochagaming.com`), así que no cuentan en el contador.
 
 ### 7.1 SEO / AEO
@@ -230,7 +231,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.45.0` (AGENTS.md al día: player nativo de la app, espectadores en el chat, contador de descargas y checklist de release de la APK; sobre 1.44.2).
+- Versión de esta release: `1.46.1` (AGENTS.md al día: app móvil 1.10 sin player nativo y checklist con los 6 sitios donde vive la versión; sobre 1.46.0).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
