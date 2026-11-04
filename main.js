@@ -4333,3 +4333,58 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 })();
 
+/* === Diagnóstico temporal (?diag=1) ===
+   Panel de solo lectura para ver qué aplica el navegador del usuario sin
+   abrir DevTools. Se retira cuando el problema esté localizado. */
+(function panelDiagnostico() {
+  if (!/[?&]diag=1/.test(location.search)) return;
+  const mq = (q) => (window.matchMedia ? matchMedia(q).matches : 'sin matchMedia');
+  const estilo = (sel, prop) => {
+    const el = document.querySelector(sel);
+    return el ? getComputedStyle(el)[prop] : 'no existe';
+  };
+  const hoja = getComputedStyle(document.documentElement);
+  const filas = [
+    ['Navegador', navigator.userAgent],
+    ['Ventana', innerWidth + '×' + innerHeight + ' @' + (devicePixelRatio || 1)],
+    ['Pantalla', screen.width + '×' + screen.height + ' colorDepth ' + screen.colorDepth],
+    ['forced-colors', mq('(forced-colors: active)')],
+    ['prefers-contrast', mq('(prefers-contrast: more)') + ' / less: ' + mq('(prefers-contrast: less)')],
+    ['prefers-color-scheme', mq('(prefers-color-scheme: dark)') ? 'dark' : 'light'],
+    ['forced-color-adjust', CSS.supports('forced-color-adjust', 'none') ? 'soportado' : 'NO soportado'],
+    ['color-mix', CSS.supports('color', 'color-mix(in srgb, red 50%, blue)') ? 'soportado' : 'NO soportado'],
+    ['html forcedColorAdjust', hoja.forcedColorAdjust || hoja.getPropertyValue('forced-color-adjust')],
+    ['body fondo / texto', estilo('body', 'backgroundColor') + ' / ' + estilo('body', 'color')],
+    ['--border-color', hoja.getPropertyValue('--border-color').trim()],
+    ['--card-bg', hoja.getPropertyValue('--card-bg').trim()],
+    ['--accent-color', hoja.getPropertyValue('--accent-color').trim()],
+    ['.navbar borde', estilo('.navbar', 'borderTopColor')],
+    ['.content-section borde', estilo('.content-section', 'borderTopColor')],
+    ['.gochi-breadcrumb borde', estilo('.gochi-breadcrumb', 'borderTopColor')],
+    ['clases body', document.body.className || '(ninguna)'],
+    ['GOCHA_TAILWIND', String(window.GOCHA_TAILWIND)],
+    ['Scripts Tailwind', document.querySelectorAll('script[src*="tailwindcss"]').length],
+    ['Hojas de estilo', [...document.styleSheets].map((s) => s.href || 'inline').join(' | ')],
+    ['Versión CSS cargada', (document.querySelector('link[href*="style.css"]') || {}).href || 'sin link']
+  ];
+  const caja = document.createElement('div');
+  caja.id = 'diag-panel';
+  caja.setAttribute('role', 'status');
+  caja.style.cssText = 'position:fixed;inset:12px;z-index:2147483647;background:#000;color:#5eead4;border:2px solid #5eead4;border-radius:10px;padding:16px 20px;font:14px/1.5 ui-monospace,Consolas,monospace;overflow:auto;white-space:pre-wrap;word-break:break-word';
+  const titulo = document.createElement('strong');
+  titulo.textContent = 'DIAGNÓSTICO · ' + location.pathname + location.search;
+  caja.appendChild(titulo);
+  const lista = document.createElement('div');
+  for (const [clave, valor] of filas) {
+    const linea = document.createElement('div');
+    const k = document.createElement('span');
+    k.style.color = '#f9a8d4';
+    k.textContent = clave + ': ';
+    linea.appendChild(k);
+    linea.appendChild(document.createTextNode(String(valor)));
+    lista.appendChild(linea);
+  }
+  caja.appendChild(lista);
+  document.body.appendChild(caja);
+})();
+

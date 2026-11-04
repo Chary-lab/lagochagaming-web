@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.10] - 2026-11-04
+
+### Panel de diagnóstico temporal
+
+- `?diag=1` en cualquier página pinta un panel de solo lectura con lo que ve el navegador: `forced-colors`, `prefers-contrast`, soporte de `color-mix` y `forced-color-adjust`, variables de tema y estilos computados de navbar y tarjetas. Sirve para diagnosticar el caso de cajas blancas sin abrir DevTools.
+- Se retira cuando el problema esté localizado. Sin cambios de API ni de esquema.
+
 ## [1.61.9] - 2026-11-04
 
 ### Prefetch ligero y sin 404
