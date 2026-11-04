@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.7] - 2026-11-04
+
+### Menos salto en ranking y fuentes
+
+- El esqueleto del ranking ocupa la misma altura que la lista real de 3 filas: al llegar los datos ya no empuja el contenido (CLS 0,032).
+- Las fuentes de Google pasan a `display=optional`: si no llegan a tiempo se usa la de respaldo y no hay reflujo de texto.
+
 ## [1.61.6] - 2026-11-04
 
 ### Enlaces del 404

@@ -7119,10 +7119,13 @@ body.light-mode .gochi-alerta { color: #1f2937; }
     flex-direction: column;
     gap: 9px;
     padding: 6px 4px;
+    /* Misma altura que el ranking real (3 filas) para que no salte al llegar. */
+    min-height: 226px;
 }
 
 .ranking-skeleton .gochi-skeleton {
-    height: 30px;
+    flex: 1;
+    min-height: 30px;
 }
 
 .admin-cargando {
