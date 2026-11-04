@@ -69,6 +69,43 @@
     if (settings.haptics) native('vibrate', 8);
   }
 
+  /* ---------- Acceso de administración: oculto salvo sesión admin ---------- */
+  var adminToques = 0;
+  var adminToquesTimer = 0;
+
+  function esAdminSesion() {
+    if (typeof window.esAdminActual !== 'function') return Promise.resolve(false);
+    try {
+      return Promise.resolve(window.esAdminActual()).then(function (ok) { return !!ok; }, function () { return false; });
+    } catch (e) {
+      return Promise.resolve(false);
+    }
+  }
+
+  function actualizarFilaAdmin() {
+    var fila = document.getElementById('lg-admin-row');
+    if (!fila || !fila.hidden) return;
+    esAdminSesion().then(function (ok) { if (ok) fila.hidden = false; });
+  }
+
+  function revelarFilaAdmin() {
+    var fila = document.getElementById('lg-admin-row');
+    if (!fila || !fila.hidden) return;
+    fila.hidden = false;
+    haptic();
+    toast('Acceso de administración disponible');
+  }
+
+  function tocarFirmaCreador() {
+    adminToques++;
+    window.clearTimeout(adminToquesTimer);
+    adminToquesTimer = window.setTimeout(function () { adminToques = 0; }, 2500);
+    if (adminToques >= 5) {
+      adminToques = 0;
+      revelarFilaAdmin();
+    }
+  }
+
   function toast(message) {
     var el = document.getElementById('lg-toast');
     if (!el) return;
@@ -151,7 +188,7 @@
               '<div class="lg-creator-info"><strong>Creado por <b>McChary</b></strong><span>Creator Engineer</span></div>' +
             '</div>' +
             '<button type="button" class="lg-action-btn" data-action="sugerencias">' + icon('bulb') + 'Sugerencias<small>Enviar una idea</small></button>' +
-            '<button type="button" class="lg-action-btn" data-action="admin">' + icon('lock') + 'Acceso de administración<small>Solo creadores</small></button>' +
+            '<button type="button" class="lg-action-btn" id="lg-admin-row" data-action="admin" hidden>' + icon('lock') + 'Acceso de administración<small>Solo creadores</small></button>' +
           '</div></div>' +
           '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.13 · Hecha para la comunidad</span></div>' +
         '</div>' +
@@ -249,6 +286,7 @@
   function openSettings() {
     openOverlay(settingsOverlay);
     syncSettingsUI();
+    actualizarFilaAdmin();
   }
 
   function closeSettings() {
@@ -1130,6 +1168,10 @@
       closeSettings();
       return;
     }
+    if (event.target.closest('.lg-creator')) {
+      tocarFirmaCreador();
+      return;
+    }
     var segmentButton = event.target.closest('.lg-segment button');
     if (segmentButton) {
       var segment = segmentButton.parentElement.getAttribute('data-segment');
@@ -1231,6 +1273,9 @@
       native('ready');
     });
   });
+
+  actualizarFilaAdmin();
+  window.addEventListener('gocha:sesion', actualizarFilaAdmin);
 
   /* ---------- Aviso de versión nueva (solo dentro de la app) ---------- */
   var UPDATE_CACHE = 'lg_update_checked';

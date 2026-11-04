@@ -1520,7 +1520,17 @@ window.sincronizarSesionComunidadVinculada = async function sincronizarSesionCom
     }
 };
 
-function insertarAccesoAdminFooter() {
+async function insertarAccesoAdminFooter() {
+    let admin = false;
+    try {
+        admin = typeof window.esAdminActual === 'function' ? !!(await window.esAdminActual()) : false;
+    } catch (e) {
+        admin = false;
+    }
+    if (!admin) {
+        document.querySelectorAll('.footer-admin-link').forEach((b) => b.remove());
+        return;
+    }
     document.querySelectorAll('.footer-copyright').forEach((p) => {
         if (p.querySelector('.footer-admin-link')) return;
         const boton = document.createElement('button');
@@ -1533,6 +1543,11 @@ function insertarAccesoAdminFooter() {
         p.appendChild(boton);
     });
 }
+
+// Solo sale con sesión de admin: al entrar o salir se recalcula.
+document.addEventListener('gocha:sesion', () => {
+    try { insertarAccesoAdminFooter(); } catch (e) {}
+});
 
 // === PANEL GLOBAL DE ADMINISTRACIÓN (modal, sin página aparte) ===
 window.abrirAdminPanel = function abrirAdminPanel(tab) {

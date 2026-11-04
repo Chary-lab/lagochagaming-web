@@ -1868,6 +1868,9 @@ html.lg-app .lg-gender {
 
 html.lg-app .lg-gender[hidden] { display: none !important; }
 
+/* La fila de acceso admin se oculta al público: [hidden] no gana contra display:flex. */
+html.lg-app .lg-action-btn[hidden] { display: none !important; }
+
 html.lg-app .lg-gender label {
   position: relative;
   display: flex;

@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.6] - 2026-11-04
+
+### El acceso de administración deja de ser público
+
+- En la app la fila **Acceso de administración** ya no sale para todo el mundo: solo aparece si hay sesión de admin abierta.
+- Para entrar la primera vez: cinco toques seguidos sobre la tarjeta **Creado por McChary** en Ajustes. Sale la fila y se puede abrir el login.
+- En la web el candado “Acceso” del pie también queda solo para administradores; el login normal del sitio sigue en la barra superior.
+
 ## [1.47.5] - 2026-11-04
 
 ### Acceso de administración en la app
