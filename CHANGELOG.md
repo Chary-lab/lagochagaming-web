@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.11] - 2026-11-04
+
+### Diagnóstico: localizar los bordes claros
+
+- `?diag=2` añade al panel de diagnóstico un escaneo del DOM: lista los elementos que pintan bordes u `outline` claros (luminancia > 0,72), ordenados por área, con su selector y el valor exacto. Sirve para ver en el navegador del usuario qué regla dibuja las cajas sin abrir DevTools.
+- Sigue siendo temporal. Sin cambios de API ni de esquema.
+
 ## [1.61.10] - 2026-11-04
 
 ### Panel de diagnóstico temporal

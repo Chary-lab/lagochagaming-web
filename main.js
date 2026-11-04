@@ -4333,11 +4333,26 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 })();
 
-/* === Diagnóstico temporal (?diag=1) ===
+/* === Diagnóstico temporal (?diag=1 | ?diag=2) ===
    Panel de solo lectura para ver qué aplica el navegador del usuario sin
-   abrir DevTools. Se retira cuando el problema esté localizado. */
+   abrir DevTools. `diag=2` busca los elementos que pintan bordes claros.
+   Se retira cuando el problema esté localizado. */
 (function panelDiagnostico() {
-  if (!/[?&]diag=1/.test(location.search)) return;
+  const modo = (location.search.match(/[?&]diag=(\d)/) || [])[1];
+  if (!modo) return;
+  const luz = (color) => {
+    const m = String(color).match(/rgba?\(([^)]+)\)/);
+    if (!m) return 0;
+    const [r, g, b, a = 1] = m[1].split(',').map(Number);
+    if (a < 0.5) return 0;
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  };
+  const describir = (el) => {
+    const clase = typeof el.className === 'string' && el.className.trim()
+      ? '.' + el.className.trim().split(/\s+/).slice(0, 3).join('.')
+      : '';
+    return el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + clase;
+  };
   const mq = (q) => (window.matchMedia ? matchMedia(q).matches : 'sin matchMedia');
   const estilo = (sel, prop) => {
     const el = document.querySelector(sel);
@@ -4367,6 +4382,33 @@ document.addEventListener('DOMContentLoaded', () => {
     ['Hojas de estilo', [...document.styleSheets].map((s) => s.href || 'inline').join(' | ')],
     ['Versión CSS cargada', (document.querySelector('link[href*="style.css"]') || {}).href || 'sin link']
   ];
+  if (modo === '2') {
+    const claros = [];
+    for (const el of document.body.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+      const info = [];
+      for (const lado of ['Top', 'Right', 'Bottom', 'Left']) {
+        const w = parseFloat(cs['border' + lado + 'Width']) || 0;
+        const c = cs['border' + lado + 'Color'];
+        if (w > 0 && cs['border' + lado + 'Style'] !== 'none' && luz(c) > 0.72) {
+          info.push('border-' + lado.toLowerCase() + ' ' + w + 'px ' + c);
+        }
+      }
+      const ow = parseFloat(cs.outlineWidth) || 0;
+      if (ow > 0 && cs.outlineStyle !== 'none' && luz(cs.outlineColor) > 0.72) {
+        info.push('outline ' + ow + 'px ' + cs.outlineColor);
+      }
+      if (!info.length) continue;
+      claros.push({
+        area: el.offsetWidth * el.offsetHeight,
+        nombre: describir(el),
+        info: [...new Set(info)].join(' · ')
+      });
+    }
+    claros.sort((a, b) => b.area - a.area);
+    filas.splice(0, filas.length, ['Elementos con borde claro', claros.length]);
+    for (const c of claros.slice(0, 14)) filas.push([c.nombre, c.info]);
+  }
   const caja = document.createElement('div');
   caja.id = 'diag-panel';
   caja.setAttribute('role', 'status');
