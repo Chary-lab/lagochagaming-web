@@ -10,6 +10,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
 - Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
 - Versión actual: ver `VERSION` (SemVer). Changelog: `CHANGELOG.md`.
+- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView + player nativo). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`.
 
 ## 2. Reglas de stack
 
@@ -41,6 +42,10 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 | `img/icons.svg` | Sprite de iconos (Font Awesome Free 6.6.0, CC BY 4.0) |
 | `img/mcchary/` | Ilustraciones del creador: footer, 404 y estados vacíos |
 | `scripts/check.js` | Validaciones estáticas del repo (no se carga en Pages) |
+| `app/LaGochaGaming.apk` | APK firmado que descarga la web (se reemplaza en cada release de la app) |
+| `app/version.json` | Manifiesto del actualizador de la app (`versionCode`, `versionName`, `sha256`, `size`, `notes`) |
+| `mobile/mobile.css`, `mobile/mobile.js` | Interfaz móvil que la app descarga encima del APK; única carpeta que la app consume en remoto |
+| `supabase/functions/app-descarga/` | Copia local de la Edge Function que cuenta descargas y redirige al APK (no se despliega desde el repo) |
 
 Las migraciones SQL no se versionan en este repo: el historial vive en Supabase. La carpeta local `supabase/` está ignorada.
 
@@ -120,6 +125,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - `kick_clips` (caché de la Edge Function `kick-clips`, una fila JSON con los últimos clips de Kick; solo `service_role`, TTL 40 min y refresco con `pg_cron` cada 20 min).
 - `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango` (puntos por acción, historial con idempotencia y topes diarios por rango; solo `service_role`, se escriben desde RPC `SECURITY DEFINER`).
 - `sugerencias` (texto 5–500, `ip_hash`, `leida`, `creada_en`; sin acceso `anon`; solo `owner` lee, marca y borra con `es_owner()` y las RPC `owner_marcar_sugerencia` / `owner_eliminar_sugerencia`).
+- `app_descargas` (contador real de descargas del APK: `version`, `origen` web/apk/directo, `ip_hash`, `user_agent`, `creado_en`; RLS activo sin políticas, solo entra la Edge Function con `service_role`).
 - RPCs importantes: `login_comunidad`, `registrar_comunidad`, `validar_sesion_comunidad`, `cerrar_sesion_comunidad`, `sesion_comunidad_vinculada`, `latido_comunidad`, `incrementar_puntos_comunidad`, `enviar_mensaje_chat`, `obtener_chat_historial`, `establecer_reaccion`, `establecer_reaccion_muro`, `obtener_reacciones_muro`, `publicar_saludo_muro`, `publicar_foto_galeria`, `actualizar_perfil_comunidad`, `incrementar_likes`, `obtener_likes_galeria`, `tienda_obtener_catalogo`, `tienda_canjear_premio`, `tienda_mis_canjes`, `registrar_participante_sorteo`, `sortear_ganador_sorteo`, `enviar_sugerencia`, `owner_marcar_sugerencia`, `owner_eliminar_sugerencia`, `admin_listar_usuarios`, `admin_ban_usuario`, `admin_shadowban_usuario`, `admin_obtener_audit_log`, `admin_eliminar_mensaje_chat`, `admin_auditar`, `obtener_puntos_hoy`, `estadisticas_perfil_comunidad`, `obtener_avatares_disponibles`, `otorgar_puntos_accion`, `registrar_puntos` y `actualizar_autor_galeria`.
 
 ### 5.5 Invariantes de integridad
@@ -154,6 +160,10 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Cliente: `window.KICK_COMUNIDAD` en `main.js` (`vinculado`, `vincular`, `abrirOAuth`, `volverDelHash`). El objetivo del OAuth viaja en `sessionStorage` (`gocha_kick_objetivo`): `entrar` o `vincular`.
 - Registro con Kick: `#btn-registro-kick` del modal de registro usa el mismo OAuth que "Conectar con Kick" y deja `gocha_kick_intencion=registro`. Al volver, `entrarConKickComunidad()` lo convierte en `gocha_ajustes_pendientes=1` y la página abre `Alpine.store('perfil').abrir('ajustes')` para completar género y avatar.
 - Insignias de Kick: `window.insigniasKickDe()` (§4); no pedir `rol` al cliente.
+- Espectadores: la cabecera del chat muestra `N Views` en `.chat-kick-espectadores`. Se pinta con `window.actualizarEspectadoresKick(total, enVivo)` desde el sondeo global de `verificarEstadoStream()`; no crear sondeos nuevos ni un segundo contador en la página.
+- Player web: `#stream-player` es el iframe de `player.kick.com` y se queda así. Su CORS solo admite orígenes de Kick, así que reproducir el HLS directo (`playback_url` de `https://kick.com/api/v2/channels/lagochagaming`) en la web exige proxy y cuesta 2–3 GB por hora y espectador: no hacerlo sin autorización.
+- Player en la app: la app trae ExoPlayer nativo (`D:\Apk Gocha`, `PlayerActivity`). `main.js` detecta el puente (`window.LaGochaNative.abrirDirecto`), añade `html.lg-player-nativo`, oculta el iframe y muestra la tarjeta `.lg-directo-nativo`; al tocarla se abre el reproductor nativo con calidades. No añadir botón “Ver en HD” en la web.
+- El aviso “Visit KICK for HD quality” vive dentro del iframe y no se puede quitar desde fuera. Cualquier intento de taparlo con capas rompe los controles de Kick.
 
 ## 6. Seguridad
 
@@ -177,6 +187,26 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - `robots.txt` y `sitemap.xml` deben mantenerse coherentes con las páginas públicas. Actualizar `lastmod` cuando cambie contenido público.
 - Si se cambia de host, actualizar esta sección y `_headers`.
 - APK Android: el proyecto vive en `D:\Apk Gocha` (Capacitor). El keystore de release está en `C:\Users\Administrator\.lagocha\lagocha-release.jks` (alias `lagocha-release`, credenciales en `credenciales.txt` al lado). Nunca versionar la clave. Tras cada build, copiar el APK a `app/LaGochaGaming.apk` y actualizar `sha256` y `size` en `app/version.json`: el actualizador interno de la app los verifica antes de instalar.
+- Certificado de firma que NO debe cambiar: SHA-256 `41a6cdc746de8560425aa04b9bcdc3cb5e81f670644e846f284977ce721b4b21`. Si cambia, los usuarios tienen que desinstalar e instalar.
+
+### 7.2 Release de la app (checklist obligatorio)
+
+1. En `D:\Apk Gocha`: subir `versionCode` y `versionName` en `android/app/build.gradle`.
+2. Subir `ASSET_CACHE_VERSION` en `MainActivity.java` cuando cambien los assets empaquetados (`mobile.css`/`mobile.js`); así se descarta la caché vieja.
+3. Sincronizar `D:\Gocha\mobile\mobile.css` y `mobile.js` con `android/app/src/main/assets/mobile/` si cambiaron.
+4. Compilar y firmar:
+   ```powershell
+   $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot'
+   $env:ANDROID_HOME='C:\Android\sdk'
+   powershell -ExecutionPolicy Bypass -File "D:\Apk Gocha\build-apk.ps1"
+   ```
+5. Verificar con `apksigner verify --print-certs` (mismo SHA-256) y `aapt dump badging` (versionCode/versionName correctos).
+6. Copiar `dist\LaGochaGaming.apk` a `app/LaGochaGaming.apk` y `dist\update\version.json` a `app/version.json` (con `notes` legibles).
+7. En `main.js`: enlace `app-descarga?v=X.Y&o=web` y texto del menú `vX.Y · N,N MB`.
+8. En `D:\Gocha\mobile\mobile.js` y en los assets del APK: texto “App móvil · vX.Y”.
+9. `node scripts/check.js`, `node --check main.js`, bump de `VERSION` y entrada en `CHANGELOG.md`, commit `vX.Y.Z - resumen`.
+10. Tras el push, comprobar en vivo `VERSION`, `app/version.json` y el SHA-256 del APK descargado (GitHub Pages puede tardar ~10 min en cachear).
+- Las actualizaciones que descarga la propia app no pasan por `app-descarga` (el actualizador solo acepta el host `lagochagaming.com`), así que no cuentan en el contador.
 
 ### 7.1 SEO / AEO
 
@@ -200,7 +230,8 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.43.2` (AGENTS.md al día: estructura fija sin dividir archivos, flujo de Kick, modelo de admin y RPC actuales; sobre 1.43.1).
+- Versión de esta release: `1.45.0` (AGENTS.md al día: player nativo de la app, espectadores en el chat, contador de descargas y checklist de release de la APK; sobre 1.44.2).
+- `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
 
@@ -223,12 +254,16 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
    - Iconos: ninguna página con huecos; si falta un símbolo, añadirlo a `img/icons.svg`.
    - Sugerencias: el modal abre y cierra, envía una y la guarda; el tercer intento del día devuelve `limite`; borrar las filas de prueba.
    - Moderación: ban y shadowban sobre usuario temporal; verificar borrado de sesiones, login bloqueado y fila en auditoría; limpiar después.
-5. Cambios de base de datos:
+5. Release de la APK (solo si toca la app):
+   - `apksigner verify --print-certs` con el SHA-256 esperado y `aapt dump badging` con el `versionCode`/`versionName` nuevos.
+   - Comprobar que `assets/mobile/mobile.css` y `mobile.js` del APK coinciden con los de `D:\Gocha\mobile\`.
+   - Probar en un dispositivo real si el cambio es nativo: abrir el directo, cambiar calidad, tocar la pantalla y confirmar que no aparece el aviso de Kick. Sin dispositivo, decirlo como pendiente; no dar por probado.
+6. Cambios de base de datos:
    - Preparar el SQL y probarlo en una transacción con un usuario temporal y `ROLLBACK`.
    - Verificar que no queden usuarios, mensajes, likes ni sesiones de prueba.
    - Aplicarlo en Supabase con una migración nombrada y volver a correr advisors.
    - No commitear la carpeta local `supabase/` (está ignorada). Documentar el cambio en `CHANGELOG.md`.
-6. Revisar `git diff` y `git status`; no commitear archivos temporales, secretos ni datos de prueba.
+7. Revisar `git diff` y `git status`; no commitear archivos temporales, secretos ni datos de prueba.
 
 ## 10. Flujo de trabajo
 
@@ -257,6 +292,9 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - No agregar dependencias/build sin autorización.
 - No dividir archivos ni crear CSS, JS o HTML parciales: la estructura actual se mantiene (ver §2).
 - No asumir que `_headers` funciona en GitHub Pages.
+- No montar proxy HLS ni reproductor propio en la web para quitar el aviso de Kick: cuesta ancho de banda y rompe la política del CDN.
+- No publicar una APK sin verificar el SHA-256 de la firma y el `versionCode`; no cambiar la keystore.
+- No cambiar `PlayerActivity` ni añadir nativo sin subir la versión de la app y `ASSET_CACHE_VERSION`.
 - No commitear con la app rota o sin probar.
 
 ## 12. Riesgos aceptados / deuda conocida
@@ -272,3 +310,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - CDNs sin SRI (jsDelivr: Supabase JS, Alpine, hls.js; Google Fonts).
 - Advisors de Supabase marcan RPCs `SECURITY DEFINER` ejecutables por `anon`; es intencional para usuarios de comunidad sin Supabase Auth. Revisar cada nueva RPC con el mismo criterio.
 - Índices marcados como "unused" son de bajo volumen; no eliminarlos sin medir.
+- Player nativo de la app: sin probar en un dispositivo real (no hay emulador en este equipo). Cualquier cambio ahí es “compilado”, no “verificado”.
+- El contador de descargas no ve las actualizaciones internas de la app ni las descargas directas del `.apk` fuera de `app-descarga`.
+- Los espectadores del chat se refrescan con el sondeo de 30 s; pueden ir 30–60 s por detrás del número del iframe.
+- La APK creció a ~6,8 MB por media3; si el tamaño importa, revisar antes de añadir más dependencias nativas.

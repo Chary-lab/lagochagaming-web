@@ -45,6 +45,28 @@ node --check main.js
 - Las escrituras sensibles pasan por RPC `SECURITY DEFINER`; RLS permanece activo.
 - Nunca agregar `service_role` ni secretos al cliente.
 
+## App Android
+
+El APK se distribuye desde este repo:
+
+- `app/LaGochaGaming.apk` — último APK firmado (versión actual: 1.9, versionCode 12).
+- `app/version.json` — manifiesto del actualizador (`versionCode`, `versionName`, `sha256`, `size`, `notes`).
+- `mobile/mobile.css` y `mobile/mobile.js` — interfaz móvil que la app descarga por encima del APK (caché de 6 h, válida 7 días).
+
+El APK no reproduce el iframe de Kick: abre un reproductor ExoPlayer nativo con
+selector de calidad. En la web el directo sigue en el iframe de Kick; `main.js`
+oculta ese iframe solo dentro de la app y muestra la tarjeta “Ver el directo”.
+
+Las instrucciones de build, firma y publicación del APK viven en
+`D:\Apk Gocha\AGENTS.md`.
+
+## Descargas
+
+El enlace del menú pasa por la Edge Function `app-descarga`, que cuenta la
+descarga en `app_descargas` y redirige al APK. El panel de admin tiene una
+pestaña **Descargas** con total, únicos, hoy, 7/30 días y desglose por versión.
+Las actualizaciones internas de la app no pasan por ese enlace y no se cuentan.
+
 ## Versión y despliegue
 
 - `VERSION` es la fuente de verdad (SemVer).
@@ -53,7 +75,10 @@ node --check main.js
 - GitHub Pages ignora `_headers`; no asumir CSP/HSTS activos en producción.
 - `.nojekyll` versionado: sin él Pages intenta construir con Jekyll y el build falla.
 - En cada release, subir el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los 6 HTML.
+- Release con APK: compilar y firmar en `D:\Apk Gocha`, copiar el APK a `app/LaGochaGaming.apk`, actualizar `app/version.json` (código, nombre, SHA-256 y tamaño), el enlace `app-descarga?v=X.Y&o=web` de `main.js` y `VERSION`/`CHANGELOG.md`. Verificar en vivo antes de darlo por publicado.
+- La keystore no se versiona. El certificado SHA-256 debe ser siempre `41a6cdc746de8560425aa04b9bcdc3cb5e81f670644e846f284977ce721b4b21`; si cambia, hay que desinstalar la app antes de instalar.
 
 ## Reglas para agentes
 
 Leer `AGENTS.md` antes de modificar código, base de datos o despliegue.
+Si el cambio toca la app Android, leer también `D:\Apk Gocha\AGENTS.md`.
