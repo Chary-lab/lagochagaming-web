@@ -10,6 +10,12 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 - El video de YouTube vuelve a ocupar su ancho: las secciones recuperan el 100% del ancho y el reproductor se limita a 980 px centrados.
 - Las preguntas frecuentes se muestran en dos columnas (3 y 3) en escritorio y vuelven a una columna por debajo de 760 px.
 
+## [1.51.3] - 2026-11-04
+
+### README al día
+
+- `README.md` refleja la app 1.13 con el iframe de `player.kick.com` (sin ExoPlayer), el reporte de fotos, la cola de GochiWatch y el endurecimiento de las Edge Functions.
+
 ## [1.51.2] - 2026-11-04
 
 ### Auditoría de Edge Functions

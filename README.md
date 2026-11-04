@@ -6,9 +6,9 @@ Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin b
 
 - `index.html` — inicio, player de Kick, clips, feed social, YouTube y muro de saludos.
 - `comunidad.html` — presencia, chat, reacciones, ranking y rangos.
-- `galeria.html` — subida de fotos, galería pública, likes y moderación.
+- `galeria.html` — subida de fotos, galería pública, likes, reporte de fotos y moderación.
 - `sorteo.html` — sorteo manual, tómbola online y modo streamer.
-- `cine.html` — GochiWatch: sincronización de películas/videos.
+- `cine.html` — GochiWatch: sincronización de películas/videos y cola de la sala.
 
 ## Perfiles y avatares
 
@@ -53,6 +53,14 @@ node --check main.js
 - Las escrituras sensibles pasan por RPC `SECURITY DEFINER`; RLS permanece activo.
 - Nunca agregar `service_role` ni secretos al cliente.
 
+## Edge Functions
+
+- `kick-clips`, `instagram-feed` y `tiktok-feed`: caché de 40 min en Supabase y proxy de imágenes con host permitido y tope de 6 MB.
+- `kick-chat`, `kick-comunidad` y `kick-oauth-callback`: sesión OAuth de Kick, CORS cerrado a `lagochagaming.com` y `state` de un solo uso que caduca a los 10 min.
+- `kick-chat-webhook` valida la firma RSA de Kick; `kick-chat-setup` exige la cabecera `x-setup-secret`.
+- `app-descarga` cuenta la descarga y redirige al APK (25 por IP y hora); `app-telemetria` registra instalaciones y saltos de versión.
+- Todas usan `verify_jwt=false` y validan por su cuenta.
+
 ## App Android
 
 El APK se distribuye desde este repo:
@@ -61,9 +69,10 @@ El APK se distribuye desde este repo:
 - `app/version.json` — manifiesto del actualizador (`versionCode`, `versionName`, `sha256`, `size`, `notes`).
 - `mobile/mobile.css` y `mobile/mobile.js` — interfaz móvil que la app descarga por encima del APK (caché de 6 h, válida 7 días).
 
-El APK no reproduce el iframe de Kick: abre un reproductor ExoPlayer nativo con
-selector de calidad. En la web el directo sigue en el iframe de Kick; `main.js`
-oculta ese iframe solo dentro de la app y muestra la tarjeta “Ver el directo”.
+Desde la 1.10 la app usa el mismo iframe de `player.kick.com` que la web;
+`mobile/mobile.js` añade la hoja del chat y los ajustes móviles sobre la página.
+El reproductor nativo ExoPlayer se retiró y no debe volver sin autorización.
+El aviso “Visit KICK for HD quality” vive dentro del iframe y no se puede quitar.
 
 Las instrucciones de build, firma y publicación del APK viven en
 `D:\Apk Gocha\AGENTS.md`.

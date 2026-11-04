@@ -257,7 +257,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.51.2` (reportes de fotos con panel de moderación, cola de la sala en GochiWatch, tokens de diseño, SRI en los CDN, RLS de chat para shadowban, bloqueo de PIN por cuenta, `pg_net` fuera de `public`, cierre de hallazgos de UI/CSS y endurecimiento de Edge Functions; APK actual 1.13 / code 16).
+- Versión de esta release: `1.51.3` (README al día; reportes de fotos, cola de GochiWatch, tokens, SRI, RLS de chat, bloqueo de PIN por cuenta, `pg_net` fuera de `public` y Edge Functions endurecidas; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
