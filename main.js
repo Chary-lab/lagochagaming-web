@@ -2841,9 +2841,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  alt="Vista previa del avatar">
             <span class="mp-avatar-inicial" x-bind:hidden="!!$store.perfil.previewAvatar" x-text="$store.perfil.inicial"></span>
           </div>
-          <div class="mp-avatar-acciones">
-            <button type="button" class="btn-primary btn-muted" x-on:click="$store.perfil.quitarAvatar()">Usar avatar por defecto</button>
-          </div>
           <div class="mp-avatar-choices" aria-label="Avatares disponibles">
             <template x-for="a in $store.perfil.avatares" :key="a.url">
               <button type="button" class="mp-avatar-choice"
@@ -2851,6 +2848,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       x-bind:title="a.nombre || 'Avatar'" x-bind:aria-label="'Elegir ' + (a.nombre || 'avatar')"
                       x-on:click="$store.perfil.elegirAvatar(a.url)">
                 <img x-bind:src="a.url" x-bind:alt="a.nombre || 'Avatar'" loading="lazy">
+                <span class="mp-avatar-tag" x-show="a.origen === 'kick'">KICK</span>
               </button>
             </template>
             <span class="mp-vacio" x-bind:hidden="$store.perfil.avatares.length">No se pudieron cargar los avatares.</span>
@@ -3128,9 +3126,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       elegirAvatar(url) {
         this.avatarSeleccionado = url;
-      },
-      quitarAvatar() {
-        this.avatarSeleccionado = '';
       },
       logout() {
         window.cerrarSesion?.();

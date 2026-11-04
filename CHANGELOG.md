@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.7] - 2026-11-04
+
+### Avatares: dos por defecto y el de Kick
+
+- El selector de perfil ya no tiene el botón **Usar avatar por defecto**: se elige entre los dos avatares (masculino y femenino).
+- Si tienes Kick vinculado aparece un tercer avatar con tu foto de Kick, marcado **KICK**.
+- Esa foto se actualiza sola cada vez que entras con Kick, mientras tengas el avatar de Kick elegido. Si eliges uno de los dos por defecto, se respeta.
+- Al desvincular Kick se quita el avatar de Kick y vuelven los dos por defecto.
+- El bucket de avatares deja de aceptar subidas anónimas. La subida propia, cuando llegue, irá por una función con sesión.
+
 ## [1.47.6] - 2026-11-04
 
 ### El acceso de administración deja de ser público
