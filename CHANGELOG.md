@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.1] - 2026-11-04
+
+### La app abre sin el logo gigante
+
+- Fuera el splash `splash.jpg` de 1152x2048 y el overlay de arranque propio: se veían dos logos, uno arriba y otro enorme en el centro.
+- El arranque usa solo el splash del sistema: fondo `#05070a` e icono redondo.
+- El APK baja a 3,86 MB.
+
 ## [1.47.0] - 2026-11-04
 
 ### Chat en vivo que deja ver el stream

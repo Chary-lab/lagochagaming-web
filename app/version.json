@@ -1,8 +1,8 @@
 ﻿{
-    "versionCode":  14,
-    "versionName":  "1.11",
+    "versionCode":  15,
+    "versionName":  "1.12",
     "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256":  "a0a37cc80b1b08bd80ac54db96422e5aa78f95913b88232726fe977737707bd4",
-    "size":  4378794,
-    "notes":  "Chat en vivo mas bajo, sin blur y con boton para ocultarlo, y sin pantalla de logo al cambiar de pagina."
+    "sha256":  "f56f05bad57296278295b9330184a6619fde8d63454b26a61097f05ab3e00485",
+    "size":  4043130,
+    "notes":  "Arranque limpio: fuera la pantalla de logo gigante y el splash duplicado. Chat en vivo bajo y sin blur."
 }

@@ -232,7 +232,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.47.0` (AGENTS.md al día: chat en vivo bajo y sin blur con botón de ocultar, sin pantalla de logo al navegar en la app 1.11; sobre 1.46.1).
+- Versión de esta release: `1.47.1` (AGENTS.md al día: arranque limpio en la app 1.12 sin overlay ni splash duplicado, chat móvil bajo sin blur; sobre 1.47.0).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
