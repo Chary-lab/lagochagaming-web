@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.60.2] - 2026-11-04
+
+### Alpine sin inicializar
+
+- Galería: el desplegable de orden apuntaba a un `.gochi-menu` sin `x-data`, así que `#gallery-orden-btn` no abría nada. El contenedor ya declara `x-data`.
+- Comunidad: "Cargar mensajes anteriores" (`.chat-cargar-mas-container`) y los botones de tienda `#btn-ver-mis-canjeos` / `#btn-ver-catalogo` estaban fuera de cualquier `x-data`; sus `@click`, `x-show` y `x-text` no se inicializaban. Ambos bloques ya tienen `x-data`.
+- Revisión de las 5 páginas y `404.html`: no queda ninguna directiva Alpine huérfana.
+
 ## [1.60.1] - 2026-11-04
 
 ### Correcciones de la capa Gochi
