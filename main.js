@@ -577,7 +577,10 @@ window.limpiarCachesSesionComunidad = function limpiarCachesSesionComunidad() {
         'gochi_chat_mi_reaccion_pendiente_v1',
         'gochi_chat_streak',
         'gocha_user_likes',
-        'chat_scroll'
+        'chat_scroll',
+        'gochi_cache_chat_v1',
+        'gochi_cache_ranking_v1',
+        'gochi_cache_tienda_v1'
     ].forEach((clave) => {
         localStorage.removeItem(clave);
         sessionStorage.removeItem(clave);

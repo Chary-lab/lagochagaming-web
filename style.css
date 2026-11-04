@@ -34,11 +34,7 @@
     --space-5: 20px;
     --space-6: 30px;
     /* Tipografía */
-    --fs-xs: 0.75rem;
-    --fs-sm: 0.85rem;
     --fs-md: 0.95rem;
-    --fs-lg: 1.1rem;
-    --fs-xl: 1.35rem;
 }
 
 /* Modo OLED True Black - 3er estado */
@@ -104,6 +100,8 @@ body { background-color: var(--bg-color); color: var(--text-main); font-family: 
 }
 
 #global-header { min-height: 65px; }
+/* La navbar la pinta main.js: oculta el hueco vacío hasta montarla. */
+#navbar-root:empty { visibility: hidden; }
 .navbar { height: var(--navbar-height); background: rgba(15,31,26,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; padding: 0 var(--space-6); position: fixed; top: 0; width: 100%; max-width: 100%; box-sizing: border-box; z-index: 1000; border-bottom: 1px solid var(--border-color); transition: background-color 0.3s ease; gap: 16px; }
 body.light-mode .navbar { background: rgba(240,253,244,0.75); }
 .logo { font-family: var(--font-display); font-size: 22px; font-weight: 900; letter-spacing: 2px; color: var(--text-main); flex-shrink: 0; min-width: 160px; }
@@ -5036,11 +5034,6 @@ body.light-mode {
     color: #53fc18;
     border: 1px solid #53fc18;
 }
-.tienda-canjeo-estado.rechazado {
-    background: rgba(255, 77, 77, 0.15);
-    color: #ff4d4d;
-    border: 1px solid #ff4d4d;
-}
 .tienda-canjeo-estado.cancelado {
     background: rgba(128, 128, 128, 0.15);
     color: #888;
@@ -6645,6 +6638,13 @@ body.light-mode .gochi-alerta { color: #1f2937; }
     border-radius: var(--r-md);
     background: color-mix(in srgb, var(--text-muted) 14%, transparent);
     min-height: 12px;
+    /* No mostrar el esqueleto si los datos llegan rápido: evita el parpadeo. */
+    opacity: 0;
+    animation: gochi-skeleton-aparecer 1ms 200ms forwards;
+}
+
+@keyframes gochi-skeleton-aparecer {
+    to { opacity: 1; }
 }
 
 .gochi-skeleton::after {
@@ -6667,6 +6667,7 @@ body.light-mode .gochi-alerta { color: #1f2937; }
 .gochi-skeleton--chip { height: 22px; width: 86px; border-radius: var(--r-pill); }
 
 @media (prefers-reduced-motion: reduce) {
+    .gochi-skeleton { animation: none; opacity: 1; }
     .gochi-skeleton::after { animation: none; }
 }
 

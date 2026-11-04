@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.5] - 2026-11-04
+
+### Carga sin saltos y menos CSS muerto
+
+- El chat ya no espera al set de emotes 7TV antes de pedir el historial: ambos se cargan en paralelo.
+- Chat, ranking y tienda pintan la última copia de `sessionStorage` al instante y revalidan en segundo plano. Esas claves se limpian al cerrar sesión.
+- Los esqueletos esperan 200 ms antes de mostrarse: si los datos llegan antes, no hay parpadeo.
+- La navbar vacía se oculta hasta que `main.js` la monta.
+- El tema claro/OLED se aplica antes del primer pintado con un script inline: se elimina el destello oscuro a claro.
+- Precarga (`rel="prefetch"`) de las otras páginas del navbar.
+- Limpieza: variables `--fs-*` muertas y regla `.tienda-canjeo-estado.rechazado` sin uso.
+
 ## [1.61.4] - 2026-11-04
 
 ### Tooltip sin globo prematuro

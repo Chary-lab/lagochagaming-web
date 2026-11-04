@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.61.4">
+    <link rel="stylesheet" href="style.css?v=1.61.5">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
@@ -57,8 +57,15 @@
 }
     </script>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="181add5a-5f78-4d10-a199-4d2460d443a8" data-domains="lagochagaming.com"></script>
+<link rel="prefetch" href="./">
+<link rel="prefetch" href="galeria">
+<link rel="prefetch" href="sorteo">
+<link rel="prefetch" href="cine">
 </head>
 <body class="comunidad-page">
+<script>
+try{var t=localStorage.getItem('gochi_tema');if(t==='light')document.body.classList.add('light-mode');else if(t==='oled')document.body.classList.add('oled-mode');}catch(e){}
+</script>
 
 <div class="page-shell">
     <a href="#contenido" class="skip-link">Saltar al contenido</a>
@@ -485,7 +492,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.61.4" defer></script>
+    <script src="main.js?v=1.61.5" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1625,12 +1632,35 @@ setInterval(actualizarTypingIndicator, 1200);
                 ocultarBotonNuevosMensajes();
             }
 
+            // Caché de sesión: pinta el último estado al instante y revalida en
+            // segundo plano. Evita el esqueleto en cada cambio de página.
+            const CACHE_CHAT = 'gochi_cache_chat_v1';
+            const CACHE_RANKING = 'gochi_cache_ranking_v1';
+            const CACHE_TIENDA = 'gochi_cache_tienda_v1';
+            function leerCache(clave) {
+                try { return JSON.parse(sessionStorage.getItem(clave) || 'null'); } catch (e) { return null; }
+            }
+            function guardarCache(clave, valor) {
+                try { sessionStorage.setItem(clave, JSON.stringify(valor)); } catch (e) {}
+            }
+
             async function cargarMensajesChat(antesDe = null) {
                 const store = obtenerStoreChat();
                 if (!store) return;
                 // El set global se comparte con el chat de Kick y se cachea.
-                // Se espera antes del primer render para que los emotes salgan ya.
-                if (!antesDe) await window.cargarEmotes7TV?.();
+                // 7TV no bloquea el historial: se pide en paralelo y se repinta al llegar.
+                if (!antesDe) {
+                    window.cargarEmotes7TV?.()
+                        .then(() => { store.mensajes = store.mensajes.slice(); })
+                        .catch(() => {});
+                    const cache = leerCache(CACHE_CHAT);
+                    if (Array.isArray(cache) && cache.length) {
+                        store.mensajes = cache;
+                        store.cargando = false;
+                        chatInicializado = true;
+                        scrollAlFinalChat(true);
+                    }
+                }
                 const token = localStorage.getItem('comunidad_session_token');
                 if (!window.supabase) {
                     store.cargando = false;
@@ -1667,6 +1697,7 @@ setInterval(actualizarTypingIndicator, 1200);
                     }
                     store.hayMas = nuevos.length >= 50;
                     chatInicializado = true;
+                    if (!antesDe) guardarCache(CACHE_CHAT, nuevos);
                     // Relieve del nombre según el rango de cada autor.
                     cargarRangosChat(nuevos.map(m => m.autor));
                     // Los chips viven en el servidor: hay que pedirlos también en la
@@ -2428,6 +2459,13 @@ if (chatForm) {
                     }
                     return;
                 }
+                if (store.cargando) {
+                    const cache = leerCache(CACHE_RANKING);
+                    if (Array.isArray(cache) && cache.length) {
+                        store.usuarios = cache;
+                        store.cargando = false;
+                    }
+                }
                 try {
                     const { data, error } = await supabase
                         .from('usuarios_comunidad')
@@ -2466,6 +2504,7 @@ if (chatForm) {
                     });
                     store.error = '';
                     store.cargando = false;
+                    guardarCache(CACHE_RANKING, store.usuarios);
                 } catch (e) {
                     console.error('Error leaderboard:', e);
                     store.usuarios = [];
@@ -2590,7 +2629,13 @@ if (chatForm) {
             if (!store) return;
             const token = localStorage.getItem(STORAGE_KEY_TOKEN);
             if (!token || !window.supabase) return;
-            store.cargando = true;
+            const cache = leerCache(CACHE_TIENDA);
+            if (Array.isArray(cache) && cache.length) {
+                store.premios = cache;
+                store.cargando = false;
+            } else {
+                store.cargando = true;
+            }
             store.error = '';
             try {
                  const { data, error } = await supabase.rpc('tienda_obtener_catalogo', { p_token: token });
@@ -2600,6 +2645,7 @@ if (chatForm) {
                     return;
                 }
                 store.premios = data.premios || [];
+                guardarCache(CACHE_TIENDA, store.premios);
                 // Los canjes permiten marcar en el catálogo lo que ya se posee.
                 if (typeof cargarMisCanjes === 'function') cargarMisCanjes();
             } catch (e) {
