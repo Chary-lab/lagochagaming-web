@@ -67,8 +67,31 @@ if (!/navigator\.clipboard\s*\.\s*writeText/.test(mainJs)) {
     aviso('main.js: copiarEnlace no usa navigator.clipboard.writeText');
 }
 
+// Tailwind Play CDN bajo demanda: versión fija, preflight desactivado y respaldo.
+if (!/window\.tailwind\s*=\s*\{/.test(mainJs)) {
+    error('main.js: falta la configuración window.tailwind del CDN');
+}
+if (!/preflight\s*:\s*false/.test(mainJs)) {
+    error('main.js: Tailwind debe cargarse con corePlugins.preflight = false');
+}
+const cdnTailwind = mainJs.match(/cdn\.tailwindcss\.com\/([^'"\s]+)/);
+if (!cdnTailwind) {
+    error('main.js: falta la URL del CDN de Tailwind');
+} else if (!/^\d+\.\d+\.\d+$/.test(cdnTailwind[1])) {
+    error(`main.js: la URL de Tailwind debe fijar una versión exacta (ahora "${cdnTailwind[1]}")`);
+}
+if (/\bintegrity\s*=\s*['"]sha/.test(mainJs)) {
+    aviso('main.js: el CDN de Tailwind no envía CORS; integrity/crossorigin rompería la carga');
+}
+if (!/window\.GOCHA_TAILWIND/.test(mainJs) || !/window\.asegurarTailwind\s*=/.test(mainJs)) {
+    error('main.js: falta el interruptor o la espera acotada de Tailwind (respaldo sin CDN)');
+}
+
 // CSS
 const css = leer('style.css');
+if (!/\.gochi-toast-item/.test(css) || !/\.gochi-toast-stack/.test(css)) {
+    error('style.css: falta el respaldo visual del toast (.gochi-toast-stack/.gochi-toast-item)');
+}
 const abre = (css.match(/\{/g) || []).length;
 const cierra = (css.match(/\}/g) || []).length;
 if (abre !== cierra) error(`style.css: llaves desbalanceadas (${abre} vs ${cierra})`);

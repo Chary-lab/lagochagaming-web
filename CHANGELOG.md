@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.53.0] - 2026-11-04
+
+### Componentes interactivos con Tailwind bajo demanda
+
+- `main.js` inyecta Tailwind 3.4.17 (Play CDN) solo cuando la página está inactiva o al primer gesto del usuario. `corePlugins.preflight` va desactivado para no tocar los estilos de `style.css` y los colores apuntan a las variables del tema (claro, oscuro y OLED) sin duplicar paletas.
+- Los avisos pasan a una pila de toasts: hasta tres a la vez, se cierran solos o con la ✕, y los errores se marcan en rojo.
+- Los menús App y Login del navbar dejan `<details>` y usan el store `ui.menuNav`: un solo menú abierto, cierre por clic fuera o Escape y foco devuelto al botón.
+- Tooltips globales para los botones del navbar (tema y menú móvil) con un único nodo, sin tooltips nativos duplicados y solo con puntero fino (`hover: hover`), para que no se queden pegados al tocar en móvil.
+- El panel de administración se abre como hoja lateral de 720 px en escritorio y hoja inferior en móvil, con cabecera fija al hacer scroll y botón de cierre redondo.
+- El modal de confirmación también se cierra al pulsar el fondo.
+- Respaldo completo: si el CDN falla (AdBlock, sin red) o tarda más de 500 ms, todo se ve con `style.css`; `window.GOCHA_TAILWIND = false` desactiva Tailwind por completo.
+- `scripts/check.js` valida la versión fija del CDN, `preflight: false`, el interruptor y el respaldo visual del toast.
+
 ## [1.52.0] - 2026-11-04
 
 ### GochiWatch: unirse a la reproducción y audio local

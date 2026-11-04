@@ -18,6 +18,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - No añadir jQuery ni Bootstrap. El sitio usa CSS propio (`.visually-hidden`, `.nav-right`) y Alpine para la UI.
 - **Alpine primero:** toda UI interactiva (listas, tarjetas, modales, formularios, menús, toasts y estados) se implementa con Alpine (`x-data`/stores, `x-for`, `x-model`, `:hidden`, `x-trap`). El JS clásico queda para Supabase, RPC, Realtime, cálculo y APIs `window.*`; no se añaden renders con `innerHTML` ni listeners por elemento.
 - Las librerías externas se cargan por CDN con versión fijada (Supabase JS 2.118.0, Alpine 3.17.5, `@alpinejs/focus` 3.17.5 y hls.js 1.5.20 solo en `index.html`). No cambiar versiones a `latest`.
+- **Tailwind es opcional y bajo demanda.** `main.js` inyecta `https://cdn.tailwindcss.com/3.4.17` en idle (o al primer gesto) con `corePlugins.preflight = false`; nunca se escribe un `<script>` del CDN en los HTML. Los colores mapean a las variables de `style.css` (`base`, `surface`, `sutil`, `acento`, `linea`, `tinta`, `tenue`) y no se usan modificadores de opacidad (`bg-surface/50`) porque las variables son hex. Ningún componente puede depender del CDN para verse: `style.css` lleva el respaldo, `window.asegurarTailwind()` espera como máximo 500 ms y `window.GOCHA_TAILWIND = false` lo desactiva todo. El CDN no envía `Access-Control-Allow-Origin`, así que **no** se le pone `integrity` ni `crossorigin`: rompería la carga (la versión fija es la garantía).
 - Iconos: sprite local `img/icons.svg` (Font Awesome Free 6.6.0, CC BY 4.0). En el markup se usa `<svg class="icon"><use href="img/icons.svg#i-solid-x">`; no se carga Font Awesome por CDN.
 - Mantener el estilo actual: variables CSS, clases semánticas, modo claro/oscuro y diseño responsive.
 - El sitio debe funcionar sin build. No crear pasos de compilación obligatorios.
@@ -257,7 +258,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.51.3` (README al día; reportes de fotos, cola de GochiWatch, tokens, SRI, RLS de chat, bloqueo de PIN por cuenta, `pg_net` fuera de `public` y Edge Functions endurecidas; APK actual 1.13 / code 16).
+- Versión de esta release: `1.53.0` (Tailwind 3.4.17 bajo demanda con respaldo en `style.css`, toasts en pila, menús App/Login en Alpine, panel de administración como hoja lateral y tooltips globales; APK actual 1.13 / code 16).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

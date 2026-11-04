@@ -66,6 +66,127 @@ if (window.supabase) {
     window.supabase = null;
 }
 
+// === TAILWIND PLAY CDN BAJO DEMANDA ===
+// Sin build ni archivos nuevos: el CDN se inyecta en idle y solo cuando hace falta.
+// Ningún componente espera al CDN para mostrarse; si falla (AdBlock, offline) se
+// usa el render de style.css y el sitio sigue igual.
+// El CDN no envía cabecera Access-Control-Allow-Origin, así que `integrity`
+// (que obliga a modo CORS) rompería la carga. Se fija la versión exacta en vez de
+// usar SRI; el script va por HTTPS y no acepta parámetros de la URL.
+const TAILWIND_CDN = 'https://cdn.tailwindcss.com/3.4.17';
+
+window.GOCHA_TAILWIND = window.GOCHA_TAILWIND !== false;
+window.tailwindListo = false;
+
+// Los colores apuntan a las variables de style.css: el tema claro/oscuro se
+// hereda sin dark: ni duplicar paletas. No usar modificadores de opacidad
+// (bg-surface/50) porque las variables son hex, no canales rgb.
+window.tailwind = {
+    config: {
+        corePlugins: { preflight: false },
+        theme: {
+            extend: {
+                colors: {
+                    base: 'var(--bg-color)',
+                    surface: 'var(--card-bg)',
+                    sutil: 'var(--card-bg-subtle)',
+                    acento: 'var(--accent-color)',
+                    linea: 'var(--border-color)',
+                    tinta: 'var(--text-main)',
+                    tenue: 'var(--text-muted)'
+                },
+                fontFamily: {
+                    body: 'var(--font-body)',
+                    display: 'var(--font-display)'
+                },
+                borderRadius: {
+                    DEFAULT: 'var(--r-sm)',
+                    md: 'var(--r-md)',
+                    lg: 'var(--r-lg)',
+                    xl: 'var(--r-xl)'
+                }
+            }
+        }
+    }
+};
+
+let _twPromesa = null;
+let _twScript = null;
+
+function sondaTailwind(limiteMs = 600) {
+    return new Promise((resolver) => {
+        if (window.tailwindListo) return resolver(true);
+        const inicio = Date.now();
+        const sonda = document.createElement('span');
+        sonda.className = 'tracking-widest';
+        sonda.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none';
+        (document.body || document.documentElement).appendChild(sonda);
+        const revisar = () => {
+            const espaciado = getComputedStyle(sonda).letterSpacing;
+            if (espaciado && espaciado !== 'normal') {
+                sonda.remove();
+                window.tailwindListo = true;
+                resolver(true);
+                return;
+            }
+            if (Date.now() - inicio > limiteMs) {
+                sonda.remove();
+                resolver(false);
+                return;
+            }
+            requestAnimationFrame(revisar);
+        };
+        revisar();
+    });
+}
+
+window.cargarTailwind = function cargarTailwind() {
+    if (_twPromesa) return _twPromesa;
+    if (!window.GOCHA_TAILWIND) return Promise.resolve(false);
+    if (window.tailwindListo) return Promise.resolve(true);
+
+    _twPromesa = new Promise((resolver) => {
+        const terminar = (ok) => {
+            window.tailwindListo = !!ok;
+            resolver(!!ok);
+        };
+        if (_twScript) return;
+        _twScript = document.createElement('script');
+        _twScript.src = TAILWIND_CDN;
+        _twScript.dataset.gochaTailwind = '1';
+        _twScript.onload = () => { sondaTailwind(600).then(terminar); };
+        _twScript.onerror = () => {
+            console.warn('Tailwind no disponible; se usa el CSS base.');
+            terminar(false);
+        };
+        document.head.appendChild(_twScript);
+    });
+    return _twPromesa;
+};
+
+// Espera acotada: si el CDN no está listo a tiempo, el componente se pinta igual.
+window.asegurarTailwind = function asegurarTailwind(limiteMs = 500) {
+    if (window.tailwindListo) return Promise.resolve(true);
+    if (!window.GOCHA_TAILWIND) return Promise.resolve(false);
+    window.cargarTailwind();
+    return sondaTailwind(limiteMs);
+};
+
+function programarTailwind() {
+    if (!window.GOCHA_TAILWIND) return;
+    const arrancar = () => window.cargarTailwind();
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(arrancar, { timeout: 2500 });
+    } else {
+        setTimeout(arrancar, 1200);
+    }
+    // Primer gesto: si el usuario interactúa antes del idle, se adelanta la carga.
+    const gesto = () => window.cargarTailwind();
+    document.addEventListener('pointerdown', gesto, { once: true, passive: true });
+    document.addEventListener('keydown', gesto, { once: true });
+}
+programarTailwind();
+
 // === HELPERS COMPARTIDOS ===
 
 // Única fuente de verdad del escapado de HTML para todo el sitio.
@@ -1108,12 +1229,15 @@ window.insertarNavbar = function insertarNavbar() {
     }).join('');
 
     const appMenu = `
-        <details class="nav-app" id="nav-app">
-            <summary class="nav-link nav-app-toggle" aria-label="Opciones de descarga de Gochita App">
+        <div class="nav-app" id="nav-app">
+            <button type="button" class="nav-link nav-app-toggle" aria-haspopup="true" aria-controls="nav-app-panel"
+                    x-bind:aria-expanded="$store.ui.menuNav === 'app' ? 'true' : 'false'"
+                    x-on:click="$store.ui.menuNav = $store.ui.menuNav === 'app' ? '' : 'app'"
+                    aria-label="Opciones de descarga de Gochita App">
                 <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
                 <span>App</span>
-            </summary>
-            <div class="nav-app-panel">
+            </button>
+            <div class="nav-app-panel" id="nav-app-panel" hidden :hidden="$store.ui.menuNav !== 'app'">
                 <p class="nav-app-titulo">Gochita App</p>
                 <a class="nav-app-opcion" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=1.13&o=web" rel="noopener" data-umami-event="descarga-apk">
                     <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
@@ -1127,15 +1251,18 @@ window.insertarNavbar = function insertarNavbar() {
                 </div>
                 <p class="nav-app-nota">Si Android pide permiso para instalar apps desconocidas, acéptalo: es el APK oficial.</p>
             </div>
-        </details>`;
+        </div>`;
 
     const loginMenu = `
-        <details class="nav-app nav-login" id="nav-login">
-            <summary class="nav-link nav-login-toggle" aria-label="Opciones de acceso">
+        <div class="nav-app nav-login" id="nav-login">
+            <button type="button" class="nav-link nav-app-toggle nav-login-toggle" aria-haspopup="true" aria-controls="nav-login-panel"
+                    x-bind:aria-expanded="$store.ui.menuNav === 'login' ? 'true' : 'false'"
+                    x-on:click="$store.ui.menuNav = $store.ui.menuNav === 'login' ? '' : 'login'"
+                    aria-label="Opciones de acceso">
                 <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg>
                 <span>Login</span>
-            </summary>
-            <div class="nav-app-panel nav-login-panel">
+            </button>
+            <div class="nav-app-panel nav-login-panel" id="nav-login-panel" hidden :hidden="$store.ui.menuNav !== 'login'">
                 <p class="nav-app-titulo">Tu cuenta</p>
                 <button type="button" class="nav-app-opcion nav-login-opcion" data-login-accion="login">
                     <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg>
@@ -1151,13 +1278,13 @@ window.insertarNavbar = function insertarNavbar() {
                 </button>
                 <p class="nav-app-nota">Con Kick se abre también el chat de la comunidad y el de Kick a la vez.</p>
             </div>
-        </details>`;
+        </div>`;
 
     nav.setAttribute('x-data', '{ }');
     nav.setAttribute('x-on:resize.window', 'if (window.innerWidth >= 1101) $store.ui.menuAbierto = false');
     nav.innerHTML = `
         <div class="logo navbar-brand">LAGOCHA<span>GAMING</span></div>
-        <button type="button" class="mobile-menu-toggle-btn navbar-toggler" aria-label="Abrir menú"
+        <button type="button" class="mobile-menu-toggle-btn navbar-toggler" aria-label="Abrir menú" data-tooltip="Menú"
                 x-bind:aria-expanded="$store.ui.menuAbierto"
                 x-bind:aria-label="$store.ui.menuAbierto ? 'Cerrar menú' : 'Abrir menú'"
                 x-on:click="$store.ui.menuAbierto = !$store.ui.menuAbierto"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg></button>
@@ -1170,7 +1297,7 @@ window.insertarNavbar = function insertarNavbar() {
                 <span class="nav-live-dot" aria-hidden="true"></span>EN VIVO
             </span>
             ${loginMenu}
-            <button type="button" id="btn-toggle-tema" class="btn-tema-nav" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
+            <button type="button" id="btn-toggle-tema" class="btn-tema-nav" data-tooltip="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
             <button type="button" id="nav-puntos-dia" class="nav-puntos-dia" hidden
                     title="Puntos que llevas hoy" aria-label="Puntos de hoy">
                 <span class="nav-puntos-ring" aria-hidden="true"></span>
@@ -1183,27 +1310,25 @@ window.insertarNavbar = function insertarNavbar() {
     nav.dataset.montado = '1';
 
     // Cierre compartido de los menús plegables del navbar (App y Login).
-    const menusPlegables = nav.querySelectorAll('details.nav-app');
-    if (menusPlegables.length) {
-        document.addEventListener('click', (evento) => {
-            menusPlegables.forEach((detalle) => {
-                if (detalle.open && !detalle.contains(evento.target)) detalle.removeAttribute('open');
-            });
-        });
-        document.addEventListener('keydown', (evento) => {
-            if (evento.key !== 'Escape') return;
-            menusPlegables.forEach((detalle) => {
-                if (!detalle.open) return;
-                detalle.removeAttribute('open');
-                detalle.querySelector('summary')?.focus();
-            });
-        });
-        menusPlegables.forEach((detalle) => {
-            detalle.addEventListener('click', (evento) => {
-                if (evento.target.closest('a, button[data-login-accion]')) detalle.removeAttribute('open');
-            });
-        });
-    }
+    // El estado vive en ui.menuNav: un solo menú abierto a la vez.
+    document.addEventListener('click', (evento) => {
+        const ui = window.Alpine?.store('ui');
+        if (!ui || !ui.menuNav) return;
+        const contenedor = document.getElementById(ui.menuNav === 'login' ? 'nav-login' : 'nav-app');
+        if (contenedor && contenedor.contains(evento.target)) {
+            if (evento.target.closest('a, button[data-login-accion]')) ui.menuNav = '';
+            return;
+        }
+        ui.menuNav = '';
+    });
+    document.addEventListener('keydown', (evento) => {
+        if (evento.key !== 'Escape') return;
+        const ui = window.Alpine?.store('ui');
+        if (!ui || !ui.menuNav) return;
+        const boton = document.querySelector('#' + (ui.menuNav === 'login' ? 'nav-login' : 'nav-app') + ' .nav-app-toggle');
+        ui.menuNav = '';
+        boton?.focus();
+    });
 };
 
 // === Menú de acceso del navbar: única entrada de login ===
@@ -1224,8 +1349,7 @@ async function conectarKickNavbar() {
 }
 
 window.abrirLoginMenu = function abrirLoginMenu(accion) {
-    const menu = document.getElementById('nav-login');
-    if (menu) menu.removeAttribute('open');
+    window.cerrarMenusNavbar?.();
     if (accion === 'kick') {
         conectarKickNavbar();
         return;
@@ -1259,12 +1383,21 @@ window.insertarComponentesUIGlobales = function insertarComponentesUIGlobales() 
     if (!document.getElementById('gochi-toast')) {
         const toast = document.createElement('div');
         toast.id = 'gochi-toast';
-        toast.className = 'gochi-toast-center';
+        // Las utilidades de Tailwind afinan posición/tipografía; la base vive en
+        // style.css para que el aviso se vea igual si el CDN no carga.
+        toast.className = 'gochi-toast-stack fixed z-[100001] bottom-4 left-1/2 -translate-x-1/2 flex max-w-[92vw] flex-col items-center gap-2 sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0 sm:items-end';
         toast.setAttribute('role', 'status');
         toast.setAttribute('aria-live', 'polite');
         toast.setAttribute('x-data', '{ }');
-        toast.setAttribute('x-bind:class', "{ show: $store.toast.visible, error: $store.toast.esError }");
-        toast.setAttribute('x-text', '$store.toast.mensaje');
+        toast.innerHTML = `
+            <template x-for="t in $store.toast.cola" :key="t.id">
+                <div class="gochi-toast-item" :class="{ 'gochi-toast-item--error': t.esError }">
+                    <span class="gochi-toast-punto" aria-hidden="true"></span>
+                    <span x-text="t.mensaje"></span>
+                    <button type="button" class="gochi-toast-cerrar" aria-label="Cerrar aviso" x-on:click="$store.toast.quitar(t.id)">&times;</button>
+                </div>
+            </template>
+        `;
         document.body.appendChild(toast);
     }
     if (!document.getElementById('gochi-confirm-modal')) {
@@ -1295,6 +1428,52 @@ window.insertarComponentesUIGlobales = function insertarComponentesUIGlobales() 
     }
     insertarPanelAdminGlobal();
 };
+
+// === TOOLTIP GLOBAL (delegado, un solo nodo) ===
+(function iniciarTooltips() {
+    // En pantallas táctiles el tooltip se queda pegado tras el toque y tapa la UI.
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    let burbuja = null;
+    const crear = () => {
+        if (burbuja) return burbuja;
+        burbuja = document.createElement('div');
+        burbuja.className = 'gochi-tooltip';
+        burbuja.setAttribute('role', 'tooltip');
+        burbuja.hidden = true;
+        document.body.appendChild(burbuja);
+        return burbuja;
+    };
+    const colocar = (el) => {
+        const texto = el.dataset.tooltip;
+        if (!texto) return;
+        const b = crear();
+        b.textContent = texto;
+        b.hidden = false;
+        const r = el.getBoundingClientRect();
+        const br = b.getBoundingClientRect();
+        const x = Math.max(8, Math.min(r.left + r.width / 2 - br.width / 2, window.innerWidth - br.width - 8));
+        const y = Math.max(8, r.top - br.height - 8);
+        b.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+    };
+    const ocultar = () => { if (burbuja) burbuja.hidden = true; };
+    const conTooltip = (evento) => evento.target.closest?.('[data-tooltip]');
+    document.addEventListener('pointerover', (evento) => {
+        const el = conTooltip(evento);
+        if (el) colocar(el);
+    });
+    document.addEventListener('pointerout', (evento) => {
+        if (conTooltip(evento)) ocultar();
+    });
+    document.addEventListener('focusin', (evento) => {
+        const el = conTooltip(evento);
+        if (el) colocar(el);
+    });
+    document.addEventListener('focusout', (evento) => {
+        if (conTooltip(evento)) ocultar();
+    });
+    window.addEventListener('scroll', ocultar, { passive: true });
+    window.addEventListener('resize', ocultar);
+})();
 
 let _toastsPendientes = [];
 window.mostrarToast = function mostrarToast(mensaje, esError = false) {
@@ -1460,6 +1639,7 @@ window.mostrarConfirmacionModal = function mostrarConfirmacionModal({
     modal.style.display = 'flex';
     btnConf.onclick = () => cerrar(true);
     btnCanc.onclick = () => cerrar(false);
+    modal.onclick = (evento) => { if (evento.target === modal) cerrar(false); };
     window.activarTrampaFoco(modal, btnCanc);
 };
 
@@ -1516,22 +1696,24 @@ document.addEventListener('keydown', (evento) => {
 
 // Estado global de UI (menú móvil) para Alpine.
 document.addEventListener('alpine:init', () => {
-    window.Alpine.store('ui', { menuAbierto: false });
+    window.Alpine.store('ui', { menuAbierto: false, menuNav: '' });
     window.Alpine.store('toast', {
-        visible: false,
-        mensaje: '',
-        esError: false,
-        _timer: null,
+        cola: [],
+        _seq: 0,
+        get visible() { return this.cola.length > 0; },
+        get mensaje() { return this.cola.length ? this.cola[this.cola.length - 1].mensaje : ''; },
+        get esError() { return this.cola.length ? this.cola[this.cola.length - 1].esError : false; },
         mostrar(mensaje, esError = false) {
-            clearTimeout(this._timer);
-            this.mensaje = String(mensaje ?? '');
-            this.esError = !!esError;
-            this.visible = true;
-            this._timer = setTimeout(() => { this.visible = false; }, 3000);
+            const item = { id: ++this._seq, mensaje: String(mensaje ?? ''), esError: !!esError };
+            this.cola.push(item);
+            while (this.cola.length > 3) this.cola.shift();
+            setTimeout(() => this.quitar(item.id), 3200);
+        },
+        quitar(id) {
+            this.cola = this.cola.filter((item) => item.id !== id);
         },
         ocultar() {
-            clearTimeout(this._timer);
-            this.visible = false;
+            this.cola = [];
         }
     });
     if (_toastsPendientes.length) {
@@ -1540,6 +1722,11 @@ document.addEventListener('alpine:init', () => {
         pendientes.forEach(([mensaje, esError]) => window.mostrarToast(mensaje, esError));
     }
 });
+
+window.cerrarMenusNavbar = function cerrarMenusNavbar() {
+    const ui = window.Alpine?.store('ui');
+    if (ui) ui.menuNav = '';
+};
 
 window.cerrarMenuMovil = function cerrarMenuMovil(devolverFoco = false) {
     const btn = document.querySelector('.mobile-menu-toggle-btn');
