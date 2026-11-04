@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.47.13] - 2026-11-04
+
+### Ajustes compactos, sin scroll
+
+- El panel de Ajustes cabe de una vez: sin barra de scroll ni huecos muertos.
+- Avatar y sus opciones van en la misma fila, con vista previa pequeña.
+- Identidad y Bio comparten fila; Redes en 2×2; Kick en una línea.
+- Ancho del panel a 420px y botones abajo, ya sin quedarse pegados tapando campos.
+
 ## [1.47.12] - 2026-11-04
 
 ### Mi perfil: panel real, se abre y se cierra con clic

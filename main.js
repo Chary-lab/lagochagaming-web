@@ -2961,7 +2961,7 @@ document.addEventListener('DOMContentLoaded', () => {
             Completa tu perfil: elige tu género y tu avatar.
           </p>
 
-          <section class="mp-ajustes-bloque">
+          <section class="mp-ajustes-bloque mp-ajustes-bloque--avatar">
             <div class="mp-ajustes-cabecera">
               <span class="mp-ajustes-preview">
                 <img class="mp-avatar" x-bind:src="$store.perfil.previewAvatar" x-bind:hidden="!$store.perfil.previewAvatar"
@@ -2998,7 +2998,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </select>
               </label>
               <label class="mp-field">Bio <span class="mp-contador" x-text="$store.perfil.bio.length + '/160'"></span>
-                <textarea maxlength="160" rows="3" x-model="$store.perfil.bio" placeholder="Cuéntanos algo sobre ti..."></textarea>
+                <textarea maxlength="160" rows="2" x-model="$store.perfil.bio" placeholder="Cuéntanos algo sobre ti..."></textarea>
               </label>
             </div>
           </section>
