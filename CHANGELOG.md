@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.6] - 2026-11-04
+
+### Enlaces del 404
+
+- `404.html` enlazaba `/galeria`, `/sorteo`, `/cine` y `/comunidad` sin extensión. GitHub Pages no resuelve URLs limpias, así que esos enlaces volvían a caer en el 404. Ahora apuntan a `*.html`.
+- El prefetch de 1.61.5 pedía esos enlaces en segundo plano y llenaba la red de 404; queda corregido en origen.
+
 ## [1.61.5] - 2026-11-04
 
 ### Carga sin saltos y menos CSS muerto

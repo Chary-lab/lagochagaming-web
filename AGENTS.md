@@ -269,7 +269,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.61.4` (tooltip global: espera 220 ms al pasar el cursor, se recoloca con `ResizeObserver` cuando el botón o su tarjeta cambian de tamaño y ya no se dispara con el foco, así que el globo de `Cerrar` no aparece al abrir el perfil ni queda descolocado; sin cambios de API ni de esquema).
+- Versión de esta release: `1.61.6` (los enlaces de `404.html` apuntan ya a `galeria.html`, `sorteo.html`, `cine.html` y `comunidad.html`: GitHub Pages no resuelve URLs limpias y el prefetch de 1.61.5 pedía esos enlaces rotos; sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
