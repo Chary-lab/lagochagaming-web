@@ -285,7 +285,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.71.2` (`.ig-feed` es un grid de tres columnas: la tarjeta de pausa caía en la primera celda; ahora `.ig-feed > .ahorro-pausa` usa `grid-column: 1 / -1` + `justify-self: center` y queda centrada. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.72.0` (el store `ajustes` emite `gochi:ajustes` en cada `guardar()`; la home escucha y aplica el ahorro de datos sin recargar, vaciando los feeds al activarlo y cargándolos al desactivarlo. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

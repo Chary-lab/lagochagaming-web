@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.71.2">
+    <link rel="stylesheet" href="style.css?v=1.72.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -457,7 +457,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.71.2" defer></script>
+    <script src="main.js?v=1.72.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>
@@ -1074,43 +1074,61 @@ document.addEventListener('DOMContentLoaded', async () => {
         const ajustesLocales = (() => {
             try { return JSON.parse(localStorage.getItem('gochi_ajustes') || '{}'); } catch (e) { return {}; }
         })();
+        let feedsCargados = false;
         const cargarFeedsSociales = () => {
+            if (feedsCargados) return;
+            feedsCargados = true;
             cargarFeedInstagram();
             cargarFeedTikTok();
             cargarClipsKick();
         };
-        if (ajustesLocales.ahorro === true) {
-            const cargarTodo = () => {
-                document.querySelectorAll('.ahorro-pausa').forEach((caja) => caja.remove());
+        const quitarPausas = () => {
+            document.querySelectorAll('.ahorro-pausa').forEach((caja) => caja.remove());
+        };
+        const pausar = (contenedor, detalle) => {
+            if (!contenedor) return;
+            const esqueleto = contenedor.querySelector('.ig-feed-cargando');
+            if (esqueleto) esqueleto.remove();
+            const caja = document.createElement('div');
+            caja.className = 'ahorro-pausa';
+            const titulo = document.createElement('strong');
+            titulo.className = 'ahorro-pausa-titulo';
+            titulo.textContent = 'Contenido pausado';
+            const texto = document.createElement('p');
+            texto.className = 'ahorro-pausa-detalle';
+            texto.textContent = detalle;
+            const boton = document.createElement('button');
+            boton.type = 'button';
+            boton.className = 'btn-primary ahorro-pausa-btn';
+            boton.textContent = 'Cargar contenido';
+            boton.addEventListener('click', () => {
+                quitarPausas();
                 cargarFeedsSociales();
-            };
-            const pausar = (contenedor, detalle) => {
-                if (!contenedor) return;
-                const esqueleto = contenedor.querySelector('.ig-feed-cargando');
-                if (esqueleto) esqueleto.remove();
-                const caja = document.createElement('div');
-                caja.className = 'ahorro-pausa';
-                const titulo = document.createElement('strong');
-                titulo.className = 'ahorro-pausa-titulo';
-                titulo.textContent = 'Contenido pausado';
-                const texto = document.createElement('p');
-                texto.className = 'ahorro-pausa-detalle';
-                texto.textContent = detalle;
-                const boton = document.createElement('button');
-                boton.type = 'button';
-                boton.className = 'btn-primary ahorro-pausa-btn';
-                boton.textContent = 'Cargar contenido';
-                boton.addEventListener('click', cargarTodo, { once: true });
-                caja.append(titulo, texto, boton);
-                contenedor.appendChild(caja);
-            };
-            pausar(document.getElementById('ig-feed'), 'Las publicaciones de Instagram se cargan solo si las pides.');
-            pausar(document.getElementById('tiktok-feed'), 'Los vídeos de TikTok se cargan solo si los pides.');
-            const clips = document.getElementById('kick-clips');
-            if (clips) pausar(clips, 'Los clips de Kick se cargan solo si los pides.');
-        } else {
-            cargarFeedsSociales();
-        }
+            });
+            caja.append(titulo, texto, boton);
+            contenedor.appendChild(caja);
+        };
+        const aplicarAhorro = (activo) => {
+            quitarPausas();
+            if (activo) {
+                if (feedsCargados) {
+                    ['ig-feed', 'tiktok-feed', 'kick-clips'].forEach((id) => {
+                        const contenedor = document.getElementById(id);
+                        if (contenedor) contenedor.replaceChildren();
+                    });
+                    feedsCargados = false;
+                }
+                pausar(document.getElementById('ig-feed'), 'Las publicaciones de Instagram se cargan solo si las pides.');
+                pausar(document.getElementById('tiktok-feed'), 'Los vídeos de TikTok se cargan solo si los pides.');
+                pausar(document.getElementById('kick-clips'), 'Los clips de Kick se cargan solo si los pides.');
+            } else {
+                cargarFeedsSociales();
+            }
+        };
+        aplicarAhorro(ajustesLocales.ahorro === true);
+        window.addEventListener('gochi:ajustes', (evento) => {
+            aplicarAhorro(!!(evento.detail && evento.detail.ahorro));
+        });
 
         // Lightbox de clips y feeds sociales.
         document.addEventListener('click', (e) => {

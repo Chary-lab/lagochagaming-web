@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.72.0] - 2026-11-05
+
+### El ahorro de datos reacciona en vivo
+
+- El store `ajustes` emite `gochi:ajustes` en cada `guardar()`, con los datos nuevos en `detail`.
+- La home escucha ese evento y aplica el cambio sin recargar: al activar el ahorro vacía `#ig-feed`, `#tiktok-feed` y `#kick-clips`, quita lo cargado y pinta las tres tarjetas de pausa; al desactivarlo quita las tarjetas y carga los feeds (con un flag `feedsCargados` para no repetir peticiones).
+- El botón “Cargar contenido” de cada tarjeta reanuda los tres feeds en el momento.
+- Verificado en navegador sin recargar: `antes=0 | tras activar=3 | tras desactivar=0`.
+- Sin cambios de API ni de esquema.
+
 ## [1.71.2] - 2026-11-05
 
 ### Instagram y TikTok también centrados

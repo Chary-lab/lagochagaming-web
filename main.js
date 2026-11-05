@@ -4182,6 +4182,9 @@ document.addEventListener('DOMContentLoaded', () => {
       guardar() {
         almacen.guardar('gochi_ajustes', this.datos);
         this.aplicar();
+        try {
+          window.dispatchEvent(new CustomEvent('gochi:ajustes', { detail: Object.assign({}, this.datos) }));
+        } catch (e) { /* sin CustomEvent */ }
       },
       set(clave, valor) {
         this.datos[clave] = valor;
