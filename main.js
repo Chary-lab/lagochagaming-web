@@ -4261,3 +4261,143 @@ document.addEventListener('DOMContentLoaded', () => {
     window.Alpine?.store('perfil')?.abrirUsuario(apodo, opciones);
   };
 })();
+
+/* === Paleta de comandos (Ctrl/Cmd + K) ===
+   Navegación rápida y acciones globales, sin dependencias. */
+(function paletaComandos() {
+    const PAGINAS = [
+        { titulo: 'Inicio', detalle: 'Página principal', ir: './' },
+        { titulo: 'Comunidad', detalle: 'Chat, ranking y tienda', ir: 'comunidad.html' },
+        { titulo: 'Galería', detalle: 'Fotos de la comunidad', ir: 'galeria.html' },
+        { titulo: 'Sorteo', detalle: 'Tómbola y ganadores', ir: 'sorteo.html' },
+        { titulo: 'GochiWatch', detalle: 'Cine sincronizado', ir: 'cine.html' }
+    ];
+    const ACCIONES = [
+        {
+            titulo: 'Cambiar tema',
+            detalle: 'Oscuro, OLED o claro',
+            accion: () => document.getElementById('btn-toggle-tema')?.click()
+        }
+    ];
+    const TODOS = PAGINAS.concat(ACCIONES);
+    let caja = null;
+    let campo = null;
+    let lista = null;
+    let visibles = TODOS.slice();
+    let seleccion = 0;
+    let focoPrevio = null;
+
+    function normaliza(texto) {
+        return String(texto || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function pintar() {
+        lista.replaceChildren();
+        visibles.forEach((item, indice) => {
+            const fila = document.createElement('button');
+            fila.type = 'button';
+            fila.className = 'gochi-paleta-item';
+            fila.setAttribute('role', 'option');
+            fila.setAttribute('aria-selected', String(indice === seleccion));
+            const titulo = document.createElement('span');
+            titulo.className = 'gochi-paleta-titulo';
+            titulo.textContent = item.titulo;
+            const detalle = document.createElement('span');
+            detalle.className = 'gochi-paleta-detalle';
+            detalle.textContent = item.detalle;
+            fila.append(titulo, detalle);
+            fila.addEventListener('click', () => ejecutar(item));
+            lista.appendChild(fila);
+        });
+        if (!visibles.length) {
+            const vacio = document.createElement('p');
+            vacio.className = 'gochi-paleta-vacio';
+            vacio.textContent = 'Sin resultados.';
+            lista.appendChild(vacio);
+        }
+    }
+
+    function filtrar() {
+        const q = normaliza(campo.value);
+        visibles = q
+            ? TODOS.filter((i) => normaliza(i.titulo).includes(q) || normaliza(i.detalle).includes(q))
+            : TODOS.slice();
+        seleccion = 0;
+        pintar();
+    }
+
+    function mover(delta) {
+        if (!visibles.length) return;
+        seleccion = (seleccion + delta + visibles.length) % visibles.length;
+        pintar();
+        lista.children[seleccion]?.scrollIntoView({ block: 'nearest' });
+    }
+
+    function ejecutar(item) {
+        if (!item) return;
+        cerrar();
+        if (item.ir) window.location.href = item.ir;
+        else if (item.accion) item.accion();
+    }
+
+    function abrir() {
+        if (!caja) crear();
+        focoPrevio = document.activeElement;
+        caja.hidden = false;
+        campo.value = '';
+        filtrar();
+        campo.focus();
+    }
+
+    function cerrar() {
+        if (!caja) return;
+        caja.hidden = true;
+        if (focoPrevio && typeof focoPrevio.focus === 'function') focoPrevio.focus();
+    }
+
+    function crear() {
+        caja = document.createElement('div');
+        caja.className = 'gochi-paleta';
+        caja.hidden = true;
+        caja.setAttribute('role', 'dialog');
+        caja.setAttribute('aria-modal', 'true');
+        caja.setAttribute('aria-label', 'Paleta de comandos');
+
+        const fondo = document.createElement('div');
+        fondo.className = 'gochi-paleta-fondo';
+        fondo.addEventListener('click', cerrar);
+
+        const panel = document.createElement('div');
+        panel.className = 'gochi-paleta-caja';
+
+        campo = document.createElement('input');
+        campo.type = 'text';
+        campo.className = 'gochi-paleta-input';
+        campo.placeholder = 'Buscar página o acción...';
+        campo.setAttribute('aria-label', 'Buscar en la paleta de comandos');
+        campo.autocomplete = 'off';
+        campo.addEventListener('input', filtrar);
+        campo.addEventListener('keydown', (evento) => {
+            if (evento.key === 'ArrowDown') { evento.preventDefault(); mover(1); }
+            else if (evento.key === 'ArrowUp') { evento.preventDefault(); mover(-1); }
+            else if (evento.key === 'Enter') { evento.preventDefault(); ejecutar(visibles[seleccion]); }
+            else if (evento.key === 'Escape') { evento.preventDefault(); cerrar(); }
+        });
+
+        lista = document.createElement('div');
+        lista.className = 'gochi-paleta-lista';
+        lista.setAttribute('role', 'listbox');
+
+        panel.append(campo, lista);
+        caja.append(fondo, panel);
+        document.body.appendChild(caja);
+    }
+
+    document.addEventListener('keydown', (evento) => {
+        const esAtajo = (evento.ctrlKey || evento.metaKey) && (evento.key === 'k' || evento.key === 'K');
+        if (!esAtajo) return;
+        evento.preventDefault();
+        if (caja && !caja.hidden) cerrar();
+        else abrir();
+    });
+})();

@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.65.0] - 2026-11-05
+
+### Paleta de comandos y menciones en el chat
+
+- **Paleta de comandos** (`Ctrl`/`Cmd` + `K`): overlay con búsqueda, navegación por páginas y acción de cambiar tema. Filtra sin acentos, mueve con flechas, ejecuta con `Enter`, cierra con `Escape` o clic fuera y devuelve el foco al elemento anterior. Se construye en `main.js` sin dependencias y se pinta con `.gochi-paleta*` en `style.css`.
+- **Menciones `@` en el chat de comunidad**: al escribir `@` aparece una lista con los apodos que empiezan por lo tecleado, hasta 8. Flechas para moverse, `Enter`/`Tab` para insertar en el cursor, `Escape` para cerrar. La lista se pide una vez a `usuarios_comunidad` (solo columna `apodo`) y se cachea en memoria. Marcado nuevo: `#chat-menciones` + `.chat-menciones`.
+- **Subida con arrastrar y soltar**: ya existía en galería (`arrastrando`, `soltar($event)` y resalte `dragover`), así que no se duplicó.
+- Sin cambios de API ni de esquema.
+
 ## [1.64.0] - 2026-11-05
 
 ### Fuentes propias: Space Grotesk + Inter

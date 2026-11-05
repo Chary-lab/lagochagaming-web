@@ -271,7 +271,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.64.0` (fuentes autoalojadas en `fonts/`: Inter y Space Grotesk variables, subconjunto latin, `@font-face` en `style.css` y `preload` en las páginas; fuera el CDN de Google. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.65.0` (paleta de comandos con `Ctrl`/`Cmd` + `K` en `main.js` y menciones `@` en el chat de comunidad; la subida con arrastrar y soltar ya existía en galería. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

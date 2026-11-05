@@ -7203,4 +7203,125 @@ body.light-mode .gochi-alerta { color: #1f2937; }
 .gochi-campo:has(input:user-invalid, textarea:user-invalid) textarea {
     border-color: #ff6b6b;
 }
+
+/* --- Paleta de comandos (Ctrl/Cmd + K) --- */
+.gochi-paleta {
+    position: fixed;
+    inset: 0;
+    z-index: 100070;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 12vh 16px 16px;
+}
+
+.gochi-paleta[hidden] { display: none; }
+
+.gochi-paleta-fondo {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 7, 18, 0.72);
+    backdrop-filter: blur(3px);
+}
+
+.gochi-paleta-caja {
+    position: relative;
+    width: min(560px, 100%);
+    max-height: min(60vh, 520px);
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-lg);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+}
+
+.gochi-paleta-input {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg-subtle);
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.95rem;
+    padding: 14px 16px;
+    outline: none;
+}
+
+.gochi-paleta-input:focus-visible { outline: 2px solid var(--accent-color); outline-offset: -2px; }
+
+.gochi-paleta-lista {
+    overflow-y: auto;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.gochi-paleta-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.gochi-paleta-item[aria-selected="true"] {
+    background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+    border-color: var(--border-color);
+}
+
+.gochi-paleta-titulo { font-size: 0.9rem; font-weight: 700; }
+.gochi-paleta-detalle { font-size: 0.76rem; color: var(--text-muted); }
+.gochi-paleta-vacio { margin: 0; padding: 12px; font-size: 0.85rem; color: var(--text-muted); text-align: center; }
+
+/* --- Menciones @ en el chat de comunidad --- */
+.chat-campo-wrap { position: relative; }
+
+.chat-menciones {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 45;
+    max-height: 190px;
+    overflow-y: auto;
+    padding: 4px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-md);
+    background: var(--card-bg);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+}
+
+.chat-menciones[hidden] { display: none; }
+
+.chat-mencion-item {
+    display: block;
+    width: 100%;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.chat-mencion-item[aria-selected="true"] {
+    background: color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gochi-paleta-fondo { backdrop-filter: none; }
+}
 }

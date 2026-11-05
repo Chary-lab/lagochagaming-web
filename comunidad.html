@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.64.0">
+    <link rel="stylesheet" href="style.css?v=1.65.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -219,6 +219,7 @@ try{var t=localStorage.getItem('gochi_tema');if(t==='light')document.body.classL
                 <input type="text" id="chat-autor" aria-label="Tu apodo" placeholder="Tu apodo" maxlength="30" required autocomplete="username">
                 <div class="chat-campo-wrap">
                     <textarea id="chat-mensaje" rows="1" maxlength="300" placeholder="Escribe un mensaje..." aria-label="Mensaje del chat" required></textarea>
+                    <div id="chat-menciones" class="chat-menciones" role="listbox" aria-label="Sugerencias de apodo" hidden></div>
                     <button type="button" class="chat-emote-btn" title="Emotes de 7TV" aria-label="Abrir emotes de 7TV"
                             aria-controls="chat-emote-panel" :aria-expanded="$store.emotes7tv.abierto"
                             @click.stop="$store.emotes7tv.alternar()">
@@ -490,7 +491,7 @@ try{var t=localStorage.getItem('gochi_tema');if(t==='light')document.body.classL
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.64.0" defer></script>
+    <script src="main.js?v=1.65.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -2910,6 +2911,112 @@ if (chatForm) {
         });
         if (activo) activo.focus();
     };
+
+        /* === Menciones @ en el chat === */
+        (function mencionesChat() {
+            const campo = document.getElementById('chat-mensaje');
+            const panel = document.getElementById('chat-menciones');
+            if (!campo || !panel || !window.supabase) return;
+            let usuarios = null;
+            let cargando = false;
+            let items = [];
+            let indice = 0;
+            let inicio = -1;
+
+            async function cargar() {
+                if (usuarios || cargando) return usuarios || [];
+                cargando = true;
+                try {
+                    const { data } = await window.supabase
+                        .from('usuarios_comunidad')
+                        .select('apodo')
+                        .order('apodo')
+                        .limit(500);
+                    usuarios = (data || []).map((u) => u.apodo).filter(Boolean);
+                } catch (e) {
+                    usuarios = [];
+                }
+                cargando = false;
+                return usuarios;
+            }
+
+            function cerrar() {
+                panel.hidden = true;
+                panel.replaceChildren();
+                items = [];
+                indice = 0;
+                inicio = -1;
+            }
+
+            function pintar() {
+                panel.replaceChildren();
+                items.forEach((apodo, i) => {
+                    const boton = document.createElement('button');
+                    boton.type = 'button';
+                    boton.className = 'chat-mencion-item';
+                    boton.setAttribute('role', 'option');
+                    boton.setAttribute('aria-selected', String(i === indice));
+                    boton.textContent = '@' + apodo;
+                    boton.addEventListener('mousedown', (evento) => {
+                        evento.preventDefault();
+                        elegir(i);
+                    });
+                    panel.appendChild(boton);
+                });
+                panel.hidden = !items.length;
+            }
+
+            function elegir(i) {
+                const apodo = items[i];
+                if (!apodo || inicio < 0) return;
+                const texto = campo.value;
+                const antes = texto.slice(0, inicio);
+                const despues = texto.slice(campo.selectionStart);
+                const insertado = '@' + apodo + ' ';
+                campo.value = antes + insertado + despues;
+                const cursor = antes.length + insertado.length;
+                campo.focus();
+                campo.setSelectionRange(cursor, cursor);
+                cerrar();
+            }
+
+            async function revisar() {
+                const texto = campo.value.slice(0, campo.selectionStart);
+                const coincidencia = texto.match(/@([\wáéíóúüñÁÉÍÓÚÜÑ.-]*)$/);
+                if (!coincidencia) return cerrar();
+                inicio = campo.selectionStart - coincidencia[0].length;
+                const consulta = coincidencia[1].toLowerCase();
+                const lista = await cargar();
+                items = lista
+                    .filter((apodo) => apodo.toLowerCase().startsWith(consulta))
+                    .slice(0, 8);
+                indice = 0;
+                pintar();
+            }
+
+            campo.addEventListener('input', revisar);
+            campo.addEventListener('keydown', (evento) => {
+                if (panel.hidden) return;
+                if (evento.key === 'ArrowDown') {
+                    evento.preventDefault();
+                    indice = (indice + 1) % items.length;
+                    pintar();
+                } else if (evento.key === 'ArrowUp') {
+                    evento.preventDefault();
+                    indice = (indice - 1 + items.length) % items.length;
+                    pintar();
+                } else if (evento.key === 'Enter' || evento.key === 'Tab') {
+                    evento.preventDefault();
+                    elegir(indice);
+                } else if (evento.key === 'Escape') {
+                    evento.preventDefault();
+                    cerrar();
+                }
+            });
+            document.addEventListener('click', (evento) => {
+                if (!panel.contains(evento.target) && evento.target !== campo) cerrar();
+            });
+        })();
 </script>
     <!-- FOOTER -->
 </div>
