@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.71.1] - 2026-11-05
+
+### Las tarjetas de pausa, centradas
+
+- `.ahorro-pausa` pasa a `margin: 0 auto` con `width: min(100%, 420px)`, así que se centra en su columna en vez de quedar pegada a la izquierda.
+- Dentro del grid de clips, la tarjeta ocupa la fila completa (`grid-column: 1 / -1`) y se centra con `justify-self: center`.
+- Verificado en navegador: tarjeta en 430–850 dentro de un contenedor de 20–1260, `centrada=true`.
+- Sin cambios de API ni de esquema.
+
 ## [1.71.0] - 2026-11-05
 
 ### Ahorro de datos con un diseño propio

@@ -285,7 +285,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.71.0` (con ahorro de datos cada feed muestra una tarjeta `.ahorro-pausa` con su explicación y un único botón que reanuda Instagram, TikTok y clips; desaparecen los esqueletos mientras está pausado. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.71.1` (las tarjetas de pausa se centran: `.ahorro-pausa` con `margin: 0 auto` y `width: min(100%, 420px)`, y en el grid de clips ocupan la fila completa con `justify-self: center`. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
