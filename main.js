@@ -1035,6 +1035,34 @@ window.iniciarRealtimeMuroReacciones = function iniciarRealtimeMuroReacciones() 
     }
 };
 
+// Deja la interfaz coherente cuando la sesión desaparece: sin usuario en los
+// stores ni panel de perfil con datos viejos. No toca el almacenamiento.
+window.limpiarEstadoSesionUI = function limpiarEstadoSesionUI() {
+    try {
+        const perfil = window.Alpine?.store('perfil');
+        if (perfil) {
+            perfil.usuario = {};
+            perfil.estadisticas = {};
+            perfil.avatares = [];
+            perfil.bio = '';
+            perfil.links = { instagram: '', discord: '', tiktok: '', kick: '' };
+            if (typeof perfil.cerrar === 'function') perfil.cerrar();
+        }
+        const chat = window.Alpine?.store('chat');
+        if (chat) {
+            chat.mensajes = [];
+            chat.cargando = false;
+            chat.error = '';
+        }
+        const ranking = window.Alpine?.store('ranking');
+        if (ranking) {
+            ranking.usuarios = [];
+            ranking.cargando = false;
+        }
+    } catch (e) { /* sin Alpine montado */ }
+    window.actualizarUsuarioNavComunidad?.();
+};
+
 window.cerrarSesion = async function cerrarSesion() {
     const token = almacen.texto('comunidad_session_token');
     let teniaAuth = false;
@@ -1056,6 +1084,7 @@ window.cerrarSesion = async function cerrarSesion() {
     almacen.borrar('comunidad_session_usuario');
     window.avisarCambioSesion?.('logout');
     almacen.borrar('gocha_kick_sin_vincular');
+    window.limpiarEstadoSesionUI();
     window.limpiarCachesSesionComunidad();
 
     // El login general también cierra la sesión de Kick del chat y del OAuth.

@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.66.1] - 2026-11-05
+
+### Se acabó la sesión fantasma y el error mudo de Kick
+
+- `window.limpiarEstadoSesionUI()` vacía los stores `perfil`, `chat` y `ranking` y repinta el navbar cuando la sesión desaparece. Antes `cerrarSesion()` limpiaba el almacenamiento pero el panel derecho seguía mostrando el usuario viejo y la presencia mantenía la fila hasta 2 minutos. Verificado en navegador: tras llamarlo, `$store.perfil.usuario` queda `{}` y el chat sin mensajes.
+- `cerrarSesion()` llama a ese helper justo después de borrar las claves.
+- El fallo de Kick deja de ser un toast mudo: se registra el código real en consola y el mensaje distingue `sin_kick` («Tu sesión de Kick caducó…»), el mensaje del servidor y la excepción de red.
+- Sin cambios de API ni de esquema.
+
 ## [1.66.0] - 2026-11-05
 
 ### Un solo acceso a localStorage
