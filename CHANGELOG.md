@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.63.2] - 2026-11-05
+
+### Smoke test de las cinco páginas
+
+- Nuevo `scripts/smoke.js`: abre `index`, `comunidad`, `galeria`, `sorteo` y `cine` a 1690×900 y 390×844 y falla si hay error HTTP, falta `<title>` o navbar, falta el contenido principal, hay desborde horizontal (`scrollWidth > innerWidth`), los busters no coinciden con `VERSION` o aparece un error de consola propio del sitio. Ignora ruido de terceros (Supabase, Kick, 7TV, Umami, IVS).
+- Levanta su propio servidor estático en el puerto 8788 o reutiliza uno con `--url=`. Usa Chrome o Edge del sistema si el paquete de Playwright no trae su Chromium.
+- Resultado actual: `SMOKE OK: 5 páginas × 2 tamaños (v1.63.2)`.
+- Sin cambios de API ni de esquema.
+
 ## [1.63.1] - 2026-11-04
 
 ### El panel de perfil abre al instante

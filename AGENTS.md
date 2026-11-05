@@ -43,6 +43,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 | `img/icons.svg` | Sprite de iconos (Font Awesome Free 6.6.0, CC BY 4.0) |
 | `img/mcchary/` | Ilustraciones del creador: footer, 404 y estados vacíos |
 | `scripts/check.js` | Validaciones estáticas del repo (no se carga en Pages) |
+| `scripts/smoke.js` | Smoke test con navegador real: 5 páginas × 2 tamaños, consola, desborde y busters |
 | `app/LaGochaGaming.apk` | APK firmado que descarga la web (se reemplaza en cada release de la app) |
 | `app/version.json` | Manifiesto del actualizador de la app (`versionCode`, `versionName`, `sha256`, `size`, `notes`) |
 | `mobile/mobile.css`, `mobile/mobile.js` | Interfaz móvil que la app descarga encima del APK; única carpeta que la app consume en remoto |
@@ -274,7 +275,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 ## 9. Pruebas antes de commitear
 
-1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, CSP básica, `?v=` contra `VERSION` y directivas Alpine sin `x-data`/`x-store`). Si el bump de `VERSION` deja los busters viejos, `node scripts/check.js --fix` los reescribe.
+1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, CSP básica, `?v=` contra `VERSION` y directivas Alpine sin `x-data`/`x-store`). Si el bump de `VERSION` deja los busters viejos, `node scripts/check.js --fix` los reescribe. Con navegador real, `node scripts/smoke.js`: abre las 5 páginas a 1690×900 y 390×844 con Chrome/Edge y falla por error HTTP, consola sucia, desborde horizontal o busters viejos; levanta su propio servidor en el puerto 8788 o reutiliza uno con `--url=`.
 2. `node --check main.js`.
 3. Levantar servidor local: `python -m http.server 8765` y probar en `http://127.0.0.1:8765/`.
 4. Smoke test mínimo:
