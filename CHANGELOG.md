@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.62.0] - 2026-11-04
+
+### Precarga declarativa y sesión sincronizada entre pestañas
+
+- Los `<link rel="prefetch">` manuales se sustituyen por **Speculation Rules** (`<script type="speculationrules">`): `source: document`, `href_matches` a `/*.html` y `/`, y `eagerness: "conservative"`. El navegador precarga solo cuando el usuario va a navegar, así que en reposo no se descarga ninguna página.
+- `BroadcastChannel('gocha_sesion')` en `main.js`: al iniciar o cerrar sesión se avisa a las demás pestañas, que refrescan la caché de admin, la sesión vinculada y el navbar sin recargar. Se emite en login con PIN, login con Kick y logout.
+- `scripts/check.js`: valida el JSON de `speculationrules` en las 5 páginas, falla si vuelve un `rel="prefetch"` y ya no intenta parsear como JS los scripts cuyo `type` no sea JavaScript (JSON-LD, speculationrules).
+- Sin cambios de API ni de esquema.
+
 ## [1.61.20] - 2026-11-04
 
 ### FAQ a una columna, sin cajas encogidas

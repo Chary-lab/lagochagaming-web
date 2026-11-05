@@ -116,6 +116,28 @@ if (/Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|Ãƒ|Ã‚|ðŸ|â€/.test(css)) {
     error('style.css: texto con encoding roto (mojibake)');
 }
 
+// Precarga declarativa: Speculation Rules en vez de <link rel="prefetch">.
+for (const pagina of PAGES) {
+    if (!existe(pagina)) continue;
+    const html = leer(pagina);
+    if (/rel="prefetch"/.test(html)) {
+        error(`${pagina}: usa <link rel="prefetch">; la precarga va por Speculation Rules`);
+    }
+    const reglas = html.match(/<script type="speculationrules">([\s\S]*?)<\/script>/);
+    if (!reglas) {
+        error(`${pagina}: falta <script type="speculationrules">`);
+        continue;
+    }
+    try {
+        const datos = JSON.parse(reglas[1]);
+        if (!Array.isArray(datos.prefetch) && !Array.isArray(datos.prerender)) {
+            error(`${pagina}: speculationrules sin prefetch ni prerender`);
+        }
+    } catch (e) {
+        error(`${pagina}: el JSON de speculationrules no es válido`);
+    }
+}
+
 // Clases estáticas del HTML que no tienen regla en style.css: código muerto.
 // No se revisan las dinámicas (rango-*, kick-badge-*, lg-*, hooks de JS).
 const PREFIJOS_DINAMICOS = ['rango-', 'rango-texto-', 'kick-badge-', 'lg-'];
@@ -274,7 +296,10 @@ for (const pagina of PAGES) {
     for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
         const attrs = m[1];
         const codigo = m[2];
-        if (/\btype\s*=\s*["']application\/(ld\+json|json)["']/i.test(attrs)) continue;
+        // Solo se valida como JS lo que el navegador ejecuta como JS.
+        // JSON-LD, speculationrules y plantillas llevan otro type y se ignoran.
+        const tipo = attrs.match(/\btype\s*=\s*["']([^"']+)["']/i);
+        if (tipo && !/^(module|text\/javascript|application\/javascript)$/i.test(tipo[1].trim())) continue;
         if (/\bsrc\s*=/.test(attrs)) {
             const src = attrs.match(/\bsrc\s*=\s*"([^"]+)"/i);
             if (src) {

@@ -292,6 +292,21 @@ window.refrescarCacheAdmin = function refrescarCacheAdmin() {
     _adminCache = null;
 };
 
+// Cambios de sesión en otra pestaña: se propagan al instante, sin recargar.
+(function sincronizarPestanas() {
+    if (typeof BroadcastChannel !== 'function') return;
+    let canal = null;
+    try { canal = new BroadcastChannel('gocha_sesion'); } catch (e) { return; }
+    window.avisarCambioSesion = function avisarCambioSesion(motivo) {
+        try { canal.postMessage({ motivo: motivo || 'cambio', en: Date.now() }); } catch (e) { /* canal cerrado */ }
+    };
+    canal.onmessage = function () {
+        window.refrescarCacheAdmin();
+        window.sincronizarSesionComunidadVinculada?.();
+        window.actualizarUsuarioNavComunidad?.();
+    };
+})();
+
 // Confeti reutilizable. Acepta el id de un canvas existente o, si no se pasa,
 // crea uno efímero a pantalla completa que se elimina al terminar.
 window.lanzarConfetti = function lanzarConfetti(canvasId, opciones = {}) {
@@ -628,6 +643,7 @@ window.guardarSesionComunidad = function guardarSesionComunidad(datos) {
     localStorage.removeItem('gocha_kick_sin_vincular');
     localStorage.setItem('comunidad_session_token', datos.token);
     localStorage.setItem('comunidad_nickname', u.apodo || '');
+    window.avisarCambioSesion?.('login');
     if (u.id) localStorage.setItem('comunidad_user_id', String(u.id));
     localStorage.setItem('comunidad_session_usuario', JSON.stringify(u));
     window.actualizarUsuarioNavComunidad?.();
@@ -995,6 +1011,7 @@ window.cerrarSesion = async function cerrarSesion() {
     localStorage.removeItem('comunidad_session_token');
     localStorage.removeItem('comunidad_user_id');
     localStorage.removeItem('comunidad_session_usuario');
+    window.avisarCambioSesion?.('logout');
     localStorage.removeItem('gocha_kick_sin_vincular');
     window.limpiarCachesSesionComunidad();
 
@@ -1970,6 +1987,7 @@ window.sincronizarSesionComunidadVinculada = async function sincronizarSesionCom
         localStorage.setItem('comunidad_session_token', data.token);
         localStorage.setItem('comunidad_nickname', usuario.apodo);
         localStorage.setItem('comunidad_user_id', String(usuario.id));
+        window.avisarCambioSesion?.('login');
         localStorage.setItem('comunidad_session_usuario', JSON.stringify(usuario));
         window.actualizarUsuarioNavComunidad?.();
         window.latidoComunidad?.();
