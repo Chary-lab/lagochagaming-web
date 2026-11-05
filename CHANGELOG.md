@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.18] - 2026-11-04
+
+### Panel de emotes 7TV del chat de Kick
+
+- `.chat-kick-emote-panel` tiene panel propio: fondo `--card-bg` opaco, borde, sombra, `max-height` y scroll. Antes solo heredaba `.chat-emote-panel` y dejaba leer los mensajes del chat por detrás.
+- `.chat-kick-emote-grid` pasa a rejilla de 34 px con imágenes de 30 px; `.chat-kick-emote-estado` y `.chat-kick-emote-error` quedan centrados y con color propio.
+- La ✕ sigue dentro del panel y el panel se ancla sobre el campo de escritura (`.chat-kick-campo-wrap` ya era `position: relative`).
+- `scripts/check.js` revisa también las clases del markup que genera `main.js`, no solo el HTML estático. Retiradas 4 clases sin regla: `chat-emote-7tv`, `nav-user-pts`, `gochi-confirm-copy` y `mp-kick-quitar`.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.17] - 2026-11-04
 
 ### Guardia de clases muertas y revisión de la app

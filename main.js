@@ -188,7 +188,7 @@ window.escapeAttr = function escapeAttr(s) {
             const emote = mapa.get(parte);
             if (!emote) return window.escapeHtml(parte);
             const nombre = window.escapeAttr(emote.nombre);
-            return '<img class="chat-kick-emote chat-emote-7tv" src="' + window.escapeAttr(emote.url) +
+            return '<img class="chat-kick-emote" src="' + window.escapeAttr(emote.url) +
                 '" alt="' + nombre + '" title="' + nombre + '" loading="lazy" decoding="async" width="24" height="24">';
         }).join('');
     };
@@ -1054,7 +1054,7 @@ window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() 
                 <span id="nav-username" class="nav-user-name ${claseRango}">${apodoSeguro}</span>
                 <span class="nav-user-puntos" title="${window.escapeAttr(rangoInfo.nombre + ' · ' + puntosNav + ' pts')}">
                     <span class="nav-user-rango" aria-hidden="true">${rangoInfo.emoji}</span>
-                    <span class="nav-user-pts">${puntosNav}</span>
+                    <span>${puntosNav}</span>
                 </span>
                 <span class="nav-user-icono" ${icono ? '' : 'hidden'}>${window.escapeHtml(icono)}</span>
                 <svg class="icon nav-user-chevron" aria-hidden="true"><use href="img/icons.svg#i-solid-chevron-down"></use></svg>
@@ -1301,7 +1301,7 @@ window.insertarComponentesUIGlobales = function insertarComponentesUIGlobales() 
                 <div class="gochi-confirm-icon" aria-hidden="true">
                     <svg class="icon"><use href="img/icons.svg#i-solid-triangle-exclamation"></use></svg>
                 </div>
-                <div class="gochi-confirm-copy">
+                <div>
                     <span class="gochi-confirm-eyebrow" id="gochi-confirm-eyebrow">Confirmación</span>
                     <h3 id="gochi-confirm-titulo">Confirmar</h3>
                     <p id="gochi-confirm-mensaje"></p>
@@ -3847,7 +3847,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <button type="button" class="btn-primary btn-muted"
                       x-show="!$store.perfil.kickUsuario"
                       x-on:click="$store.perfil.vincularKick()">Vincular Kick</button>
-              <button type="button" class="btn-primary btn-muted mp-kick-quitar"
+              <button type="button" class="btn-primary btn-muted"
                       x-show="$store.perfil.kickUsuario"
                       x-on:click="$store.perfil.desvincularKick()">Desvincular</button>
             </div>

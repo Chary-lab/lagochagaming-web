@@ -137,6 +137,18 @@ for (const pagina of PAGES.concat('404.html')) {
     }
 }
 
+// El markup que main.js genera en cadenas también cuenta: un componente nuevo
+// con clases sin regla se colaba sin que este check lo viera.
+for (const m of leer('main.js').matchAll(/(?<![-\w:])class="([^"]*)"/g)) {
+    for (const t of m[1].split(/\s+/).filter(Boolean)) {
+        if (/[${}'`+<>]/.test(t)) continue; // interpolaciones y restos de plantilla
+        if (clasesCSS.has(t) || HOOKS_JS.has(t)) continue;
+        if (PREFIJOS_DINAMICOS.some((p) => t.startsWith(p))) continue;
+        if (!/^[a-zA-Z][\w-]*$/.test(t)) continue;
+        error(`main.js: la clase "${t}" no tiene regla en style.css (código muerto)`);
+    }
+}
+
 // Directivas Alpine (@click, :hidden, x-show…) sin un ancestro x-data:
 // Alpine las ignora en silencio y el control queda muerto.
 const ETIQUETAS_VACIAS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
