@@ -3895,6 +3895,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.addEventListener('alpine:init', () => {
+    let avataresCache = null;
     window.Alpine.store('perfil', {
       abierto: false,
       publico: false,
@@ -3909,6 +3910,7 @@ document.addEventListener('DOMContentLoaded', () => {
       estadisticas: {},
       avatares: [],
       avatarSeleccionado: undefined,
+      cargadoEn: 0,
       genero: 'no_definido',
       bio: '',
       links: { instagram: '', discord: '', tiktok: '', kick: '' },
@@ -4085,9 +4087,22 @@ document.addEventListener('DOMContentLoaded', () => {
         setNavExpanded(false);
       },
 
+      aplicarPerfil(u) {
+        if (!u || !u.apodo) return;
+        this.usuario = u;
+        this.genero = u.genero || 'no_definido';
+        this.bio = u.bio || '';
+        this.links = { instagram: '', discord: '', tiktok: '', kick: '' };
+        const lj = u.links_json;
+        if (lj && typeof lj === 'object') {
+          LINK_KEYS.forEach((clave) => {
+            if (typeof lj[clave] === 'string') this.links[clave] = lj[clave];
+          });
+        }
+      },
+
       async cargar() {
         const token = localStorage.getItem('comunidad_session_token');
-        this.cargando = true;
         this.error = '';
         if (!token || !window.supabase) {
           this.usuario = {};
@@ -4096,54 +4111,64 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
+        // Abrir con lo que ya hay en la sesión: el panel no espera a la red.
         let u = window.obtenerSesionUsuarioComunidad() || {};
+        this.aplicarPerfil(u);
+        if (avataresCache) this.avatares = avataresCache;
+        this.cargando = !u.apodo;
+
+        // Reabrir en menos de 30 s no vuelve a pedir nada.
+        if (this.cargadoEn && Date.now() - this.cargadoEn < 30000) {
+          this.cargando = false;
+          return;
+        }
+
         const userId = u.id || localStorage.getItem('comunidad_user_id');
         try {
-          if (userId) {
-            const { data, error } = await window.supabase
-              .from('usuarios_comunidad')
-              .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username')
-              .eq('id', userId)
-              .maybeSingle();
-            if (!error && data) {
-              u = Object.assign({}, u, {
-                id: Number(userId),
-                apodo: data.apodo ?? u.apodo,
-                puntos: data.puntos ?? u.puntos,
-                rango: data.rango ?? u.rango,
-                genero: data.genero ?? u.genero,
-                avatar_url: data.avatar_url ?? null,
-                bio: data.bio ?? null,
-                links_json: data.links_json ?? null,
-                icono: data.icono_equipado ?? '',
-                creado_en: data.creado_en ?? u.creado_en ?? null,
-                kick_user_id: data.kick_user_id ?? null,
-                kick_username: data.kick_username ?? null
-              });
-            }
-          }
+          const [fila, avatares] = await Promise.all([
+            userId
+              ? window.supabase
+                .from('usuarios_comunidad')
+                .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username')
+                .eq('id', userId)
+                .maybeSingle()
+              : Promise.resolve({ data: null, error: null }),
+            avataresCache
+              ? Promise.resolve({ data: null, error: null })
+              : window.supabase.rpc('obtener_avatares_disponibles', { p_token: token })
+          ]);
 
-          const { data: avData, error: avError } = await window.supabase.rpc('obtener_avatares_disponibles', { p_token: token });
-          if (!avError && avData && avData.ok) {
-            this.avatares = Array.isArray(avData.avatares) ? avData.avatares : [];
-            if (avData.genero) u.genero = avData.genero;
-          }
-
-          window.actualizarSesionUsuarioComunidad(u);
-          this.usuario = u;
-          this.genero = u.genero || 'no_definido';
-          this.bio = u.bio || '';
-          this.links = { instagram: '', discord: '', tiktok: '', kick: '' };
-          const lj = u.links_json;
-          if (lj && typeof lj === 'object') {
-            LINK_KEYS.forEach((clave) => {
-              if (typeof lj[clave] === 'string') this.links[clave] = lj[clave];
+          if (!fila.error && fila.data) {
+            const d = fila.data;
+            u = Object.assign({}, u, {
+              id: Number(userId),
+              apodo: d.apodo ?? u.apodo,
+              puntos: d.puntos ?? u.puntos,
+              rango: d.rango ?? u.rango,
+              genero: d.genero ?? u.genero,
+              avatar_url: d.avatar_url ?? null,
+              bio: d.bio ?? null,
+              links_json: d.links_json ?? null,
+              icono: d.icono_equipado ?? '',
+              creado_en: d.creado_en ?? u.creado_en ?? null,
+              kick_user_id: d.kick_user_id ?? null,
+              kick_username: d.kick_username ?? null
             });
           }
+
+          if (!avatares.error && avatares.data && avatares.data.ok) {
+            avataresCache = Array.isArray(avatares.data.avatares) ? avatares.data.avatares : [];
+            if (avatares.data.genero) u.genero = avatares.data.genero;
+          }
+          if (avataresCache) this.avatares = avataresCache;
+
+          window.actualizarSesionUsuarioComunidad(u);
+          this.aplicarPerfil(u);
           this.avatarSeleccionado = undefined;
+          this.cargadoEn = Date.now();
         } catch (e) {
           console.error('Error cargando perfil:', e);
-          this.error = 'No se pudo cargar el perfil.';
+          if (!u.apodo) this.error = 'No se pudo cargar el perfil.';
         } finally {
           this.cargando = false;
         }

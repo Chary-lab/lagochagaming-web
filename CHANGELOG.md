@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.63.1] - 2026-11-04
+
+### El panel de perfil abre al instante
+
+- `perfil.cargar()` pintaba esqueletos hasta que terminaban la consulta del usuario y la de avatares, por eso el panel tardaba segundos en mostrar algo. Ahora aplica primero la sesión guardada (`comunidad_session_usuario`): nombre, puntos, rango, avatar y bio aparecen en el mismo frame.
+- La consulta a `usuarios_comunidad` y la RPC `obtener_avatares_disponibles` van en paralelo con `Promise.all`, en vez de una detrás de otra.
+- La lista de avatares se cachea en memoria: al reabrir no se vuelve a pedir.
+- Reabrir el panel en menos de 30 segundos no lanza ninguna petición; solo refresca pasado ese margen.
+- Medido en navegador: `abrir()` responde en 1 ms con el apodo ya visible y `cargando=false`.
+- Sin cambios de API ni de esquema.
+
 ## [1.63.0] - 2026-11-04
 
 ### Capas de CSS y la galería recuerda su orden
