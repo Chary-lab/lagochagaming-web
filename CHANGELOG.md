@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.19] - 2026-11-04
+
+### El panel de 7TV ya no se recorta
+
+- El panel se anclaba con `right: 0` al campo de escritura: su borde izquierdo caía 28 px fuera del chat (medido: panel `l=1238`, `.chat-sidebar` `l=1266`) y el `overflow: hidden` de `.chat-sidebar` le comía el borde y las primeras letras de la cabecera.
+- Ahora se ancla con `left: 0`, así nace en el borde del campo y cabe entero dentro de la columna.
+- Se fusionan las dos reglas que competían (`.chat-kick .chat-kick-emote-panel` y `.chat-kick-emote-panel`) en una sola, con `background-color: #0d0d0d` de respaldo antes de `var(--card-bg, #0d0d0d)`.
+- Medidas definitivas: `width: min(320px, calc(100vw - 32px))`, `max-height: min(240px, 40vh)`, `z-index: 60`.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.18] - 2026-11-04
 
 ### Panel de emotes 7TV del chat de Kick

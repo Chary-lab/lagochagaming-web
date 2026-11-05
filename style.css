@@ -406,7 +406,6 @@ body.light-mode .hero-bio {
 .chat-kick-emote-btn:hover,
 .chat-kick-emote-btn[aria-expanded="true"] { border-color: var(--accent-color); }
 .chat-kick-emote-btn:disabled { opacity: 0.45; cursor: default; }
-.chat-kick .chat-kick-emote-panel { left: auto; right: 0; bottom: calc(100% + 8px); width: min(320px, calc(100vw - 32px)); max-height: min(240px, 40vh); }
 .chat-kick-enviar { border: none; border-radius: 8px; padding: 7px 12px; background: var(--gradient); color: #0f1f1a; font-weight: 800; font-size: 0.78rem; cursor: pointer; }
 .chat-kick-enviar:disabled { opacity: 0.45; cursor: default; }
 .chat-kick-aviso { margin: 0; padding: 0 10px 8px; font-size: 0.72rem; color: #ffb86b; }
@@ -3636,21 +3635,23 @@ body.light-mode {
         font-size: 0.78rem;
     }
     .chat-emote-panel-error { color: #ff8080; }
-    /* Panel de 7TV del chat de Kick: mismas piezas que el de Comunidad, con
-       panel opaco propio para que no se lean los mensajes por detrás. */
+    /* Panel de 7TV del chat de Kick: una sola regla, anclado a la izquierda
+       del campo. Con `right: 0` el panel se salia 28 px por la izquierda del
+       chat y el `overflow: hidden` de .chat-sidebar le cortaba el borde. */
     .chat-kick-emote-panel {
         position: absolute;
         left: 0;
         right: auto;
         bottom: calc(100% + 8px);
-        z-index: 40;
-        width: min(360px, calc(100vw - 48px));
-        max-height: min(230px, 42vh);
+        z-index: 60;
+        width: min(320px, calc(100vw - 32px));
+        max-height: min(240px, 40vh);
         overflow-y: auto;
         padding: 8px;
         border: 1px solid var(--border-color);
         border-radius: var(--r-md);
-        background: var(--card-bg);
+        background-color: #0d0d0d;
+        background-color: var(--card-bg, #0d0d0d);
         box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
     }
     .chat-kick-emote-panel[hidden] { display: none; }

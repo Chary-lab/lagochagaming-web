@@ -269,7 +269,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.61.18` (panel opaco de emotes 7TV en el chat de Kick con `.chat-kick-emote-panel/-grid/-estado/-error`; la guardia de `check.js` revisa también el markup generado en `main.js` y se retiraron 4 clases sin regla. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.61.19` (el panel de 7TV del chat de Kick se ancla con `left: 0` en una única regla: con `right: 0` se salía 28 px del chat y `.chat-sidebar` le cortaba el borde por `overflow: hidden`. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
