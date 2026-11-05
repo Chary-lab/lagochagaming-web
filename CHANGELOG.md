@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.15] - 2026-11-04
+
+### Fuera el CDN de Tailwind (fin del parpadeo de cajas)
+
+- El CDN de Tailwind se inyectaba en idle, después de la primera pintura. Al entrar, su CSS reseteaba `border-color` a `#e5e7eb` en todos los elementos, así que cada caja con borde se pintaba clara durante milisegundos al cargar y al cambiar de página. Confirmado con `?notw=1`: sin el CDN el parpadeo desaparece.
+- Se retira el cargador completo de `main.js` (`window.cargarTailwind`, `asegurarTailwind`, `tailwindListo`, `TAILWIND_CDN`) y la validación correspondiente de `scripts/check.js`, que ahora falla si el CDN vuelve. El toast queda con `.gochi-toast-stack`, que ya define posición y tipografía en `style.css`.
+- Se retiran los andamios temporales de diagnóstico `?diag=1`, `?diag=2`, `?diag=3`, `?plain=1` y `?notw=1`.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.14] - 2026-11-04
 
 ### Interruptor para probar el CDN de Tailwind

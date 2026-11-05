@@ -18,7 +18,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - No añadir jQuery ni Bootstrap. El sitio usa CSS propio (`.visually-hidden`, `.nav-right`) y Alpine para la UI.
 - **Alpine primero:** toda UI interactiva (listas, tarjetas, modales, formularios, menús, toasts y estados) se implementa con Alpine (`x-data`/stores, `x-for`, `x-model`, `:hidden`, `x-trap`). El JS clásico queda para Supabase, RPC, Realtime, cálculo y APIs `window.*`; no se añaden renders con `innerHTML` ni listeners por elemento.
 - Las librerías externas se cargan por CDN con versión fijada (Supabase JS 2.118.0, Alpine 3.17.5, `@alpinejs/focus` 3.17.5 y hls.js 1.5.20 solo en `index.html`). No cambiar versiones a `latest`.
-- **Tailwind es opcional y bajo demanda.** `main.js` inyecta `https://cdn.tailwindcss.com/3.4.17` en idle (o al primer gesto) con `corePlugins.preflight = false`; nunca se escribe un `<script>` del CDN en los HTML. Los colores mapean a las variables de `style.css` (`base`, `surface`, `sutil`, `acento`, `linea`, `tinta`, `tenue`) y no se usan modificadores de opacidad (`bg-surface/50`) porque las variables son hex. Ningún componente puede depender del CDN para verse: `style.css` lleva el respaldo, `window.asegurarTailwind()` espera como máximo 500 ms y `window.GOCHA_TAILWIND = false` lo desactiva todo. El CDN no envía `Access-Control-Allow-Origin`, así que **no** se le pone `integrity` ni `crossorigin`: rompería la carga (la versión fija es la garantía).
+- **Sin Tailwind.** El CDN de Tailwind se retiró en 1.61.15: inyectaba su CSS después de la primera pintura y pintaba un borde gris claro en cada caja durante un instante en cada carga y navegación. Todo el estilo vive en `style.css`; no añadir el CDN ni utilidades de Tailwind sin autorización explícita.
 - Iconos: sprite local `img/icons.svg` (Font Awesome Free 6.6.0, CC BY 4.0). En el markup se usa `<svg class="icon"><use href="img/icons.svg#i-solid-x">`; no se carga Font Awesome por CDN.
 - Mantener el estilo actual: variables CSS, clases semánticas, modo claro/oscuro y diseño responsive.
 - El sitio debe funcionar sin build. No crear pasos de compilación obligatorios.
@@ -96,9 +96,9 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Desde el panel admin: `window.abrirPerfilUsuario(apodo, { sobreAdmin: true })` añade `modal-perfil--stack` (z-index 10060) y el panel sigue montado debajo; al cerrar el perfil se vuelve al panel sin clics extra.
 - El perfil público se ordena por secciones (`.mp-seccion`): cabecera, insignias, bio, redes y actividad. No volver a amontonar todo en la cabecera.
 
-### 4.3 Componentes Gochi (Tailwind + Alpine + Pines)
+### 4.3 Componentes Gochi (Alpine + Pines)
 
-- La capa de componentes vive al final de `style.css` (`.gochi-*`) y usa solo las variables del tema. Es el respaldo obligatorio: nada puede depender del CDN de Tailwind para verse bien.
+- La capa de componentes vive al final de `style.css` (`.gochi-*`) y usa solo las variables del tema. Es la única fuente de estilo: no hay CDN de Tailwind desde 1.61.15.
 - Catálogo: `gochi-chip` (`data-tono` acento/éxito/aviso/peligro/info, `--sm`), `gochi-campo` (label, ayuda, error, contador, `data-estado="error"`), `gochi-alerta` (`data-tono` éxito/error/aviso/info), `gochi-skeleton` (`--texto`, `--titulo`, `--avatar`, `--media`, `--chip`), `gochi-card` (`data-estado` cargando/error/vacío, `--media` para imagen a sangre), `gochi-switch`, `gochi-progress`, `gochi-accordion` (item, trigger, panel, icono), `gochi-breadcrumb`, `gochi-paginacion`, `gochi-tabla-wrap` + `gochi-tabla` (responsive ≤760 px), `gochi-vacio`, `gochi-menu` + `gochi-menu-panel` y los ya existentes `gochi-toast-*`, `gochi-modal-*`, `gochi-confirm-*` y `gochi-tooltip`.
 - API en `main.js`: `window.gochiUI` (`toast`, `confirmar`, `chip`, `skeleton`, `dropdown`, `cerrarMenus`, `abrirHoja`, `cerrarHoja`) y los ayudantes sueltos `gochiChip(texto, tono)`, `gochiSkeleton(tipo, cantidad)`, `gochiDropdown(id, abrir)` y `cerrarGochiMenus(devolverFoco)`. Escapan el texto antes de pintar.
 - Los desplegables de página usan `gochiDropdown` y el store `ui.menus`; un único listener de `pointerdown` y Escape cierra el menú abierto y devuelve el foco. No añadir listeners por elemento.
@@ -269,7 +269,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.61.14` (interruptor `?notw=1` para desactivar el CDN de Tailwind en una carga y comprobar si el parpadeo viene de ahí; sin cambios de API ni de esquema).
+- Versión de esta release: `1.61.15` (se retira el CDN de Tailwind y los andamios `?diag=1/2/3`, `?plain=1` y `?notw=1`: Tailwind inyectaba su CSS después de la primera pintura y dibujaba un borde claro en cada caja durante milisegundos al cargar y al navegar. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
