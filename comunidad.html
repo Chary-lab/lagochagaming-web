@@ -29,7 +29,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.61.15">
+    <link rel="stylesheet" href="style.css?v=1.61.16">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800;900&display=optional" rel="stylesheet">
@@ -68,7 +68,7 @@ try{var t=localStorage.getItem('gochi_tema');if(t==='light')document.body.classL
     <a href="#contenido" class="skip-link">Saltar al contenido</a>
 
     <header id="global-header">
-        <nav id="navbar-root" class="navbar navbar-expand-lg"></nav>
+        <nav id="navbar-root" class="navbar"></nav>
     </header>
 
     <!-- TOAST DE STREAM EN VIVO se inserta dinámicamente desde main.js -->
@@ -262,7 +262,7 @@ try{var t=localStorage.getItem('gochi_tema');if(t==='light')document.body.classL
             </div>
 
             <div id="tab-canal" class="tab-content active" role="tabpanel" aria-labelledby="tabbtn-canal">
-                <div class="estado-canal-box">
+                <div >
                     <h4 class="tab-content-title-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-tower-broadcast"></use></svg> Estado del Canal</h4>
                     <div id="canal-estado" class="canal-estado">
                         <span id="estado-dot" class="estado-dot"></span>
@@ -300,7 +300,7 @@ try{var t=localStorage.getItem('gochi_tema');if(t==='light')document.body.classL
                         </div>
                         <span id="user-rango-badge" class="rango-badge rango-polvo_cosmico user-rango-badge">🌫️ POLVO CÓSMICO</span>
                     </div>
-                    <div class="rango-progreso rango-progreso-usuario gochi-progress">
+                    <div class="rango-progreso gochi-progress">
                         <div id="user-rango-progreso" class="rango-progreso-fill gochi-progress-fill"></div>
                     </div>
                     <p id="user-rango-meta" class="rango-meta">Próximo rango: Protoestrella (100 pts)</p>
@@ -332,9 +332,9 @@ try{var t=localStorage.getItem('gochi_tema');if(t==='light')document.body.classL
                     <div class="rango-fila rango-maximo"><span class="rango-icono">🕳️</span><span class="rango-nombre-wrap"><span class="rango-nombre">Agujero Negro</span><span class="rango-desc">El colapso final absoluto.</span></span><span class="rango-datos"><span class="rango-max-tag">MÁXIMO</span><span class="rango-puntos">3500+ pts</span><span class="rango-mult">x6</span></span></div>
                 </div>
                 <div id="rango-progreso-panel" class="rango-progreso-panel">
-                    <div class="rango-progreso-head">
-                        <span id="rango-progreso-label" class="rango-progreso-label">Progreso hacia el siguiente rango</span>
-                        <span id="rango-progreso-valor" class="rango-progreso-valor">0 / 0 pts</span>
+                    <div >
+                        <span id="rango-progreso-label">Progreso hacia el siguiente rango</span>
+                        <span id="rango-progreso-valor" >0 / 0 pts</span>
                     </div>
                     <div class="rango-progreso gochi-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progreso hacia el siguiente rango">
                         <div id="rango-progreso-fill" class="rango-progreso-fill gochi-progress-fill"></div>
@@ -489,7 +489,7 @@ try{var t=localStorage.getItem('gochi_tema');if(t==='light')document.body.classL
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.61.15" defer></script>
+    <script src="main.js?v=1.61.16" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -2916,7 +2916,7 @@ if (chatForm) {
     <footer class="main-footer">
         <div class="footer-container">
             <div class="footer-social-icons">
-                <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer" class="social-icon kick-icon" title="Kick">K</a>
+                <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer" class="social-icon" title="Kick">K</a>
                 <a href="https://www.tiktok.com/@lagochagaming11" target="_blank" rel="noopener noreferrer" class="social-icon" title="TikTok"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-tiktok"></use></svg></a>
                 <a href="https://www.instagram.com/oscurostefany" target="_blank" rel="noopener noreferrer" class="social-icon" title="Instagram"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-instagram"></use></svg></a>
                 <a href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer" class="social-icon" title="Discord"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-discord"></use></svg></a>

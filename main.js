@@ -1172,12 +1172,12 @@ window.insertarNavbar = function insertarNavbar() {
     nav.setAttribute('x-data', '{ }');
     nav.setAttribute('x-on:resize.window', 'if (window.innerWidth >= 1101) $store.ui.menuAbierto = false');
     nav.innerHTML = `
-        <div class="logo navbar-brand">LAGOCHA<span>GAMING</span></div>
-        <button type="button" class="mobile-menu-toggle-btn navbar-toggler" aria-label="Abrir menú" data-tooltip="Menú"
+        <div class="logo">LAGOCHA<span>GAMING</span></div>
+        <button type="button" class="mobile-menu-toggle-btn" aria-label="Abrir menú" data-tooltip="Menú"
                 x-bind:aria-expanded="$store.ui.menuAbierto"
                 x-bind:aria-label="$store.ui.menuAbierto ? 'Cerrar menú' : 'Abrir menú'"
                 x-on:click="$store.ui.menuAbierto = !$store.ui.menuAbierto"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg></button>
-        <div class="nav-links navbar-nav" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
+        <div class="nav-links" x-bind:class="{ 'mobile-active': $store.ui.menuAbierto }">
             ${enlaces}
             ${appMenu}
         </div>

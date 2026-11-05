@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.16] - 2026-11-04
+
+### Limpieza de código muerto (auditoría)
+
+- Auditoría completa con cruce CSS ↔ HTML ↔ JS: 776 clases CSS, 36 variables, 162 ids, 195 funciones y 21 activos. Resultado: 0 clases CSS sin uso (las 8 que marcaba eran `kick-badge-*`, construidas en runtime con `'kick-badge-' + tipo`), 0 variables de tema sin uso, 0 ids sin referencia, 0 activos huérfanos.
+- Se retiraron 24 tokens de clase sin ninguna regla CSS ni uso en JS: `navbar-expand-lg`, `navbar-brand`, `navbar-nav`, `navbar-toggler`, `kick-icon`, `faq-section`, `clips-section`, `tt-feed`, `chat-sidebar-box`, `estado-canal-box` y los cuatro `rango-progreso-*`. Sin cambio visual: ninguna de esas clases tenía regla.
+- Se conservan a propósito `comunidad-page`, `kick-perfil-overlay` y `chat-msg-vacio` (las consulta JS), las clases dinámicas `rango-*`, `kick-badge-*` y `rango-texto-*`, y las APIs `window.lgOpenAccount` y `window.__lagochaBack` aunque no tengan llamadas en el repo: las invoca la app Android.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.15] - 2026-11-04
 
 ### Fuera el CDN de Tailwind (fin del parpadeo de cajas)

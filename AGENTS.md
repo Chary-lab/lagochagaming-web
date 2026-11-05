@@ -269,7 +269,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.61.15` (se retira el CDN de Tailwind y los andamios `?diag=1/2/3`, `?plain=1` y `?notw=1`: Tailwind inyectaba su CSS después de la primera pintura y dibujaba un borde claro en cada caja durante milisegundos al cargar y al navegar. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.61.16` (auditoría de código muerto: 24 tokens de clase sin regla CSS retirados; 0 clases CSS, variables, ids ni activos huérfanos. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
