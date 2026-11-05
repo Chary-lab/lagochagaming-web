@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.66.0] - 2026-11-05
+
+### Un solo acceso a localStorage
+
+- Nuevo `window.almacen` en `main.js`: `texto()`, `guardarTexto()`, `leer()`, `guardar()` y `borrar()`, todos con un único `try/catch` y soporte de JSON. Elimina el patrón repetido `try { localStorage.getItem(...) } catch (e) {}` que aparecía por todo el archivo.
+- Migradas **79** llamadas en `main.js`: 0 usos directos de `localStorage.getItem/setItem/removeItem` restantes (antes 79).
+- Los scripts inline de las páginas se dejan como estaban a propósito: el del tema corre antes de que `main.js` (defer) defina el helper, y migrarlo rompería el arranque sin destello.
+- Sin cambios de API ni de esquema.
+
 ## [1.65.0] - 2026-11-05
 
 ### Paleta de comandos y menciones en el chat

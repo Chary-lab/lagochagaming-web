@@ -46,7 +46,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 // El token de comunidad viaja en cada petición: es_admin()/es_owner() lo leen
 // para dar permisos de panel sin pasar por el login oculto de Supabase Auth.
 function fetchConTokenComunidad(input, init) {
-    const token = localStorage.getItem('comunidad_session_token');
+    const token = almacen.texto('comunidad_session_token');
     if (!token) return fetch(input, init);
     const opciones = init || {};
     const cabeceras = new Headers(opciones.headers || {});
@@ -80,6 +80,49 @@ window.escapeAttr = function escapeAttr(s) {
     return String(s ?? '').replace(/[&"'<>]/g, c => ({
         '&': '&amp;', '"': '&quot;', "'": '&#39;', '<': '&lt;', '>': '&gt;'
     }[c]));
+};
+
+// Acceso único a localStorage: un solo try/catch, claves centralizadas y
+// variantes para texto plano y para JSON. Los scripts inline que corren antes
+// de main.js (tema) siguen usando localStorage directamente.
+window.almacen = {
+    texto(clave, defecto = null) {
+        try {
+            const valor = almacen.texto(clave);
+            return valor === null ? defecto : valor;
+        } catch (e) {
+            return defecto;
+        }
+    },
+    guardarTexto(clave, valor) {
+        try {
+            almacen.guardarTexto(clave, String(valor));
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+    leer(clave, defecto = null) {
+        try {
+            const valor = almacen.texto(clave);
+            return valor === null ? defecto : JSON.parse(valor);
+        } catch (e) {
+            return defecto;
+        }
+    },
+    guardar(clave, valor) {
+        try {
+            almacen.guardarTexto(clave, JSON.stringify(valor));
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+    borrar(clave) {
+        try {
+            almacen.borrar(clave);
+        } catch (e) { /* sin almacenamiento */ }
+    }
 };
 
 // === EMOTES GLOBALES DE 7TV ===
@@ -123,7 +166,7 @@ window.escapeAttr = function escapeAttr(s) {
 
     const leerCache = (permitirCaducada = false) => {
         try {
-            const crudo = localStorage.getItem(CLAVE_CACHE);
+            const crudo = almacen.texto(CLAVE_CACHE);
             if (!crudo) return null;
             const cache = JSON.parse(crudo);
             if (!cache || !Array.isArray(cache.emotes) || !cache.ts) return null;
@@ -136,7 +179,7 @@ window.escapeAttr = function escapeAttr(s) {
 
     const guardarCache = (lista) => {
         try {
-            localStorage.setItem(CLAVE_CACHE, JSON.stringify({ ts: Date.now(), emotes: lista }));
+            almacen.guardarTexto(CLAVE_CACHE, JSON.stringify({ ts: Date.now(), emotes: lista }));
         } catch (e) {}
     };
 
@@ -250,7 +293,7 @@ let _adminCache = null;
 
 window.esAdminActual = async function esAdminActual() {
     if (!window.supabase) return false;
-    const token = localStorage.getItem('comunidad_session_token') || '';
+    const token = almacen.texto('comunidad_session_token') || '';
     let authId = '';
     try {
         const { data } = await window.supabase.auth.getSession();
@@ -280,7 +323,7 @@ window.esAdminActual = async function esAdminActual() {
 if (window.supabase && typeof window.supabase.auth?.onAuthStateChange === 'function') {
     window.supabase.auth.onAuthStateChange((evento) => {
         if (evento === 'SIGNED_IN') {
-            localStorage.removeItem('comunidad_logout_explicito');
+            almacen.borrar('comunidad_logout_explicito');
         }
         window.refrescarCacheAdmin();
         window.sincronizarSesionComunidadVinculada?.();
@@ -428,7 +471,7 @@ window.desactivarTrampaFoco = function desactivarTrampaFoco(restaurarFoco = true
 // Estados: 'dark' (default) → 'light' → 'oled' → 'dark'
 
 window.initTema = function initTema() {
-    let temaActual = localStorage.getItem('gochi_tema') || 'dark';
+    let temaActual = almacen.texto('gochi_tema') || 'dark';
     if (!['dark', 'light', 'oled'].includes(temaActual)) temaActual = 'dark';
     const btn = document.getElementById('btn-toggle-tema');
     const icono = btn ? btn.querySelector('use') : null;
@@ -455,7 +498,7 @@ window.initTema = function initTema() {
         const siguiente = temaActual === 'dark' ? 'light' :
                           temaActual === 'light' ? 'oled' : 'dark';
         temaActual = siguiente;
-        localStorage.setItem('gochi_tema', siguiente);
+        almacen.guardarTexto('gochi_tema', siguiente);
         aplicarTema(siguiente);
     };
 };
@@ -477,7 +520,7 @@ window.limpiarCachesSesionComunidad = function limpiarCachesSesionComunidad() {
         'gochi_cache_ranking_v1',
         'gochi_cache_tienda_v1'
     ].forEach((clave) => {
-        localStorage.removeItem(clave);
+        almacen.borrar(clave);
         sessionStorage.removeItem(clave);
     });
 };
@@ -485,7 +528,7 @@ window.limpiarCachesSesionComunidad = function limpiarCachesSesionComunidad() {
 // Única fuente de verdad del usuario de comunidad en el cliente.
 window.obtenerSesionUsuarioComunidad = function obtenerSesionUsuarioComunidad() {
     try {
-        const datos = JSON.parse(localStorage.getItem('comunidad_session_usuario') || '{}');
+        const datos = JSON.parse(almacen.texto('comunidad_session_usuario') || '{}');
         return datos && typeof datos === 'object' ? datos : {};
     } catch (e) {
         return {};
@@ -496,7 +539,7 @@ window.actualizarSesionUsuarioComunidad = function actualizarSesionUsuarioComuni
     const actual = window.obtenerSesionUsuarioComunidad();
     const nuevo = Object.assign({}, actual, parcial || {});
     try {
-        localStorage.setItem('comunidad_session_usuario', JSON.stringify(nuevo));
+        almacen.guardarTexto('comunidad_session_usuario', JSON.stringify(nuevo));
     } catch (e) {}
     return nuevo;
 };
@@ -537,7 +580,7 @@ window.KICK_COMUNIDAD = (function () {
         try {
             // Un solo OAuth para todo: si Kick ya esta conectado (por el chat o
             // por el icono), se reutiliza el token y solo se entra a Comunidad.
-            if (objetivo === 'entrar' && localStorage.getItem('gocha_kick_token')) {
+            if (objetivo === 'entrar' && almacen.texto('gocha_kick_token')) {
                 if (typeof window.entrarConKickComunidad === 'function') {
                     return await window.entrarConKickComunidad();
                 }
@@ -564,12 +607,12 @@ window.KICK_COMUNIDAD = (function () {
     }
 
     async function vincular() {
-        const tokenComunidad = localStorage.getItem('comunidad_session_token');
+        const tokenComunidad = almacen.texto('comunidad_session_token');
         if (!tokenComunidad) {
             window.mostrarToast?.('Inicia sesión en la comunidad antes de vincular Kick.', true);
             return false;
         }
-        const tokenKick = localStorage.getItem('gocha_kick_token');
+        const tokenKick = almacen.texto('gocha_kick_token');
         if (!tokenKick) return abrirOAuth('vincular');
         try {
             const res = await fetch(FN + '/kick-comunidad', {
@@ -579,7 +622,7 @@ window.KICK_COMUNIDAD = (function () {
             });
             const datos = await res.json().catch(() => ({}));
             if (res.status === 401) {
-                localStorage.removeItem('gocha_kick_token');
+                almacen.borrar('gocha_kick_token');
                 return abrirOAuth('vincular');
             }
             if (!res.ok || !datos.ok) {
@@ -587,7 +630,7 @@ window.KICK_COMUNIDAD = (function () {
                 return false;
             }
             window.actualizarSesionUsuarioComunidad(datos.usuario || {});
-            localStorage.removeItem('gocha_kick_sin_vincular');
+            almacen.borrar('gocha_kick_sin_vincular');
             window.dispatchEvent(new CustomEvent('kick-vinculado', { detail: datos.usuario || {} }));
             window.mostrarToast?.('Kick vinculado. Ya puedes entrar sin PIN.', false);
             return true;
@@ -623,7 +666,7 @@ window.KICK_COMUNIDAD = (function () {
             window.mostrarToast?.(error, true);
             return false;
         }
-        localStorage.setItem('gocha_kick_token', token);
+        almacen.guardarTexto('gocha_kick_token', token);
         if (objetivo === 'vincular') return await vincular();
         // Entrar con Kick desde una pagina sin chat: el login de comunidad se
         // completa alli, ya con el token guardado (sin repetir el OAuth).
@@ -639,13 +682,13 @@ window.KICK_COMUNIDAD = (function () {
 window.guardarSesionComunidad = function guardarSesionComunidad(datos) {
     if (!datos || !datos.token || !datos.usuario) return false;
     const u = datos.usuario;
-    localStorage.removeItem('comunidad_logout_explicito');
-    localStorage.removeItem('gocha_kick_sin_vincular');
-    localStorage.setItem('comunidad_session_token', datos.token);
-    localStorage.setItem('comunidad_nickname', u.apodo || '');
+    almacen.borrar('comunidad_logout_explicito');
+    almacen.borrar('gocha_kick_sin_vincular');
+    almacen.guardarTexto('comunidad_session_token', datos.token);
+    almacen.guardarTexto('comunidad_nickname', u.apodo || '');
     window.avisarCambioSesion?.('login');
-    if (u.id) localStorage.setItem('comunidad_user_id', String(u.id));
-    localStorage.setItem('comunidad_session_usuario', JSON.stringify(u));
+    if (u.id) almacen.guardarTexto('comunidad_user_id', String(u.id));
+    almacen.guardarTexto('comunidad_session_usuario', JSON.stringify(u));
     window.actualizarUsuarioNavComunidad?.();
     window.latidoComunidad?.();
     return true;
@@ -751,7 +794,7 @@ window.ofrecerCompletarPerfilKick = function ofrecerCompletarPerfilKick() {
 // Devuelve los datos de la sesion de comunidad, { cancelado: true } o { error }.
 window.entrarConKickCuenta = async function entrarConKickCuenta(opciones) {
     const silenciarAviso = !!(opciones && opciones.silenciarAviso);
-    const tokenKick = localStorage.getItem('gocha_kick_token');
+    const tokenKick = almacen.texto('gocha_kick_token');
     if (!tokenKick) return { error: 'sin_kick' };
     let extra = {};
     for (let intento = 0; intento < 4; intento++) {
@@ -784,7 +827,7 @@ window.entrarConKickCuenta = async function entrarConKickCuenta(opciones) {
             continue;
         }
         if (res.status === 401) {
-            localStorage.removeItem('gocha_kick_token');
+            almacen.borrar('gocha_kick_token');
             return { error: 'kick_caducado', mensaje: datos.mensaje || datos.error };
         }
         if (!res.ok || !datos.ok) {
@@ -808,7 +851,7 @@ window.addEventListener('kick-vinculado', (e) => {
 // a quien haya latido en los últimos 2 minutos.
 window.latidoComunidad = async function latidoComunidad() {
     if (!window.supabase) return false;
-    const token = localStorage.getItem('comunidad_session_token');
+    const token = almacen.texto('comunidad_session_token');
     if (!token) return false;
     try {
         const { data, error } = await window.supabase.rpc('latido_comunidad', { p_token: token });
@@ -993,7 +1036,7 @@ window.iniciarRealtimeMuroReacciones = function iniciarRealtimeMuroReacciones() 
 };
 
 window.cerrarSesion = async function cerrarSesion() {
-    const token = localStorage.getItem('comunidad_session_token');
+    const token = almacen.texto('comunidad_session_token');
     let teniaAuth = false;
     if (window.supabase) {
         try {
@@ -1006,13 +1049,13 @@ window.cerrarSesion = async function cerrarSesion() {
 
     // Evita que la sincronización Auth → comunidad vuelva a abrir la sesión
     // justo después de cerrarla desde ajustes.
-    localStorage.setItem('comunidad_logout_explicito', '1');
-    localStorage.removeItem('comunidad_nickname');
-    localStorage.removeItem('comunidad_session_token');
-    localStorage.removeItem('comunidad_user_id');
-    localStorage.removeItem('comunidad_session_usuario');
+    almacen.guardarTexto('comunidad_logout_explicito', '1');
+    almacen.borrar('comunidad_nickname');
+    almacen.borrar('comunidad_session_token');
+    almacen.borrar('comunidad_user_id');
+    almacen.borrar('comunidad_session_usuario');
     window.avisarCambioSesion?.('logout');
-    localStorage.removeItem('gocha_kick_sin_vincular');
+    almacen.borrar('gocha_kick_sin_vincular');
     window.limpiarCachesSesionComunidad();
 
     // El login general también cierra la sesión de Kick del chat y del OAuth.
@@ -1046,7 +1089,7 @@ window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() 
     // La sesión manda: si existe token con usuario pero falta la clave suelta
     // del apodo, el navbar no debe caer en "Login" con la cuenta abierta.
     const sesion = window.obtenerSesionUsuarioComunidad();
-    const apodo = localStorage.getItem('comunidad_nickname') || sesion.apodo || '';
+    const apodo = almacen.texto('comunidad_nickname') || sesion.apodo || '';
     const navUserInfo = document.getElementById('nav-user-info');
     const navLogin = document.getElementById('nav-login');
     if (navLogin) navLogin.hidden = !!apodo;
@@ -1099,7 +1142,7 @@ window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() 
 
     // Avisa a los paneles (galería, cine, sorteo) cuando cambia la cuenta o el
     // token: así muestran u ocultan las herramientas de streamer sin recargar.
-    const firmaSesion = (apodo || '') + '|' + (localStorage.getItem('comunidad_session_token') || '');
+    const firmaSesion = (apodo || '') + '|' + (almacen.texto('comunidad_session_token') || '');
     if (firmaSesion !== window.__firmaSesionNav) {
         window.__firmaSesionNav = firmaSesion;
         document.dispatchEvent(new CustomEvent('gocha:sesion'));
@@ -1239,7 +1282,7 @@ window.insertarNavbar = function insertarNavbar() {
 
 // === Menú de acceso del navbar: única entrada de login ===
 async function conectarKickNavbar() {
-    const tokenComunidad = localStorage.getItem('comunidad_session_token');
+    const tokenComunidad = almacen.texto('comunidad_session_token');
     if (tokenComunidad) {
         await window.KICK_COMUNIDAD?.vincular();
         return;
@@ -1283,14 +1326,14 @@ window.pintarEstadoNav = function pintarEstadoNav(vivo) {
     const liveTag = document.getElementById('nav-live-tag');
     if (navbar) navbar.classList.toggle('live-glow', !!vivo);
     if (liveTag) liveTag.hidden = !vivo;
-    try { localStorage.setItem('gochi_en_vivo_ultimo', vivo ? '1' : '0'); } catch (e) { /* modo privado */ }
+    try { almacen.guardarTexto('gochi_en_vivo_ultimo', vivo ? '1' : '0'); } catch (e) { /* modo privado */ }
 };
 
 window.insertarNavbar();
 
 // Arrancar con el último estado conocido: el tag no aparece ni empuja la navbar.
 try {
-    const ultimo = localStorage.getItem('gochi_en_vivo_ultimo');
+    const ultimo = almacen.texto('gochi_en_vivo_ultimo');
     if (ultimo === '1' || ultimo === '0') window.pintarEstadoNav(ultimo === '1');
 } catch (e) { /* sin almacenamiento */ }
 
@@ -1558,7 +1601,7 @@ function animarSumaPuntos(btn, delta) {
 window.pintarPuntosDia = function pintarPuntosDia(datos) {
     const btn = document.getElementById('nav-puntos-dia');
     if (!btn) return;
-    const token = localStorage.getItem('comunidad_session_token');
+    const token = almacen.texto('comunidad_session_token');
     if (!token) {
         btn.hidden = true;
         delete btn.dataset.hoy;
@@ -1589,7 +1632,7 @@ window.pintarPuntosDia = function pintarPuntosDia(datos) {
 
 window.refrescarPuntosDia = async function refrescarPuntosDia() {
     const btn = document.getElementById('nav-puntos-dia');
-    const token = localStorage.getItem('comunidad_session_token');
+    const token = almacen.texto('comunidad_session_token');
     if (!token) {
         if (btn) btn.hidden = true;
         return;
@@ -1611,7 +1654,7 @@ window.iniciarPuntosGlobal = function iniciarPuntosGlobal() {
     if (!window.supabase) return;
     let ultimo = 0;
     const tick = () => {
-        const token = localStorage.getItem('comunidad_session_token');
+        const token = almacen.texto('comunidad_session_token');
         if (!token || document.hidden) return;
         if (Date.now() - ultimo < 60000) return;
         ultimo = Date.now();
@@ -1978,24 +2021,24 @@ document.addEventListener('click', (event) => {
 
 window.sincronizarSesionComunidadVinculada = async function sincronizarSesionComunidadVinculada() {
     if (!window.supabase) return false;
-    if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
-    if (localStorage.getItem('comunidad_session_token')) return false;
+    if (almacen.texto('comunidad_logout_explicito') === '1') return false;
+    if (almacen.texto('comunidad_session_token')) return false;
     try {
         const { data: authData } = await window.supabase.auth.getSession();
         if (!authData || !authData.session) return false;
-        if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
+        if (almacen.texto('comunidad_logout_explicito') === '1') return false;
         const { data, error } = await window.supabase.rpc('sesion_comunidad_vinculada');
         if (error || !data || !data.ok || !data.token) return false;
-        if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
+        if (almacen.texto('comunidad_logout_explicito') === '1') return false;
         const val = await window.supabase.rpc('validar_sesion_comunidad', { p_token: data.token });
         if (val.error || !val.data || !val.data.ok) return false;
-        if (localStorage.getItem('comunidad_logout_explicito') === '1') return false;
+        if (almacen.texto('comunidad_logout_explicito') === '1') return false;
         const usuario = val.data.usuario;
-        localStorage.setItem('comunidad_session_token', data.token);
-        localStorage.setItem('comunidad_nickname', usuario.apodo);
-        localStorage.setItem('comunidad_user_id', String(usuario.id));
+        almacen.guardarTexto('comunidad_session_token', data.token);
+        almacen.guardarTexto('comunidad_nickname', usuario.apodo);
+        almacen.guardarTexto('comunidad_user_id', String(usuario.id));
         window.avisarCambioSesion?.('login');
-        localStorage.setItem('comunidad_session_usuario', JSON.stringify(usuario));
+        almacen.guardarTexto('comunidad_session_usuario', JSON.stringify(usuario));
         window.actualizarUsuarioNavComunidad?.();
         window.latidoComunidad?.();
         return true;
@@ -2589,7 +2632,7 @@ document.addEventListener('alpine:init', () => {
                 this.loginError = 'Supabase no está disponible. Recarga la página.';
                 return;
             }
-            const token = localStorage.getItem('comunidad_session_token');
+            const token = almacen.texto('comunidad_session_token');
             let authUser = null;
             try {
                 const { data: authData } = await window.supabase.auth.getSession();
@@ -2634,7 +2677,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         tokenComunidad() {
-            return localStorage.getItem('comunidad_session_token') || '';
+            return almacen.texto('comunidad_session_token') || '';
         },
 
         async cargarSugerencias() {
@@ -2988,12 +3031,12 @@ window.CHAT_KICK = {
     // Salida única de Kick: la usa el cierre de sesión general y el chat.
     // Así no queda una sesión de Kick viva cuando el usuario cierra su cuenta.
     window.cerrarSesionKick = async function cerrarSesionKick() {
-        const token = localStorage.getItem(api.claveToken);
+        const token = almacen.texto(api.claveToken);
         if (token) {
             try { await pedir({ accion: 'salir' }, token); } catch (e) {}
         }
         window.CHAT_KICK.sesion = null;
-        localStorage.removeItem(api.claveToken);
+        almacen.borrar(api.claveToken);
     };
 
     const conEmotes = (texto) => {
@@ -3293,7 +3336,7 @@ window.CHAT_KICK = {
                 }, 1000);
             } else if (res.estado === 401) {
                 window.CHAT_KICK.sesion = null;
-                localStorage.removeItem(api.claveToken);
+                almacen.borrar(api.claveToken);
                 document.querySelectorAll('[data-chat-kick]').forEach((otro) => {
                     if (otro._actualizarCuenta) otro._actualizarCuenta(null);
                 });
@@ -3326,12 +3369,12 @@ window.CHAT_KICK = {
         // Reutiliza la autorizacion de Kick guardada para la cuenta de comunidad.
         // Solo funciona con una sesion valida: al cerrar sesion se invalida.
         const reconectar = async () => {
-            const tokenComunidad = localStorage.getItem('comunidad_session_token');
+            const tokenComunidad = almacen.texto('comunidad_session_token');
             if (!tokenComunidad) return null;
             // El 409 significa "esta cuenta no tiene Kick vinculado". Se recuerda
             // para no repetir la petición fallida en cada carga; se borra al
             // vincular Kick o al iniciar sesión con Kick.
-            if (localStorage.getItem('gocha_kick_sin_vincular') === tokenComunidad) return null;
+            if (almacen.texto('gocha_kick_sin_vincular') === tokenComunidad) return null;
             try {
                 const res = await fetch(api.funcion + '/kick-chat', {
                     method: 'POST',
@@ -3339,12 +3382,12 @@ window.CHAT_KICK = {
                     body: JSON.stringify({ accion: 'reconectar', token: tokenComunidad })
                 });
                 if (res.status === 409) {
-                    localStorage.setItem('gocha_kick_sin_vincular', tokenComunidad);
+                    almacen.guardarTexto('gocha_kick_sin_vincular', tokenComunidad);
                     return null;
                 }
                 const datos = await res.json().catch(() => ({}));
                 if (!res.ok || !datos.ok || !datos.token || !datos.usuario) return null;
-                localStorage.setItem(api.claveToken, datos.token);
+                almacen.guardarTexto(api.claveToken, datos.token);
                 return { token: datos.token, usuario: datos.usuario };
             } catch (e) {
                 return null;
@@ -3354,8 +3397,8 @@ window.CHAT_KICK = {
         window.CHAT_KICK.conectar = async (host) => {
             // Conectar es el login general con Kick: si ya hay cuenta de
             // comunidad se vincula; si no, se crea o recupera automaticamente.
-            const tokenGuardado = localStorage.getItem(api.claveToken);
-            const tokenComunidad = localStorage.getItem('comunidad_session_token');
+            const tokenGuardado = almacen.texto(api.claveToken);
+            const tokenComunidad = almacen.texto('comunidad_session_token');
 
             // El login general y el del chat comparten el token de Kick.
             // Si ya existe, se reutiliza y no se abre otro OAuth.
@@ -3378,7 +3421,7 @@ window.CHAT_KICK = {
                     host._mostrarAviso('');
                     return;
                 }
-                if (sesion.estado === 401) localStorage.removeItem(api.claveToken);
+                if (sesion.estado === 401) almacen.borrar(api.claveToken);
             }
 
             // Sin token de chat, pero con cuenta de comunidad vinculada: Kick
@@ -3424,21 +3467,21 @@ window.CHAT_KICK = {
                 hosts.forEach((host) => host._mostrarAviso(error));
                 return false;
             }
-            localStorage.setItem(api.claveToken, token);
+            almacen.guardarTexto(api.claveToken, token);
 
             // Con Kick ya autenticado se completa la cuenta general:
             // con sesion abierta se vincula; sin sesion se crea o recupera.
-            if (localStorage.getItem('comunidad_session_token')) {
+            if (almacen.texto('comunidad_session_token')) {
                 const vinculado = await window.KICK_COMUNIDAD.vincular();
                 if (!vinculado) {
-                    localStorage.removeItem(api.claveToken);
+                    almacen.borrar(api.claveToken);
                     hosts.forEach((host) => host._mostrarAviso('No se pudo vincular tu Kick a esta cuenta.'));
                     return false;
                 }
             } else {
                 const cuenta = await window.entrarConKickCuenta();
                 if (!cuenta || cuenta.cancelado || cuenta.error) {
-                    localStorage.removeItem(api.claveToken);
+                    almacen.borrar(api.claveToken);
                     const aviso = cuenta?.mensaje || (cuenta?.cancelado ? 'No se completó el acceso. Vuelve a intentarlo.' : '');
                     if (aviso) hosts.forEach((host) => host._mostrarAviso(aviso));
                     return false;
@@ -3448,11 +3491,11 @@ window.CHAT_KICK = {
         };
 
         const validarSesion = async () => {
-            const token = localStorage.getItem(api.claveToken);
+            const token = almacen.texto(api.claveToken);
             if (!token) return null;
             const res = await pedir({ accion: 'sesion' }, token);
             if (!res.ok) {
-                if (res.estado === 401) localStorage.removeItem(api.claveToken);
+                if (res.estado === 401) almacen.borrar(api.claveToken);
                 return null;
             }
             return { token, usuario: res.datos.usuario };
@@ -3926,7 +3969,7 @@ document.addEventListener('DOMContentLoaded', () => {
       linkIconos: LINK_ICONS,
 
       get nombre() {
-        return this.usuario.apodo || localStorage.getItem('comunidad_nickname') || '';
+        return this.usuario.apodo || almacen.texto('comunidad_nickname') || '';
       },
       get inicial() {
         return inicialDe(this.nombre);
@@ -3976,13 +4019,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return this.usuario.kick_user_id ? (this.usuario.kick_username || 'cuenta vinculada') : '';
       },
       get kickDisponible() {
-        return !!localStorage.getItem('comunidad_session_token');
+        return !!almacen.texto('comunidad_session_token');
       },
       vincularKick() {
         window.KICK_COMUNIDAD?.vincular();
       },
       async desvincularKick() {
-        const token = localStorage.getItem('comunidad_session_token');
+        const token = almacen.texto('comunidad_session_token');
         if (!token) return;
         const ok = await window.confirmarAccion({
           titulo: 'Desvincular Kick',
@@ -4004,7 +4047,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
           if (typeof window.cerrarSesionKick === 'function') await window.cerrarSesionKick();
-          else localStorage.removeItem('gocha_kick_token');
+          else almacen.borrar('gocha_kick_token');
           this.usuario.kick_user_id = null;
           this.usuario.kick_username = null;
           window.actualizarSesionUsuarioComunidad({ kick_user_id: null, kick_username: null });
@@ -4109,7 +4152,7 @@ document.addEventListener('DOMContentLoaded', () => {
       },
 
       async cargar() {
-        const token = localStorage.getItem('comunidad_session_token');
+        const token = almacen.texto('comunidad_session_token');
         this.error = '';
         if (!token || !window.supabase) {
           this.usuario = {};
@@ -4130,7 +4173,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        const userId = u.id || localStorage.getItem('comunidad_user_id');
+        const userId = u.id || almacen.texto('comunidad_user_id');
         try {
           const [fila, avatares] = await Promise.all([
             userId
@@ -4187,7 +4230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       async guardar() {
         this.error = '';
-        const token = localStorage.getItem('comunidad_session_token');
+        const token = almacen.texto('comunidad_session_token');
         if (!token || !window.supabase) {
           this.error = ERRORES.sin_sesion;
           return;
