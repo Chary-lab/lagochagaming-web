@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.73.1] - 2026-11-05
+
+### La galería pinta antes
+
+- `loadApprovedImages()` esperaba tres viajes a Supabase en serie (lista, top global y likes) antes de pintar nada: unos 1,4 s con la conexión fría. Ahora pinta con la primera respuesta y luego enriquece en paralelo con `Promise.all([cargarTopGlobal(), asegurarLikesUsuario()])`, aplicando badges TOP y “me gusta” en sitio sin mover el layout.
+- `galeria.html` gana `preconnect` a `https://cydiyaacnyydprgffmkq.supabase.co`, que quita DNS y TLS del camino crítico de la primera petición.
+- Sin cambios de API ni de esquema.
+
 ## [1.73.0] - 2026-11-05
 
 ### Eliminar mi cuenta

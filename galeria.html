@@ -26,10 +26,11 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.73.0">
+    <link rel="stylesheet" href="style.css?v=1.73.1">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cydiyaacnyydprgffmkq.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="https://kick.com">
 
     <script type="application/ld+json">
@@ -830,15 +831,26 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
                 const imagenesPublicas = data ? data : [];
 
-                // Cargar top global ANTES de mapear para que los badges TOP
-                // estén disponibles en la primera renderización (independiente del filtro).
-                await cargarTopGlobal();
-
-                const userLikes = await asegurarLikesUsuario();
+                // Pintado rápido: se muestran las fotos sin esperar al top ni a
+                // los likes. Esos llegan después y se aplican en sitio.
                 const horaAhora = new Date().getTime();
-                const fotos = imagenesPublicas.map((image) => mapearFotoGaleria(image, userLikes, horaAhora));
+                const fotos = imagenesPublicas.map((image) => mapearFotoGaleria(image, new Set(), horaAhora));
 
                 store.fotos = paginaActualGaleria === 0 ? fotos : store.fotos.concat(fotos);
+
+                // Enriquecido en paralelo: badges TOP y "me gusta" del usuario.
+                Promise.all([cargarTopGlobal(), asegurarLikesUsuario()])
+                    .then(([, userLikes]) => {
+                        const hora = new Date().getTime();
+                        const actualizadas = imagenesPublicas.map((image) => mapearFotoGaleria(image, userLikes, hora));
+                        actualizadas.forEach((nueva) => {
+                            const actual = store.fotos.find((f) => String(f.id) === String(nueva.id));
+                            if (!actual) return;
+                            actual.badges = nueva.badges;
+                            actual.liked = nueva.liked;
+                        });
+                    })
+                    .catch((e) => console.warn('No se pudo completar la galería:', e));
 
                 // Mostrar u ocultar botón "cargar más"
                 const btnCargarMas = document.getElementById('btn-cargar-mas-galeria');
@@ -1288,7 +1300,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.73.0" defer></script>
+    <script src="main.js?v=1.73.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
