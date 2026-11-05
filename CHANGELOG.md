@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.17] - 2026-11-04
+
+### Guardia de clases muertas y revisión de la app
+
+- `scripts/check.js` falla ahora si una clase estática del HTML no tiene regla en `style.css` o `mobile/mobile.css`. Lista blanca: hooks que consulta JS (`comunidad-page`, `chat-msg-vacio`, `kick-perfil-overlay`, `despierto`) y prefijos construidos en runtime (`rango-`, `rango-texto-`, `kick-badge-`, `lg-`). Probado metiendo `clase-fantasma` en `404.html`: el check la detecta y falla.
+- Revisión de la app Android: `app/version.json` (v1.13, `versionCode` 16, 4.043.426 B) coincide con el APK publicado (sha256 `299c9053…`), con `android/app/build.gradle` de `D:\Apk Gocha`, con el desplegable `#nav-app` de `main.js`, con `mobile/mobile.js` y con `README.md`. Los `mobile.css` y `mobile.js` del repo son idénticos byte a byte a los que empaqueta el APK.
+- `AGENTS.md` documenta el estado actual: sin Tailwind, la guardia nueva, versión de la app y huellas del APK.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.16] - 2026-11-04
 
 ### Limpieza de código muerto (auditoría)

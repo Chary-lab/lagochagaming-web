@@ -116,6 +116,27 @@ if (/Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|Ãƒ|Ã‚|ðŸ|â€/.test(css)) {
     error('style.css: texto con encoding roto (mojibake)');
 }
 
+// Clases estáticas del HTML que no tienen regla en style.css: código muerto.
+// No se revisan las dinámicas (rango-*, kick-badge-*, lg-*, hooks de JS).
+const PREFIJOS_DINAMICOS = ['rango-', 'rango-texto-', 'kick-badge-', 'lg-'];
+const HOOKS_JS = new Set(['comunidad-page', 'chat-msg-vacio', 'kick-perfil-overlay', 'despierto']);
+const clasesCSS = new Set();
+for (const m of css.matchAll(/\.(-?[a-zA-Z_][\w-]*)/g)) clasesCSS.add(m[1]);
+for (const m of leer('mobile/mobile.css').matchAll(/\.(-?[a-zA-Z_][\w-]*)/g)) clasesCSS.add(m[1]);
+for (const pagina of PAGES.concat('404.html')) {
+    const html = leer(pagina).replace(/<script\b[\s\S]*?<\/script>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
+    const usadas = new Set();
+    for (const m of html.matchAll(/(?:^|\s)class\s*=\s*"([^"]*)"/g)) {
+        for (const t of m[1].split(/\s+/).filter(Boolean)) usadas.add(t);
+    }
+    for (const t of usadas) {
+        if (clasesCSS.has(t) || HOOKS_JS.has(t)) continue;
+        if (PREFIJOS_DINAMICOS.some((p) => t.startsWith(p))) continue;
+        if (!/^[a-zA-Z][\w-]*$/.test(t)) continue;
+        error(`${pagina}: la clase "${t}" no tiene regla en style.css (código muerto)`);
+    }
+}
+
 // Directivas Alpine (@click, :hidden, x-show…) sin un ancestro x-data:
 // Alpine las ignora en silencio y el control queda muerto.
 const ETIQUETAS_VACIAS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',

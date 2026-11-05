@@ -10,7 +10,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
 - Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
 - Versión actual: ver `VERSION` (SemVer). Changelog: `CHANGELOG.md`.
-- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`.
+- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`. Estado actual (2026-11-04): app v1.13, `versionCode` 16, APK de 4.043.426 B con sha256 `299c9053139a0a8bd529119a4306b5538092025989192e1a3f7c0df435f92fb8`; `mobile/mobile.css` y `mobile/mobile.js` coinciden byte a byte con los assets del APK.
 
 ## 2. Reglas de stack
 
@@ -18,7 +18,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - No añadir jQuery ni Bootstrap. El sitio usa CSS propio (`.visually-hidden`, `.nav-right`) y Alpine para la UI.
 - **Alpine primero:** toda UI interactiva (listas, tarjetas, modales, formularios, menús, toasts y estados) se implementa con Alpine (`x-data`/stores, `x-for`, `x-model`, `:hidden`, `x-trap`). El JS clásico queda para Supabase, RPC, Realtime, cálculo y APIs `window.*`; no se añaden renders con `innerHTML` ni listeners por elemento.
 - Las librerías externas se cargan por CDN con versión fijada (Supabase JS 2.118.0, Alpine 3.17.5, `@alpinejs/focus` 3.17.5 y hls.js 1.5.20 solo en `index.html`). No cambiar versiones a `latest`.
-- **Sin Tailwind.** El CDN de Tailwind se retiró en 1.61.15: inyectaba su CSS después de la primera pintura y pintaba un borde gris claro en cada caja durante un instante en cada carga y navegación. Todo el estilo vive en `style.css`; no añadir el CDN ni utilidades de Tailwind sin autorización explícita.
+- **Sin Tailwind.** El CDN de Tailwind se retiró en 1.61.15: inyectaba su CSS después de la primera pintura y pintaba un borde gris claro en cada caja durante un instante en cada carga y navegación. Todo el estilo vive en `style.css`; no añadir el CDN ni utilidades de Tailwind sin autorización explícita. `scripts/check.js` falla si `main.js` vuelve a cargarlo o si una clase estática del HTML no tiene regla en `style.css` (lista blanca: hooks `comunidad-page`, `chat-msg-vacio`, `kick-perfil-overlay`, `despierto` y prefijos dinámicos `rango-`, `rango-texto-`, `kick-badge-`, `lg-`).
 - Iconos: sprite local `img/icons.svg` (Font Awesome Free 6.6.0, CC BY 4.0). En el markup se usa `<svg class="icon"><use href="img/icons.svg#i-solid-x">`; no se carga Font Awesome por CDN.
 - Mantener el estilo actual: variables CSS, clases semánticas, modo claro/oscuro y diseño responsive.
 - El sitio debe funcionar sin build. No crear pasos de compilación obligatorios.
@@ -269,7 +269,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.61.16` (auditoría de código muerto: 24 tokens de clase sin regla CSS retirados; 0 clases CSS, variables, ids ni activos huérfanos. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.61.17` (guardia de clases muertas en `scripts/check.js`: falla si una clase estática del HTML no tiene regla en `style.css`; probada metiendo una clase fantasma. Revisión de la app: v1.13, `versionCode` 16, sha256 y assets de `mobile/` correctos. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
