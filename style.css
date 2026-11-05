@@ -1,3 +1,8 @@
+/* Orden de capas: base contiene todo el CSS actual; las capas nuevas
+   (componentes, utilidades) pueden ganar sin pelearse por especificidad. */
+@layer base, componentes, utilidades;
+
+@layer base {
 [hidden] { display: none !important; }
 .icon { width: 1em; height: 1em; display: inline-block; fill: currentColor; vertical-align: -0.125em; flex-shrink: 0; }
 *, *::before, *::after { box-sizing: border-box; }
@@ -7184,4 +7189,5 @@ body.light-mode .gochi-alerta { color: #1f2937; }
 .gochi-campo:has(input:user-invalid, textarea:user-invalid) input,
 .gochi-campo:has(input:user-invalid, textarea:user-invalid) textarea {
     border-color: #ff6b6b;
+}
 }

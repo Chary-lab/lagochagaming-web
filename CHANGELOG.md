@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.63.0] - 2026-11-04
+
+### Capas de CSS y la galería recuerda su orden
+
+- `style.css` queda envuelto en `@layer base` y se declara el orden `base, componentes, utilidades`. Todo el CSS actual vive en `base`, así que el resultado visual es idéntico (verificado: fondo `rgb(17, 24, 39)`, tarjeta `rgb(31, 41, 55)`, borde teal `rgba(94, 234, 212, 0.28)`, navbar y títulos sin cambios). La ganancia es que a partir de ahora las reglas nuevas pueden ir en `componentes` o `utilidades` y ganar sin pelearse por especificidad, que es lo que rompió el panel 7TV.
+- La galería recuerda el orden elegido (`Más Populares` / `Más Recientes`) en `gochi_galeria_orden`: al volver, el menú, el `aria-checked` y la consulta arrancan con esa opción. Guardado protegido por `try/catch` para modo privado.
+- Sin cambios de API ni de esquema.
+
 ## [1.62.1] - 2026-11-04
 
 ### Campos inválidos sin JavaScript
