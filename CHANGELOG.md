@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.67.1] - 2026-11-05
+
+### El interruptor de Ajustes se ve bien
+
+- `.gochi-switch-track` no tenía `display` propio: dentro de la pestaña Ajustes se pintaba como elemento inline de 2 px y se montaba sobre el texto del interruptor (“Per…tir animaciones”). Ahora es `inline-block` y mide sus 40 × 23 px.
+- Verificado en navegador: `w=40 h=23 display=inline-block`.
+- Sin cambios de API ni de esquema.
+
 ## [1.67.0] - 2026-11-05
 
 ### Mi cuenta y Ajustes por separado

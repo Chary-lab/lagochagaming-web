@@ -271,7 +271,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.67.0` (el panel de perfil pasa a tres pestañas: Perfil, Mi cuenta y Ajustes; Ajustes guarda animaciones, tamaño de texto y densidad en `gochi_ajustes` y los aplica con clases en `<html>` antes del primer pintado. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.67.1` (`.gochi-switch-track` pasa a `inline-block`: dentro de Ajustes se pintaba inline de 2 px y se montaba sobre el texto del interruptor. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
