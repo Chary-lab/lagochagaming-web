@@ -285,7 +285,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.70.0` (nuevo `window.rpcRaw` con la misma forma que `supabase.rpc`; 30 llamadas migradas y 0 accesos directos restantes. `window.rpc` sigue para código nuevo. Contraste del tema claro revisado sin cambios. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.71.0` (con ahorro de datos cada feed muestra una tarjeta `.ahorro-pausa` con su explicación y un único botón que reanuda Instagram, TikTok y clips; desaparecen los esqueletos mientras está pausado. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

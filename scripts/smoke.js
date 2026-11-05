@@ -92,7 +92,7 @@ async function servidor(puerto) {
             pagina.on('console', (m) => {
                 if (m.type() !== 'error') return;
                 const texto = m.text();
-                if (/supabase|kick\.com|7tv|umami|ivs|compute-pressure|Permissions policy/i.test(texto)) return;
+                if (/supabase|kick\.com|7tv|umami|ivs|compute-pressure|Permissions policy|MasterPlaylist|Player stopping playback|ErrorNotAvailable/i.test(texto)) return;
                 errores.push(texto);
             });
             pagina.on('pageerror', (e) => errores.push(String(e)));

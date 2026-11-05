@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.71.0] - 2026-11-05
+
+### Ahorro de datos con un diseño propio
+
+- Con el ahorro activo, cada feed muestra una tarjeta `.ahorro-pausa` dentro de su columna en lugar de un botón suelto: título “Contenido pausado”, explicación de qué no se carga y un único botón “Cargar contenido” que reanuda Instagram, TikTok y clips.
+- Se eliminan los esqueletos mientras está pausado, para que no parezca que está cargando algo que nunca llega.
+- Las tres pausas (Instagram, TikTok y `#kick-clips`) comparten el mismo botón: al pulsar cualquiera se quitan las tres y se lanzan las tres cargas.
+- Se retira `.aviso-ahorro`, reemplazado por `.ahorro-pausa`, `.ahorro-pausa-titulo`, `.ahorro-pausa-detalle` y `.ahorro-pausa-btn`.
+- Verificado en navegador: 3 tarjetas de pausa, 0 esqueletos y sin desborde horizontal.
+- Sin cambios de API ni de esquema.
+
 ## [1.70.0] - 2026-11-05
 
 ### Todas las RPC pasan por un único punto
