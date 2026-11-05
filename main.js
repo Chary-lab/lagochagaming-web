@@ -4333,6 +4333,28 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 })();
 
+/* === Modo plano temporal (?plain=1) ===
+   Apaga bordes, sombras, filtros y degradados para aislar qué pinta las cajas
+   que reporta el usuario. Se retira junto al panel de diagnóstico. */
+(function modoPlano() {
+  if (!/[?&]plain=1/.test(location.search)) return;
+  const estilo = document.createElement('style');
+  estilo.textContent = [
+    '*, *::before, *::after {',
+    '  border-color: transparent !important;',
+    '  outline-color: transparent !important;',
+    '  box-shadow: none !important;',
+    '  text-shadow: none !important;',
+    '  filter: none !important;',
+    '  backdrop-filter: none !important;',
+    '  -webkit-backdrop-filter: none !important;',
+    '  background-image: none !important;',
+    '}',
+    'html, body { background: #101010 !important; }'
+  ].join('\n');
+  document.head.appendChild(estilo);
+})();
+
 /* === Diagnóstico temporal (?diag=1 | ?diag=2) ===
    Panel de solo lectura para ver qué aplica el navegador del usuario sin
    abrir DevTools. `diag=2` busca los elementos que pintan bordes claros.
