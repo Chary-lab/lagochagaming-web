@@ -7324,4 +7324,54 @@ body.light-mode .gochi-alerta { color: #1f2937; }
 @media (prefers-reduced-motion: reduce) {
     .gochi-paleta-fondo { backdrop-filter: none; }
 }
+
+/* === Ajustes del dispositivo (se aplican como clases en <html>) === */
+html.sin-animaciones *,
+html.sin-animaciones *::before,
+html.sin-animaciones *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+}
+
+html.texto-90 { font-size: 90%; }
+html.texto-110 { font-size: 110%; }
+html.texto-125 { font-size: 125%; }
+
+html.densidad-compacta .chat-messages { gap: 3px; }
+html.densidad-compacta .gallery-card-info { padding: 6px 9px; }
+html.densidad-compacta .ranking-item { padding-block: 5px; }
+
+/* Segmentado (patrón Pines) */
+.gochi-segmento {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-md);
+    background: var(--card-bg-subtle);
+}
+
+.gochi-segmento button {
+    border: 0;
+    border-radius: calc(var(--r-md) - 2px);
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.gochi-segmento button[aria-pressed="true"] {
+    background: var(--accent-color);
+    color: var(--btn-text);
+}
+
+.gochi-segmento button:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
 }

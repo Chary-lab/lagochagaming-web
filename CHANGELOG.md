@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.67.0] - 2026-11-05
+
+### Mi cuenta y Ajustes por separado
+
+- El panel de perfil pasa de dos pestañas a tres: **Perfil** (lo que ven los demás, solo lectura), **Mi cuenta** (datos que viven en la base de datos: avatar, género, bio, redes, Kick, guardar) y **Ajustes** (preferencias de este dispositivo).
+- La pestaña que antes se llamaba “Ajustes” conserva su contenido intacto y solo cambia de nombre y de estado interno (`cuenta`). `abrir(vista)` acepta `perfil`, `cuenta` y `ajustes`, y el flujo de Kick tras registrarse abre `cuenta`.
+- **Ajustes** guarda un único JSON en `gochi_ajustes` mediante `window.almacen` y aplica clases en `<html>`: `.sin-animaciones`, `.texto-90/110/125` y `.densidad-compacta`.
+- Store `ajustes` en Alpine con `cargar()`, `aplicar()`, `guardar()` y `set(clave, valor)`. Los controles usan `x-model` y `x-for`; sin listeners por elemento.
+- Componente nuevo `.gochi-segmento` (patrón Pines) para elegir el tamaño de texto.
+- Las clases se aplican **antes del primer pintado** con un script inline en las 6 páginas, junto al del tema; así no hay destello ni cambio de tamaño tras cargar.
+- Verificado en navegador: `html=sin-animaciones texto-110` y `gochi_ajustes={"animaciones":false,"texto":110,"densidad":"comoda","sonido":true}`.
+- Sin cambios de API ni de esquema.
+
 ## [1.66.2] - 2026-11-05
 
 ### La identidad exige token

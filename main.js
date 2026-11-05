@@ -784,7 +784,7 @@ window.ofrecerCompletarPerfilKick = function ofrecerCompletarPerfilKick() {
     const cerrar = () => overlay.remove();
     overlay.querySelector('[data-accion="ahora"]').addEventListener('click', () => {
         cerrar();
-        if (typeof window.abrirModalPerfil === 'function') window.abrirModalPerfil('ajustes');
+        if (typeof window.abrirModalPerfil === 'function') window.abrirModalPerfil('cuenta');
     });
     overlay.querySelector('[data-accion="despues"]').addEventListener('click', cerrar);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) cerrar(); });
@@ -3778,10 +3778,13 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="modal-perfil-card" role="document" x-trap.noscroll="$store.perfil.abierto && !$store.perfil.anclado">
         <button type="button" class="modal-perfil-close" x-on:click="$store.perfil.cerrar()" aria-label="Cerrar" data-tooltip="Cerrar">&times;</button>
         <h3 id="modal-perfil-titulo" x-text="$store.perfil.titulo">Mi perfil</h3>
-        <nav class="modal-perfil-tabs" role="tablist" aria-label="Perfil y ajustes" x-bind:hidden="$store.perfil.publico">
+        <nav class="modal-perfil-tabs" role="tablist" aria-label="Perfil, cuenta y ajustes" x-bind:hidden="$store.perfil.publico">
           <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'perfil' }"
                   x-bind:aria-selected="$store.perfil.vista === 'perfil'"
                   x-on:click="$store.perfil.vista = 'perfil'">Perfil</button>
+          <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'cuenta' }"
+                  x-bind:aria-selected="$store.perfil.vista === 'cuenta'"
+                  x-on:click="$store.perfil.vista = 'cuenta'">Mi cuenta</button>
           <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'ajustes' }"
                   x-bind:aria-selected="$store.perfil.vista === 'ajustes'"
                   x-on:click="$store.perfil.vista = 'ajustes'">Ajustes</button>
@@ -3868,8 +3871,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </section>
           </div>
         </div>
-        <div class="modal-perfil-body" role="tabpanel" aria-label="Ajustes"
-             x-bind:hidden="$store.perfil.publico || $store.perfil.vista !== 'ajustes'">
+        <div class="modal-perfil-body" role="tabpanel" aria-label="Mi cuenta"
+             x-bind:hidden="$store.perfil.publico || $store.perfil.vista !== 'cuenta'">
           <p class="mp-pendiente" role="status"
              x-bind:hidden="$store.perfil.genero !== 'no_definido' && !!$store.perfil.usuario.avatar_url">
             Completa tu perfil: elige tu género y tu avatar.
@@ -3957,6 +3960,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     x-on:click="$store.perfil.guardar()">Guardar cambios</button>
           </div>
         </div>
+        <div class="modal-perfil-body" role="tabpanel" aria-label="Ajustes"
+             x-bind:hidden="$store.perfil.publico || $store.perfil.vista !== 'ajustes'">
+          <section class="mp-seccion">
+            <h5 class="mp-seccion-titulo">Animaciones</h5>
+            <label class="gochi-switch">
+              <input type="checkbox" x-model="$store.ajustes.datos.animaciones"
+                     x-on:change="$store.ajustes.guardar()">
+              <span class="gochi-switch-track"></span>
+              <span>Permitir animaciones y transiciones</span>
+            </label>
+          </section>
+
+          <section class="mp-seccion">
+            <h5 class="mp-seccion-titulo">Tamaño del texto</h5>
+            <div class="gochi-segmento" role="group" aria-label="Tamaño del texto">
+              <template x-for="tam in [90, 100, 110, 125]" :key="tam">
+                <button type="button" x-bind:aria-pressed="$store.ajustes.datos.texto === tam"
+                        x-on:click="$store.ajustes.set('texto', tam)" x-text="tam + '%'"></button>
+              </template>
+            </div>
+          </section>
+
+          <p class="mp-desde">Estos ajustes se guardan en este dispositivo y no cambian tu cuenta.</p>
+        </div>
       </div>`;
     document.body.appendChild(modalEl);
     document.addEventListener('pointerdown', (event) => {
@@ -3975,6 +4002,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('alpine:init', () => {
     let avataresCache = null;
+
+    // Preferencias del dispositivo (no viajan con la cuenta).
+    window.Alpine.store('ajustes', {
+      datos: {
+        animaciones: true,
+        texto: 100,
+        densidad: 'comoda',
+        sonido: true
+      },
+      cargar() {
+        const guardado = almacen.leer('gochi_ajustes', null);
+        if (guardado && typeof guardado === 'object') {
+          this.datos = Object.assign({}, this.datos, guardado);
+        }
+        this.aplicar();
+      },
+      aplicar() {
+        const raiz = document.documentElement;
+        raiz.classList.toggle('sin-animaciones', !this.datos.animaciones);
+        raiz.classList.remove('texto-90', 'texto-110', 'texto-125');
+        const tam = Number(this.datos.texto);
+        if (tam === 90 || tam === 110 || tam === 125) raiz.classList.add('texto-' + tam);
+        raiz.classList.toggle('densidad-compacta', this.datos.densidad === 'compacta');
+      },
+      guardar() {
+        almacen.guardar('gochi_ajustes', this.datos);
+        this.aplicar();
+      },
+      set(clave, valor) {
+        this.datos[clave] = valor;
+        this.guardar();
+      }
+    });
+    window.Alpine.store('ajustes').cargar();
+
     window.Alpine.store('perfil', {
       abierto: false,
       publico: false,
@@ -4093,7 +4155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.sobreAdmin = false;
         this.titulo = 'Mi perfil';
         this.error = '';
-        this.vista = vista === 'ajustes' ? 'ajustes' : 'perfil';
+        this.vista = vista === 'ajustes' || vista === 'cuenta' ? vista : 'perfil';
         this.anclado = window.innerWidth >= 900;
         this.colocarPopover();
         this.abierto = true;

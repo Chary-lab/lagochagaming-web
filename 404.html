@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="/style.css?v=1.66.2">
+    <link rel="stylesheet" href="/style.css?v=1.67.0">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="181add5a-5f78-4d10-a199-4d2460d443a8" data-domains="lagochagaming.com"></script>
 </head>
 <body class="error-page">
@@ -34,6 +34,7 @@
     <script>
         try {
             const tema = localStorage.getItem('gochi_tema');
+try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=document.documentElement;if(aj.animaciones===false)rr.classList.add('sin-animaciones');if(aj.texto===90||aj.texto===110||aj.texto===125)rr.classList.add('texto-'+aj.texto);if(aj.densidad==='compacta')rr.classList.add('densidad-compacta');}catch(e){}</script>
             if (tema === 'light') document.body.classList.add('light-mode');
             else if (tema === 'oled') document.body.classList.add('oled-mode');
         } catch (e) { /* sin localStorage */ }
