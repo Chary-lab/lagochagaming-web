@@ -7172,3 +7172,16 @@ body.light-mode .gochi-alerta { color: #1f2937; }
         transition: none;
     }
 }
+
+/* === CSS moderno (sin JS) ===
+   :has() deja que la validez del propio campo pinte el error: el navegador
+   sabe si el valor es válido sin que Alpine lo marque. */
+.gochi-campo:has(input:user-invalid, textarea:user-invalid) .gochi-campo-label,
+.gochi-campo:has(input:user-invalid, textarea:user-invalid) > label {
+    color: #ff9d9d;
+}
+
+.gochi-campo:has(input:user-invalid, textarea:user-invalid) input,
+.gochi-campo:has(input:user-invalid, textarea:user-invalid) textarea {
+    border-color: #ff6b6b;
+}

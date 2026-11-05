@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.62.1] - 2026-11-04
+
+### Campos inválidos sin JavaScript
+
+- `.gochi-campo:has(input:user-invalid, textarea:user-invalid)` pinta la etiqueta y el borde del campo en rojo cuando el propio navegador considera el valor inválido. Antes eso dependía de que Alpine pusiera `data-estado="error"`; ahora funciona también antes de que Alpine arranque y en formularios sin store.
+- Se evaluaron container queries para las tarjetas de galería y se descartaron: `.gallery-grid` usa `minmax(250px, 1fr)`, así que una tarjeta nunca baja de 250 px y la consulta no llegaría a dispararse. Añadirlas habría sido código muerto.
+- Sin cambios de API ni de esquema.
+
 ## [1.62.0] - 2026-11-04
 
 ### Precarga declarativa y sesión sincronizada entre pestañas
