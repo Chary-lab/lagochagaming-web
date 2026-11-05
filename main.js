@@ -330,6 +330,27 @@ window.almacen = {
 // de Auth o la sesión de comunidad (cabecera x-comunidad-token).
 let _adminCache = null;
 
+// Llamada única a las RPC de Supabase: normaliza el resultado y centraliza el
+// aviso de error. Devuelve { ok, data, error }.
+window.rpc = async function rpc(nombre, params, opciones = {}) {
+    if (!window.supabase) return { ok: false, error: 'sin_supabase', data: null };
+    try {
+        const { data, error } = await window.supabase.rpc(nombre, params);
+        if (error) {
+            if (opciones.error !== false) {
+                window.mostrarToast?.(typeof opciones.error === 'string' ? opciones.error : 'Error: ' + error.message, true);
+            }
+            return { ok: false, error: error.message, data: null };
+        }
+        return { ok: true, data, error: null };
+    } catch (e) {
+        if (opciones.error !== false) {
+            window.mostrarToast?.(typeof opciones.error === 'string' ? opciones.error : 'No se pudo completar la operación.', true);
+        }
+        return { ok: false, error: (e && e.message) || 'excepcion', data: null };
+    }
+};
+
 window.esAdminActual = async function esAdminActual() {
     if (!window.supabase) return false;
     const token = almacen.texto('comunidad_session_token') || '';
@@ -343,17 +364,13 @@ window.esAdminActual = async function esAdminActual() {
     if (_adminCache && _adminCache.token === clave) return _adminCache.ok;
 
     let ok = false;
-    try {
-        const { data, error } = await window.supabase.rpc('es_admin');
-        if (error) console.warn('No se pudo verificar el rol de admin:', error.message);
-        else {
-            ok = data === true;
-            _adminCache = { token: clave, ok: ok };
-        }
-    } catch (e) {
-        console.warn('No se pudo verificar el rol de admin:', e);
+    const res = await window.rpc('es_admin', undefined, { error: false });
+    if (!res.ok) {
+        console.warn('No se pudo verificar el rol de admin:', res.error);
         return false;
     }
+    ok = res.data === true;
+    _adminCache = { token: clave, ok: ok };
 
     return ok;
 };
@@ -2191,7 +2208,7 @@ function insertarPanelAdminGlobal() {
     modal.setAttribute('x-on:click.self', '$store.adminPanel.cerrar()');
     modal.innerHTML = `
         <div class="admin-global-backdrop" x-on:click="$store.adminPanel.cerrar()"></div>
-        <div class="admin-global-card" x-trap.noscroll="$store.adminPanel.abierto">
+        <div class="admin-global-card" role="dialog" aria-modal="true" aria-labelledby="admin-global-title" x-trap.noscroll="$store.adminPanel.abierto">
             <header class="admin-global-head">
                 <div>
                     <h2 id="admin-global-title">Administración</h2>
@@ -3703,7 +3720,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalEl.setAttribute('x-on:click.self', '$store.sugerencias.cerrar()');
     modalEl.innerHTML = `
       <div class="modal-sugerencias-backdrop" x-on:click="$store.sugerencias.cerrar()"></div>
-      <div class="modal-sugerencias-card" x-trap.noscroll="$store.sugerencias.abierto">
+      <div class="modal-sugerencias-card" role="dialog" aria-modal="true" aria-labelledby="sugerencias-titulo" x-trap.noscroll="$store.sugerencias.abierto">
         <button type="button" class="modal-sugerencias-close" x-on:click="$store.sugerencias.cerrar()" aria-label="Cerrar">&times;</button>
         <h3 id="sugerencias-titulo">
           <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-lightbulb"></use></svg>

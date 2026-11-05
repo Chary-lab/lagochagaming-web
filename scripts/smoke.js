@@ -122,6 +122,40 @@ async function servidor(puerto) {
             }
             await contexto.close();
         }
+        // Interacciones: paleta de comandos y APIs de ajustes.
+        const ctxInt = await navegador.newContext({ viewport: { width: 1400, height: 900 } });
+        const pag = await ctxInt.newPage();
+        try {
+            await pag.goto(`${base}/index.html?smoke=inter`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+            await pag.waitForTimeout(2000);
+            const apis = await pag.evaluate(() => ({
+                sonido: typeof window.sonidoChat,
+                exportar: typeof window.exportarMisDatos,
+                ajustes: !!(window.Alpine && window.Alpine.store('ajustes'))
+            }));
+            if (apis.sonido !== 'function') fallos.push('interacción: falta window.sonidoChat');
+            if (apis.exportar !== 'function') fallos.push('interacción: falta window.exportarMisDatos');
+            if (!apis.ajustes) fallos.push('interacción: falta el store ajustes');
+
+            await pag.keyboard.press('Control+k');
+            await pag.waitForTimeout(400);
+            const abierta = await pag.evaluate(() => {
+                const caja = document.querySelector('.gochi-paleta');
+                return { visible: !!caja && !caja.hidden, items: document.querySelectorAll('.gochi-paleta-item').length };
+            });
+            if (!abierta.visible) fallos.push('interacción: Ctrl+K no abre la paleta');
+            if (!abierta.items) fallos.push('interacción: la paleta no lista comandos');
+
+            await pag.keyboard.press('Escape');
+            await pag.waitForTimeout(300);
+            const cerrada = await pag.evaluate(() => {
+                const caja = document.querySelector('.gochi-paleta');
+                return !caja || caja.hidden;
+            });
+            if (!cerrada) fallos.push('interacción: Escape no cierra la paleta');
+        } finally {
+            await ctxInt.close();
+        }
     } finally {
         await navegador.close();
         if (proceso) proceso.kill();

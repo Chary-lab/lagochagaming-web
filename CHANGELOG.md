@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.69.0] - 2026-11-05
+
+### Tests de interacción, wrapper de RPC y diálogos accesibles
+
+- `scripts/smoke.js` gana un bloque de interacciones: comprueba que existen `window.sonidoChat`, `window.exportarMisDatos` y el store `ajustes`, que `Ctrl+K` abre la paleta con comandos y que `Escape` la cierra.
+- Nuevo `window.rpc(nombre, params, opciones)`: única puerta a las RPC de Supabase. Devuelve `{ ok, data, error }`, centraliza el aviso de error y permite silenciarlo con `{ error: false }`. Migrada `es_admin`, que ahora usa el wrapper.
+- Accesibilidad de diálogos: `.admin-global-card`, `.modal-sugerencias-card` y `.reporte-foto-box` pasan a `role="dialog"` con `aria-modal="true"` y `aria-labelledby` apuntando a su título.
+- Sin cambios de API ni de esquema.
+
 ## [1.68.0] - 2026-11-05
 
 ### Ahorro de datos y exportar mis datos
