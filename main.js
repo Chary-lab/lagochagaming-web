@@ -1276,7 +1276,23 @@ document.addEventListener('click', (evento) => {
     window.abrirLoginMenu(boton.dataset.loginAccion);
 });
 
+// Pinta el estado EN VIVO sin consultar la red. Se usa al construir la navbar
+// con el último estado guardado y cuando responde Kick.
+window.pintarEstadoNav = function pintarEstadoNav(vivo) {
+    const navbar = document.querySelector('.navbar');
+    const liveTag = document.getElementById('nav-live-tag');
+    if (navbar) navbar.classList.toggle('live-glow', !!vivo);
+    if (liveTag) liveTag.hidden = !vivo;
+    try { localStorage.setItem('gochi_en_vivo_ultimo', vivo ? '1' : '0'); } catch (e) { /* modo privado */ }
+};
+
 window.insertarNavbar();
+
+// Arrancar con el último estado conocido: el tag no aparece ni empuja la navbar.
+try {
+    const ultimo = localStorage.getItem('gochi_en_vivo_ultimo');
+    if (ultimo === '1' || ultimo === '0') window.pintarEstadoNav(ultimo === '1');
+} catch (e) { /* sin almacenamiento */ }
 
 
 window.validarSesionStreamer = async function validarSesionStreamer() {
@@ -1889,9 +1905,6 @@ window.verificarEstadoStream = async function verificarEstadoStream() {
         }
     }
 
-    const navbar = document.querySelector('.navbar');
-    const liveTag = document.getElementById('nav-live-tag');
-
     // Actualizar contador de followers si existe (solo en index.html)
     const followersCount = data.followers_count ?? data.channel?.followers_count ?? data.user?.followers_count;
     const followersEl = document.getElementById('kick-followers-count');
@@ -1900,13 +1913,7 @@ window.verificarEstadoStream = async function verificarEstadoStream() {
         followersEl.title = followersCount.toLocaleString('es-ES') + ' seguidores';
     }
 
-    if (enVivo) {
-        if (navbar) navbar.classList.add('live-glow');
-        if (liveTag) liveTag.hidden = false;
-    } else {
-        if (navbar) navbar.classList.remove('live-glow');
-        if (liveTag) liveTag.hidden = true;
-    }
+    window.pintarEstadoNav(enVivo);
 
     if (typeof window.actualizarEspectadoresKick === 'function') {
         window.actualizarEspectadoresKick(enVivo ? data?.livestream?.viewer_count : 0, enVivo);

@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.63.3] - 2026-11-05
+
+### El estado EN VIVO ya no salta al cargar
+
+- `window.pintarEstadoNav(vivo)` centraliza el pintado del tag y del brillo del navbar, y guarda el último estado en `gochi_en_vivo_ultimo` (`localStorage`). Al construir la navbar se aplica ese valor antes de cualquier consulta, así que el tag aparece en su sitio desde el primer frame y no empuja los enlaces cuando responde Kick.
+- `verificarEstadoStream()` usa ese mismo pintado en vez de duplicar el `classList`/`hidden`.
+- El brillo del navbar pasa a ser fijo (`box-shadow: 0 0 26px rgba(83, 252, 24, 0.5)`): se elimina `@keyframes navbarPulse` y su excepción en `prefers-reduced-motion`. Se acaba el repintado continuo de una franja del ancho de la ventana mientras hay directo, y la captura deja de cambiar según el fotograma. El punto sigue latiendo con `navLivePulse`.
+- Sin cambios de API ni de esquema.
+
 ## [1.63.2] - 2026-11-05
 
 ### Smoke test de las cinco páginas

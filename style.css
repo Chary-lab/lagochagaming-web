@@ -2512,20 +2512,13 @@ body.light-mode .reporte-foto-box {
 
 @media (prefers-reduced-motion: reduce) {
     .nav-live-dot { animation: none; }
-    .navbar.live-glow { animation: none; }
 }
 
 /* --- NAVBAR LIVE GLOW --- */
   .navbar.live-glow {
       border-bottom: 3px solid #53fc18;
-      box-shadow: 0 0 20px rgba(83, 252, 24, 0.4);
-      animation: navbarPulse 2s ease-in-out infinite;
+      box-shadow: 0 0 26px rgba(83, 252, 24, 0.5);
   }
-
- @keyframes navbarPulse {
-     0%, 100% { box-shadow: 0 0 15px rgba(83, 252, 24, 0.3); }
-     50% { box-shadow: 0 0 30px rgba(83, 252, 24, 0.6); }
- }
 
  /* --- CONTADOR DE RACHA --- */
  .streak-badge {
