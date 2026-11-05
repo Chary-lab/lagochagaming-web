@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.64.0] - 2026-11-05
+
+### Fuentes propias: Space Grotesk + Inter
+
+- Se acabó el CDN de Google Fonts. `fonts/` guarda dos woff2 **variables** con subconjunto latin: `inter-latin-variable.woff2` (47 KB, 400–700) y `space-grotesk-latin-variable.woff2` (22 KB, 300–700). 69 KB en total y cubren todos los pesos que usa el CSS.
+- `@font-face` vive en `style.css` (dentro de `@layer base`) con `font-display: swap`. Las 6 páginas cambian el `<link>` de Google y los dos `preconnect` por `preload` de los dos woff2.
+- El cuerpo pasa a Inter (ya era) y los títulos y el logo a **Space Grotesk**. El logo baja de `font-weight: 900` a `700`, el máximo real de la familia.
+- Motivo: con `display=optional` el navegador decidía en ~100 ms si usar la webfont; con caché fría caía al respaldo y la negrita de “EN VIVO” se veía distinta que tras un `F5`. Ahora el archivo es local y llega precargado: mismo grosor y mismas formas en toda carga. Además se sintetizaba el peso 700, que el CSS usa 47 veces y no estaba en la lista descargada.
+- `_headers`: fuera `fonts.googleapis.com` de `style-src` y `fonts.gstatic.com` de `font-src`.
+- Sin cambios de API ni de esquema.
+
 ## [1.63.3] - 2026-11-05
 
 ### El estado EN VIVO ya no salta al cargar

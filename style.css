@@ -3,6 +3,26 @@
 @layer base, componentes, utilidades;
 
 @layer base {
+/* Fuentes autoalojadas (subconjunto latin, variable): sin CDN ni variación
+   entre cargas. Un archivo cubre todos los pesos de cada familia. */
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('fonts/inter-latin-variable.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+    src: url('fonts/space-grotesk-latin-variable.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 [hidden] { display: none !important; }
 .icon { width: 1em; height: 1em; display: inline-block; fill: currentColor; vertical-align: -0.125em; flex-shrink: 0; }
 *, *::before, *::after { box-sizing: border-box; }
@@ -23,7 +43,7 @@
     --gradient: linear-gradient(135deg, #5eead4 0%, #a7f3d0 50%, #f9a8d4 100%);
     --btn-text: #0f172a;
     --font-body: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    --font-display: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    --font-display: 'Space Grotesk', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     --navbar-height: 65px;
     /* Radios */
     --r-sm: 6px;
@@ -109,7 +129,7 @@ body { background-color: var(--bg-color); color: var(--text-main); font-family: 
 #navbar-root:empty { visibility: hidden; }
 .navbar { height: var(--navbar-height); background: rgba(15,31,26,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; padding: 0 var(--space-6); position: fixed; top: 0; width: 100%; max-width: 100%; box-sizing: border-box; z-index: 1000; border-bottom: 1px solid var(--border-color); transition: background-color 0.3s ease; gap: 16px; }
 body.light-mode .navbar { background: rgba(240,253,244,0.75); }
-.logo { font-family: var(--font-display); font-size: 22px; font-weight: 900; letter-spacing: 2px; color: var(--text-main); flex-shrink: 0; min-width: 160px; }
+.logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: 2px; color: var(--text-main); flex-shrink: 0; min-width: 160px; }
 .logo span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
 .nav-links { display: flex; flex-direction: row; gap: 4px; align-items: center; justify-content: center; flex: 1; flex-wrap: wrap; }
 

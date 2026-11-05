@@ -21,6 +21,9 @@
 !img/mcchary/
 !img/mcchary/*
 !img/avatars/*
+# Fuentes autoalojadas (woff2, subconjunto latin)
+!fonts/
+!fonts/*
 # Migraciones locales de Supabase: viven en Supabase, no en este repo
 supabase/
 # Herramientas de validación

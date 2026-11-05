@@ -42,6 +42,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 | `llms.txt` | Resumen del sitio y URLs para motores de IA |
 | `img/icons.svg` | Sprite de iconos (Font Awesome Free 6.6.0, CC BY 4.0) |
 | `img/mcchary/` | Ilustraciones del creador: footer, 404 y estados vacíos |
+| `fonts/` | woff2 autoalojados: Inter y Space Grotesk variable (subconjunto latin) |
 | `scripts/check.js` | Validaciones estáticas del repo (no se carga en Pages) |
 | `scripts/smoke.js` | Smoke test con navegador real: 5 páginas × 2 tamaños, consola, desborde y busters |
 | `app/LaGochaGaming.apk` | APK firmado que descarga la web (se reemplaza en cada release de la app) |
@@ -270,7 +271,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.63.3` (`pintarEstadoNav` centraliza el tag EN VIVO y guarda el último estado en `gochi_en_vivo_ultimo`; el brillo del navbar pasa a fijo y se elimina `navbarPulse`. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.64.0` (fuentes autoalojadas en `fonts/`: Inter y Space Grotesk variables, subconjunto latin, `@font-face` en `style.css` y `preload` en las páginas; fuera el CDN de Google. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
@@ -359,7 +360,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Shadowban: `comunidad_chat.oculto` filtra la lectura por RPC y el realtime del cliente, pero la tabla tiene SELECT público; un atacante podría leer mensajes ocultos por REST. No es un control de seguridad fuerte.
 - PIN de 4 dígitos: fuerza bruta distribuida posible; el rate limit es por IP.
 - GitHub Pages no aplica `_headers`: no hay CSP/HSTS reales en producción.
-- CDNs sin SRI (jsDelivr: Supabase JS, Alpine, hls.js; Google Fonts).
+- CDNs sin SRI (jsDelivr: Supabase JS, Alpine, hls.js). Las fuentes ya no vienen de Google: `fonts/` sirve Inter y Space Grotesk (woff2 variable, latin) con `@font-face` en `style.css`.
 - Advisors de Supabase marcan RPCs `SECURITY DEFINER` ejecutables por `anon`; es intencional para usuarios de comunidad sin Supabase Auth. Revisar cada nueva RPC con el mismo criterio.
 - Índices marcados como "unused" son de bajo volumen; no eliminarlos sin medir.
 - El contador de descargas no ve las actualizaciones internas de la app ni las descargas directas del `.apk` fuera de `app-descarga`. La pestaña Descargas estima las actualizaciones con telemetría anónima cuando la app se abre, así que pueden tardar hasta que el usuario vuelva a entrar.
