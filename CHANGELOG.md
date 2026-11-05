@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.67.2] - 2026-11-05
+
+### Densidad, efectos y aviso sonoro del chat
+
+- **Densidad** con dos tarjetas de opción (`.mp-opcion`, patrón Pines): Cómoda y Compacta. La compacta reduce el aire del chat, las tarjetas de galería y el ranking.
+- **Efectos**: interruptor de desenfoques y transparencias (`.sin-transparencias` quita `backdrop-filter` y da fondo sólido al navbar) y **alto contraste** (`.alto-contraste` sube el borde al 75 % y aclara el texto secundario).
+- **Sonido del chat**: `window.sonidoChat()` genera dos tonos cortos con Web Audio, sin archivos ni CDN. Suena solo si el mensaje no es tuyo, si la pestaña está oculta o no estás al final del chat, y como máximo una vez cada 2 segundos. El `AudioContext` se arma con la primera interacción, porque los navegadores bloquean el audio hasta entonces.
+- Las tres preferencias nuevas se suman a `gochi_ajustes` y sus clases se aplican antes del primer pintado desde el script inline de las 6 páginas.
+- Sin cambios de API ni de esquema.
+
 ## [1.67.1] - 2026-11-05
 
 ### El interruptor de Ajustes se ve bien

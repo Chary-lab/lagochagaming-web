@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Sorteos de LaGochaGaming">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.67.1">
+    <link rel="stylesheet" href="style.css?v=1.67.2">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -60,7 +60,7 @@
 <body>
 <script>
 try{var t=localStorage.getItem('gochi_tema');if(t==='light')document.body.classList.add('light-mode');else if(t==='oled')document.body.classList.add('oled-mode');}catch(e){}
-try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=document.documentElement;if(aj.animaciones===false)rr.classList.add('sin-animaciones');if(aj.texto===90||aj.texto===110||aj.texto===125)rr.classList.add('texto-'+aj.texto);if(aj.densidad==='compacta')rr.classList.add('densidad-compacta');}catch(e){}</script>
+try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=document.documentElement;if(aj.animaciones===false)rr.classList.add('sin-animaciones');if(aj.texto===90||aj.texto===110||aj.texto===125)rr.classList.add('texto-'+aj.texto);if(aj.densidad==='compacta')rr.classList.add('densidad-compacta');if(aj.transparencias===false)rr.classList.add('sin-transparencias');if(aj.contraste===true)rr.classList.add('alto-contraste');}catch(e){}</script>
 </script>
 
 <div class="page-shell">
@@ -941,7 +941,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         </div>
     </footer>
 
-    <script src="main.js?v=1.67.1" defer></script>
+    <script src="main.js?v=1.67.2" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

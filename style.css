@@ -7375,4 +7375,80 @@ html.densidad-compacta .ranking-item { padding-block: 5px; }
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* --- Opciones de densidad (tarjetas de radio, patrón Pines) --- */
+.mp-opciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.mp-opcion {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--r-md);
+    background: var(--card-bg-subtle);
+    cursor: pointer;
+}
+
+.mp-opcion input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.mp-opcion:has(input:checked) {
+    border-color: var(--accent-color);
+    box-shadow: inset 0 0 0 1px var(--accent-color);
+}
+
+.mp-opcion:has(input:focus-visible) {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.mp-opcion-titulo {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.mp-opcion-detalle {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+}
+
+/* --- Sin transparencias ni desenfoques --- */
+html.sin-transparencias .gochi-paleta-fondo,
+html.sin-transparencias .modal-perfil-backdrop,
+html.sin-transparencias .lightbox-backdrop,
+html.sin-transparencias .navbar,
+html.sin-transparencias .nav-app-dropdown,
+html.sin-transparencias .chat-kick-top {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+html.sin-transparencias .navbar {
+    background: var(--card-bg) !important;
+}
+
+/* --- Alto contraste --- */
+html.alto-contraste {
+    --border-color: rgba(94, 234, 212, 0.75);
+    --text-muted: #e5e7eb;
+}
+
+html.alto-contraste .gallery-card,
+html.alto-contraste .video-card,
+html.alto-contraste .gochi-card,
+html.alto-contraste .modal-perfil-card {
+    border-width: 2px;
+}
 }

@@ -125,6 +125,45 @@ window.almacen = {
     }
 };
 
+// Aviso sonoro del chat: dos tonos cortos con Web Audio, sin archivos ni CDN.
+// Se arma con la primera interacción porque los navegadores bloquean el audio
+// hasta que el usuario toca la página.
+(function avisoSonoroChat() {
+    let contexto = null;
+    let ultimo = 0;
+    let armado = false;
+    const armar = () => { armado = true; };
+    window.addEventListener('pointerdown', armar, { once: true, passive: true });
+    window.addEventListener('keydown', armar, { once: true });
+
+    window.sonidoChat = function sonidoChat() {
+        if (!armado) return;
+        const ahora = Date.now();
+        if (ahora - ultimo < 2000) return;
+        ultimo = ahora;
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            contexto = contexto || new AudioCtx();
+            if (contexto.state === 'suspended') contexto.resume();
+            const t0 = contexto.currentTime;
+            [880, 1174].forEach((frecuencia, indice) => {
+                const oscilador = contexto.createOscillator();
+                const ganancia = contexto.createGain();
+                const inicio = t0 + indice * 0.07;
+                oscilador.type = 'sine';
+                oscilador.frequency.value = frecuencia;
+                ganancia.gain.setValueAtTime(0.0001, inicio);
+                ganancia.gain.exponentialRampToValueAtTime(0.12, inicio + 0.02);
+                ganancia.gain.exponentialRampToValueAtTime(0.0001, inicio + 0.09);
+                oscilador.connect(ganancia).connect(contexto.destination);
+                oscilador.start(inicio);
+                oscilador.stop(inicio + 0.1);
+            });
+        } catch (e) { /* audio bloqueado o no soportado */ }
+    };
+})();
+
 // === EMOTES GLOBALES DE 7TV ===
 // El canal no tiene set propio: se usa el set global de 7TV y se cachea para
 // no pedirlo en cada página. Solo se aceptan ids alfanuméricos del CDN oficial.
@@ -3982,6 +4021,50 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </section>
 
+          <section class="mp-seccion">
+            <h5 class="mp-seccion-titulo">Densidad</h5>
+            <div class="mp-opciones" role="radiogroup" aria-label="Densidad de la interfaz">
+              <label class="mp-opcion">
+                <input type="radio" name="densidad" value="comoda"
+                       x-model="$store.ajustes.datos.densidad" x-on:change="$store.ajustes.guardar()">
+                <span class="mp-opcion-titulo">Cómoda</span>
+                <span class="mp-opcion-detalle">Más aire entre filas</span>
+              </label>
+              <label class="mp-opcion">
+                <input type="radio" name="densidad" value="compacta"
+                       x-model="$store.ajustes.datos.densidad" x-on:change="$store.ajustes.guardar()">
+                <span class="mp-opcion-titulo">Compacta</span>
+                <span class="mp-opcion-detalle">Más contenido en pantalla</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="mp-seccion">
+            <h5 class="mp-seccion-titulo">Efectos</h5>
+            <label class="gochi-switch">
+              <input type="checkbox" x-model="$store.ajustes.datos.transparencias"
+                     x-on:change="$store.ajustes.guardar()">
+              <span class="gochi-switch-track"></span>
+              <span>Permitir desenfoques y transparencias</span>
+            </label>
+            <label class="gochi-switch">
+              <input type="checkbox" x-model="$store.ajustes.datos.contraste"
+                     x-on:change="$store.ajustes.guardar()">
+              <span class="gochi-switch-track"></span>
+              <span>Alto contraste</span>
+            </label>
+          </section>
+
+          <section class="mp-seccion">
+            <h5 class="mp-seccion-titulo">Chat</h5>
+            <label class="gochi-switch">
+              <input type="checkbox" x-model="$store.ajustes.datos.sonido"
+                     x-on:change="$store.ajustes.guardar()">
+              <span class="gochi-switch-track"></span>
+              <span>Sonido al recibir mensajes</span>
+            </label>
+          </section>
+
           <p class="mp-desde">Estos ajustes se guardan en este dispositivo y no cambian tu cuenta.</p>
         </div>
       </div>`;
@@ -4009,6 +4092,8 @@ document.addEventListener('DOMContentLoaded', () => {
         animaciones: true,
         texto: 100,
         densidad: 'comoda',
+        transparencias: true,
+        contraste: false,
         sonido: true
       },
       cargar() {
@@ -4025,6 +4110,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const tam = Number(this.datos.texto);
         if (tam === 90 || tam === 110 || tam === 125) raiz.classList.add('texto-' + tam);
         raiz.classList.toggle('densidad-compacta', this.datos.densidad === 'compacta');
+        raiz.classList.toggle('sin-transparencias', !this.datos.transparencias);
+        raiz.classList.toggle('alto-contraste', !!this.datos.contraste);
       },
       guardar() {
         almacen.guardar('gochi_ajustes', this.datos);
