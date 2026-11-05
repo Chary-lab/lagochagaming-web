@@ -285,7 +285,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.72.0` (el store `ajustes` emite `gochi:ajustes` en cada `guardar()`; la home escucha y aplica el ahorro de datos sin recargar, vaciando los feeds al activarlo y cargándolos al desactivarlo. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.73.0` (nueva RPC `eliminar_mi_cuenta` y columna `eliminado_en`: elimina el perfil, vacía datos personales, borra sesiones y deja mensajes y fotos como “Cuenta eliminada”; el cliente lo expone en Mi cuenta con confirmación por apodo y PIN. Sin cambios de API para el resto del cliente).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

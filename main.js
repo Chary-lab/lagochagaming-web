@@ -4047,6 +4047,13 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="mp-acciones-extra">
             <button type="button" class="btn-primary btn-muted" x-on:click="window.exportarMisDatos()">Exportar mis datos</button>
           </div>
+
+          <section class="mp-seccion mp-peligro">
+            <h5 class="mp-seccion-titulo">Eliminar cuenta</h5>
+            <p class="mp-desde">Se borran tu perfil, avatar, bio, redes y sesiones. Tus mensajes y fotos se quedan como “Cuenta eliminada”. No se puede deshacer.</p>
+            <button type="button" class="btn-peligro" x-on:click="$store.perfil.abrirEliminar()">Eliminar mi cuenta</button>
+          </section>
+
           <div class="mp-actions mp-actions--fija">
             <button type="button" class="btn-primary btn-muted" x-on:click="$store.perfil.vista = 'perfil'">Cancelar</button>
             <button type="button" class="btn-primary" x-bind:disabled="$store.perfil.guardando"
@@ -4131,6 +4138,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
           <p class="mp-desde">Estos ajustes se guardan en este dispositivo y no cambian tu cuenta.</p>
         </div>
+        <div class="mp-eliminar" role="dialog" aria-modal="true" aria-labelledby="mp-eliminar-titulo"
+             x-bind:hidden="!$store.perfil.eliminarAbierto" x-trap="$store.perfil.eliminarAbierto">
+          <div class="mp-eliminar-caja">
+            <h4 id="mp-eliminar-titulo">Eliminar mi cuenta</h4>
+            <p class="mp-desde">Escribe tu apodo y tu PIN para confirmar. Es inmediato e irreversible.</p>
+            <label class="gochi-campo">
+              <span class="gochi-campo-label">Tu apodo</span>
+              <input type="text" autocomplete="off" x-model="$store.perfil.confirmApodo">
+            </label>
+            <label class="gochi-campo">
+              <span class="gochi-campo-label">Tu PIN</span>
+              <input type="password" inputmode="numeric" maxlength="4" autocomplete="off" x-model="$store.perfil.confirmPin">
+            </label>
+            <p class="mp-error gochi-alerta" data-tono="error" role="alert"
+               x-bind:hidden="!$store.perfil.errorEliminar" x-text="$store.perfil.errorEliminar"></p>
+            <div class="mp-actions">
+              <button type="button" class="btn-primary btn-muted" x-on:click="$store.perfil.cerrarEliminar()">Cancelar</button>
+              <button type="button" class="btn-peligro" x-bind:disabled="$store.perfil.eliminando"
+                      x-on:click="$store.perfil.eliminarCuenta()">Eliminar definitivamente</button>
+            </div>
+          </div>
+        </div>
       </div>`;
     document.body.appendChild(modalEl);
     document.addEventListener('pointerdown', (event) => {
@@ -4200,6 +4229,11 @@ document.addEventListener('DOMContentLoaded', () => {
       anclado: false,
       vista: 'perfil',
       titulo: 'Mi perfil',
+      eliminarAbierto: false,
+      confirmApodo: '',
+      confirmPin: '',
+      errorEliminar: '',
+      eliminando: false,
       cargando: false,
       guardando: false,
       error: '',
@@ -4317,6 +4351,56 @@ document.addEventListener('DOMContentLoaded', () => {
         this.abierto = true;
         setNavExpanded(true);
         this.cargar();
+      },
+
+      abrirEliminar() {
+        this.confirmApodo = '';
+        this.confirmPin = '';
+        this.errorEliminar = '';
+        this.eliminarAbierto = true;
+      },
+
+      cerrarEliminar() {
+        this.eliminarAbierto = false;
+      },
+
+      async eliminarCuenta() {
+        this.errorEliminar = '';
+        const token = almacen.texto('comunidad_session_token');
+        if (!token) {
+          this.errorEliminar = 'Tu sesión no está activa.';
+          return;
+        }
+        const apodo = String(this.usuario.apodo || '').trim().toLowerCase();
+        if (!apodo || String(this.confirmApodo || '').trim().toLowerCase() !== apodo) {
+          this.errorEliminar = 'El apodo no coincide.';
+          return;
+        }
+        if (!/^\d{4}$/.test(String(this.confirmPin || ''))) {
+          this.errorEliminar = 'El PIN debe tener 4 dígitos.';
+          return;
+        }
+        this.eliminando = true;
+        try {
+          const res = await window.rpc('eliminar_mi_cuenta', { p_token: token, p_pin: this.confirmPin }, { error: false });
+          const codigo = res.ok && res.data ? res.data.error : res.error;
+          if (!res.ok || !res.data || res.data.ok !== true) {
+            this.errorEliminar = codigo === 'pin_invalido' ? 'PIN incorrecto.'
+              : codigo === 'protegida' ? 'Esta cuenta no se puede eliminar.'
+              : 'No se pudo eliminar la cuenta.';
+            return;
+          }
+          this.eliminarAbierto = false;
+          window.limpiarEstadoSesionUI?.();
+          ['comunidad_session_token', 'comunidad_nickname', 'comunidad_user_id', 'comunidad_session_usuario']
+            .forEach((clave) => almacen.borrar(clave));
+          window.mostrarToast?.('Tu cuenta se ha eliminado.');
+          setTimeout(() => { window.location.href = 'comunidad.html'; }, 900);
+        } catch (e) {
+          this.errorEliminar = 'No se pudo eliminar la cuenta.';
+        } finally {
+          this.eliminando = false;
+        }
       },
 
       colocarPopover() {

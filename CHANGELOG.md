@@ -3,6 +3,22 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.73.0] - 2026-11-05
+
+### Eliminar mi cuenta
+
+- Botón **Eliminar mi cuenta** en Mi cuenta, con tarjeta de peligro y modal de confirmación: hay que escribir el apodo y el PIN. Nada de “¿seguro?”.
+- RPC `eliminar_mi_cuenta(p_token, p_pin)` (`SECURITY DEFINER`, `search_path`, `EXECUTE` solo a `anon`, `authenticated` y `service_role`): valida la sesión y el PIN con bcrypt, y en una sola transacción:
+  - renombra el apodo a `eliminado_<id>` y pone `eliminado_en = now()`;
+  - vacía avatar, bio, redes, icono, género, datos de Kick, `auth_user_id` y `pin_hash` (aleatorio);
+  - borra sus sesiones, sus participaciones en sorteo y cancela canjes pendientes;
+  - reescribe el autor a “Cuenta eliminada” en `comunidad_chat`, `muro_saludos` y `galeria`;
+  - deja fila en `admin_audit_log`.
+- Protecciones: no se pueden eliminar las cuentas con rol `owner`/`admin` ni el perfil reservado `LaGochaGaming`.
+- Como el apodo desaparece y el PIN se inutiliza, el login con PIN y el de Kick dejan de encontrar la cuenta sin tocar sus funciones.
+- `eliminado_en is null` en el top de comunidad y en la lista de menciones `@`.
+- Sin cambios de API para el resto del cliente.
+
 ## [1.72.0] - 2026-11-05
 
 ### El ahorro de datos reacciona en vivo
