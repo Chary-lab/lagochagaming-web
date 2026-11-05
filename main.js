@@ -76,6 +76,8 @@ if (window.supabase) {
 const TAILWIND_CDN = 'https://cdn.tailwindcss.com/3.4.17';
 
 window.GOCHA_TAILWIND = window.GOCHA_TAILWIND !== false;
+// Prueba puntual: `?notw=1` desactiva la inyección del CDN de Tailwind.
+if (/[?&]notw=1/.test(location.search)) window.GOCHA_TAILWIND = false;
 window.tailwindListo = false;
 
 // Los colores apuntan a las variables de style.css: el tema claro/oscuro se

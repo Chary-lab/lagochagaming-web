@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.14] - 2026-11-04
+
+### Interruptor para probar el CDN de Tailwind
+
+- `?notw=1` desactiva la inyección del CDN de Tailwind en esa carga (`window.GOCHA_TAILWIND = false`). Sirve para comprobar si el parpadeo de la recarga viene de la llamada al CDN.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.13] - 2026-11-04
 
 ### Modo plano temporal (`?plain=1`)
