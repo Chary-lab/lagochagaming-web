@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.71.2] - 2026-11-05
+
+### Instagram y TikTok también centrados
+
+- `.ig-feed` es un grid de tres columnas, así que la tarjeta de pausa caía en la primera celda y el `margin: auto` no la movía. Ahora `.ig-feed > .ahorro-pausa` comparte la regla del grid de clips: `grid-column: 1 / -1` + `justify-self: center`.
+- Verificado en navegador: las dos tarjetas de `.ig-feed` salen centradas (`true,true`).
+- Sin cambios de API ni de esquema.
+
 ## [1.71.1] - 2026-11-05
 
 ### Las tarjetas de pausa, centradas

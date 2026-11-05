@@ -7479,7 +7479,8 @@ html.alto-contraste .modal-perfil-card {
 }
 
 /* Dentro de un grid, la pausa ocupa la fila completa y se centra. */
-.youtube-grid > .ahorro-pausa {
+.youtube-grid > .ahorro-pausa,
+.ig-feed > .ahorro-pausa {
     grid-column: 1 / -1;
     justify-self: center;
 }
