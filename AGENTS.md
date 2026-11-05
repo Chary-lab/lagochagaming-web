@@ -44,7 +44,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 | `img/mcchary/` | Ilustraciones del creador: footer, 404 y estados vacíos |
 | `fonts/` | woff2 autoalojados: Inter y Space Grotesk variable (subconjunto latin) |
 | `scripts/check.js` | Validaciones estáticas del repo (no se carga en Pages) |
-| `scripts/smoke.js` | Smoke test con navegador real: 5 páginas × 2 tamaños, consola, desborde y busters |
+| `scripts/smoke.js` | Smoke test con navegador real: 5 páginas × 2 tamaños, consola, desborde, busters e interacciones (Ctrl+K, APIs de ajustes) |
 | `app/LaGochaGaming.apk` | APK firmado que descarga la web (se reemplaza en cada release de la app) |
 | `app/version.json` | Manifiesto del actualizador de la app (`versionCode`, `versionName`, `sha256`, `size`, `notes`) |
 | `mobile/mobile.css`, `mobile/mobile.js` | Interfaz móvil que la app descarga encima del APK; única carpeta que la app consume en remoto |
@@ -97,6 +97,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Móvil (<900 px): hoja inferior con backdrop y botón de cierre.
 - Desde el panel admin: `window.abrirPerfilUsuario(apodo, { sobreAdmin: true })` añade `modal-perfil--stack` (z-index 10060) y el panel sigue montado debajo; al cerrar el perfil se vuelve al panel sin clics extra.
 - El perfil público se ordena por secciones (`.mp-seccion`): cabecera, insignias, bio, redes y actividad. No volver a amontonar todo en la cabecera.
+- El panel propio tiene tres pestañas con dueños distintos: **Perfil** (solo lectura, lo que ven los demás), **Mi cuenta** (`vista === 'cuenta'`, datos que viven en la base: avatar, género, bio, redes, Kick, guardar) y **Ajustes** (`vista === 'ajustes'`, preferencias del dispositivo). `abrir(vista)` acepta las tres; el flujo de Kick tras registrarse abre `cuenta`. No mezclar datos de cuenta con preferencias del navegador.
 
 ### 4.3 Componentes Gochi (Alpine + Pines)
 
@@ -108,6 +109,19 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Patrón de carga: un flag `cargando` en el store de la página pinta `gochi-skeleton` con `x-for`; al terminar se limpia y entra la lista real o `gochi-vacio`.
 - Accesibilidad: `aria-expanded` en triggers de acordeón y menús, `aria-busy` mientras carga, y `prefers-reduced-motion` desactiva las animaciones.
 - Migas de pan con `gochi-breadcrumb` en Comunidad, Galería, Sorteo y Cine; la home no las lleva por ser la raíz. El contenido de acordeones y migas queda en HTML estático para los buscadores.
+
+### 4.4 Ajustes del dispositivo (`ajustes`)
+
+- El store `ajustes` de `main.js` guarda un único JSON en `gochi_ajustes` con `window.almacen` y aplica clases en `<html>`: `sin-animaciones`, `texto-90/110/125`, `densidad-compacta`, `sin-transparencias`, `alto-contraste`, `ahorro-datos`. Métodos: `cargar()`, `aplicar()`, `guardar()`, `set(clave, valor)`.
+- Son preferencias **del navegador**, no de la cuenta: no se sincronizan y deben funcionar sin sesión. Los datos del usuario viven en la base y se editan en **Mi cuenta**.
+- Las clases se aplican **antes del primer pintado** desde el script inline del `<head>` de las 6 páginas, igual que el tema. Si se aplican desde `main.js` (defer) hay destello.
+- `ahorro-datos` retrasa los feeds de Instagram, TikTok y clips hasta que el visitante pulsa “Cargar contenido”.
+- `window.sonidoChat()` genera el aviso del chat con Web Audio (sin archivos): solo si el mensaje no es tuyo, si la pestaña está oculta o no estás al final, y como máximo una vez cada 2 s. El `AudioContext` se arma con la primera interacción.
+- `window.exportarMisDatos()` descarga perfil y preferencias en JSON, todo en cliente.
+
+### 4.5 RPC: una sola puerta
+
+- Toda llamada a Supabase pasa por `window.rpcRaw(nombre, params)` (misma forma que `supabase.rpc`: `{ data, error }`, con `try/catch` y error normalizado) o por `window.rpc(nombre, params, opciones)` (`{ ok, data, error }`, con aviso de error silenciable). No usar `window.supabase.rpc` directamente: `scripts/check.js` no lo impide, pero la convención es una sola vía.
 
 ## 5. Supabase: reglas no negociables
 
