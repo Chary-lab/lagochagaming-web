@@ -4382,22 +4382,35 @@ document.addEventListener('DOMContentLoaded', () => {
     ['Hojas de estilo', [...document.styleSheets].map((s) => s.href || 'inline').join(' | ')],
     ['Versión CSS cargada', (document.querySelector('link[href*="style.css"]') || {}).href || 'sin link']
   ];
-  if (modo === '2') {
+  // Busca bordes, outline, sombras duras y fondos claros en un elemento y sus
+  // pseudo-elementos: cualquiera de los cuatro puede dibujar una caja.
+  const pintaLoClaro = (cs, info) => {
+    for (const lado of ['Top', 'Right', 'Bottom', 'Left']) {
+      const w = parseFloat(cs['border' + lado + 'Width']) || 0;
+      const c = cs['border' + lado + 'Color'];
+      if (w > 0 && cs['border' + lado + 'Style'] !== 'none' && luz(c) > 0.72) {
+        info.push('border-' + lado.toLowerCase() + ' ' + w + 'px ' + c);
+      }
+    }
+    const ow = parseFloat(cs.outlineWidth) || 0;
+    if (ow > 0 && cs.outlineStyle !== 'none' && luz(cs.outlineColor) > 0.72) {
+      info.push('outline ' + ow + 'px ' + cs.outlineColor);
+    }
+    const sombra = String(cs.boxShadow || '');
+    if (sombra && sombra !== 'none' && /rgba?\([^)]*\)/.test(sombra) && luz(sombra.match(/rgba?\([^)]*\)/)[0]) > 0.72) {
+      info.push('box-shadow ' + sombra.slice(0, 70));
+    }
+    if (luz(cs.backgroundColor) > 0.72) info.push('fondo ' + cs.backgroundColor);
+  };
+  const escanear = () => {
     const claros = [];
     for (const el of document.body.querySelectorAll('*')) {
-      const cs = getComputedStyle(el);
       const info = [];
-      for (const lado of ['Top', 'Right', 'Bottom', 'Left']) {
-        const w = parseFloat(cs['border' + lado + 'Width']) || 0;
-        const c = cs['border' + lado + 'Color'];
-        if (w > 0 && cs['border' + lado + 'Style'] !== 'none' && luz(c) > 0.72) {
-          info.push('border-' + lado.toLowerCase() + ' ' + w + 'px ' + c);
-        }
-      }
-      const ow = parseFloat(cs.outlineWidth) || 0;
-      if (ow > 0 && cs.outlineStyle !== 'none' && luz(cs.outlineColor) > 0.72) {
-        info.push('outline ' + ow + 'px ' + cs.outlineColor);
-      }
+      pintaLoClaro(getComputedStyle(el), info);
+      const antes = getComputedStyle(el, '::before');
+      if (antes.content && antes.content !== 'none') pintaLoClaro(antes, info);
+      const despues = getComputedStyle(el, '::after');
+      if (despues.content && despues.content !== 'none') pintaLoClaro(despues, info);
       if (!info.length) continue;
       claros.push({
         area: el.offsetWidth * el.offsetHeight,
@@ -4406,9 +4419,25 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
     claros.sort((a, b) => b.area - a.area);
-    filas.splice(0, filas.length, ['Elementos con borde claro', claros.length]);
-    for (const c of claros.slice(0, 14)) filas.push([c.nombre, c.info]);
-  }
+    return claros;
+  };
+  const pintarFilas = (lista, contenedor) => {
+    for (const [clave, valor] of lista) {
+      const linea = document.createElement('div');
+      const k = document.createElement('span');
+      k.style.color = '#f9a8d4';
+      k.textContent = clave + ': ';
+      linea.appendChild(k);
+      linea.appendChild(document.createTextNode(String(valor)));
+      contenedor.appendChild(linea);
+    }
+  };
+  const filasDeLista = (tituloSeccion, lista) => {
+    const salida = [[tituloSeccion, lista.length + ' elementos']];
+    for (const c of lista.slice(0, 10)) salida.push([c.nombre, c.info]);
+    return salida;
+  };
+
   const caja = document.createElement('div');
   caja.id = 'diag-panel';
   caja.setAttribute('role', 'status');
@@ -4417,15 +4446,19 @@ document.addEventListener('DOMContentLoaded', () => {
   titulo.textContent = 'DIAGNÓSTICO · ' + location.pathname + location.search;
   caja.appendChild(titulo);
   const lista = document.createElement('div');
-  for (const [clave, valor] of filas) {
-    const linea = document.createElement('div');
-    const k = document.createElement('span');
-    k.style.color = '#f9a8d4';
-    k.textContent = clave + ': ';
-    linea.appendChild(k);
-    linea.appendChild(document.createTextNode(String(valor)));
-    lista.appendChild(linea);
+  lista.id = 'diag-lista';
+
+  if (modo === '2' || modo === '3') {
+    pintarFilas(filasDeLista('T0 · al cargar', escanear()), lista);
+    if (modo === '3') {
+      setTimeout(() => {
+        pintarFilas(filasDeLista('T2.5s · después', escanear()), lista);
+      }, 2500);
+    }
+  } else {
+    pintarFilas(filas, lista);
   }
+
   caja.appendChild(lista);
   document.body.appendChild(caja);
 })();

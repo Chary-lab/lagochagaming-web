@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.12] - 2026-11-04
+
+### Diagnóstico `?diag=3`
+
+- El escaneo de `?diag=2` amplía la búsqueda a `outline`, `box-shadow`, fondos claros y pseudo-elementos `::before`/`::after`, que también pueden dibujar una caja.
+- `?diag=3` repite el escaneo al cargar (T0) y a los 2,5 s (T2.5s) para capturar estados que aparecen y desaparecen al cambiar de página.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.11] - 2026-11-04
 
 ### Diagnóstico: localizar los bordes claros
