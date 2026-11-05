@@ -271,7 +271,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.69.0` (`smoke.js` comprueba interacciones (Ctrl+K, paleta, APIs y store `ajustes`), nuevo `window.rpc` como única puerta a las RPC con `es_admin` migrada, y `role="dialog"` + `aria-modal` + `aria-labelledby` en los diálogos de admin, sugerencias y reporte de foto. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.70.0` (nuevo `window.rpcRaw` con la misma forma que `supabase.rpc`; 30 llamadas migradas y 0 accesos directos restantes. `window.rpc` sigue para código nuevo. Contraste del tema claro revisado sin cambios. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.70.0] - 2026-11-05
+
+### Todas las RPC pasan por un único punto
+
+- Nuevo `window.rpcRaw(nombre, params)`: misma forma que `supabase.rpc` (`{ data, error }`) pero con `try/catch` propio y error normalizado. Permite migrar las llamadas existentes sin reescribir cada bloque.
+- Migradas **30 llamadas** (23 en `main.js`, 3 en `index.html`, 2 en `galeria.html`, 2 en `cine.html`). Quedan **0** accesos directos a `window.supabase.rpc` en el proyecto.
+- `window.rpc` sigue siendo la variante de alto nivel (`{ ok, data, error }`) para código nuevo.
+- Revisado el contraste del tema claro: texto `#064e3b` sobre `#ffffff` (~9:1), secundario ya en 4,5:1 y bordes sutiles a propósito. Sin cambios.
+- Sin cambios de API ni de esquema.
+
 ## [1.69.0] - 2026-11-05
 
 ### Tests de interacción, wrapper de RPC y diálogos accesibles

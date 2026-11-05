@@ -332,10 +332,21 @@ let _adminCache = null;
 
 // Llamada única a las RPC de Supabase: normaliza el resultado y centraliza el
 // aviso de error. Devuelve { ok, data, error }.
+// Variante de bajo nivel: misma forma que supabase.rpc ({ data, error }) para
+// poder migrar las llamadas existentes sin reescribir cada bloque.
+window.rpcRaw = async function rpcRaw(nombre, params) {
+    if (!window.supabase) return { data: null, error: { message: 'sin_supabase' } };
+    try {
+        return await window.rpcRaw(nombre, params);
+    } catch (e) {
+        return { data: null, error: { message: (e && e.message) || 'excepcion' } };
+    }
+};
+
 window.rpc = async function rpc(nombre, params, opciones = {}) {
     if (!window.supabase) return { ok: false, error: 'sin_supabase', data: null };
     try {
-        const { data, error } = await window.supabase.rpc(nombre, params);
+        const { data, error } = await window.rpcRaw(nombre, params);
         if (error) {
             if (opciones.error !== false) {
                 window.mostrarToast?.(typeof opciones.error === 'string' ? opciones.error : 'Error: ' + error.message, true);
@@ -910,7 +921,7 @@ window.latidoComunidad = async function latidoComunidad() {
     const token = almacen.texto('comunidad_session_token');
     if (!token) return false;
     try {
-        const { data, error } = await window.supabase.rpc('latido_comunidad', { p_token: token });
+        const { data, error } = await window.rpcRaw('latido_comunidad', { p_token: token });
         return !error && data && data.ok === true;
     } catch (e) {
         return false;
@@ -1173,7 +1184,7 @@ window.cerrarSesion = async function cerrarSesion() {
 
     if (token && window.supabase) {
         try {
-            await window.supabase.rpc('cerrar_sesion_comunidad', { p_token: token });
+            await window.rpcRaw('cerrar_sesion_comunidad', { p_token: token });
         } catch (e) {
             // no bloquea el cierre local
         }
@@ -1747,7 +1758,7 @@ window.refrescarPuntosDia = async function refrescarPuntosDia() {
     }
     if (!window.supabase) return;
     try {
-        const { data, error } = await window.supabase.rpc('obtener_puntos_hoy', { p_token: token });
+        const { data, error } = await window.rpcRaw('obtener_puntos_hoy', { p_token: token });
         if (error) throw error;
         if (data && data.ok) window.pintarPuntosDia(data);
     } catch (e) {
@@ -1766,7 +1777,7 @@ window.iniciarPuntosGlobal = function iniciarPuntosGlobal() {
         if (!token || document.hidden) return;
         if (Date.now() - ultimo < 60000) return;
         ultimo = Date.now();
-        window.supabase.rpc('incrementar_puntos_comunidad', { p_token: token })
+        window.rpcRaw('incrementar_puntos_comunidad', { p_token: token })
             .then(() => window.refrescarPuntosDia?.())
             .catch(() => {});
     };
@@ -2135,10 +2146,10 @@ window.sincronizarSesionComunidadVinculada = async function sincronizarSesionCom
         const { data: authData } = await window.supabase.auth.getSession();
         if (!authData || !authData.session) return false;
         if (almacen.texto('comunidad_logout_explicito') === '1') return false;
-        const { data, error } = await window.supabase.rpc('sesion_comunidad_vinculada');
+        const { data, error } = await window.rpcRaw('sesion_comunidad_vinculada');
         if (error || !data || !data.ok || !data.token) return false;
         if (almacen.texto('comunidad_logout_explicito') === '1') return false;
-        const val = await window.supabase.rpc('validar_sesion_comunidad', { p_token: data.token });
+        const val = await window.rpcRaw('validar_sesion_comunidad', { p_token: data.token });
         if (val.error || !val.data || !val.data.ok) return false;
         if (almacen.texto('comunidad_logout_explicito') === '1') return false;
         const usuario = val.data.usuario;
@@ -2757,8 +2768,8 @@ document.addEventListener('alpine:init', () => {
             }
             try {
                 const [adminRes, ownerRes] = await Promise.all([
-                    window.supabase.rpc('es_admin'),
-                    window.supabase.rpc('es_owner')
+                    window.rpcRaw('es_admin'),
+                    window.rpcRaw('es_owner')
                 ]);
                 this.admin = adminRes && adminRes.data === true;
                 this.owner = ownerRes && ownerRes.data === true;
@@ -2811,7 +2822,7 @@ document.addEventListener('alpine:init', () => {
 
         async marcarSugerencia(sugerencia, leida) {
             try {
-                const { data, error } = await window.supabase.rpc('owner_marcar_sugerencia', {
+                const { data, error } = await window.rpcRaw('owner_marcar_sugerencia', {
                     p_id: sugerencia.id,
                     p_leida: leida
                 });
@@ -2836,7 +2847,7 @@ document.addEventListener('alpine:init', () => {
             });
             if (!ok) return;
             try {
-                const { data, error } = await window.supabase.rpc('owner_eliminar_sugerencia', { p_id: sugerencia.id });
+                const { data, error } = await window.rpcRaw('owner_eliminar_sugerencia', { p_id: sugerencia.id });
                 if (error || !data || !data.ok) {
                     window.mostrarToast?.('No se pudo borrar la sugerencia.', true);
                     return;
@@ -2876,7 +2887,7 @@ document.addEventListener('alpine:init', () => {
         async marcarReporte(reporte) {
             if (!reporte || !reporte.id) return;
             try {
-                const { data, error } = await window.supabase.rpc('admin_marcar_reporte', { p_id: reporte.id });
+                const { data, error } = await window.rpcRaw('admin_marcar_reporte', { p_id: reporte.id });
                 if (error || !data || !data.ok) {
                     window.mostrarToast?.('No se pudo marcar el reporte como revisado.', true);
                     return;
@@ -2891,7 +2902,7 @@ document.addEventListener('alpine:init', () => {
         async eliminarReporte(reporte) {
             if (!reporte || !reporte.id) return;
             try {
-                const { data, error } = await window.supabase.rpc('admin_eliminar_reporte', { p_id: reporte.id });
+                const { data, error } = await window.rpcRaw('admin_eliminar_reporte', { p_id: reporte.id });
                 if (error || !data || !data.ok) {
                     window.mostrarToast?.('No se pudo eliminar el reporte.', true);
                     return;
@@ -2908,7 +2919,7 @@ document.addEventListener('alpine:init', () => {
             this.descEstado = 'cargando';
             this.errorDesc = '';
             try {
-                const { data, error } = await window.supabase.rpc('app_descargas_stats', {
+                const { data, error } = await window.rpcRaw('app_descargas_stats', {
                     p_token: this.tokenComunidad()
                 });
                 if (error) throw error;
@@ -2950,7 +2961,7 @@ document.addEventListener('alpine:init', () => {
             this.errorUsuarios = '';
             const seq = ++this._seqUsuarios;
             try {
-                const { data, error } = await window.supabase.rpc('admin_listar_usuarios', {
+                const { data, error } = await window.rpcRaw('admin_listar_usuarios', {
                     p_token: this.tokenComunidad(),
                     p_buscar: this.buscar.trim() || null,
                     p_solo_baneados: !!this.soloBaneados,
@@ -2980,7 +2991,7 @@ document.addEventListener('alpine:init', () => {
         async toggleBan(usuario) {
             const estaBaneado = !!usuario.baneado_activo;
             try {
-                const { data, error } = await window.supabase.rpc('admin_ban_usuario', {
+                const { data, error } = await window.rpcRaw('admin_ban_usuario', {
                     p_token: this.tokenComunidad(),
                     p_usuario_id: usuario.id,
                     p_duracion_minutos: estaBaneado ? null : 60 * 24 * 7,
@@ -2999,7 +3010,7 @@ document.addEventListener('alpine:init', () => {
 
         async toggleShadowban(usuario) {
             try {
-                const { data, error } = await window.supabase.rpc('admin_shadowban_usuario', {
+                const { data, error } = await window.rpcRaw('admin_shadowban_usuario', {
                     p_token: this.tokenComunidad(),
                     p_usuario_id: usuario.id,
                     p_activar: !usuario.shadowban
@@ -3039,7 +3050,7 @@ document.addEventListener('alpine:init', () => {
             });
             if (!ok) return;
             try {
-                const { data, error } = await window.supabase.rpc('admin_eliminar_usuario', {
+                const { data, error } = await window.rpcRaw('admin_eliminar_usuario', {
                     p_token: this.tokenComunidad(),
                     p_usuario_id: usuario.id,
                     p_motivo: 'Eliminado desde el panel'
@@ -3070,7 +3081,7 @@ document.addEventListener('alpine:init', () => {
             this.auditEstado = 'cargando';
             this.errorAudit = '';
             try {
-                const { data, error } = await window.supabase.rpc('admin_obtener_audit_log', {
+                const { data, error } = await window.rpcRaw('admin_obtener_audit_log', {
                     p_token: this.tokenComunidad(),
                     p_limite: 50,
                     p_offset: this.paginaAudit * 50
@@ -3765,7 +3776,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.enviando = true;
         this.error = '';
         try {
-          const { data, error } = await window.supabase.rpc('enviar_sugerencia', { p_texto: texto });
+          const { data, error } = await window.rpcRaw('enviar_sugerencia', { p_texto: texto });
           if (error) throw error;
           if (!data || !data.ok) {
             this.error = ERRORES[data?.error] || ERRORES.error_interno;
@@ -4418,7 +4429,7 @@ document.addEventListener('DOMContentLoaded', () => {
               : Promise.resolve({ data: null, error: null }),
             avataresCache
               ? Promise.resolve({ data: null, error: null })
-              : window.supabase.rpc('obtener_avatares_disponibles', { p_token: token })
+              : window.rpcRaw('obtener_avatares_disponibles', { p_token: token })
           ]);
 
           if (!fila.error && fila.data) {
@@ -4492,7 +4503,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         this.guardando = true;
         try {
-          const { data, error } = await window.supabase.rpc('actualizar_perfil_comunidad', payload);
+          const { data, error } = await window.rpcRaw('actualizar_perfil_comunidad', payload);
           if (error) {
             console.error('Error guardando perfil:', error);
             this.error = ERRORES.error_interno;
