@@ -271,7 +271,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.66.1` (`limpiarEstadoSesionUI()` vacía los stores de perfil, chat y ranking al cerrar sesión, y el fallo de Kick muestra el código real en consola y un mensaje distinto para `sin_kick`. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.66.2` (la identidad exige token: sin `comunidad_session_token` se borran `comunidad_nickname`, `comunidad_user_id` y `comunidad_session_usuario`, se oculta el panel de perfil y no se registra presencia. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

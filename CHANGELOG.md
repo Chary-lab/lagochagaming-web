@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.66.2] - 2026-11-05
+
+### La identidad exige token
+
+- `comunidad.html` adoptaba el apodo guardado (`comunidad_nickname`) sin comprobar que existiera sesión. Con el token caducado o borrado, el navbar decía `LOGIN` pero el panel “Tu perfil”, el campo de autor del chat y la presencia seguían mostrando la cuenta vieja.
+- Ahora, al cargar, sin `comunidad_session_token` se borran `comunidad_nickname`, `comunidad_user_id` y `comunidad_session_usuario`, se oculta el panel de perfil y no se registra presencia, porque `nickParaTrack` queda vacío.
+- Verificado en navegador: con apodo e id falsos y sin token, tras recargar quedan a `null`, el panel sale `hidden` y el campo de autor, vacío.
+- **Regresión de la 1.66.0 arreglada**: el script de migración reescribió también las líneas internas de `window.almacen`, así que `texto()` y `guardarTexto()` se llamaban a sí mismos. La recursión desbordaba la pila, el `catch` la tragaba y devolvía `true` sin escribir nada, de modo que el tema, el orden de la galería y cualquier ajuste se perdían al cambiar de página. Ahora los métodos usan `localStorage` directamente. Verificado: pulsar el tema deja `gochi_tema=light` y la clase `light-mode` en el `body`.
+- Sin cambios de API ni de esquema.
+
 ## [1.66.1] - 2026-11-05
 
 ### Se acabó la sesión fantasma y el error mudo de Kick

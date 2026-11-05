@@ -88,7 +88,7 @@ window.escapeAttr = function escapeAttr(s) {
 window.almacen = {
     texto(clave, defecto = null) {
         try {
-            const valor = almacen.texto(clave);
+            const valor = localStorage.getItem(clave);
             return valor === null ? defecto : valor;
         } catch (e) {
             return defecto;
@@ -96,7 +96,7 @@ window.almacen = {
     },
     guardarTexto(clave, valor) {
         try {
-            almacen.guardarTexto(clave, String(valor));
+            localStorage.setItem(clave, String(valor));
             return true;
         } catch (e) {
             return false;
@@ -104,7 +104,7 @@ window.almacen = {
     },
     leer(clave, defecto = null) {
         try {
-            const valor = almacen.texto(clave);
+            const valor = localStorage.getItem(clave);
             return valor === null ? defecto : JSON.parse(valor);
         } catch (e) {
             return defecto;
@@ -112,7 +112,7 @@ window.almacen = {
     },
     guardar(clave, valor) {
         try {
-            almacen.guardarTexto(clave, JSON.stringify(valor));
+            localStorage.setItem(clave, JSON.stringify(valor));
             return true;
         } catch (e) {
             return false;
@@ -120,7 +120,7 @@ window.almacen = {
     },
     borrar(clave) {
         try {
-            almacen.borrar(clave);
+            localStorage.removeItem(clave);
         } catch (e) { /* sin almacenamiento */ }
     }
 };
