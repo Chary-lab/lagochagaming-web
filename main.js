@@ -3173,17 +3173,54 @@ window.CHAT_KICK = {
 
     const SIMBOLO_BADGE = { moderator: '🛡', founder: '👑', subscriber: '⭐', vip: '💎', verified: '✓' };
 
+    let campoKick = null;
+    let ultimoAutorKick = '';
+    let ultimaHoraKick = 0;
+    let ultimoDiaKick = '';
+
+    const miApodoKick = () => String(window.obtenerSesionUsuarioComunidad?.()?.apodo || '').toLowerCase();
+
+    const resaltarMenciones = (html) => {
+        const apodo = miApodoKick();
+        if (!apodo) return html;
+        const seguro = apodo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return html.replace(new RegExp('@' + seguro + '(?![\\w])', 'gi'), (m) => '<span class="chat-kick-mencion">' + m + '</span>');
+    };
+
     const pintarMensaje = (m) => {
         const fila = document.createElement('div');
         fila.className = 'chat-kick-mensaje';
         fila.dataset.id = m.message_id;
 
+        const fecha = new Date(m.created_at);
+        const horaMs = Number.isNaN(fecha.getTime()) ? Date.now() : fecha.getTime();
+        const dia = new Date(horaMs).toISOString().slice(0, 10);
+
+        if (dia !== ultimoDiaKick) {
+            const separador = document.createElement('div');
+            separador.className = 'chat-kick-dia';
+            separador.textContent = new Date(horaMs).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+            fila.appendChild(separador);
+            ultimoDiaKick = dia;
+            ultimoAutorKick = '';
+        }
+
+        const continuo = m.sender_username === ultimoAutorKick && (horaMs - ultimaHoraKick) < 120000;
+        if (continuo) fila.classList.add('chat-kick-mensaje--continuo');
+        ultimoAutorKick = m.sender_username;
+        ultimaHoraKick = horaMs;
+
         const cabeza = document.createElement('div');
         cabeza.className = 'chat-kick-mensaje-cabeza';
 
-        const autor = document.createElement('span');
+        const usuario = String(m.sender_username || '');
+        const autor = document.createElement('a');
         autor.className = 'chat-kick-autor';
-        autor.textContent = m.sender_username;
+        autor.href = 'https://kick.com/' + encodeURIComponent(usuario);
+        autor.target = '_blank';
+        autor.rel = 'noopener noreferrer';
+        autor.textContent = usuario;
+        autor.title = 'Abrir el perfil de ' + usuario + ' en Kick';
         if (m.sender_color) autor.style.color = m.sender_color;
         cabeza.appendChild(autor);
 
@@ -3202,12 +3239,44 @@ window.CHAT_KICK = {
 
         const hora = document.createElement('time');
         hora.className = 'chat-kick-hora';
-        const fecha = new Date(m.created_at);
         if (!Number.isNaN(fecha.getTime())) {
             hora.dateTime = fecha.toISOString();
             hora.textContent = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         }
         cabeza.appendChild(hora);
+
+        const acciones = document.createElement('span');
+        acciones.className = 'chat-kick-acciones';
+        const mencionar = document.createElement('button');
+        mencionar.type = 'button';
+        mencionar.className = 'chat-kick-accion';
+        mencionar.textContent = '@';
+        mencionar.title = 'Mencionar a ' + usuario;
+        mencionar.setAttribute('aria-label', 'Mencionar a ' + usuario);
+        mencionar.addEventListener('click', () => {
+            if (!campoKick) return;
+            const texto = '@' + usuario + ' ';
+            const inicio = campoKick.selectionStart ?? campoKick.value.length;
+            const fin = campoKick.selectionEnd ?? campoKick.value.length;
+            campoKick.value = campoKick.value.slice(0, inicio) + texto + campoKick.value.slice(fin);
+            campoKick.focus();
+            campoKick.setSelectionRange(inicio + texto.length, inicio + texto.length);
+            campoKick.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        const copiar = document.createElement('button');
+        copiar.type = 'button';
+        copiar.className = 'chat-kick-accion';
+        copiar.textContent = '⧉';
+        copiar.title = 'Copiar el mensaje';
+        copiar.setAttribute('aria-label', 'Copiar el mensaje');
+        copiar.addEventListener('click', () => {
+            try {
+                navigator.clipboard?.writeText(String(m.content ?? ''));
+                window.mostrarToast?.('Mensaje copiado.');
+            } catch (e) { /* sin portapapeles */ }
+        });
+        acciones.append(mencionar, copiar);
+        cabeza.appendChild(acciones);
         fila.appendChild(cabeza);
 
         if (m.replies_to && m.replies_to.content) {
@@ -3219,7 +3288,7 @@ window.CHAT_KICK = {
 
         const texto = document.createElement('span');
         texto.className = 'chat-kick-texto';
-        texto.innerHTML = conEmotes(String(m.content ?? ''));
+        texto.innerHTML = resaltarMenciones(conEmotes(String(m.content ?? '')));
         fila.appendChild(texto);
         return fila;
     };
@@ -3243,6 +3312,7 @@ window.CHAT_KICK = {
             '<div class="chat-kick-mensajes" role="log" aria-live="polite" aria-label="Mensajes del chat de Kick">',
             '  <p class="chat-kick-vacio">Cargando mensajes…</p>',
             '</div>',
+            '<button type="button" class="chat-kick-nuevos" hidden>Nuevos mensajes ↓</button>',
             '<form class="chat-kick-form">',
             '  <label class="chat-kick-oculto" for="chat-kick-campo">Tu mensaje</label>',
             '  <div class="chat-kick-campo-wrap">',
@@ -3269,6 +3339,8 @@ window.CHAT_KICK = {
         const login = host.querySelector('.chat-kick-login');
         const form = host.querySelector('.chat-kick-form');
         const campo = host.querySelector('.chat-kick-campo');
+        campoKick = campo;
+        const nuevos = host.querySelector('.chat-kick-nuevos');
         const enviar = host.querySelector('.chat-kick-enviar');
         const aviso = host.querySelector('.chat-kick-aviso');
         const emoteBtn = host.querySelector('.chat-kick-emote-btn');
@@ -3368,8 +3440,17 @@ window.CHAT_KICK = {
             lista.scrollTop = lista.scrollHeight;
         };
 
+        if (nuevos) {
+            nuevos.addEventListener('click', () => {
+                alFinal();
+                cercaDelFinal = true;
+                nuevos.hidden = true;
+            });
+        }
+
         lista.addEventListener('scroll', () => {
             cercaDelFinal = lista.scrollHeight - lista.scrollTop - lista.clientHeight < 60;
+            if (cercaDelFinal && nuevos) nuevos.hidden = true;
         });
 
         const añadir = (m) => {
@@ -3386,6 +3467,7 @@ window.CHAT_KICK = {
                 viejo.remove();
             }
             if (cercaDelFinal) alFinal();
+            else if (nuevos) nuevos.hidden = false;
         };
 
         const actualizarCuenta = (sesion) => {

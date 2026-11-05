@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.74.0] - 2026-11-05
+
+### El chat de Kick gana interacción
+
+- **Agrupación**: los mensajes seguidos del mismo autor en menos de 2 minutos ocultan la cabecera (`.chat-kick-mensaje--continuo`), como en Discord.
+- **Autor clicable**: el nombre es un enlace a `https://kick.com/<usuario>`.
+- **Acciones al pasar el ratón**: `@` inserta la mención en el campo de escritura y `⧉` copia el mensaje. Se ocultan por defecto y aparecen con `:hover` o `:focus-within`.
+- **Menciones resaltadas**: si el mensaje contiene `@tuapodo`, se pinta con fondo y color de acento.
+- **Separador de día** cuando cambia la fecha de los mensajes.
+- **Botón “Nuevos mensajes”**: aparece si llegan mensajes mientras estás leyendo arriba; al pulsarlo baja al final y desaparece.
+- **Densidad compacta** aplicada también al chat de Kick.
+- Sin nuevas peticiones ni cambios de esquema; todo es render y CSS.
+
 ## [1.73.1] - 2026-11-05
 
 ### La galería pinta antes
