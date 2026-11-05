@@ -30,7 +30,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.67.2">
+    <link rel="stylesheet" href="style.css?v=1.68.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -457,7 +457,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.67.2" defer></script>
+    <script src="main.js?v=1.68.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>
@@ -1069,9 +1069,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // El polling del stream está centralizado en main.js (iniciarPollingStreamGlobal)
         iniciarRealtimeMuro();
-        cargarFeedInstagram();
-        cargarFeedTikTok();
-        cargarClipsKick();
+
+        // Ahorro de datos: los feeds esperan a que el visitante los pida.
+        const ajustesLocales = (() => {
+            try { return JSON.parse(localStorage.getItem('gochi_ajustes') || '{}'); } catch (e) { return {}; }
+        })();
+        const cargarFeedsSociales = () => {
+            cargarFeedInstagram();
+            cargarFeedTikTok();
+            cargarClipsKick();
+        };
+        if (ajustesLocales.ahorro === true) {
+            const destino = document.getElementById('ig-feed');
+            if (destino) {
+                const aviso = document.createElement('p');
+                aviso.className = 'aviso-ahorro';
+                const boton = document.createElement('button');
+                boton.type = 'button';
+                boton.className = 'btn-primary btn-muted';
+                boton.textContent = 'Cargar contenido';
+                boton.addEventListener('click', () => {
+                    aviso.remove();
+                    cargarFeedsSociales();
+                }, { once: true });
+                aviso.appendChild(boton);
+                destino.before(aviso);
+            }
+        } else {
+            cargarFeedsSociales();
+        }
 
         // Lightbox de clips y feeds sociales.
         document.addEventListener('click', (e) => {

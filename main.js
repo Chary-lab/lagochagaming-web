@@ -1102,6 +1102,29 @@ window.limpiarEstadoSesionUI = function limpiarEstadoSesionUI() {
     window.actualizarUsuarioNavComunidad?.();
 };
 
+// Exporta lo que el navegador ya tiene del usuario: perfil y preferencias.
+window.exportarMisDatos = function exportarMisDatos() {
+    try {
+        const datos = {
+            generado: new Date().toISOString(),
+            perfil: window.obtenerSesionUsuarioComunidad?.() || {},
+            ajustes: almacen.leer('gochi_ajustes', {})
+        };
+        const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        enlace.download = 'lagochagaming-mis-datos.json';
+        document.body.appendChild(enlace);
+        enlace.click();
+        enlace.remove();
+        URL.revokeObjectURL(url);
+        window.mostrarToast?.('Datos exportados.');
+    } catch (e) {
+        window.mostrarToast?.('No se pudieron exportar los datos.', true);
+    }
+};
+
 window.cerrarSesion = async function cerrarSesion() {
     const token = almacen.texto('comunidad_session_token');
     let teniaAuth = false;
@@ -3993,6 +4016,9 @@ document.addEventListener('DOMContentLoaded', () => {
           </section>
 
           <p class="mp-error gochi-alerta" data-tono="error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
+          <div class="mp-acciones-extra">
+            <button type="button" class="btn-primary btn-muted" x-on:click="window.exportarMisDatos()">Exportar mis datos</button>
+          </div>
           <div class="mp-actions mp-actions--fija">
             <button type="button" class="btn-primary btn-muted" x-on:click="$store.perfil.vista = 'perfil'">Cancelar</button>
             <button type="button" class="btn-primary" x-bind:disabled="$store.perfil.guardando"
@@ -4065,6 +4091,16 @@ document.addEventListener('DOMContentLoaded', () => {
             </label>
           </section>
 
+          <section class="mp-seccion">
+            <h5 class="mp-seccion-titulo">Datos</h5>
+            <label class="gochi-switch">
+              <input type="checkbox" x-model="$store.ajustes.datos.ahorro"
+                     x-on:change="$store.ajustes.guardar()">
+              <span class="gochi-switch-track"></span>
+              <span>Ahorro de datos: no cargar los feeds hasta que lo pidas</span>
+            </label>
+          </section>
+
           <p class="mp-desde">Estos ajustes se guardan en este dispositivo y no cambian tu cuenta.</p>
         </div>
       </div>`;
@@ -4094,7 +4130,8 @@ document.addEventListener('DOMContentLoaded', () => {
         densidad: 'comoda',
         transparencias: true,
         contraste: false,
-        sonido: true
+        sonido: true,
+        ahorro: false
       },
       cargar() {
         const guardado = almacen.leer('gochi_ajustes', null);
@@ -4112,6 +4149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         raiz.classList.toggle('densidad-compacta', this.datos.densidad === 'compacta');
         raiz.classList.toggle('sin-transparencias', !this.datos.transparencias);
         raiz.classList.toggle('alto-contraste', !!this.datos.contraste);
+        raiz.classList.toggle('ahorro-datos', !!this.datos.ahorro);
       },
       guardar() {
         almacen.guardar('gochi_ajustes', this.datos);

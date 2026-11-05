@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.68.0] - 2026-11-05
+
+### Ahorro de datos y exportar mis datos
+
+- **Ahorro de datos** en Ajustes: con el interruptor activo, la home no carga los feeds de Instagram, TikTok ni los clips de Kick hasta que el visitante pulsa “Cargar contenido”. Se aplica la clase `.ahorro-datos` en `<html>` y la preferencia se lee de `gochi_ajustes` antes de lanzar las peticiones.
+- **Exportar mis datos** en Mi cuenta: descarga `lagochagaming-mis-datos.json` con el perfil de la sesión y las preferencias del dispositivo. Todo en el navegador, sin peticiones nuevas.
+- Componentes nuevos: `.mp-acciones-extra` y `.aviso-ahorro`.
+- La página de inicio preferida queda pendiente: cambiaría el comportamiento de navegación y merece su propia decisión.
+- Sin cambios de API ni de esquema.
+
 ## [1.67.2] - 2026-11-05
 
 ### Densidad, efectos y aviso sonoro del chat

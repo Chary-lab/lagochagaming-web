@@ -7451,4 +7451,26 @@ html.alto-contraste .gochi-card,
 html.alto-contraste .modal-perfil-card {
     border-width: 2px;
 }
+
+/* --- Acciones extra y aviso de ahorro de datos --- */
+.mp-acciones-extra {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0 0 10px;
+}
+
+.mp-acciones-extra .btn-primary {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+}
+
+.aviso-ahorro {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 18px;
+}
+
+.aviso-ahorro .btn-primary {
+    font-size: 0.85rem;
+}
 }
