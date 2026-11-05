@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.61.20] - 2026-11-04
+
+### FAQ a una columna, sin cajas encogidas
+
+- El bloque mezclaba `.faq-list` (grid de 2 columnas con `align-items: start`) y `.gochi-accordion` (flex en columna). Ganaba el flex, pero sobrevivía `align-items: start`, que encogía cada `<details>` al ancho de su texto y dejaba medio ancho vacío a la derecha.
+- Ahora la FAQ es un acordeón de una columna: `align-items: stretch`, `width: 100%` y `max-width: 820px` centrado.
+- Se elimina `.faq-list` (sin uso) y se quitan de `.faq-item` el fondo, borde, radio y relleno duplicados con `.gochi-accordion-item`.
+- Verificado: 6 elementos a 820 px en escritorio, 350 px a 390 px de ancho, sin desbordes.
+- Sin cambios de API ni de esquema.
+
 ## [1.61.19] - 2026-11-04
 
 ### El panel de 7TV ya no se recorta
