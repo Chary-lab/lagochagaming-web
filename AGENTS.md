@@ -36,7 +36,8 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 | `galeria.html` | Subida (store `subida`), galería pública y lightbox (store `galeria`), moderación de fotos pendientes |
 | `sorteo.html` | Modo manual, modo streamer, tómbola online, ganadores (store `sorteo` con `participantes`, `manual` y `ganadores`) |
 | `cine.html` | Sincronización de películas/videos para espectadores y streamer (store `cine`) |
-| `_headers` | Cabeceras para hosts que las soportan (NO en GitHub Pages) |
+| `_headers` | Referencia de cabeceras para un host que las soporte. **No se aplican en GitHub Pages** |
+| `ads.txt` | Verificación de propiedad de Google AdSense. Se sirve tal cual y no se borra. No implica anuncios integrados (0 scripts de AdSense) |
 | `VERSION` | Versión SemVer de la release |
 | `404.html` | Página no encontrada (`noindex`) |
 | `llms.txt` | Resumen del sitio y URLs para motores de IA |
@@ -125,7 +126,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 ### 4.5 RPC: una sola puerta
 
-- Toda llamada a Supabase pasa por `window.rpcRaw(nombre, params)` (misma forma que `supabase.rpc`: `{ data, error }`, con `try/catch` y error normalizado) o por `window.rpc(nombre, params, opciones)` (`{ ok, data, error }`, con aviso de error silenciable). No usar `window.supabase.rpc` directamente: `scripts/check.js` no lo impide, pero la convención es una sola vía.
+- Toda llamada a Supabase pasa por `window.rpcRaw(nombre, params)` (misma forma que `supabase.rpc`: `{ data, error }`, con `try/catch` y error normalizado) o por `window.rpc(nombre, params, opciones)` (`{ ok, data, error }`, con aviso de error silenciable). **`scripts/check.js` lo hace cumplir**: falla si una página llama a `supabase.rpc` y permite una sola llamada directa en `main.js` (la implementación de `rpcRaw`).
 
 ## 5. Supabase: reglas no negociables
 
@@ -226,13 +227,13 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 ## 6. Seguridad
 
-- CSP, HSTS y demás cabeceras de `_headers` NO se aplican en GitHub Pages. No asumir que están activas en producción. Si se migra a Cloudflare Pages/Netlify, revisar que la CSP incluya `wss://*.supabase.co` y `https://www.youtube.com` en `script-src`, y probar Realtime + YouTube.
+- **CSP activa por `<meta http-equiv="Content-Security-Policy">`** en las 6 páginas: GitHub Pages no aplica `_headers`, pero la meta sí funciona. `scripts/check.js` es la fuente única: calcula el SHA-256 de cada `<script>` inline y de cada bloque `speculationrules` (con los saltos de línea normalizados a LF, igual que el parser) y **falla si la meta no coincide con el HTML**; `--fix` la reescribe. `script-src` incluye `'unsafe-eval'` porque Alpine evalúa `x-data`/`x-on:` en runtime, así que la CSP limita orígenes y bloquea `object-src`, pero no protege frente a script inline (para eso están los hashes). `frame-ancestors` y `report-uri` **no funcionan en meta**: no fingir que existen. HSTS y el resto de cabeceras siguen sin existir en producción.
 - Nunca confiar en el cliente para autorización. La UI puede ocultar botones, pero el servidor debe rechazar.
 - Escapar todo HTML dinámico. Los emojis de reacción están limitados a una whitelist en el servidor.
 - No registrar tokens, PINs ni datos personales en consola.
 - No introducir `target="_blank"` sin `rel="noopener noreferrer"`.
 - Las cuentas de comunidad usan PIN de 4 dígitos: es una decisión de producto; no aumentar la superficie de ataque (no permitir cambiar el PIN sin verificación, no exponer hashes).
-- Recomendado en Supabase Auth: activar "Leaked password protection" y revisar los advisors tras cada migración.
+- Recomendado: revisar los advisors de Supabase tras cada migración. "Leaked password protection" **requiere plan Pro y esta cuenta es Free**, así que no está disponible ni es una tarea pendiente; además solo afectaría a Supabase Auth (admins), porque las cuentas de comunidad usan PIN de 4 dígitos.
 - Hay tablas con RLS activo y sin políticas (`instagram_feed`, `kick_clips`, `kick_config`, `kick_oauth_pendientes`, `kick_sessions`, `puntos_acciones`, `puntos_eventos`, `puntos_topas_rango`, `tiktok_feed`). Es intencionado: solo se acceden por RPC `SECURITY DEFINER`. No añadir políticas sin revisar qué filas quedarían expuestas a `anon`.
 - La lectura pública de perfiles es por columna: `anon` tiene SELECT sobre `apodo, puntos, rango, genero, avatar_url, bio, links_json, icono_equipado, creado_en, kick_badges, kick_badges_at, kick_user_id, kick_username, ultima_actividad`. `rol` NO está concedido: no pedirlo en un select desde el cliente (devuelve 401).
 
@@ -244,7 +245,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - El repo antiguo quedó bloqueado por un deployment fantasma de Pages (`400 in progress deployment`). Si vuelve a pasar: comprobar `pages/builds` y los deployments del environment `github-pages` antes de tocar código; el contenido no es el problema.
 - No hay service worker. `manifest.webmanifest` debe seguir siendo válido.
 - `robots.txt` y `sitemap.xml` deben mantenerse coherentes con las páginas públicas. Actualizar `lastmod` cuando cambie contenido público.
-- Si se cambia de host, actualizar esta sección y `_headers`.
+- Si se cambia de host, actualizar esta sección y `_headers`. Mientras el host sea GitHub Pages, CSP/HSTS solo existen por la meta CSP del HTML: **no proponer `_headers` como mejora pendiente**.
 - APK Android: el proyecto vive en `D:\Apk Gocha` (Capacitor). El keystore de release está en `C:\Users\Administrator\.lagocha\lagocha-release.jks` (alias `lagocha-release`, credenciales en `credenciales.txt` al lado). Nunca versionar la clave. Tras cada build, copiar el APK a `app/LaGochaGaming.apk` y actualizar `sha256` y `size` en `app/version.json`: el actualizador interno de la app los verifica antes de instalar.
 - Certificado de firma que NO debe cambiar: SHA-256 `41a6cdc746de8560425aa04b9bcdc3cb5e81f670644e846f284977ce721b4b21`. Si cambia, los usuarios tienen que desinstalar e instalar.
 
@@ -290,13 +291,14 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.79.0` (Historial de puntos del perfil propio limitado a los ultimos 3 dias (Hoy, Ayer y Antes de ayer): dentro de cada dia, una fila por forma de ganar con total y x N, el total del dia a la derecha y un pie con Ganado en 3 dias / Saldo actual. cargarHistorial pide paginas de 50 (max. 4) y corta al pasar anteayer; se retira el boton Ver mas. Sin cambios de API ni de esquema. La 1.78.3 corrigio que el perfil publico mostraba el historial del visitante).
+- Versión de esta release: `1.80.0` (CSP real por `<meta>` en las 6 páginas con hashes calculados por `check.js` —GitHub Pages no aplica `_headers`—, incluido `speculationrules`; `'unsafe-eval'` es obligatorio por Alpine y está documentado. Las 26 llamadas directas a `supabase.rpc` de las páginas pasan a `rpcRaw`, con guardia en `check.js`. `preconnect` a Supabase en index/comunidad/sorteo/cine. Arreglado el inline partido de `404.html`, que dejaba el tema sin aplicar. Sin cambios de API ni de esquema. La 1.79.0 fue el historial de puntos de 3 días).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
 
-1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, CSP básica, `?v=` contra `VERSION` y directivas Alpine sin `x-data`/`x-store`). Si el bump de `VERSION` deja los busters viejos, `node scripts/check.js --fix` los reescribe. Con navegador real, `node scripts/smoke.js`: abre las 5 páginas a 1690×900 y 390×844 con Chrome/Edge y falla por error HTTP, consola sucia, desborde horizontal o busters viejos; levanta su propio servidor en el puerto 8788 o reutiliza uno con `--url=`. También prueba la paleta, el contrato de `gochi_ajustes` (clases `texto-*`, `sin-animaciones` y `ahorro-datos` más el estado del store) y que el like sin sesión pide login sin abrir el lightbox.
+1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, **CSP por meta con los hashes de los scripts inline**, RPC por `rpcRaw`, `?v=` contra `VERSION` y directivas Alpine sin `x-data`/`x-store`). Si el bump de `VERSION` deja los busters viejos, `node scripts/check.js --fix` los reescribe. Con navegador real, `node scripts/smoke.js`: abre las 5 páginas a 1690×900 y 390×844 con Chrome/Edge y falla por error HTTP, consola sucia, desborde horizontal o busters viejos; levanta su propio servidor en el puerto 8788 o reutiliza uno con `--url=`. También prueba la paleta, el contrato de `gochi_ajustes` (clases `texto-*`, `sin-animaciones` y `ahorro-datos` más el estado del store) y que el like sin sesión pide login sin abrir el lightbox.
 2. `node --check main.js`.
+2b. Tras tocar HTML (scripts inline) o la CSP: comprobar con navegador que no hay violaciones (`securitypolicyviolation`) ni errores de consola en las 6 páginas × 2 tamaños. Los hashes sin `--fix` dejan el sitio sin JavaScript.
 3. Levantar servidor local: `python -m http.server 8765` y probar en `http://127.0.0.1:8765/`.
 4. Smoke test mínimo:
    - Home: player, 6 clips de Kick, 6 de Instagram y 6 de TikTok cargan; la fachada del chat aparece y el iframe entra al pulsar; el muro pinta mensajes y no hay errores de consola propios.
@@ -364,7 +366,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - No usar `@click.stop` en las acciones de la tarjeta de galería (rompe el listener delegado).
 - No agregar dependencias/build sin autorización.
 - No dividir archivos ni crear CSS, JS o HTML parciales: la estructura actual se mantiene (ver §2).
-- No asumir que `_headers` funciona en GitHub Pages.
+- No asumir que `_headers` funciona en GitHub Pages: es solo referencia. La protección real es la meta CSP.
 - No montar proxy HLS ni reproductor propio en la web para quitar el aviso de Kick: cuesta ancho de banda y rompe la política del CDN.
 - No publicar una APK sin verificar el SHA-256 de la firma y el `versionCode`; no cambiar la keystore.
 - No commitear con la app rota o sin probar.
@@ -378,8 +380,8 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Subida anónima a Storage: permite spam de almacenamiento y archivos huérfanos si la RPC falla. Aplica a `fotos-galeria` y `avatares-comunidad` (500KB, prefijo `avatar/`). Requiere Edge Function/servicio externo para verificación fuerte.
 - Shadowban: `comunidad_chat.oculto` filtra la lectura por RPC y el realtime del cliente, pero la tabla tiene SELECT público; un atacante podría leer mensajes ocultos por REST. No es un control de seguridad fuerte.
 - PIN de 4 dígitos: fuerza bruta distribuida posible; el rate limit es por IP.
-- GitHub Pages no aplica `_headers`: no hay CSP/HSTS reales en producción.
-- CDNs sin SRI (jsDelivr: Supabase JS, Alpine, hls.js). Las fuentes ya no vienen de Google: `fonts/` sirve Inter y Space Grotesk (woff2 variable, latin) con `@font-face` en `style.css`.
+- GitHub Pages no aplica `_headers`: no hay HSTS ni las demás cabeceras. Lo único que sí protege en producción es la **meta CSP** del HTML (ver §6); no hay defensa anti-clickjacking (`frame-ancestors` no funciona en meta).
+- Los CDNs de jsDelivr (Supabase JS, Alpine, `@alpinejs/focus` y hls.js) **ya llevan SRI** (`integrity` + `crossorigin`): al subir la versión de una librería hay que recalcular el hash o el navegador la bloquea. Las fuentes ya no vienen de Google: `fonts/` sirve Inter y Space Grotesk (woff2 variable, latin) con `@font-face` en `style.css`.
 - Advisors de Supabase marcan RPCs `SECURITY DEFINER` ejecutables por `anon`; es intencional para usuarios de comunidad sin Supabase Auth. Revisar cada nueva RPC con el mismo criterio.
 - Índices marcados como "unused" son de bajo volumen; no eliminarlos sin medir.
 - El contador de descargas no ve las actualizaciones internas de la app ni las descargas directas del `.apk` fuera de `app-descarga`. La pestaña Descargas estima las actualizaciones con telemetría anónima cuando la app se abre, así que pueden tardar hasta que el usuario vuelva a entrar.

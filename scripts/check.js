@@ -8,6 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const crypto = require('crypto');
 
 const ROOT = path.resolve(__dirname, '..');
 const PAGES = ['index.html', 'comunidad.html', 'galeria.html', 'sorteo.html', 'cine.html'];
@@ -64,10 +65,89 @@ for (const pagina of [...PAGES, '404.html']) {
     }
 }
 
+// --- CSP por <meta> -------------------------------------------------------
+// GitHub Pages no aplica `_headers`, así que la política viaja en el propio
+// HTML. Los scripts inline se autorizan por hash SHA-256 y este archivo es la
+// única fuente: recalcula los hashes y falla si la meta no coincide (--fix la
+// reescribe). Sin 'unsafe-inline' en script-src: un inline nuevo sin hash deja
+// de ejecutarse, que es justo lo que queremos detectar.
+const CSP_DIRECTIVAS = (hashes) => [
+    "default-src 'self'",
+    // 'unsafe-eval' es obligatorio: Alpine evalúa las expresiones de x-data /
+    // x-on: en runtime (su build CDN no tiene variante CSP sin compilar).
+    `script-src 'self' 'unsafe-eval' ${hashes.join(' ')} https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com`,
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com",
+    "frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co",
+    "media-src 'self' blob: https:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'"
+].join('; ');
+
+// Hashes de los <script> inline. Los JSON-LD no son código y quedan fuera; los
+// bloques `speculationrules` sí están sujetos a script-src en Chrome, así que
+// necesitan su hash como cualquier script inline.
+// El hash se calcula sobre el texto con saltos de línea normalizados a LF: el
+// parser del navegador normaliza CRLF antes de hashear, así que hashear el
+// archivo tal cual (con CRLF en Windows) daría un hash que nunca coincide.
+function hashesInline(html) {
+    const hashes = [];
+    for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+        const attrs = m[1] || '';
+        if (/\bsrc\s*=/.test(attrs)) continue;
+        const tipo = (attrs.match(/\btype\s*=\s*["']([^"']+)["']/i) || [])[1] || '';
+        if (/ld\+json|application\/json/i.test(tipo)) continue;
+        const cuerpo = (m[2] || '').replace(/\r\n/g, '\n');
+        if (!cuerpo.trim()) continue;
+        hashes.push(`'sha256-${crypto.createHash('sha256').update(cuerpo, 'utf8').digest('base64')}'`);
+    }
+    return hashes;
+}
+
+// Ojo: el valor lleva comillas simples ('self', 'sha256-...'), así que el
+// atributo solo puede delimitarse por comillas dobles.
+const RE_META_CSP = /<meta\s+http-equiv=["']Content-Security-Policy["']\s+content="([^"]*)"[^>]*>/i;
+const RE_CHARSET = /<meta\s+charset=["'][^"']+["'][^>]*>/i;
+
+function construirMetaCsp(html) {
+    const valor = CSP_DIRECTIVAS(hashesInline(html)).replace(/"/g, '&quot;');
+    return `<meta http-equiv="Content-Security-Policy" content="${valor}">`;
+}
+
+for (const pagina of PAGES.concat(['404.html'])) {
+    if (!existe(pagina)) continue;
+    const html = leer(pagina);
+    const meta = html.match(RE_META_CSP);
+    if (!meta) {
+        if (FIX && RE_CHARSET.test(html)) {
+            fs.writeFileSync(
+                path.join(ROOT, pagina),
+                html.replace(RE_CHARSET, (m) => m + '\n    ' + construirMetaCsp(html)),
+                'utf8'
+            );
+            console.log(`${pagina}: meta CSP añadida`);
+        } else {
+            error(`${pagina}: falta la meta Content-Security-Policy; ejecuta node scripts/check.js --fix`);
+        }
+        continue;
+    }
+    const esperada = construirMetaCsp(html).match(/content="([^"]*)"/)[1];
+    if (meta[1] !== esperada) {
+        if (FIX) {
+            fs.writeFileSync(path.join(ROOT, pagina), html.replace(RE_META_CSP, construirMetaCsp(html)), 'utf8');
+            console.log(`${pagina}: CSP actualizada (hashes de scripts inline)`);
+        } else {
+            error(`${pagina}: CSP no coincide con los scripts inline; ejecuta node scripts/check.js --fix`);
+        }
+    }
+}
+
 // main.js
 const mainJs = leer('main.js');
-comprobarSintaxis('main.js', mainJs);
-if (/service_role|serviceRole/i.test(mainJs)) {
+comprobarSintaxis('main.js', mainJs);if (/service_role|serviceRole/i.test(mainJs)) {
     error('main.js parece contener una clave service_role (nunca debe estar en el cliente)');
 }
 if (/Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|Ãƒ|Ã‚|ðŸ|â€/.test(mainJs)) {
@@ -95,6 +175,21 @@ for (const api of ['gochiUI', 'gochiDropdown', 'gochiSkeleton', 'gochiChip', 'ce
 }
 if (!/abrirHoja\s*:/.test(mainJs) || !/cerrarHoja\s*:/.test(mainJs)) {
     error('main.js: gochiUI debe exponer abrirHoja y cerrarHoja');
+}
+
+// RPC: una sola puerta. Toda llamada pasa por window.rpcRaw / window.rpc, que
+// normalizan el error. Se permite exactamente UNA llamada directa a
+// window.supabase.rpc: la implementación de rpcRaw. Las páginas no pueden
+// llamar a supabase.rpc (se colaban llamadas nuevas sin try/catch).
+const directasMain = (mainJs.match(/window\.supabase\.rpc\s*\(/g) || []).length;
+if (directasMain > 1) {
+    error(`main.js: ${directasMain} llamadas a window.supabase.rpc; usa window.rpcRaw/window.rpc (solo se permite la de rpcRaw)`);
+}
+for (const pagina of PAGES.concat(['404.html'])) {
+    if (!existe(pagina)) continue;
+    if (/(?<![.\w])supabase\.rpc\s*\(/.test(leer(pagina))) {
+        error(`${pagina}: usa supabase.rpc directo; cámbialo a window.rpcRaw(...)`);
+    }
 }
 
 // Ajustes del dispositivo: toda clave que se lee o escribe debe existir en el

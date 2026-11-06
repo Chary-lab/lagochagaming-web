@@ -3,18 +3,34 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
-## [1.78.0] - 2026-11-06
+## [1.80.0] - 2026-11-06
 
-### Kick deja de pedir autorización en cada cierre de sesión
+### CSP real, sin depender de las cabeceras
 
-- Nuevo ajuste del dispositivo **Kick → “No volver a pedir autorización de Kick en este equipo”**, activado por defecto. Se guarda en `gochi_ajustes` como `kickRecordar`.
-- `cerrarSesion()` lo consulta: si está activo y hay token de Kick, **no** envía `salir` (que rota el `token_hash`) y conserva `gocha_kick_token`; solo limpia la sesión del chat en memoria y repinta la fachada. El resto del cierre queda igual: token de comunidad, perfil, Auth y cachés.
-- “Conectar con Kick” reutiliza ese token y entra directo: ya no aparece la pantalla de autorizar de Kick.
-- El recuerdo caduca a los **30 días** (`gocha_kick_recordar_hasta`). Al vencer, `abrirOAuth` descarta el token y pide autorización normal.
-- Apagar el interruptor sin sesión abierta borra el token colgando (`window.olvidarKickRecordado`). **Desvincular** Kick también lo borra y revoca en el servidor.
-- `cerrarSesionKick({ conservarToken: true })` permite el cierre sin revocar; el cierre de la app (`mobile.js`) respeta el mismo ajuste.
-- Verificado en navegador: por defecto `ajuste=true` e interruptor marcado; cerrar sesión deja `kick=fake-kick` y `hasta` a 30 días con el token de comunidad borrado; con el ajuste apagado, `kick=null` y `hasta=null`; caducado → `kickRecordadoVigente()=false`.
-- Sin cambios de API ni de esquema.
+- Las 6 páginas llevan **`<meta http-equiv="Content-Security-Policy">`**: GitHub Pages no aplica `_headers`, pero la meta sí. Directivas: `default-src 'self'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, orígenes explícitos para jsDelivr, Umami, Supabase (https y wss), Kick, 7TV, YouTube, Instagram y TikTok.
+- `scripts/check.js` es la **fuente única de la política**: calcula el SHA-256 de cada `<script>` inline y de cada bloque `speculationrules` y falla si la meta no coincide con el HTML; `--fix` la reescribe. Los hashes se calculan con saltos de línea normalizados a LF, igual que el parser (con CRLF nunca habrían coincidido).
+- `script-src` necesita **`'unsafe-eval'`**: Alpine evalúa `x-data`/`x-on:` en runtime y sin él el sitio se queda sin UI. La CSP limita orígenes y bloquea `object-src`, pero no protege frente a script inline; para eso están los hashes. `frame-ancestors` y `report-uri` no funcionan en meta: no se incluyen para no dar falsa seguridad.
+- Verificado con navegador real: **0 violaciones de CSP y 0 errores JS propios en 6 páginas × 2 viewports**, con interacciones (perfil, cambio de tema, menú de la galería).
+
+### 404: el tema nunca se aplicaba
+
+- `404.html` tenía un `</script>` dentro del bloque inline, que partía el script: el primer trozo terminaba en `Unexpected end of input` y el resto se pintaba como texto. Tema y ajustes **no se aplicaban nunca** en esa página. Reescrito el bloque con los dos `try` completos.
+
+### Una sola puerta para las RPC
+
+- Migradas **26 llamadas** directas a `supabase.rpc` en las páginas (comunidad 12, galería 6, cine 4, sorteo 4) a `window.rpcRaw`, que normaliza el error. Mismas firmas: el cambio es 1:1.
+- `check.js` **falla** si una página vuelve a llamar a `supabase.rpc` y admite una única llamada directa en `main.js` (la implementación de `rpcRaw`). Probado inyectando una llamada falsa.
+
+### Rendimiento
+
+- `preconnect` a `https://cydiyaacnyydprgffmkq.supabase.co` en `index`, `comunidad`, `sorteo` y `cine` (galería ya lo tenía). Quita DNS y TLS del camino crítico de la primera RPC.
+
+### Documentación (AGENTS.md)
+
+- `ads.txt` documentado como verificación de AdSense, sin anuncios integrados.
+- `_headers` deja de figurar como pendiente: es solo referencia; la protección real es la meta CSP.
+- "Leaked password protection" marcado como **solo plan Pro** (la cuenta es Free): no es tarea pendiente.
+- SRI ya presente en los CDN: corregida la deuda que lo listaba como ausente.
 
 ## [1.79.0] - 2026-11-06
 
@@ -64,6 +80,19 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 - Resumen superior con total histórico y puntos de hoy.
 - Botón Ver más mantiene la paginación de 10 en 10 (RPC `mis_puntos_historial`).
 - El perfil público no muestra el historial.
+- Sin cambios de API ni de esquema.
+
+## [1.78.0] - 2026-11-06
+
+### Kick deja de pedir autorización en cada cierre de sesión
+
+- Nuevo ajuste del dispositivo **Kick → “No volver a pedir autorización de Kick en este equipo”**, activado por defecto. Se guarda en `gochi_ajustes` como `kickRecordar`.
+- `cerrarSesion()` lo consulta: si está activo y hay token de Kick, **no** envía `salir` (que rota el `token_hash`) y conserva `gocha_kick_token`; solo limpia la sesión del chat en memoria y repinta la fachada. El resto del cierre queda igual: token de comunidad, perfil, Auth y cachés.
+- “Conectar con Kick” reutiliza ese token y entra directo: ya no aparece la pantalla de autorizar de Kick.
+- El recuerdo caduca a los **30 días** (`gocha_kick_recordar_hasta`). Al vencer, `abrirOAuth` descarta el token y pide autorización normal.
+- Apagar el interruptor sin sesión abierta borra el token colgando (`window.olvidarKickRecordado`). **Desvincular** Kick también lo borra y revoca en el servidor.
+- `cerrarSesionKick({ conservarToken: true })` permite el cierre sin revocar; el cierre de la app (`mobile.js`) respeta el mismo ajuste.
+- Verificado en navegador: por defecto `ajuste=true` e interruptor marcado; cerrar sesión deja `kick=fake-kick` y `hasta` a 30 días con el token de comunidad borrado; con el ajuste apagado, `kick=null` y `hasta=null`; caducado → `kickRecordadoVigente()=false`.
 - Sin cambios de API ni de esquema.
 
 ## [1.77.1] - 2026-11-06

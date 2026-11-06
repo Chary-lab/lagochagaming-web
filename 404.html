@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-8yYoRvL2h2fppIr0nN9n+gOzzgMf0sp01qDRggsYLAU=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, follow">
     <title>Página no encontrada | LaGochaGaming</title>
@@ -10,7 +11,7 @@
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="/style.css?v=1.79.0">
+    <link rel="stylesheet" href="/style.css?v=1.80.0">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="181add5a-5f78-4d10-a199-4d2460d443a8" data-domains="lagochagaming.com"></script>
 </head>
 <body class="error-page">
@@ -34,9 +35,17 @@
     <script>
         try {
             const tema = localStorage.getItem('gochi_tema');
-try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=document.documentElement;if(aj.animaciones===false)rr.classList.add('sin-animaciones');if(aj.texto===90||aj.texto===110||aj.texto===125)rr.classList.add('texto-'+aj.texto);if(aj.densidad==='compacta')rr.classList.add('densidad-compacta');if(aj.transparencias===false)rr.classList.add('sin-transparencias');if(aj.contraste===true)rr.classList.add('alto-contraste');}catch(e){}</script>
             if (tema === 'light') document.body.classList.add('light-mode');
             else if (tema === 'oled') document.body.classList.add('oled-mode');
+        } catch (e) { /* sin localStorage */ }
+        try {
+            var aj = JSON.parse(localStorage.getItem('gochi_ajustes') || '{}');
+            var rr = document.documentElement;
+            if (aj.animaciones === false) rr.classList.add('sin-animaciones');
+            if (aj.texto === 90 || aj.texto === 110 || aj.texto === 125) rr.classList.add('texto-' + aj.texto);
+            if (aj.densidad === 'compacta') rr.classList.add('densidad-compacta');
+            if (aj.transparencias === false) rr.classList.add('sin-transparencias');
+            if (aj.contraste === true) rr.classList.add('alto-contraste');
         } catch (e) { /* sin localStorage */ }
     </script>
 </body>

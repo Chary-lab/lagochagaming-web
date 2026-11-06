@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-1B8NhfQHLrqcSobncSZmNVlfZ1Z7qp2rXuxUZQcUM6I=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GochiSorteo | LaGochaGaming</title>
     <meta name="description" content="Sorteos de La Gocha con premios increíbles: el modo streamer sortea en el servidor y el manual gira en tu navegador.">
@@ -26,10 +27,11 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Sorteos de LaGochaGaming">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.79.0">
+    <link rel="stylesheet" href="style.css?v=1.80.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cydiyaacnyydprgffmkq.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="https://kick.com">
 
     <script type="application/ld+json">
@@ -598,7 +600,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             store.participantes.push({ username: username, peso: 1 });
 
             try {
-                const { data: resultado, error } = await supabase.rpc('registrar_participante_sorteo', {
+                const { data: resultado, error } = await window.rpcRaw('registrar_participante_sorteo', {
                     p_username: username, p_kick_user_id: kickUserId
                 });
                 if (error) throw error;
@@ -705,7 +707,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             try {
                 // La RPC actualiza el peso si el usuario ya existe: el bono
                 // reemplaza en vez de crear una fila nueva (ni sumar tickets).
-                const { data: resultado, error } = await supabase.rpc('asignar_peso_sorteo', {
+                const { data: resultado, error } = await window.rpcRaw('asignar_peso_sorteo', {
                     p_username: username, p_peso: peso
                 });
                 if (error) throw error;
@@ -757,7 +759,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             }
 
             try {
-                const { data, error } = await supabase.rpc('streamer_vaciar_tombola');
+                const { data, error } = await window.rpcRaw('streamer_vaciar_tombola');
                 if (error || !data || data.ok !== true) throw error || new Error('sin_permiso');
 
                 store.participantes = [];
@@ -798,7 +800,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             // un ganador local no registrado confundiria al publico.
             let ganadorFinal = null;
             try {
-                const { data, error } = await supabase.rpc('sortear_ganador_sorteo');
+                const { data, error } = await window.rpcRaw('sortear_ganador_sorteo');
                 if (error) throw error;
                 if (data && data.ok && data.ganador) {
                     ganadorFinal = data.ganador;
@@ -941,7 +943,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         </div>
     </footer>
 
-    <script src="main.js?v=1.79.0" defer></script>
+    <script src="main.js?v=1.80.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

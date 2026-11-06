@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-tt5dENC9rP3LrX8dQa7m0DxkjTZmwhkO/twRj0LAZXs=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galería | LaGochaGaming</title>
     <meta name="description" content="Galería de fotos de la comunidad de LaGochaGaming. Sube tus imágenes, vota las más populares y forma parte del top.">
@@ -26,7 +27,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.79.0">
+    <link rel="stylesheet" href="style.css?v=1.80.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -763,7 +764,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             if (!token || !window.supabase) return misLikesGaleria;
 
             try {
-                const { data, error } = await supabase.rpc('obtener_likes_galeria', { p_token: token });
+                const { data, error } = await window.rpcRaw('obtener_likes_galeria', { p_token: token });
                 if (error) throw error;
                 if (data && data.ok && Array.isArray(data.ids)) {
                     misLikesGaleria = new Set(data.ids.map(String));
@@ -807,7 +808,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         // Una sola llamada devuelve la página, el top global y tus likes.
         async function pedirGaleriaPublica() {
             const token = localStorage.getItem('comunidad_session_token') || null;
-            const { data, error } = await supabase.rpc('galeria_publica', {
+            const { data, error } = await window.rpcRaw('galeria_publica', {
                 p_offset: paginaActualGaleria * LIMITE_GALERIA,
                 p_limit: LIMITE_GALERIA,
                 p_orden: filtroActual === 'populares' ? 'populares' : 'recientes',
@@ -975,7 +976,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             };
 
             try {
-                const { data, error } = await supabase.rpc('incrementar_likes', {
+                const { data, error } = await window.rpcRaw('incrementar_likes', {
                     p_token: token,
                     p_image_id: idNumerico,
                     p_delta: delta
@@ -1238,7 +1239,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             if (store && indice >= 0) store.pendientes.splice(indice, 1);
             try {
                 const idNumerico = isNaN(id) ? id : Number(id);
-                const { data, error } = await supabase.rpc('admin_galeria_aprobar', { p_id: idNumerico });
+                const { data, error } = await window.rpcRaw('admin_galeria_aprobar', { p_id: idNumerico });
                 if (error || !data || data.ok !== true) {
                     if (store && pendiente) store.pendientes.splice(indice, 0, pendiente);
                     mostrarToast(`Error: ${error?.message || 'no se pudo aprobar'}`, true);
@@ -1280,7 +1281,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 enConfirmar: async () => {
                     try {
                         const idNumerico = isNaN(id) ? id : Number(id);
-                        const { data, error } = await supabase.rpc('admin_galeria_eliminar', { p_id: idNumerico });
+                        const { data, error } = await window.rpcRaw('admin_galeria_eliminar', { p_id: idNumerico });
                         if (error || !data || data.ok !== true) { mostrarToast(`Error: ${error?.message || 'no se pudo eliminar'}`, true); return; }
                         const store = obtenerStoreGaleria();
                         if (store) {
@@ -1330,7 +1331,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 return;
             }
             try {
-                const { data: resultado, error } = await supabase.rpc('actualizar_autor_galeria', {
+                const { data: resultado, error } = await window.rpcRaw('actualizar_autor_galeria', {
                     p_image_id: Number(imageId),
                     p_autor: nuevoAutor
                 });
@@ -1363,7 +1364,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.79.0" defer></script>
+    <script src="main.js?v=1.80.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

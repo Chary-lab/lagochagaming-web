@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-VK3nUx6srWZwB8OGeQ7opIzrbERabVEhqUOZuExf5UE=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -29,10 +30,11 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.79.0">
+    <link rel="stylesheet" href="style.css?v=1.80.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cydiyaacnyydprgffmkq.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="https://kick.com">
 
     <script type="application/ld+json">
@@ -492,7 +494,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.79.0" defer></script>
+    <script src="main.js?v=1.80.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1139,7 +1141,7 @@ setInterval(actualizarTypingIndicator, 1200);
             async function registrarUsuario(apodo, pin, genero) {
                 if (!window.supabase) return { ok: false, error: 'Supabase no disponible' };
                 try {
-                    const { data, error } = await supabase.rpc('registrar_comunidad', { p_apodo: apodo, p_pin: pin, p_genero: genero });
+                    const { data, error } = await window.rpcRaw('registrar_comunidad', { p_apodo: apodo, p_pin: pin, p_genero: genero });
                     if (error) return { ok: false, error: error.message };
                     return { ok: !!data?.ok, error: data?.error, token: data?.token, usuario: data?.usuario };
                 } catch (e) { return { ok: false, error: e.message }; }
@@ -1148,7 +1150,7 @@ setInterval(actualizarTypingIndicator, 1200);
             async function verificarLogin(apodo, pin) {
                 if (!window.supabase) return { ok: false, error: 'Supabase no disponible' };
                 try {
-                    const { data, error } = await supabase.rpc('login_comunidad', { p_apodo: apodo, p_pin: pin });
+                    const { data, error } = await window.rpcRaw('login_comunidad', { p_apodo: apodo, p_pin: pin });
                     if (error) return { ok: false, error: error.message };
                     return { ok: !!data?.ok, error: data?.error, token: data?.token, usuario: data?.usuario };
                 } catch (e) { return { ok: false, error: e.message }; }
@@ -1350,7 +1352,7 @@ setInterval(actualizarTypingIndicator, 1200);
                 cargarPerfilExtendido();
                 actualizarAvisoKick();
                 if (token) {
-                    supabase.rpc('obtener_puntos_hoy', { p_token: token })
+                    window.rpcRaw('obtener_puntos_hoy', { p_token: token })
                         .then(({ data }) => pintarPuntosHoy(data))
                         .catch(() => {});
                 }
@@ -1497,7 +1499,7 @@ setInterval(actualizarTypingIndicator, 1200);
                 if (!savedToken || !savedApodo) return false;
                 if (!window.supabase) return false;
                 try {
-                    const { data, error } = await supabase.rpc('validar_sesion_comunidad', { p_token: savedToken });
+                    const { data, error } = await window.rpcRaw('validar_sesion_comunidad', { p_token: savedToken });
                     if (error || !data?.ok) {
                         // Sesión inválida: limpiar todo
                         localStorage.removeItem(STORAGE_KEY_NICK);
@@ -1686,7 +1688,7 @@ setInterval(actualizarTypingIndicator, 1200);
                         store.cargando = true;
                         store.error = '';
                     }
-                    const { data, error } = await supabase.rpc('obtener_chat_historial', {
+                    const { data, error } = await window.rpcRaw('obtener_chat_historial', {
                         p_token: token || null,
                         p_antes_de: antesDe,
                         p_limite: 50
@@ -1789,7 +1791,7 @@ setInterval(actualizarTypingIndicator, 1200);
                 guardarPendienteLocal(msgIdStr, quiereBorrar ? null : emoji);
 
                 try {
-                    const { data: resultado, error } = await supabase.rpc('establecer_reaccion', { p_token: token, p_message_id: msgIdStr, p_emoji: emoji });
+                    const { data: resultado, error } = await window.rpcRaw('establecer_reaccion', { p_token: token, p_message_id: msgIdStr, p_emoji: emoji });
                     if (error) throw new Error(error.message || 'error_desconocido');
                     if (!resultado || !resultado.ok) {
                         throw new Error(resultado && resultado.error ? resultado.error : 'error_desconocido');
@@ -1867,7 +1869,7 @@ setInterval(actualizarTypingIndicator, 1200);
                     textoConfirmar: 'Eliminar',
                     enConfirmar: async () => {
                         try {
-                            const { data, error } = await supabase.rpc('admin_eliminar_mensaje_chat', {
+                            const { data, error } = await window.rpcRaw('admin_eliminar_mensaje_chat', {
                                 p_mensaje_id: Number(msgId)
                             });
                             if (error || !data || !data.ok) {
@@ -2158,7 +2160,7 @@ if (chatForm) {
                     }
                     try {
                         const token = localStorage.getItem(STORAGE_KEY_TOKEN);
-                        const { data: resultado, error } = await supabase.rpc('enviar_mensaje_chat', { p_token: token, p_mensaje: mensaje });
+                        const { data: resultado, error } = await window.rpcRaw('enviar_mensaje_chat', { p_token: token, p_mensaje: mensaje });
                         if (error) {
                             console.error('Error RPC enviar_mensaje_chat:', error);
                             mostrarToast('No se pudo enviar el mensaje. Revisa tu conexión.', true);
@@ -2609,7 +2611,7 @@ if (chatForm) {
                 if (!token) return;
                 const rangoAnterior = rangoActualUsuario;
                 try {
-                    const { data: resultado, error } = await supabase.rpc('incrementar_puntos_comunidad', { p_token: token });
+                    const { data: resultado, error } = await window.rpcRaw('incrementar_puntos_comunidad', { p_token: token });
                     if (error) throw error;
                     if (resultado && resultado.ok) {
                         if (userPointsDisplay) {
@@ -2659,7 +2661,7 @@ if (chatForm) {
             }
             store.error = '';
             try {
-                 const { data, error } = await supabase.rpc('tienda_obtener_catalogo', { p_token: token });
+                 const { data, error } = await window.rpcRaw('tienda_obtener_catalogo', { p_token: token });
                 if (error) throw error;
                 if (!data || !data.ok) {
                     store.error = data?.error || 'Error cargando tienda';
@@ -2683,7 +2685,7 @@ if (chatForm) {
             const token = localStorage.getItem(STORAGE_KEY_TOKEN);
             if (!token || !window.supabase) return;
             try {
-                const { data, error } = await supabase.rpc('tienda_mis_canjes', { p_token: token });
+                const { data, error } = await window.rpcRaw('tienda_mis_canjes', { p_token: token });
                 if (error) throw error;
                 if (!data || !data.ok) return;
                 store.misCanjes = data.canjes || [];
@@ -2703,7 +2705,7 @@ if (chatForm) {
             const btn = evento?.currentTarget || null;
             if (btn) btn.disabled = true;
             try {
-                const { data, error } = await supabase.rpc('tienda_canjear_premio', {
+                const { data, error } = await window.rpcRaw('tienda_canjear_premio', {
                     p_token: token,
                     p_premio_id: premioId
                 });
