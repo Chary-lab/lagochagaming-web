@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.78.0] - 2026-11-06
+
+### Kick deja de pedir autorización en cada cierre de sesión
+
+- Nuevo ajuste del dispositivo **Kick → “No volver a pedir autorización de Kick en este equipo”**, activado por defecto. Se guarda en `gochi_ajustes` como `kickRecordar`.
+- `cerrarSesion()` lo consulta: si está activo y hay token de Kick, **no** envía `salir` (que rota el `token_hash`) y conserva `gocha_kick_token`; solo limpia la sesión del chat en memoria y repinta la fachada. El resto del cierre queda igual: token de comunidad, perfil, Auth y cachés.
+- “Conectar con Kick” reutiliza ese token y entra directo: ya no aparece la pantalla de autorizar de Kick.
+- El recuerdo caduca a los **30 días** (`gocha_kick_recordar_hasta`). Al vencer, `abrirOAuth` descarta el token y pide autorización normal.
+- Apagar el interruptor sin sesión abierta borra el token colgando (`window.olvidarKickRecordado`). **Desvincular** Kick también lo borra y revoca en el servidor.
+- `cerrarSesionKick({ conservarToken: true })` permite el cierre sin revocar; el cierre de la app (`mobile.js`) respeta el mismo ajuste.
+- Verificado en navegador: por defecto `ajuste=true` e interruptor marcado; cerrar sesión deja `kick=fake-kick` y `hasta` a 30 días con el token de comunidad borrado; con el ajuste apagado, `kick=null` y `hasta=null`; caducado → `kickRecordadoVigente()=false`.
+- Sin cambios de API ni de esquema.
+
 ## [1.77.1] - 2026-11-06
 
 ### La paleta como herramienta de moderación

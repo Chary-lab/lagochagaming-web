@@ -820,10 +820,18 @@
       return;
     }
     var token = localStorage.getItem(SESSION.token) || '';
+    var conservarKick = typeof window.kickRecordarSesion === 'function'
+      && window.kickRecordarSesion()
+      && !!localStorage.getItem('gocha_kick_token');
     try {
-      if (typeof window.cerrarSesionKick === 'function') window.cerrarSesionKick();
+      if (typeof window.cerrarSesionKick === 'function') window.cerrarSesionKick({ conservarToken: conservarKick });
     } catch (e) {}
-    try { localStorage.removeItem('gocha_kick_token'); } catch (e) {}
+    if (conservarKick) {
+      try { localStorage.setItem('gocha_kick_recordar_hasta', String(Date.now() + 30 * 24 * 60 * 60 * 1000)); } catch (e) {}
+    } else {
+      try { localStorage.removeItem('gocha_kick_token'); } catch (e) {}
+      try { localStorage.removeItem('gocha_kick_recordar_hasta'); } catch (e) {}
+    }
     if (token && window.supabase && typeof window.supabase.rpc === 'function') {
       try { window.supabase.rpc('cerrar_sesion_comunidad', { p_token: token }); } catch (e) {}
     }

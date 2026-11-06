@@ -100,7 +100,7 @@ if (!/abrirHoja\s*:/.test(mainJs) || !/cerrarHoja\s*:/.test(mainJs)) {
 // Ajustes del dispositivo: toda clave que se lee o escribe debe existir en el
 // estado por defecto del store `ajustes`. Una clave huérfana se guarda en
 // `gochi_ajustes` y nunca se aplica: el usuario cree que cambió algo.
-const inicioAjustes = mainJs.indexOf("window.Alpine.store('ajustes'");
+const inicioAjustes = mainJs.indexOf("window.Alpine.store('ajustes', {");
 const finAjustes = inicioAjustes >= 0 ? mainJs.indexOf('\n    });', inicioAjustes) : -1;
 const cuerpoAjustes = finAjustes > inicioAjustes ? mainJs.slice(inicioAjustes, finAjustes) : '';
 const bloqueDatos = cuerpoAjustes.match(/datos:\s*\{([^}]*)\}/);

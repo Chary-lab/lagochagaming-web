@@ -75,6 +75,28 @@ window.enModoApp = function enModoApp() {
     return document.documentElement.classList.contains('lg-app');
 };
 
+// Al cerrar sesión, ¿se conserva el acceso de Kick en este equipo? Es una
+// preferencia del dispositivo (Ajustes) y viene activada: así "Entrar con
+// Kick" no vuelve a pedir autorización. Apagarla revoca el token al salir.
+window.kickRecordarSesion = function kickRecordarSesion() {
+    const store = window.Alpine && window.Alpine.store ? window.Alpine.store('ajustes') : null;
+    return !store || store.datos.kickRecordar !== false;
+};
+
+// El recuerdo caduca a los 30 días desde el último cierre de sesión.
+window.kickRecordadoVigente = function kickRecordadoVigente() {
+    const hasta = Number(almacen.texto('gocha_kick_recordar_hasta') || 0);
+    return !hasta || Date.now() < hasta;
+};
+
+// Al apagar el ajuste sin sesión abierta, no queda un token colgando.
+window.olvidarKickRecordado = function olvidarKickRecordado() {
+    if (window.kickRecordarSesion()) return;
+    if (almacen.texto('comunidad_session_token')) return;
+    almacen.borrar('gocha_kick_token');
+    almacen.borrar('gocha_kick_recordar_hasta');
+};
+
 // Única fuente de verdad del escapado de HTML para todo el sitio.
 window.escapeHtml = function escapeHtml(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({
@@ -653,12 +675,17 @@ window.KICK_COMUNIDAD = (function () {
         try {
             // Un solo OAuth para todo: si Kick ya esta conectado (por el chat o
             // por el icono), se reutiliza el token y solo se entra a Comunidad.
-            if (objetivo === 'entrar' && almacen.texto('gocha_kick_token')) {
+            if (objetivo === 'entrar' && almacen.texto('gocha_kick_token') && window.kickRecordadoVigente()) {
                 if (typeof window.entrarConKickComunidad === 'function') {
                     return await window.entrarConKickComunidad();
                 }
                 window.location.href = 'comunidad?kick=1';
                 return false;
+            }
+            if (objetivo === 'entrar' && almacen.texto('gocha_kick_token')) {
+                // El recuerdo de 30 días caducó: se descarta y se pide autorización.
+                almacen.borrar('gocha_kick_token');
+                almacen.borrar('gocha_kick_recordar_hasta');
             }
             sessionStorage.setItem(CLAVE_OBJETIVO, objetivo);
             const vuelta = window.vueltaKickApp(objetivo);
@@ -1183,9 +1210,16 @@ window.cerrarSesion = async function cerrarSesion() {
     window.limpiarEstadoSesionUI();
     window.limpiarCachesSesionComunidad();
 
-    // El login general también cierra la sesión de Kick del chat y del OAuth.
+    // El login general también cierra la sesión de Kick del chat, salvo que el
+    // visitante haya pedido no volver a autorizar Kick en este equipo.
     if (typeof window.cerrarSesionKick === 'function') {
-        try { await window.cerrarSesionKick(); } catch (e) {}
+        const conservar = window.kickRecordarSesion() && !!almacen.texto('gocha_kick_token');
+        if (conservar) {
+            almacen.guardarTexto('gocha_kick_recordar_hasta', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+        } else {
+            almacen.borrar('gocha_kick_recordar_hasta');
+        }
+        try { await window.cerrarSesionKick({ conservarToken: conservar }); } catch (e) {}
     }
 
     if (token && window.supabase) {
@@ -3170,13 +3204,17 @@ window.CHAT_KICK = {
 
     // Salida única de Kick: la usa el cierre de sesión general y el chat.
     // Así no queda una sesión de Kick viva cuando el usuario cierra su cuenta.
-    window.cerrarSesionKick = async function cerrarSesionKick() {
+    window.cerrarSesionKick = async function cerrarSesionKick(opciones) {
+        const conservar = !!(opciones && opciones.conservarToken);
         const token = almacen.texto(api.claveToken);
-        if (token) {
+        if (token && !conservar) {
             try { await pedir({ accion: 'salir' }, token); } catch (e) {}
+            almacen.borrar(api.claveToken);
         }
         window.CHAT_KICK.sesion = null;
-        almacen.borrar(api.claveToken);
+        document.querySelectorAll('[data-chat-kick]').forEach((host) => {
+            if (typeof host._actualizarCuenta === 'function') host._actualizarCuenta(null);
+        });
     };
 
     const conEmotes = (texto) => {
@@ -4260,6 +4298,17 @@ document.addEventListener('DOMContentLoaded', () => {
             </label>
           </section>
 
+          <section class="mp-seccion">
+            <h5 class="mp-seccion-titulo">Kick</h5>
+            <label class="gochi-switch">
+              <input type="checkbox" x-model="$store.ajustes.datos.kickRecordar"
+                     x-on:change="$store.ajustes.guardar(); window.olvidarKickRecordado?.()">
+              <span class="gochi-switch-track"></span>
+              <span>No volver a pedir autorización de Kick en este equipo</span>
+            </label>
+            <p class="mp-desde">Con esto activo, cerrar sesión no revoca el acceso de Kick aquí: se puede volver a entrar sin credenciales durante 30 días.</p>
+          </section>
+
           <p class="mp-desde">Estos ajustes se guardan en este dispositivo y no cambian tu cuenta.</p>
         </div>
         <div class="mp-eliminar" role="dialog" aria-modal="true" aria-labelledby="mp-eliminar-titulo"
@@ -4312,7 +4361,8 @@ document.addEventListener('DOMContentLoaded', () => {
         transparencias: true,
         contraste: false,
         sonido: true,
-        ahorro: false
+        ahorro: false,
+        kickRecordar: true
       },
       cargar() {
         const guardado = almacen.leer('gochi_ajustes', null);
@@ -4502,6 +4552,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           if (typeof window.cerrarSesionKick === 'function') await window.cerrarSesionKick();
           else almacen.borrar('gocha_kick_token');
+          almacen.borrar('gocha_kick_recordar_hasta');
           this.usuario.kick_user_id = null;
           this.usuario.kick_username = null;
           window.actualizarSesionUsuarioComunidad({ kick_user_id: null, kick_username: null });

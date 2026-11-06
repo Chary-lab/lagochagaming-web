@@ -120,6 +120,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - `ahorro-datos` retrasa los feeds de Instagram, TikTok y clips hasta que el visitante pulsa “Cargar contenido”.
 - `window.sonidoChat()` genera el aviso del chat con Web Audio (sin archivos): solo si el mensaje no es tuyo, si la pestaña está oculta o no estás al final, y como máximo una vez cada 2 s. El `AudioContext` se arma con la primera interacción.
 - `window.exportarMisDatos()` descarga perfil y preferencias en JSON, todo en cliente.
+- `kickRecordar` (por defecto `true`) decide si cerrar sesión conserva el acceso de Kick del navegador. Es la única clave de `gochi_ajustes` con efecto fuera de la interfaz: apagarla revoca el token.
 - En la app (`html.lg-app`, detectado con `window.enModoApp()`) la pestaña **Ajustes** del perfil oculta **Tamaño del texto**, **Animaciones** y **Ahorro de datos**: la hoja móvil es la única que los edita y escribe en `gochi_ajustes` (`texto` 100/110/125, `animaciones`, `ahorro`). Tema, vibración y pantalla encendida siguen en `lg_mobile_settings`. No volver a duplicar esos tres controles.
 
 ### 4.5 RPC: una sola puerta
@@ -208,6 +209,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Cliente: `window.KICK_COMUNIDAD` en `main.js` (`vinculado`, `vincular`, `abrirOAuth`, `volverDelHash`). El objetivo del OAuth viaja en `sessionStorage` (`gocha_kick_objetivo`): `entrar` o `vincular`.
 - Registro con Kick: `#btn-registro-kick` del modal de registro usa el mismo OAuth que "Conectar con Kick" y deja `gocha_kick_intencion=registro`. Al volver, `entrarConKickComunidad()` lo convierte en `gocha_ajustes_pendientes=1` y la página abre `Alpine.store('perfil').abrir('ajustes')` para completar género y avatar.
 - Insignias de Kick: `window.insigniasKickDe()` (§4); no pedir `rol` al cliente.
+- Cierre de sesión y Kick: `salir` no borra la autorización, solo rota el `token_hash`. Con `kickRecordar` (Ajustes, activado por defecto) `cerrarSesion()` conserva `gocha_kick_token` durante 30 días (`gocha_kick_recordar_hasta`) y “Entrar con Kick” entra sin OAuth; apagarlo o desvincular lo revoca. El cierre de la app respeta el mismo ajuste.
 - Avatar de Kick: al vincular/iniciar sesión, `kick-comunidad` sincroniza la foto en `usuarios_comunidad.kick_avatar_url`. Si el usuario tiene elegido el avatar de Kick, se refresca en cada login. Al desvincular se limpia la columna y vuelve al avatar por género. La RPC de perfil solo acepta como avatar la foto de Kick del propio usuario.
 - Espectadores: la cabecera del chat muestra `N Views` en `.chat-kick-espectadores`. Se pinta con `window.actualizarEspectadoresKick(total, enVivo)` desde el sondeo global de `verificarEstadoStream()`; no crear sondeos nuevos ni un segundo contador en la página.
 - Player web: `#stream-player` es el iframe de `player.kick.com` y se queda así. Su CORS solo admite orígenes de Kick, así que reproducir el HLS directo (`playback_url` de `https://kick.com/api/v2/channels/lagochagaming`) en la web exige proxy y cuesta 2–3 GB por hora y espectador: no hacerlo sin autorización.
@@ -288,7 +290,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.77.1` (la paleta `Ctrl`/`Cmd`+`K` gana atajos de moderación para admins: cinco paneles y, al escribir `@apodo`, “Ver perfil” y “Buscar en el panel” filtrado; `abrirAdminPanel` acepta `{ buscar }`. La paleta no banea ni borra: lleva a la fila y la confirmación sigue en el panel. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.78.0` (Kick deja de pedir autorización en cada cierre de sesión: ajuste `kickRecordar` activado por defecto en `gochi_ajustes`, `cerrarSesion()` conserva el token de Kick 30 días y `abrirOAuth` lo reutiliza. Apagarlo o desvincular revoca el token. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
