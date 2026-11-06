@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.74.2] - 2026-11-05
+
+### Todas las RPC vuelven a funcionar
+
+- `window.rpcRaw` se llamaba a sí mismo (`return await window.rpcRaw(...)` en lugar de `window.supabase.rpc(...)`), así que **cada** RPC lanzaba `Maximum call stack size exceeded` y devolvía error desde la 1.70.0. El `try/catch` lo tragaba, por eso fallaba en silencio.
+- Consecuencia visible: el panel de administración decía “Sin permisos” con una sesión de `owner` válida, y lo mismo rompía puntos diarios, latido de presencia, sugerencias, canjes y todas las acciones `admin_*`.
+- La cabecera del panel ahora muestra el rol real (`· Owner`, `· Admin` o `· sin rol`) y, si la comprobación falla por red o sesión caducada, lo dice con botones **Volver a comprobar** y **Entrar de nuevo** en lugar de fingir que faltan permisos.
+- Verificado en navegador con una sesión real de `owner`: `admin=true | owner=true | header=Sesión: McChary · Owner` y las cinco pestañas presentes.
+- Sin cambios de API ni de esquema.
+
 ## [1.74.1] - 2026-11-05
 
 ### El acceso de administración, siempre a mano

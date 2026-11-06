@@ -285,7 +285,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.74.1` (nuevo comando “Acceso de administración” en la paleta `Ctrl`/`Cmd`+`K`: abre el login del panel sin depender del botón discreto del footer, que solo aparece con sesión de admin válida. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.74.2` (corrige `window.rpcRaw`, que se llamaba a sí mismo y rompía todas las RPC desde la 1.70.0: panel de administración, puntos diarios, presencia, sugerencias, canjes y acciones `admin_*` fallaban en silencio con “Maximum call stack size exceeded”. La cabecera del panel muestra el rol real y distingue el fallo de comprobación de la falta de permisos. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

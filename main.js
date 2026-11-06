@@ -337,7 +337,7 @@ let _adminCache = null;
 window.rpcRaw = async function rpcRaw(nombre, params) {
     if (!window.supabase) return { data: null, error: { message: 'sin_supabase' } };
     try {
-        return await window.rpcRaw(nombre, params);
+        return await window.supabase.rpc(nombre, params);
     } catch (e) {
         return { data: null, error: { message: (e && e.message) || 'excepcion' } };
     }
@@ -2223,7 +2223,7 @@ function insertarPanelAdminGlobal() {
             <header class="admin-global-head">
                 <div>
                     <h2 id="admin-global-title">Administración</h2>
-                    <p class="admin-page-sub" x-text="$store.adminPanel.sesion ? ('Sesión: ' + $store.adminPanel.email + ($store.adminPanel.owner ? ' · Owner' : ' · Admin')) : 'Acceso de administración'"></p>
+                    <p class="admin-page-sub" x-text="$store.adminPanel.sesion ? ('Sesión: ' + $store.adminPanel.email + ($store.adminPanel.owner ? ' · Owner' : ($store.adminPanel.admin ? ' · Admin' : ' · sin rol'))) : 'Acceso de administración'"></p>
                 </div>
                 <button type="button" class="admin-global-close" x-on:click="$store.adminPanel.cerrar()" aria-label="Cerrar panel">&times;</button>
             </header>
@@ -2243,10 +2243,17 @@ function insertarPanelAdminGlobal() {
 
             <template x-if="!$store.adminPanel.cargando && $store.adminPanel.sesion && !$store.adminPanel.admin">
                 <div class="admin-login-card">
-                    <h3><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-ban"></use></svg> Sin permisos</h3>
-                    <p>Esta cuenta de la comunidad no tiene rol de administración.</p>
+                    <h3><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-ban"></use></svg> <span x-text="$store.adminPanel.errorRol ? 'No se pudo comprobar' : 'Sin permisos'"></span></h3>
+                    <p x-text="$store.adminPanel.errorRol ? 'La comprobación del rol falló. Puede que la sesión haya caducado: vuelve a entrar.' : 'Esta cuenta de la comunidad no tiene rol de administración.'"></p>
                     <p class="admin-login-email" x-text="$store.adminPanel.email"></p>
-                    <button type="button" class="btn-admin-mode" x-on:click="$store.adminPanel.cerrar()">Cerrar panel</button>
+                    <button type="button" class="btn-admin-mode" x-on:click="$store.adminPanel.comprobarSesion()">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-rotate"></use></svg>
+                        <span>Volver a comprobar</span>
+                    </button>
+                    <button type="button" class="btn-admin-mode" x-on:click="$store.adminPanel.cerrar(); window.abrirLoginMenu?.('login')">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-right-to-bracket"></use></svg>
+                        <span>Entrar de nuevo</span>
+                    </button>
                 </div>
             </template>
 
@@ -2645,6 +2652,7 @@ document.addEventListener('alpine:init', () => {
         sesion: false,
         admin: false,
         owner: false,
+        errorRol: false,
         email: '',
         tab: 'usuarios',
 
@@ -2762,6 +2770,7 @@ document.addEventListener('alpine:init', () => {
             this.email = usuario.apodo || authUser?.email || '';
             this.admin = false;
             this.owner = false;
+            this.errorRol = false;
             if (!this.sesion) {
                 this.cargando = false;
                 return;
@@ -2773,6 +2782,7 @@ document.addEventListener('alpine:init', () => {
                 ]);
                 this.admin = adminRes && adminRes.data === true;
                 this.owner = ownerRes && ownerRes.data === true;
+                this.errorRol = !!(adminRes && adminRes.error) || !!(ownerRes && ownerRes.error);
                 this.cargando = false;
             } catch (e) {
                 console.error('Error comprobando sesión admin:', e);
