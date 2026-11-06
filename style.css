@@ -5493,40 +5493,68 @@ body.light-mode {
 }
 .mp-stat-valor { font-size: 0.95rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
 .mp-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
-.mp-historial {
-    list-style: none;
-    margin: 4px 0 10px;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+
+/* Historial de puntos — nuevo diseño con agrupación por día y gochi-card */
+.mp-historial-resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--r-md);
+  background: var(--card-bg-subtle);
+  font-size: 0.82rem;
+  color: var(--text-muted);
 }
-.mp-historial-item {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    padding: 6px 8px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background: var(--card-bg-subtle);
+.mp-historial-resumen strong { color: var(--accent-color); font-weight: 700; }
+.mp-resumen-total { display: inline-flex; align-items: center; gap: 6px; }
+
+.mp-historial { display: flex; flex-direction: column; gap: 12px; }
+
+.mp-historial-dia { display: flex; flex-direction: column; gap: 8px; }
+.mp-historial-dia-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--accent-color) 8%, transparent);
+  border: 1px solid var(--border-color);
+  width: fit-content;
 }
-.mp-historial-texto {
-    flex: 1 1 auto;
-    min-width: 0;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--text-main);
+
+.mp-historial-card { padding: 12px; }
+.mp-historial-card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mp-historial-card-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .mp-historial-fecha {
-    flex: 0 0 auto;
-    font-size: 0.68rem;
-    color: var(--text-muted);
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 .mp-historial-puntos {
-    flex: 0 0 auto;
-    font-size: 0.78rem;
-    font-weight: 800;
-    color: var(--accent-color);
+  flex: 0 0 auto;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid color-mix(in srgb, var(--accent-color) 35%, transparent);
 }
 .mp-historial-mas { margin-top: 2px; }
 .mp-puntos {

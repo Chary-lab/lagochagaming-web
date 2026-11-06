@@ -16,6 +16,17 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 - Verificado en navegador: por defecto `ajuste=true` e interruptor marcado; cerrar sesión deja `kick=fake-kick` y `hasta` a 30 días con el token de comunidad borrado; con el ajuste apagado, `kick=null` y `hasta=null`; caducado → `kickRecordadoVigente()=false`.
 - Sin cambios de API ni de esquema.
 
+## [1.78.1] - 2026-11-06
+
+### Historial de puntos rediseñado en el perfil propio
+
+- Agrupación por día con separadores legibles (Hoy, Ayer, Lunes 3 de noviembre).
+- Cada entrada usa `gochi-card` + `gochi-chip` con icono y tono según la acción (tiempo, visita, chat, reacción, like, muro).
+- Resumen superior con total histórico y puntos de hoy.
+- Botón Ver más mantiene la paginación de 10 en 10 (RPC `mis_puntos_historial`).
+- El perfil público no muestra el historial.
+- Sin cambios de API ni de esquema.
+
 ## [1.77.1] - 2026-11-06
 
 ### La paleta como herramienta de moderación
