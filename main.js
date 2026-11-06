@@ -4733,6 +4733,11 @@ document.addEventListener('DOMContentLoaded', () => {
             titulo: 'Cambiar tema',
             detalle: 'Oscuro, OLED o claro',
             accion: () => document.getElementById('btn-toggle-tema')?.click()
+        },
+        {
+            titulo: 'Acceso de administración',
+            detalle: 'Panel de moderación (pide sesión de admin)',
+            accion: () => window.abrirAdminPanel?.('login')
         }
     ];
     const TODOS = PAGINAS.concat(ACCIONES);

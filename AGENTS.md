@@ -285,7 +285,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.74.0` (el chat de Kick gana agrupación de mensajes seguidos, autor clicable, acciones `@` y copiar al pasar el ratón, menciones resaltadas, separador de día, botón de “Nuevos mensajes” y densidad compacta. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.74.1` (nuevo comando “Acceso de administración” en la paleta `Ctrl`/`Cmd`+`K`: abre el login del panel sin depender del botón discreto del footer, que solo aparece con sesión de admin válida. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear

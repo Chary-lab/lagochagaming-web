@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.74.1] - 2026-11-05
+
+### El acceso de administración, siempre a mano
+
+- Nuevo comando en la paleta (`Ctrl`/`Cmd` + `K`): **Acceso de administración**, que abre el login del panel. Cualquiera lo ve; el panel sigue exigiendo sesión de admin.
+- Motivo: el botón discreto del footer solo aparece cuando `es_admin` responde `true`. Si el token de comunidad caduca, el navbar sigue mostrando el perfil guardado y el botón desaparecía, así que el acceso quedaba invisible sin forma evidente de llegar.
+- El botón del footer se mantiene igual para admins con sesión válida.
+- Verificado en navegador: la paleta lista 7 comandos, encuentra “Acceso de administración” y abre el panel.
+- Sin cambios de API ni de esquema.
+
 ## [1.74.0] - 2026-11-05
 
 ### El chat de Kick gana interacción
