@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.77.0] - 2026-11-06
+
+### Historial de puntos y cola de cine pública
+
+- Nueva RPC `mis_puntos_historial(p_token, p_limit, p_offset)` (`SECURITY DEFINER`, `search_path`, `EXECUTE` a `anon`, `authenticated` y `service_role`): valida la sesión de comunidad y devuelve los movimientos de `puntos_eventos` del usuario, del más reciente al más antiguo, con el total para paginar. `p_limit` saneado a 1–50.
+- El perfil propio gana la sección **Historial de puntos**: últimos 10 movimientos con acción traducida, fecha y puntos, más **Ver más**. El perfil público no la muestra.
+- La **cola de cine** ya la ve toda la sala. Antes vivía dentro del panel del streamer; ahora es una sección de la página y el formulario, la ayuda y los botones de reproducir/quitar solo aparecen con `body.admin-mode-active`.
+- La cola se carga para cualquier visitante (`cine_cola` ya tenía SELECT público); antes solo se pedía si había sesión de admin.
+- No se muestra “quién propuso cada video”: `cine_cola.creado_por` guarda siempre `'streamer'` porque solo el streamer puede encolar. Cuando se abra la propuesta a la comunidad habrá algo que enseñar.
+- Historial de ganadores del sorteo: ya existía con **Ver historial completo** y paginación; sin cambios.
+- Sin cambios de tablas.
+
 ## [1.76.1] - 2026-11-06
 
 ### Calidad: menos huecos a mano

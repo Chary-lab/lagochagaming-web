@@ -5493,6 +5493,42 @@ body.light-mode {
 }
 .mp-stat-valor { font-size: 0.95rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
 .mp-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+.mp-historial {
+    list-style: none;
+    margin: 4px 0 10px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.mp-historial-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg-subtle);
+}
+.mp-historial-texto {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+.mp-historial-fecha {
+    flex: 0 0 auto;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+.mp-historial-puntos {
+    flex: 0 0 auto;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--accent-color);
+}
+.mp-historial-mas { margin-top: 2px; }
 .mp-puntos {
     display: inline-flex;
     align-items: center;
@@ -5963,6 +5999,10 @@ body.light-mode {
 /* Cola de la sala (panel del streamer de GochiWatch) */
 .cine-cola { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-color); }
 .cine-cola-title { display: flex; align-items: center; gap: 8px; font-size: 1.05rem; margin-bottom: 8px; }
+/* La cola es pública; el formulario y los botones solo en modo streamer. */
+body:not(.admin-mode-active) .cine-cola-form,
+body:not(.admin-mode-active) .cine-cola-ayuda,
+body:not(.admin-mode-active) .cine-cola-acciones { display: none; }
 .cine-cola-title .icon { color: var(--accent-color); }
 .cine-cola-form { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0 4px; }
 .cine-cola-form .cine-cola-titulo-input { flex: 1 1 180px; }

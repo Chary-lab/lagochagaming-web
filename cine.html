@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="GochiWatch, cine sincronizado">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.76.1">
+    <link rel="stylesheet" href="style.css?v=1.77.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -120,50 +120,50 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     <span class="admin-source-hint" id="urlSourceHint">Fuente: esperando enlace</span>
                 </div>
 
-                <!-- COLA DE LA SALA (SOLO STREAMER) -->
-                <section class="cine-cola" aria-labelledby="cine-cola-titulo" x-cloak>
-                    <h3 class="cine-cola-title" id="cine-cola-titulo">
-                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg> Cola de la sala
-                    </h3>
-                    <p class="admin-panel-hint">
-                        Los videos se guardan en orden. <strong>Reproducir</strong> carga y emite el video para toda la sala; no se quita de la cola.
-                    </p>
-                    <form class="cine-cola-form" @submit.prevent="$store.cineCola.agregar()">
-                        <input type="text" class="admin-input" x-model="$store.cineCola.url" inputmode="url" autocomplete="off"
-                               maxlength="500" aria-label="URL del video para la cola" placeholder="https://... video para encolar">
-                        <input type="text" class="admin-input cine-cola-titulo-input" x-model="$store.cineCola.titulo"
-                               maxlength="120" autocomplete="off" aria-label="Título opcional del video" placeholder="Título (opcional)">
-                        <button type="submit" class="btn-primary" x-bind:disabled="$store.cineCola.guardando"
-                                x-text="$store.cineCola.guardando ? 'Añadiendo…' : 'Añadir a la cola'">Añadir a la cola</button>
-                    </form>
-                    <p class="cine-cola-error" x-text="$store.cineCola.error" x-bind:hidden="!$store.cineCola.error"></p>
-                    <p class="cine-cola-vacia" x-bind:hidden="!$store.cineCola.cargando">Cargando cola…</p>
-                    <p class="cine-cola-vacia" x-bind:hidden="$store.cineCola.cargando || $store.cineCola.items.length > 0">La cola está vacía. Añade un video para empezar.</p>
-                    <ol class="cine-cola-lista" x-bind:hidden="$store.cineCola.items.length === 0">
-                        <template x-for="(item, i) in $store.cineCola.items" :key="item.id">
-                            <li class="cine-cola-item">
-                                <span class="cine-cola-num" x-text="i + 1"></span>
-                                <span class="cine-cola-texto" x-text="item.titulo || item.video_url" x-bind:title="item.video_url"></span>
-                                <span class="cine-cola-acciones">
-                                    <button type="button" class="btn-cine-ghost cine-cola-btn"
-                                            x-bind:disabled="$store.cineCola.guardando"
-                                            x-bind:aria-label="'Reproducir ' + (item.titulo || 'video')"
-                                            @click="$store.cineCola.reproducir(item)">
-                                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg> Reproducir
-                                    </button>
-                                    <button type="button" class="btn-cine-ghost cine-cola-btn cine-cola-btn--quitar"
-                                            x-bind:disabled="$store.cineCola.guardando"
-                                            x-bind:aria-label="'Quitar ' + (item.titulo || 'video') + ' de la cola'"
-                                            @click="$store.cineCola.quitar(item)">
-                                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-trash-can"></use></svg> Quitar
-                                    </button>
-                                </span>
-                            </li>
-                        </template>
-                    </ol>
-                </section>
-
             </div>
+
+            <!-- COLA DE LA SALA: la ve toda la sala; los controles, solo el streamer -->
+            <section class="cine-cola" aria-labelledby="cine-cola-titulo" x-cloak>
+                <h3 class="cine-cola-title" id="cine-cola-titulo">
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bars"></use></svg> Cola de la sala
+                </h3>
+                <p class="admin-panel-hint cine-cola-ayuda">
+                    Los videos se guardan en orden. <strong>Reproducir</strong> carga y emite el video para toda la sala; no se quita de la cola.
+                </p>
+                <form class="cine-cola-form" @submit.prevent="$store.cineCola.agregar()">
+                    <input type="text" class="admin-input" x-model="$store.cineCola.url" inputmode="url" autocomplete="off"
+                           maxlength="500" aria-label="URL del video para la cola" placeholder="https://... video para encolar">
+                    <input type="text" class="admin-input cine-cola-titulo-input" x-model="$store.cineCola.titulo"
+                           maxlength="120" autocomplete="off" aria-label="Título opcional del video" placeholder="Título (opcional)">
+                    <button type="submit" class="btn-primary" x-bind:disabled="$store.cineCola.guardando"
+                            x-text="$store.cineCola.guardando ? 'Añadiendo…' : 'Añadir a la cola'">Añadir a la cola</button>
+                </form>
+                <p class="cine-cola-error" x-text="$store.cineCola.error" x-bind:hidden="!$store.cineCola.error"></p>
+                <p class="cine-cola-vacia" x-bind:hidden="!$store.cineCola.cargando">Cargando cola…</p>
+                <p class="cine-cola-vacia" x-bind:hidden="$store.cineCola.cargando || $store.cineCola.items.length > 0">La cola está vacía. El streamer todavía no ha encolado nada.</p>
+                <ol class="cine-cola-lista" x-bind:hidden="$store.cineCola.items.length === 0">
+                    <template x-for="(item, i) in $store.cineCola.items" :key="item.id">
+                        <li class="cine-cola-item">
+                            <span class="cine-cola-num" x-text="i + 1"></span>
+                            <span class="cine-cola-texto" x-text="item.titulo || item.video_url" x-bind:title="item.video_url"></span>
+                            <span class="cine-cola-acciones">
+                                <button type="button" class="btn-cine-ghost cine-cola-btn"
+                                        x-bind:disabled="$store.cineCola.guardando"
+                                        x-bind:aria-label="'Reproducir ' + (item.titulo || 'video')"
+                                        @click="$store.cineCola.reproducir(item)">
+                                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg> Reproducir
+                                </button>
+                                <button type="button" class="btn-cine-ghost cine-cola-btn cine-cola-btn--quitar"
+                                        x-bind:disabled="$store.cineCola.guardando"
+                                        x-bind:aria-label="'Quitar ' + (item.titulo || 'video') + ' de la cola'"
+                                        @click="$store.cineCola.quitar(item)">
+                                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-trash-can"></use></svg> Quitar
+                                </button>
+                            </span>
+                        </li>
+                    </template>
+                </ol>
+            </section>
 
             <!-- CONTENEDOR DE REPRODUCCIÓN Y CÁMARA DE KICK -->
             <div class="video-player-box" id="videoBoxContainer">
@@ -257,7 +257,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- SCRIPTS EXTERNOS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.76.1" defer></script>
+    <script src="main.js?v=1.77.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
 
@@ -414,9 +414,9 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             if (store && typeof store.cargar === 'function') store.cargar();
         }
 
-        // Si el panel se activó antes de que Alpine registrara el store.
+        // La cola la ve toda la sala; los controles solo aparecen en modo streamer.
         document.addEventListener('alpine:initialized', () => {
-            if (streamerCineAutenticado) refrescarColaCine();
+            refrescarColaCine();
         });
         let fuenteActual = '';
         let cineError = '';

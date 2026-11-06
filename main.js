@@ -4057,6 +4057,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mp-stat"><span class="mp-stat-valor" x-text="$store.perfil.estadisticas.puntos_hoy || 0"></span><span class="mp-stat-label">Hoy</span></div>
               </div>
             </section>
+
+            <section class="mp-seccion" x-bind:hidden="!$store.perfil.haySesion">
+              <h5 class="mp-seccion-titulo">Historial de puntos</h5>
+              <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'cargando'">Cargando historial…</p>
+              <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'error'">No se pudo cargar el historial.</p>
+              <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'lista' || $store.perfil.historial.length > 0">Todavía no has ganado puntos.</p>
+              <ul class="mp-historial" x-bind:hidden="$store.perfil.historial.length === 0">
+                <template x-for="(evento, i) in $store.perfil.historial" :key="evento.created_at + '-' + i">
+                  <li class="mp-historial-item">
+                    <span class="mp-historial-texto" x-text="$store.perfil.etiquetaPunto(evento.accion)"></span>
+                    <span class="mp-historial-fecha" x-text="$store.perfil.fechaPunto(evento.created_at)"></span>
+                    <span class="mp-historial-puntos" x-text="'+' + evento.puntos"></span>
+                  </li>
+                </template>
+              </ul>
+              <button type="button" class="btn-primary btn-muted mp-historial-mas"
+                      x-bind:hidden="$store.perfil.historial.length === 0 || $store.perfil.historial.length >= $store.perfil.historialTotal"
+                      x-bind:disabled="$store.perfil.historialEstado === 'cargando'"
+                      x-on:click="$store.perfil.cargarHistorial(true)">Ver más</button>
+            </section>
           </div>
         </div>
         <div class="modal-perfil-body" role="tabpanel" aria-label="Mi cuenta"
@@ -4338,6 +4358,10 @@ document.addEventListener('DOMContentLoaded', () => {
       error: '',
       usuario: {},
       estadisticas: {},
+      historial: [],
+      historialEstado: 'inicial',
+      historialTotal: 0,
+      historialPagina: 0,
       avatares: [],
       avatarSeleccionado: undefined,
       cargadoEn: 0,
@@ -4384,6 +4408,51 @@ document.addEventListener('DOMContentLoaded', () => {
       get tieneEstadisticas() {
         const e = this.estadisticas || {};
         return e.ok === true;
+      },
+      get haySesion() {
+        return !!almacen.texto('comunidad_session_token');
+      },
+      // Historial de puntos: solo se pinta en el perfil propio (no en el público).
+      async cargarHistorial(mas = false) {
+        const token = almacen.texto('comunidad_session_token');
+        if (!token) { this.historialEstado = 'vacio'; return; }
+        if (this.historialEstado === 'cargando') return;
+        if (!mas) { this.historial = []; this.historialPagina = 0; }
+        this.historialEstado = 'cargando';
+        const res = await window.rpc('mis_puntos_historial', {
+          p_token: token,
+          p_limit: 10,
+          p_offset: this.historialPagina * 10
+        }, { error: false });
+        if (!res.ok || !res.data || res.data.ok !== true) {
+          this.historialEstado = 'error';
+          return;
+        }
+        const eventos = Array.isArray(res.data.eventos) ? res.data.eventos : [];
+        this.historial = this.historial.concat(eventos);
+        this.historialTotal = Number(res.data.total) || 0;
+        this.historialPagina += 1;
+        this.historialEstado = 'lista';
+      },
+      etiquetaPunto(accion) {
+        const etiquetas = {
+          tiempo_conectado: 'Tiempo conectado',
+          visita: 'Visita diaria',
+          reaccion: 'Reacción en el chat',
+          like: 'Me gusta en la galería',
+          chat: 'Mensaje en el chat',
+          muro: 'Saludo en el muro'
+        };
+        const clave = String(accion || '').toLowerCase();
+        if (etiquetas[clave]) return etiquetas[clave];
+        if (!clave) return 'Puntos';
+        return clave.charAt(0).toUpperCase() + clave.slice(1).replace(/_/g, ' ');
+      },
+      fechaPunto(iso) {
+        const fecha = new Date(iso);
+        if (Number.isNaN(fecha.getTime())) return '';
+        return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' · ' +
+               fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
       },
       avatarPorGenero() {
         if (this.genero === 'femenino') return '/img/avatars/avatar-female.webp';
@@ -4450,6 +4519,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.abierto = true;
         setNavExpanded(true);
         this.cargar();
+        if (this.vista === 'perfil') this.cargarHistorial();
       },
 
       abrirEliminar() {
