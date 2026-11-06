@@ -4504,6 +4504,16 @@ body.light-mode {
             color: var(--text-main);
             margin-bottom: 12px;
         }
+        .banner-nota {
+            margin: 10px 0 0;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+        }
+        .banner-nota a {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
         .form-group-flush {
             margin-bottom: 0;
         }

@@ -3,6 +3,21 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.82.0] - 2026-11-06
+
+### El sorteo se participa solo con la cuenta de la comunidad
+
+- Fuera el campo de usuario de Kick: el banner de inscripción solo ofrece **Participar con mi cuenta**. Sin sesión de comunidad aparece el aviso *¿Aún no tienes cuenta?* con enlace a `comunidad`, en vez de un formulario que permitía apuntarse con el nombre de otra persona.
+- Se eliminan `enviarParticipacionTemporal()` y la verificación contra `https://kick.com/api/v2/channels/...`: el nombre lo pone siempre el servidor desde el token con `sortear_entrar()`.
+- Reglas y textos del banner actualizados (una participación por cuenta, sin campo de usuario de Kick). Estilo nuevo `.banner-nota` en `style.css`.
+- Se conserva el respaldo interno: si en la base faltara la RPC `sortear_entrar`, el cliente valida la sesión y registra con el apodo canónico que devuelve el servidor.
+
+### Base de datos (aplicado en producción el 2026-11-06)
+
+- Migración `20261106120000_sorteo_identidad_y_ganador_unico.sql`: columna `participantes_en_vivo.usuario_id` (una participación por cuenta), RPC `sortear_entrar(p_token)` y `sortear_siguiente()`.
+- Ajuste `20261106121500_sortear_siguiente_permiso_anon.sql`: `sortear_siguiente()` también para `anon`. El streamer puede ser admin por sesión de comunidad (rol `anon` en PostgREST + `x-comunidad-token`); sin el grant, PostgREST devolvía 401 antes de ejecutar y el cliente caía al respaldo sin retirar al ganador. La autorización sigue dentro de `es_admin()`.
+- Probado con `supabase db query --remote` en una transacción con `ROLLBACK`: `sortear_entrar` devuelve `ok` con el apodo canónico, la segunda llamada `ya_registrado`, un token inventado `sin_sesion` y `sortear_siguiente` sin admin `sin_permiso`. La tómbola quedó en 0 filas y el sorteo cerrado, como estaba.
+
 ## [1.81.0] - 2026-11-06
 
 ### Mis canjes, para cuadrar las cuentas
