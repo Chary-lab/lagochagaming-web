@@ -2202,10 +2202,10 @@ document.addEventListener('gocha:sesion', () => {
 });
 
 // === PANEL GLOBAL DE ADMINISTRACIÓN (modal, sin página aparte) ===
-window.abrirAdminPanel = function abrirAdminPanel(tab) {
+window.abrirAdminPanel = function abrirAdminPanel(tab, opciones) {
     const abrir = () => {
         const store = window.Alpine && window.Alpine.store ? window.Alpine.store('adminPanel') : null;
-        if (store) store.abrir(tab || 'login');
+        if (store) store.abrir(tab || 'login', opciones || {});
     };
     if (window.Alpine) abrir();
     else document.addEventListener('alpine:init', abrir, { once: true });
@@ -2727,7 +2727,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async abrir(tab) {
+        async abrir(tab, opciones = {}) {
             this.abierto = true;
             this.loginError = '';
             await this.comprobarSesion();
@@ -2736,6 +2736,11 @@ document.addEventListener('alpine:init', () => {
                     ? (this.owner ? 'buzon' : 'usuarios')
                     : tab;
                 this.tab = (pedida === 'buzon' && !this.owner) ? 'usuarios' : pedida;
+                // Desde la paleta: abrir Usuarios ya filtrado por un apodo.
+                if (opciones && opciones.buscar) {
+                    this.buscar = String(opciones.buscar);
+                    this.tab = 'usuarios';
+                }
                 await this.cargarTab();
                 this.iniciarRefrescoUsuarios();
             }
@@ -4827,7 +4832,16 @@ document.addEventListener('DOMContentLoaded', () => {
             accion: () => window.abrirAdminPanel?.('login')
         }
     ];
+    // Atajos que solo aparecen con sesión de admin u owner.
+    const ACCIONES_ADMIN = [
+        { titulo: 'Panel: Usuarios', detalle: 'Buscar, banear y shadowban', accion: () => window.abrirAdminPanel?.('usuarios') },
+        { titulo: 'Panel: Reportes', detalle: 'Fotos reportadas por la comunidad', accion: () => window.abrirAdminPanel?.('reportes') },
+        { titulo: 'Panel: Auditoría', detalle: 'Historial de moderación', accion: () => window.abrirAdminPanel?.('auditoria') },
+        { titulo: 'Panel: Descargas', detalle: 'APK y dispositivos', accion: () => window.abrirAdminPanel?.('descargas') },
+        { titulo: 'Panel: Buzón', detalle: 'Sugerencias (solo owner)', accion: () => window.abrirAdminPanel?.('buzon') }
+    ];
     const TODOS = PAGINAS.concat(ACCIONES);
+    let esAdminPaleta = false;
     let caja = null;
     let campo = null;
     let lista = null;
@@ -4865,11 +4879,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function itemsBase() {
+        return esAdminPaleta ? TODOS.concat(ACCIONES_ADMIN) : TODOS.slice();
+    }
+
+    // Escribir "@apodo" con sesión de admin ofrece atajos para esa persona.
+    function accionesApodo(valor) {
+        if (!esAdminPaleta) return [];
+        const crudo = String(valor || '').trim();
+        if (!crudo.startsWith('@')) return [];
+        const apodo = crudo.slice(1).trim();
+        if (apodo.length < 2) return [];
+        return [
+            {
+                titulo: 'Ver perfil de ' + apodo,
+                detalle: 'Ficha pública de la comunidad',
+                accion: () => window.abrirPerfilUsuario?.(apodo)
+            },
+            {
+                titulo: 'Buscar a ' + apodo + ' en el panel',
+                detalle: 'Abre Usuarios filtrado por ese apodo',
+                accion: () => window.abrirAdminPanel?.('usuarios', { buscar: apodo })
+            }
+        ];
+    }
+
     function filtrar() {
         const q = normaliza(campo.value);
-        visibles = q
-            ? TODOS.filter((i) => normaliza(i.titulo).includes(q) || normaliza(i.detalle).includes(q))
-            : TODOS.slice();
+        const base = itemsBase();
+        visibles = (q
+            ? base.filter((i) => normaliza(i.titulo).includes(q) || normaliza(i.detalle).includes(q))
+            : base.slice())
+            .concat(accionesApodo(campo.value));
         seleccion = 0;
         pintar();
     }
@@ -4888,13 +4929,21 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (item.accion) item.accion();
     }
 
-    function abrir() {
+    async function abrir() {
         if (!caja) crear();
         focoPrevio = document.activeElement;
         caja.hidden = false;
         campo.value = '';
+        esAdminPaleta = false;
         filtrar();
         campo.focus();
+        try {
+            const admin = await window.esAdminActual?.();
+            if (admin && !caja.hidden) {
+                esAdminPaleta = true;
+                filtrar();
+            }
+        } catch (e) { /* sin sesión de admin */ }
     }
 
     function cerrar() {

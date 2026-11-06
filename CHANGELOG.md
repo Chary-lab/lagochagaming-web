@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.77.1] - 2026-11-06
+
+### La paleta como herramienta de moderación
+
+- Con sesión de admin, `Ctrl`/`Cmd` + `K` lista cinco atajos nuevos: **Panel: Usuarios**, **Panel: Reportes**, **Panel: Auditoría**, **Panel: Descargas** y **Panel: Buzón**. Sin sesión no aparecen: la paleta sigue con sus 7 comandos de siempre.
+- Escribir `@apodo` (2 letras o más) con sesión de admin añade dos acciones para esa persona: **Ver perfil de X** y **Buscar a X en el panel**, que abre Usuarios ya filtrado por ese apodo.
+- `window.abrirAdminPanel(tab, opciones)` y `adminPanel.abrir(tab, opciones)` aceptan `{ buscar }`; el filtro se aplica antes de cargar la primera página.
+- La paleta **no** banea ni borra por sí sola: lleva a la fila concreta y la confirmación sigue viviendo en el panel, donde ya existe.
+- Verificado en navegador: admin → 12 comandos y `@Mc` → 2 acciones; anónimo → 7 comandos y `@Mc` → 0; “Buscar a Mc en el panel” deja `tab=usuarios`, `buscar="Mc"` y una fila (McChary).
+- Sin cambios de API ni de esquema.
+
 ## [1.77.0] - 2026-11-06
 
 ### Historial de puntos y cola de cine pública

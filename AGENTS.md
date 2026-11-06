@@ -108,6 +108,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Los desplegables de página usan `gochiDropdown` y el store `ui.menus`; un único listener de `pointerdown` y Escape cierra el menú abierto y devuelve el foco. No añadir listeners por elemento.
 - Tooltip (`data-tooltip`): un solo nodo global que solo aparece con hover (220 ms), se recoloca con `ResizeObserver` si el botón o su tarjeta cambian de tamaño y se limita al recuadro del modal; no se dispara con el foco, así que no aparece al abrir un perfil. Los botones mantienen su `aria-label`.
 - Patrón de carga: un flag `cargando` en el store de la página pinta `gochi-skeleton` con `x-for`; al terminar se limpia y entra la lista real o `gochi-vacio`.
+- Paleta de comandos (`window` + `Ctrl`/`Cmd`+`K`): con sesión de admin añade los atajos de cada pestaña del panel y, al escribir `@apodo`, “Ver perfil” y “Buscar en el panel”. No ejecuta acciones destructivas: abre el panel filtrado y la confirmación sigue en la fila.
 - Accesibilidad: `aria-expanded` en triggers de acordeón y menús, `aria-busy` mientras carga, y `prefers-reduced-motion` desactiva las animaciones.
 - Migas de pan con `gochi-breadcrumb` en Comunidad, Galería, Sorteo y Cine; la home no las lleva por ser la raíz. El contenido de acordeones y migas queda en HTML estático para los buscadores.
 
@@ -287,7 +288,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.77.0` (historial de puntos en el perfil propio con la nueva RPC `mis_puntos_historial`, y la cola de cine visible para toda la sala con los controles solo en modo streamer. Sin cambios de tablas).
+- Versión de esta release: `1.77.1` (la paleta `Ctrl`/`Cmd`+`K` gana atajos de moderación para admins: cinco paneles y, al escribir `@apodo`, “Ver perfil” y “Buscar en el panel” filtrado; `abrirAdminPanel` acepta `{ buscar }`. La paleta no banea ni borra: lleva a la fila y la confirmación sigue en el panel. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
