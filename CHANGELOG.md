@@ -3,6 +3,22 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.81.0] - 2026-11-06
+
+### Mis canjes, para cuadrar las cuentas
+
+- Nueva sección **Mis canjes** en la pestaña *Mi cuenta*: lista `tienda_mis_canjes` con nombre, estado (pendiente/entregado/rechazado), fecha y `−puntos`, y suma el total gastado **excluyendo** los rechazados y cancelados.
+- Responde a la duda del historial: `Ganado − Gastado = Saldo`. El historial de puntos solo suma lo que ganas porque `tienda_canjear_premio` descuenta de `usuarios_comunidad.puntos` sin escribir en `puntos_eventos`.
+- Se carga al abrir el panel y al cambiar a *Mi cuenta*, con caché de 60 s.
+
+### Sorteo: identidad real y ganador sin repetir
+
+- **Registro con la cuenta**: nuevo botón *Participar con mi cuenta*. La RPC `sortear_entrar(p_token)` valida la sesión de comunidad y saca apodo/Kick del token, así que **nadie puede registrarse con el nombre de otra persona**. Una participación por cuenta.
+- **Sin repetir ganador**: `sortear_siguiente()` envuelve a `sortear_ganador_sorteo()` (misma lógica de pesos y de historial) y después **retira al ganador de la tómbola**. Si quedan más premios que gente, el giro responde `sin_participantes` en vez de repetir.
+- El cliente usa las RPC nuevas y, si la migración aún no está aplicada, **cae al flujo anterior** con un aviso en vez de romper el sorteo.
+- **Pendiente de aplicar en Supabase**: `supabase/migrations/20261106120000_sorteo_identidad_y_ganador_unico.sql`. Sin ella, el sitio sigue con el registro por nombre de Kick y el ganador puede repetir.
+- Verificado en navegador: canjes (3 filas, 350 pts gastados ignorando el rechazado), registro sin migración (aviso y foco al campo) y con migración simulada (`✅ ¡Estás dentro, @Tester!`).
+
 ## [1.80.0] - 2026-11-06
 
 ### CSP real, sin depender de las cabeceras

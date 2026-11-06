@@ -4024,7 +4024,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   x-on:click="$store.perfil.vista = 'perfil'">Perfil</button>
           <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'cuenta' }"
                   x-bind:aria-selected="$store.perfil.vista === 'cuenta'"
-                  x-on:click="$store.perfil.vista = 'cuenta'">Mi cuenta</button>
+                  x-on:click="$store.perfil.vista = 'cuenta'; $store.perfil.cargarCanjes()">Mi cuenta</button>
           <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'ajustes' }"
                   x-bind:aria-selected="$store.perfil.vista === 'ajustes'"
                   x-on:click="$store.perfil.vista = 'ajustes'">Ajustes</button>
@@ -4225,6 +4225,27 @@ document.addEventListener('DOMContentLoaded', () => {
                       x-show="$store.perfil.kickUsuario"
                       x-on:click="$store.perfil.desvincularKick()">Desvincular</button>
             </div>
+          </section>
+
+          <section class="mp-seccion">
+            <h5 class="mp-seccion-titulo">Mis canjes <span class="mp-seccion-nota">tienda de puntos</span></h5>
+            <p class="mp-desde" x-bind:hidden="$store.perfil.canjesEstado !== 'cargando'">Cargando canjes…</p>
+            <p class="mp-desde" x-bind:hidden="$store.perfil.canjesEstado !== 'error'">No se pudieron cargar los canjes.</p>
+            <p class="mp-desde" x-bind:hidden="$store.perfil.canjesEstado !== 'lista' || $store.perfil.canjes.length > 0">No has canjeado nada todavía.</p>
+            <ul class="mp-canjes" x-bind:hidden="$store.perfil.canjes.length === 0">
+              <template x-for="c in $store.perfil.canjes" :key="c.id">
+                <li class="mp-canje">
+                  <span class="mp-canje-nombre" x-text="c.nombre"></span>
+                  <span class="gochi-chip mp-canje-estado" x-bind:data-tono="$store.perfil.tonoCanje(c.estado)" x-text="$store.perfil.etiquetaCanje(c.estado)"></span>
+                  <span class="mp-canje-fecha" x-text="$store.perfil.fechaCanje(c.created_at)"></span>
+                  <span class="mp-canje-puntos" x-text="'−' + c.puntos_gastados"></span>
+                </li>
+              </template>
+            </ul>
+            <p class="mp-historial-pie" x-bind:hidden="$store.perfil.canjes.length === 0">
+              <span x-text="'Gastado en la tienda: ' + $store.perfil.canjesGastados + ' pts'"></span>
+              <small>Los canjes descuentan de tu saldo y no aparecen en el historial de puntos, que solo suma lo que ganas.</small>
+            </p>
           </section>
 
           <p class="mp-error gochi-alerta" data-tono="error" role="alert" x-bind:hidden="!$store.perfil.error" x-text="$store.perfil.error"></p>
@@ -4438,6 +4459,9 @@ document.addEventListener('DOMContentLoaded', () => {
       estadisticas: {},
       historial: [],
       historialEstado: 'inicial',
+      canjes: [],
+      canjesEstado: 'inicial',
+      canjesCargadoEn: 0,
       avatares: [],
       avatarSeleccionado: undefined,
       cargadoEn: 0,
@@ -4547,6 +4571,41 @@ document.addEventListener('DOMContentLoaded', () => {
       // ni movimientos anteriores al corte de 3 días).
       get historialGanado() {
         return this.historialPorDia.reduce((total, dia) => total + dia.puntos, 0);
+      },
+      // Canjes de la tienda: lo que descuenta del saldo (no está en puntos_eventos).
+      get canjesGastados() {
+        const anulados = ['rechazado', 'cancelado'];
+        return this.canjes
+          .filter((c) => !anulados.includes(String(c.estado || '').toLowerCase()))
+          .reduce((total, c) => total + (Number(c.puntos_gastados) || 0), 0);
+      },
+      etiquetaCanje(estado) {
+        const etiquetas = { pendiente: 'Pendiente', entregado: 'Entregado', rechazado: 'Rechazado', cancelado: 'Cancelado' };
+        return etiquetas[String(estado || '').toLowerCase()] || (estado || '');
+      },
+      tonoCanje(estado) {
+        const tonos = { pendiente: 'aviso', entregado: 'exito', rechazado: 'peligro', cancelado: 'peligro' };
+        return tonos[String(estado || '').toLowerCase()] || 'neutro';
+      },
+      fechaCanje(iso) {
+        const fecha = new Date(iso);
+        if (Number.isNaN(fecha.getTime())) return '';
+        return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      },
+      async cargarCanjes() {
+        const token = almacen.texto('comunidad_session_token');
+        if (!token) { this.canjesEstado = 'vacio'; return; }
+        if (this.canjesEstado === 'cargando') return;
+        if (this.canjesEstado === 'lista' && Date.now() - this.canjesCargadoEn < 60000) return;
+        this.canjesEstado = 'cargando';
+        const res = await window.rpc('tienda_mis_canjes', { p_token: token }, { error: false });
+        if (!res.ok || !res.data || res.data.ok !== true) {
+          this.canjesEstado = 'error';
+          return;
+        }
+        this.canjes = Array.isArray(res.data.canjes) ? res.data.canjes : [];
+        this.canjesCargadoEn = Date.now();
+        this.canjesEstado = 'lista';
       },
       tonoPunto(accion) {
         const tonos = {
@@ -4692,6 +4751,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setNavExpanded(true);
         this.cargar();
         if (this.vista === 'perfil') this.cargarHistorial();
+        if (this.vista === 'cuenta') this.cargarCanjes();
       },
 
       abrirEliminar() {

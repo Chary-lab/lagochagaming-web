@@ -5570,6 +5570,49 @@ body.light-mode {
   line-height: 1.5;
   color: var(--text-muted);
 }
+
+/* Canjes de la tienda en Mi cuenta */
+.mp-canjes {
+  list-style: none;
+  margin: 4px 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mp-canje {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--r-md);
+  background: var(--card-bg-subtle);
+}
+.mp-canje-nombre {
+  flex: 1 1 120px;
+  min-width: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  overflow-wrap: anywhere;
+}
+.mp-canje-estado { flex: 0 0 auto; }
+.mp-canje-fecha {
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.mp-canje-puntos {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--accent-color);
+  white-space: nowrap;
+}
 .mp-puntos {
     display: inline-flex;
     align-items: center;

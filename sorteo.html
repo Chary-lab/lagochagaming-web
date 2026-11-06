@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-1B8NhfQHLrqcSobncSZmNVlfZ1Z7qp2rXuxUZQcUM6I=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-z3R6DyYVcUQ3SJ28XKUv3EQG1BXzp6zblCBh/Ta3LC4=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GochiSorteo | LaGochaGaming</title>
     <meta name="description" content="Sorteos de La Gocha con premios increíbles: el modo streamer sortea en el servidor y el manual gira en tu navegador.">
@@ -27,7 +27,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Sorteos de LaGochaGaming">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.80.0">
+    <link rel="stylesheet" href="style.css?v=1.81.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -318,6 +318,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 case 'add-bonus': agregarParticipanteAdminBonus(); break;
                 case 'spin-streamer': girarRuletaStreamer(); break;
                 case 'join-draw': enviarParticipacionTemporal(); break;
+                case 'join-cuenta': participarConCuenta(); break;
             }
         });
 
@@ -485,8 +486,14 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                                     🎉 ¡GochiSorteo Oficial ABIERTO! 🎉
                                 </h2>
                                 <p class="banner-text-lead">
-                                    Ingresa tu nombre de usuario exacto de Kick para participar en directo:
+                                    Participa con tu cuenta de la comunidad (o escribe tu usuario exacto de Kick):
                                 </p>
+                                <div class="form-group form-group-flush">
+                                    <button type="button" class="btn-primary btn-join-draw" data-action="join-cuenta" id="btn-join-cuenta">
+                                        🎁 Participar con mi cuenta
+                                    </button>
+                                </div>
+                                <p class="banner-nota">Sin cuenta puedes usar tu usuario de Kick:</p>
                                 <div class="form-group form-group-flush">
                                     <input type="text" id="input-usuario-temporal" placeholder="Tu usuario de Kick..." aria-label="Tu usuario de Kick" autocomplete="off">
                                     <button type="button" class="btn-primary btn-join-draw" data-action="join-draw">
@@ -561,6 +568,49 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             // debe dejar el handle "verificado" durante media hora.
             if (resultado.kickUserId) guardarCacheKick(clave, resultado);
             return resultado;
+        }
+
+        // Participar con la cuenta de comunidad: el servidor saca el apodo del
+        // token, así que no se puede suplantar a otra persona. Si la RPC nueva
+        // todavía no está aplicada en Supabase, se avisa y se usa el campo de
+        // usuario de Kick (flujo antiguo) en vez de romper el sorteo.
+        async function participarConCuenta() {
+            const feedbackId = 'feedback-publico-temporal';
+            const token = localStorage.getItem('comunidad_session_token');
+            if (!token) {
+                mostrarFeedback(feedbackId, '❌ Inicia sesión en la comunidad para participar con tu cuenta.', true);
+                return;
+            }
+
+            const { data, error } = await window.rpcRaw('sortear_entrar', { p_token: token });
+            if (error && /Could not find the function|does not exist|PGRST202/i.test(error.message || '')) {
+                mostrarFeedback(feedbackId, '⚠️ El sorteo aún no acepta cuentas. Escribe tu usuario de Kick abajo.', true);
+                const input = document.getElementById('input-usuario-temporal');
+                if (input) input.focus();
+                return;
+            }
+            if (error) {
+                mostrarFeedback(feedbackId, '❌ No se pudo participar. Inténtalo de nuevo.', true);
+                return;
+            }
+            if (!data || !data.ok) {
+                const errores = {
+                    sin_sesion: 'Tu sesión caducó. Vuelve a iniciar sesión en la comunidad.',
+                    ya_registrado: '⚠️ Ya estás participando con tu cuenta.',
+                    sorteo_cerrado: 'El sorteo está cerrado.',
+                    lleno: 'La tómbola está llena.',
+                    rate_limited: 'Demasiados intentos. Espera unos minutos.',
+                    baneado: 'Tu cuenta no puede participar.'
+                };
+                mostrarFeedback(feedbackId, '❌ ' + (errores[data.error] || 'No se pudo participar.'), true);
+                return;
+            }
+
+            const username = String(data.username || '').trim();
+            const store = obtenerStoreSorteo();
+            if (store && username) store.participantes.push({ username, peso: 1 });
+            try { localStorage.setItem('gochi_registrado_user', username); } catch (e) { /* modo privado */ }
+            mostrarFeedback(feedbackId, `✅ ¡Estás dentro, @${username}! 🎉`);
         }
 
         async function enviarParticipacionTemporal() {
@@ -800,13 +850,20 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             // un ganador local no registrado confundiria al publico.
             let ganadorFinal = null;
             try {
-                const { data, error } = await window.rpcRaw('sortear_ganador_sorteo');
+                // sortear_siguiente saca al ganador de la tómbola; si aún no está
+                // aplicada en Supabase, cae a la RPC antigua sin romper el sorteo.
+                let res = await window.rpcRaw('sortear_siguiente');
+                if (res.error && /Could not find the function|does not exist|PGRST202/i.test(res.error.message || '')) {
+                    res = await window.rpcRaw('sortear_ganador_sorteo');
+                }
+                const data = res.data;
+                const error = res.error;
                 if (error) throw error;
                 if (data && data.ok && data.ganador) {
                     ganadorFinal = data.ganador;
                 } else if (data && data.error === 'sin_participantes') {
                     ruletaGirando = false;
-                    mostrarFeedback('feedback-streamer-direct', '⚠️ No hay participantes en la tombola.', true);
+                    mostrarFeedback('feedback-streamer-direct', '⚠️ No quedan participantes en la tómbola.', true);
                     return;
                 } else if (data && data.error === 'sin_permiso') {
                     ruletaGirando = false;
@@ -943,7 +1000,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         </div>
     </footer>
 
-    <script src="main.js?v=1.80.0" defer></script>
+    <script src="main.js?v=1.81.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
