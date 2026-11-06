@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.75.0] - 2026-11-05
+
+### Una sola pantalla de ajustes
+
+- En la app, el panel de perfil ya no repite lo que la hoja móvil ofrece: **Animaciones**, **Tamaño del texto** y **Datos** desaparecen de la pestaña Ajustes y queda una nota que remite al botón Ajustes. Densidad, Efectos y Sonido siguen ahí porque la app no los tiene.
+- Las tres preferencias compartidas se guardan en `gochi_ajustes`, igual que en la web: `texto` (100/110/125), `animaciones` y `ahorro`. Antes la app usaba su propia clave y aplicaba `lg-text-*`, que tapaba a `texto-*`: el ajuste se veía en un sitio y no en el otro.
+- `mobile.js` hereda el valor guardado al arrancar y escribe el mismo JSON al cambiarlo, así que la clase `sin-animaciones` y el ahorro de datos funcionan igual dentro del APK. El tema ya compartía `gochi_tema`.
+- Tema, vibración y pantalla encendida siguen siendo propios del APK en `lg_mobile_settings`.
+- `window.enModoApp()` detecta la clase `lg-app` que añade el APK; sin ella (web normal) la pestaña Ajustes queda completa.
+- Verificado en navegador: con `lg-app`, `Animaciones/Tamaño del texto/Datos = ocultas`, `Densidad/Efectos/Chat = visibles`, y al pulsar “Grande” en la hoja móvil queda `texto-110` en `<html>` y `texto: 110` en `gochi_ajustes`.
+- Sin cambios de API ni de esquema. La app recoge el `mobile.js` nuevo por su refresco remoto (6 h); no requiere recompilar el APK.
+
 ## [1.74.2] - 2026-11-05
 
 ### Todas las RPC vuelven a funcionar

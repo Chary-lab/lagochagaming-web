@@ -33,6 +33,47 @@
     for (var d in DEFAULTS) settings[d] = DEFAULTS[d];
   }
 
+  // Tamaño de texto, animaciones y ahorro de datos viven en `gochi_ajustes`,
+  // los mismos que usa la web: una sola preferencia por cosa. El resto (tema,
+  // vibración, pantalla encendida) es propio del APK.
+  function leerAjustesWeb() {
+    try {
+      var crudo = JSON.parse(localStorage.getItem('gochi_ajustes') || '{}');
+      return crudo && typeof crudo === 'object' ? crudo : {};
+    } catch (e) { return {}; }
+  }
+
+  function guardarAjustesWeb(cambios) {
+    var datos = leerAjustesWeb();
+    for (var c in cambios) datos[c] = cambios[c];
+    try { localStorage.setItem('gochi_ajustes', JSON.stringify(datos)); } catch (e) {}
+    var store = window.Alpine && window.Alpine.store ? window.Alpine.store('ajustes') : null;
+    if (store) {
+      for (var s in cambios) store.datos[s] = cambios[s];
+      try { store.aplicar(); } catch (e2) {}
+    }
+    try { window.dispatchEvent(new CustomEvent('gochi:ajustes', { detail: datos })); } catch (e3) {}
+  }
+
+  function sincronizarAjustesWeb(clave) {
+    if (clave === 'text') {
+      guardarAjustesWeb({ texto: settings.text === 'xl' ? 125 : settings.text === 'large' ? 110 : 100 });
+    } else if (clave === 'motion') {
+      guardarAjustesWeb({ animaciones: !settings.motion });
+    } else if (clave === 'dataSaver') {
+      guardarAjustesWeb({ ahorro: !!settings.dataSaver });
+    }
+  }
+
+  (function heredarAjustesWeb() {
+    var compartidos = leerAjustesWeb();
+    if (compartidos.texto === 90 || compartidos.texto === 100) settings.text = 'normal';
+    else if (compartidos.texto === 110) settings.text = 'large';
+    else if (compartidos.texto === 125) settings.text = 'xl';
+    if (typeof compartidos.animaciones === 'boolean') settings.motion = !compartidos.animaciones;
+    if (typeof compartidos.ahorro === 'boolean') settings.dataSaver = compartidos.ahorro;
+  })();
+
   var ICONS = {
     home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.7 12 3l9 7.7"/><path d="M5.4 9.4V21h13.2V9.4"/><path d="M9.5 21v-6.2h5V21"/></svg>',
     wall: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 14.5a4 4 0 0 1-4 4H8l-5 2.5V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 12.5h5"/></svg>',
@@ -910,16 +951,19 @@
   }
 
   function applyText() {
-    html.classList.toggle('lg-text-lg', settings.text === 'large');
-    html.classList.toggle('lg-text-xl', settings.text === 'xl');
+    var valor = settings.text === 'xl' ? 125 : settings.text === 'large' ? 110 : 100;
+    html.classList.remove('texto-90', 'texto-110', 'texto-125', 'lg-text-lg', 'lg-text-xl');
+    if (valor !== 100) html.classList.add('texto-' + valor);
   }
 
   function applyMotion() {
     html.classList.toggle('lg-reduce-motion', !!settings.motion);
+    html.classList.toggle('sin-animaciones', !!settings.motion);
   }
 
   function applyDataSaver() {
     html.classList.toggle('lg-data-saver', !!settings.dataSaver);
+    html.classList.toggle('ahorro-datos', !!settings.dataSaver);
     if (settings.dataSaver && chatOverlay && chatOverlay.classList.contains('lg-open')) closeAllOverlays();
   }
 
@@ -1183,6 +1227,7 @@
       var segment = segmentButton.parentElement.getAttribute('data-segment');
       settings[segment] = segmentButton.getAttribute('data-value');
       saveSettings();
+      sincronizarAjustesWeb(segment);
       applyAll();
       syncSettingsUI();
       haptic();
@@ -1193,6 +1238,7 @@
       var key = toggle.getAttribute('data-toggle');
       settings[key] = !settings[key];
       saveSettings();
+      sincronizarAjustesWeb(key);
       applyAll();
       syncSettingsUI();
       haptic();

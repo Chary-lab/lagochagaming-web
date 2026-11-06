@@ -69,6 +69,12 @@ if (window.supabase) {
 
 // === HELPERS COMPARTIDOS ===
 
+// El APK añade `lg-app` al <html>. Sirve para no repetir ajustes que la hoja
+// móvil ya ofrece en Ajustes (tamaño de texto, animaciones y ahorro de datos).
+window.enModoApp = function enModoApp() {
+    return document.documentElement.classList.contains('lg-app');
+};
+
 // Única fuente de verdad del escapado de HTML para todo el sitio.
 window.escapeHtml = function escapeHtml(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({
@@ -4154,7 +4160,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="modal-perfil-body" role="tabpanel" aria-label="Ajustes"
              x-bind:hidden="$store.perfil.publico || $store.perfil.vista !== 'ajustes'">
-          <section class="mp-seccion">
+          <p class="mp-desde" x-bind:hidden="!window.enModoApp()">En la app, el tamaño de texto, las animaciones y el ahorro de datos se cambian desde el botón Ajustes. Aquí quedan el resto de preferencias.</p>
+          <section class="mp-seccion" x-bind:hidden="window.enModoApp()">
             <h5 class="mp-seccion-titulo">Animaciones</h5>
             <label class="gochi-switch">
               <input type="checkbox" x-model="$store.ajustes.datos.animaciones"
@@ -4164,7 +4171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </label>
           </section>
 
-          <section class="mp-seccion">
+          <section class="mp-seccion" x-bind:hidden="window.enModoApp()">
             <h5 class="mp-seccion-titulo">Tamaño del texto</h5>
             <div class="gochi-segmento" role="group" aria-label="Tamaño del texto">
               <template x-for="tam in [90, 100, 110, 125]" :key="tam">
@@ -4218,7 +4225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </label>
           </section>
 
-          <section class="mp-seccion">
+          <section class="mp-seccion" x-bind:hidden="window.enModoApp()">
             <h5 class="mp-seccion-titulo">Datos</h5>
             <label class="gochi-switch">
               <input type="checkbox" x-model="$store.ajustes.datos.ahorro"

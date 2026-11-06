@@ -10,7 +10,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
 - Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
 - Versión actual: ver `VERSION` (SemVer). Changelog: `CHANGELOG.md`.
-- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`. Estado actual (2026-11-04): app v1.13, `versionCode` 16, APK de 4.043.426 B con sha256 `299c9053139a0a8bd529119a4306b5538092025989192e1a3f7c0df435f92fb8`; `mobile/mobile.css` y `mobile/mobile.js` coinciden byte a byte con los assets del APK.
+- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`. Estado actual (2026-11-04): app v1.13, `versionCode` 16, APK de 4.043.426 B con sha256 `299c9053139a0a8bd529119a4306b5538092025989192e1a3f7c0df435f92fb8`; los assets empaquetados son la copia de `mobile/` de esa fecha. Desde la 1.75.0 `mobile/mobile.js` cambió (ajustes unificados): la app lo recoge por su refresco remoto, pero el próximo build del APK debe copiar `mobile/` a `android/app/src/main/assets/mobile/` para recuperar la paridad.
 
 ## 2. Reglas de stack
 
@@ -118,6 +118,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - `ahorro-datos` retrasa los feeds de Instagram, TikTok y clips hasta que el visitante pulsa “Cargar contenido”.
 - `window.sonidoChat()` genera el aviso del chat con Web Audio (sin archivos): solo si el mensaje no es tuyo, si la pestaña está oculta o no estás al final, y como máximo una vez cada 2 s. El `AudioContext` se arma con la primera interacción.
 - `window.exportarMisDatos()` descarga perfil y preferencias en JSON, todo en cliente.
+- En la app (`html.lg-app`, detectado con `window.enModoApp()`) la pestaña **Ajustes** del perfil oculta **Tamaño del texto**, **Animaciones** y **Ahorro de datos**: la hoja móvil es la única que los edita y escribe en `gochi_ajustes` (`texto` 100/110/125, `animaciones`, `ahorro`). Tema, vibración y pantalla encendida siguen en `lg_mobile_settings`. No volver a duplicar esos tres controles.
 
 ### 4.5 RPC: una sola puerta
 
@@ -285,7 +286,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.74.2` (corrige `window.rpcRaw`, que se llamaba a sí mismo y rompía todas las RPC desde la 1.70.0: panel de administración, puntos diarios, presencia, sugerencias, canjes y acciones `admin_*` fallaban en silencio con “Maximum call stack size exceeded”. La cabecera del panel muestra el rol real y distingue el fallo de comprobación de la falta de permisos. Sin cambios de API ni de esquema).
+- Versión de esta release: `1.75.0` (ajustes unificados app/web: en el APK la pestaña Ajustes del perfil oculta tamaño de texto, animaciones y ahorro de datos, que pasan a la hoja móvil; ambas escriben en `gochi_ajustes` y `mobile.js` aplica las clases `texto-*`, `sin-animaciones` y `ahorro-datos`. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
