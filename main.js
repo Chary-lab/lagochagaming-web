@@ -4101,7 +4101,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             </section>
 
-            <section class="mp-seccion" x-bind:hidden="!$store.perfil.haySesion">
+            <section class="mp-seccion" x-bind:hidden="!$store.perfil.haySesion || $store.perfil.publico">
               <h5 class="mp-seccion-titulo">Historial de puntos</h5>
               <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'cargando'">Cargando historial…</p>
               <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'error'">No se pudo cargar el historial.</p>
@@ -4120,6 +4120,11 @@ document.addEventListener('DOMContentLoaded', () => {
                   </div>
                 </template>
               </div>
+              <p class="mp-historial-pie" x-bind:hidden="$store.perfil.historial.length === 0">
+                <span x-text="'Ganado: ' + $store.perfil.historialGanado + ' pts'"></span>
+                <span x-text="'· Saldo actual: ' + (Number($store.perfil.usuario.puntos) || 0) + ' pts'"></span>
+                <small>Este historial suma solo lo que ganas. Los canjes de la tienda descuentan de tu saldo, así que el total puede ser menor.</small>
+              </p>
               <button type="button" class="btn-primary btn-muted mp-historial-mas"
                       x-bind:hidden="$store.perfil.historial.length === 0 || $store.perfil.historial.length >= $store.perfil.historialTotal"
                       x-bind:disabled="$store.perfil.historialEstado === 'cargando'"
@@ -4493,6 +4498,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Más puntos primero; a igualdad, más veces.
         return Array.from(mapa.values()).sort((a, b) => b.puntos - a.puntos || b.veces - a.veces);
       },
+      // Suma de lo ganado en el historial cargado (no incluye canjes de tienda).
+      get historialGanado() {
+        return this.historial.reduce((total, ev) => total + (Number(ev.puntos) || 0), 0);
+      },
       tonoPunto(accion) {
         const tonos = {
           tiempo_conectado: 'info',
@@ -4701,6 +4710,12 @@ document.addEventListener('DOMContentLoaded', () => {
         this.error = '';
         this.usuario = {};
         this.estadisticas = {};
+        // El historial es del token, no del perfil que se mira: se limpia para
+        // que no se muestre el del visitante bajo el perfil de otra persona.
+        this.historial = [];
+        this.historialEstado = 'inicial';
+        this.historialPagina = 0;
+        this.historialTotal = 0;
         this.cargando = true;
         this.abierto = true;
         setNavExpanded(false);

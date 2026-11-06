@@ -5524,6 +5524,23 @@ body.light-mode {
   border: 1px solid color-mix(in srgb, var(--accent-color) 35%, transparent);
 }
 .mp-historial-mas { margin-top: 2px; }
+.mp-historial-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  margin: 2px 0 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.mp-historial-pie small {
+  flex: 1 1 100%;
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
 .mp-puntos {
     display: inline-flex;
     align-items: center;

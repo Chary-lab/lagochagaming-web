@@ -16,6 +16,20 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 - Verificado en navegador: por defecto `ajuste=true` e interruptor marcado; cerrar sesión deja `kick=fake-kick` y `hasta` a 30 días con el token de comunidad borrado; con el ajuste apagado, `kick=null` y `hasta=null`; caducado → `kickRecordadoVigente()=false`.
 - Sin cambios de API ni de esquema.
 
+## [1.78.3] - 2026-11-06
+
+### El perfil público ya no muestra el historial de puntos del visitante
+
+- **Bug de privacidad corregido**: la sección «Historial de puntos» solo se ocultaba con `!haySesion`, así que al abrir el perfil público de otra persona seguía visible y mostraba **el historial del visitante** (la RPC `mis_puntos_historial` va por token, no por apodo). Se veían, por ejemplo, `+38` y `+2` bajo un perfil con 16 pts.
+- Ahora la sección se oculta también con `$store.perfil.publico`, y `abrirUsuario()` limpia `historial`, `historialEstado`, `historialPagina` y `historialTotal` para que no queden datos de la cuenta anterior.
+- Verificado en navegador sin recargar: perfil propio → 2 filas del visitante; abrir `KOTATK` (16 pts) → 0 filas, historial vacío y sección oculta.
+
+### Las ganancias y el saldo ya se explican
+
+- Pie del historial: **Ganado: N pts · Saldo actual: M pts**, con la nota de que el historial solo suma lo que ganas y que los canjes de la tienda descuentan del saldo.
+- Motivo real del descuadre: `tienda_canjear_premio` hace `puntos = puntos - costo_puntos` y **no** escribe en `puntos_eventos`, así que la suma de ganancias es mayor que el saldo cuando se ha canjeado algo. No son datos inconsistentes: son cuentas distintas.
+- Sin cambios de API ni de esquema.
+
 ## [1.78.2] - 2026-11-06
 
 ### Historial de puntos sin filas repetidas

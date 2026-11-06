@@ -97,7 +97,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Móvil (<900 px): hoja inferior con backdrop y botón de cierre.
 - Desde el panel admin: `window.abrirPerfilUsuario(apodo, { sobreAdmin: true })` añade `modal-perfil--stack` (z-index 10060) y el panel sigue montado debajo; al cerrar el perfil se vuelve al panel sin clics extra.
 - El perfil público se ordena por secciones (`.mp-seccion`): cabecera, insignias, bio, redes y actividad. No volver a amontonar todo en la cabecera.
-- El perfil propio muestra el **Historial de puntos** (RPC `mis_puntos_historial`, 10 por página con “Ver más”); el perfil público no lo muestra.
+- El perfil propio muestra el **Historial de puntos** (RPC `mis_puntos_historial`, una fila por forma de ganar, 10 movimientos por página con “Ver más”) y un pie con **Ganado / Saldo actual**. El perfil público **no** lo muestra: la RPC va por token, así que sin el guard `$store.perfil.publico` se pintaba el historial del visitante bajo el perfil ajeno. `abrirUsuario()` limpia `historial`/`historialEstado`/`historialPagina`/`historialTotal`. Ojo: `historial` son solo ganancias (`puntos_eventos`); `tienda_canjear_premio` descuenta de `usuarios_comunidad.puntos` sin escribir evento, por eso la suma no coincide con el saldo cuando se ha canjeado algo.
 - El panel propio tiene tres pestañas con dueños distintos: **Perfil** (solo lectura, lo que ven los demás), **Mi cuenta** (`vista === 'cuenta'`, datos que viven en la base: avatar, género, bio, redes, Kick, guardar) y **Ajustes** (`vista === 'ajustes'`, preferencias del dispositivo). `abrir(vista)` acepta las tres; el flujo de Kick tras registrarse abre `cuenta`. No mezclar datos de cuenta con preferencias del navegador.
 
 ### 4.3 Componentes Gochi (Alpine + Pines)
@@ -290,7 +290,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.78.2` (Historial de puntos del perfil propio: **una fila por forma de ganar** con total sumado y contador `× N`, sin repetir el texto en cada movimiento; orden por puntos y Ver más de 10 en 10. Se arregla el icono del tema en modo claro añadiendo el símbolo `i-solid-moon` que faltaba en el sprite. Sin cambios de API ni de esquema. La 1.78.0 fue el ajuste `kickRecordar` que conserva el token de Kick 30 días al cerrar sesión).
+- Versión de esta release: `1.78.3` (Historial de puntos del perfil propio: **una fila por forma de ganar** con total sumado y contador `× N`, sin repetir el texto en cada movimiento; orden por puntos y Ver más de 10 en 10. Se arregla el icono del tema en modo claro añadiendo el símbolo `i-solid-moon` que faltaba en el sprite. Sin cambios de API ni de esquema. La 1.78.0 fue el ajuste `kickRecordar` que conserva el token de Kick 30 días al cerrar sesión).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
