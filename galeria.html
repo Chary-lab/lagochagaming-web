@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.75.0">
+    <link rel="stylesheet" href="style.css?v=1.76.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -378,6 +378,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         let focoPrevioLightbox = null;
         let misLikesGaleria = new Set(); // ids que el usuario actual ya likeó (servidor)
         let likesTokenCargado = null;
+        let observadorGaleria = null; // scroll infinito de la galería
 
         document.addEventListener('alpine:init', () => {
         window.Alpine.store('galeria', {
@@ -803,77 +804,139 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             };
         }
 
+        // Una sola llamada devuelve la página, el top global y tus likes.
+        async function pedirGaleriaPublica() {
+            const token = localStorage.getItem('comunidad_session_token') || null;
+            const { data, error } = await supabase.rpc('galeria_publica', {
+                p_offset: paginaActualGaleria * LIMITE_GALERIA,
+                p_limit: LIMITE_GALERIA,
+                p_orden: filtroActual === 'populares' ? 'populares' : 'recientes',
+                p_token: token
+            });
+            if (error) throw error;
+            if (!data || data.ok !== true || !Array.isArray(data.fotos)) {
+                throw new Error('respuesta_invalida');
+            }
+            return data;
+        }
+
+        function actualizarBotonCargarMas(hayMas) {
+            const galleryGrid = document.getElementById('galleryGrid');
+            if (!galleryGrid) return;
+            let btn = document.getElementById('btn-cargar-mas-galeria');
+            if (hayMas) {
+                if (!btn) {
+                    btn = document.createElement('button');
+                    btn.id = 'btn-cargar-mas-galeria';
+                    btn.className = 'btn-primary btn-cargar-mas';
+                    btn.type = 'button';
+                    btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-chevron-down"></use></svg> Cargar más imágenes';
+                    btn.addEventListener('click', cargarMasGaleria);
+                    galleryGrid.parentNode.insertBefore(btn, galleryGrid.nextSibling);
+                }
+                btn.style.display = 'inline-block';
+                btn.dataset.hayMas = '1';
+                configurarScrollInfinito(btn);
+                return;
+            }
+            if (btn) {
+                btn.style.display = 'none';
+                btn.dataset.hayMas = '0';
+            }
+            if (observadorGaleria) observadorGaleria.disconnect();
+        }
+
+        // Scroll infinito: el botón sigue visible como respaldo, pero cuando
+        // asoma en pantalla se pide la siguiente página sola.
+        function configurarScrollInfinito(btn) {
+            if (!('IntersectionObserver' in window) || !btn) return;
+            if (!observadorGaleria) {
+                observadorGaleria = new IntersectionObserver((entradas) => {
+                    if (!entradas.some((e) => e.isIntersecting)) return;
+                    if (btn.dataset.hayMas !== '1') return;
+                    const store = obtenerStoreGaleria();
+                    if (store && store.cargando) return;
+                    cargarMasGaleria();
+                }, { rootMargin: '300px' });
+            }
+            observadorGaleria.disconnect();
+            observadorGaleria.observe(btn);
+        }
+
         async function loadApprovedImages() {
             if (!window.supabase) return;
             const store = obtenerStoreGaleria();
             if (!store) return;
             store.cargando = true;
             try {
-                const desde = paginaActualGaleria * LIMITE_GALERIA;
-                const hasta = desde + LIMITE_GALERIA - 1;
-
-                // El orden se aplica en el servidor: en "populares" por likes y en
-                // "recientes" por fecha, de modo que la paginación sea coherente.
-                const orden = filtroActual === 'populares' ? { col: 'likes', asc: false } : { col: 'created_at', asc: false };
-                const { data, error } = await supabase
-                    .from('galeria')
-                        .select('id, image_url, thumb_url, title, estado, likes, created_at, autor')
-                    .eq('estado', 'aprobado')
-                    .order(orden.col, { ascending: orden.asc })
-                    .range(desde, hasta);
-
-                if (error) {
-                    console.error('Error cargando imágenes:', error);
+                let fotos;
+                let hayMas;
+                try {
+                    const data = await pedirGaleriaPublica();
+                    topGaleriaGlobal = new Map((data.top || []).map((t) => [t.id, Number(t.pos)]));
+                    misLikesGaleria = new Set((data.mis_likes || []).map(String));
+                    likesTokenCargado = localStorage.getItem('comunidad_session_token') || null;
+                    const horaAhora = new Date().getTime();
+                    fotos = data.fotos.map((image) => mapearFotoGaleria(image, misLikesGaleria, horaAhora));
+                    hayMas = !!data.hay_mas;
+                } catch (e) {
+                    console.warn('galeria_publica no disponible, se usa el camino anterior:', e);
+                    await cargarGaleriaPorPartes(store);
                     return;
                 }
 
-                const galleryGrid = document.getElementById('galleryGrid');
-
-                const imagenesPublicas = data ? data : [];
-
-                // Pintado rápido: se muestran las fotos sin esperar al top ni a
-                // los likes. Esos llegan después y se aplican en sitio.
-                const horaAhora = new Date().getTime();
-                const fotos = imagenesPublicas.map((image) => mapearFotoGaleria(image, new Set(), horaAhora));
-
                 store.fotos = paginaActualGaleria === 0 ? fotos : store.fotos.concat(fotos);
-
-                // Enriquecido en paralelo: badges TOP y "me gusta" del usuario.
-                Promise.all([cargarTopGlobal(), asegurarLikesUsuario()])
-                    .then(([, userLikes]) => {
-                        const hora = new Date().getTime();
-                        const actualizadas = imagenesPublicas.map((image) => mapearFotoGaleria(image, userLikes, hora));
-                        actualizadas.forEach((nueva) => {
-                            const actual = store.fotos.find((f) => String(f.id) === String(nueva.id));
-                            if (!actual) return;
-                            actual.badges = nueva.badges;
-                            actual.liked = nueva.liked;
-                        });
-                    })
-                    .catch((e) => console.warn('No se pudo completar la galería:', e));
-
-                // Mostrar u ocultar botón "cargar más"
-                const btnCargarMas = document.getElementById('btn-cargar-mas-galeria');
-                if (imagenesPublicas.length >= LIMITE_GALERIA) {
-                    if (!btnCargarMas) {
-                        const btn = document.createElement('button');
-                        btn.id = 'btn-cargar-mas-galeria';
-                        btn.className = 'btn-primary btn-cargar-mas';
-                        btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-chevron-down"></use></svg> Cargar más imágenes';
-                        btn.type = 'button';
-                        btn.addEventListener('click', cargarMasGaleria);
-                        galleryGrid.parentNode.insertBefore(btn, galleryGrid.nextSibling);
-                    } else {
-                        btnCargarMas.style.display = 'inline-block';
-                    }
-                } else if (btnCargarMas) {
-                    btnCargarMas.style.display = 'none';
-                }
+                actualizarBotonCargarMas(hayMas);
 
                 if (adminAutenticado) {
                     document.body.classList.add('admin-mode-active');
                 }
             } catch (err) { console.error('Error:', err); } finally { store.cargando = false; }
+        }
+
+        // Respaldo: las tres consultas de antes de la RPC. Solo se usa si
+        // `galeria_publica` falla (red, despliegue antiguo de la base).
+        async function cargarGaleriaPorPartes(store) {
+            const desde = paginaActualGaleria * LIMITE_GALERIA;
+            const hasta = desde + LIMITE_GALERIA - 1;
+
+            // El orden se aplica en el servidor: en "populares" por likes y en
+            // "recientes" por fecha, de modo que la paginación sea coherente.
+            const orden = filtroActual === 'populares' ? { col: 'likes', asc: false } : { col: 'created_at', asc: false };
+            const { data, error } = await supabase
+                .from('galeria')
+                .select('id, image_url, thumb_url, title, estado, likes, created_at, autor')
+                .eq('estado', 'aprobado')
+                .order(orden.col, { ascending: orden.asc })
+                .range(desde, hasta);
+
+            if (error) {
+                console.error('Error cargando imágenes:', error);
+                return;
+            }
+
+            const imagenesPublicas = data ? data : [];
+            const horaAhora = new Date().getTime();
+            const fotos = imagenesPublicas.map((image) => mapearFotoGaleria(image, new Set(), horaAhora));
+            store.fotos = paginaActualGaleria === 0 ? fotos : store.fotos.concat(fotos);
+            actualizarBotonCargarMas(imagenesPublicas.length >= LIMITE_GALERIA);
+
+            Promise.all([cargarTopGlobal(), asegurarLikesUsuario()])
+                .then(([, userLikes]) => {
+                    const hora = new Date().getTime();
+                    const actualizadas = imagenesPublicas.map((image) => mapearFotoGaleria(image, userLikes, hora));
+                    actualizadas.forEach((nueva) => {
+                        const actual = store.fotos.find((f) => String(f.id) === String(nueva.id));
+                        if (!actual) return;
+                        actual.badges = nueva.badges;
+                        actual.liked = nueva.liked;
+                    });
+                })
+                .catch((e) => console.warn('No se pudo completar la galería:', e));
+
+            if (adminAutenticado) {
+                document.body.classList.add('admin-mode-active');
+            }
         }
 
         function cargarMasGaleria() {
@@ -1300,7 +1363,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.75.0" defer></script>
+    <script src="main.js?v=1.76.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

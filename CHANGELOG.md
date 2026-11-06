@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.76.0] - 2026-11-05
+
+### Galería: una petición y scroll infinito
+
+- Nueva RPC `galeria_publica(p_offset, p_limit, p_orden, p_token)` (`SECURITY DEFINER`, `search_path`, `EXECUTE` a `anon`, `authenticated` y `service_role`): devuelve en una sola respuesta la página de fotos aprobadas, el top 3 por likes, los ids que ya likeó el usuario y si hay más páginas. Límite saneado a 1–60 y orden cerrado a `recientes` | `populares`.
+- `galeria.html` pasa de tres viajes en serie a uno: se elimina la consulta de la lista + `cargarTopGlobal` + `obtener_likes_galeria` de la ruta normal. Se conserva esa ruta como respaldo si la RPC falla.
+- Scroll infinito con `IntersectionObserver` sobre el botón **Cargar más**: cuando asoma a 300 px se pide la siguiente página sola. El botón sigue ahí como respaldo para quien prefiera pulsar.
+- El `thumb_url` que llega vacío se sustituye por `image_url` en el servidor, así el cliente no repite esa lógica.
+- Sin cambios de esquema. Realtime y moderación siguen igual.
+
 ## [1.75.0] - 2026-11-05
 
 ### Una sola pantalla de ajustes
