@@ -5494,8 +5494,38 @@ body.light-mode {
 .mp-stat-valor { font-size: 0.95rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
 .mp-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
 
-/* Historial de puntos: una fila por forma de ganar (sin repetir texto) */
-.mp-historial { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 10px; }
+/* Historial de puntos: 3 días × una fila por forma de ganar (sin repetir texto) */
+.mp-seccion-nota {
+  margin-left: 6px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--text-muted);
+}
+
+.mp-historial { display: flex; flex-direction: column; gap: 14px; margin: 4px 0 10px; }
+
+.mp-historial-dia { display: flex; flex-direction: column; gap: 6px; }
+.mp-historial-dia-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.mp-historial-dia-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.mp-historial-dia-total {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--accent-color);
+  white-space: nowrap;
+}
 
 .mp-historial-card { padding: 10px 12px; }
 .mp-historial-card-inner {
@@ -5523,7 +5553,6 @@ body.light-mode {
   border-radius: var(--r-pill);
   border: 1px solid color-mix(in srgb, var(--accent-color) 35%, transparent);
 }
-.mp-historial-mas { margin-top: 2px; }
 .mp-historial-pie {
   display: flex;
   flex-wrap: wrap;

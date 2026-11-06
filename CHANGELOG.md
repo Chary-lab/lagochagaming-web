@@ -16,6 +16,17 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 - Verificado en navegador: por defecto `ajuste=true` e interruptor marcado; cerrar sesión deja `kick=fake-kick` y `hasta` a 30 días con el token de comunidad borrado; con el ajuste apagado, `kick=null` y `hasta=null`; caducado → `kickRecordadoVigente()=false`.
 - Sin cambios de API ni de esquema.
 
+## [1.79.0] - 2026-11-06
+
+### Historial de puntos de los últimos 3 días
+
+- El perfil propio muestra el historial de **Hoy, Ayer y Antes de ayer**, y dentro de cada día una sola fila por forma de ganar con su total y el `× N` de veces. Se acabó la lista larga: 3 bloques con pocas filas en vez de decenas de líneas.
+- Cada día lleva su **total** a la derecha (`+16 pts`) y un pie común con `Ganado en 3 días: N pts · Saldo actual: M pts`, más la nota de que la tienda descuenta del saldo.
+- Se retira el botón **Ver más**: `cargarHistorial()` pide páginas de 50 movimientos (máximo 4) y se detiene al pasar el corte de anteayer. Máximo ~200 movimientos para pintar 3 días.
+- Corregido: el pie sumaba también los movimientos cargados de días anteriores al corte (mostraba 56 pts cuando los 3 días sumaban 44). Ahora suma solo los días visibles.
+- Se retiran `historialPagina`/`historialTotal` y la clase `.mp-historial-mas`, que quedaron sin uso.
+- Sin cambios de API ni de esquema.
+
 ## [1.78.3] - 2026-11-06
 
 ### El perfil público ya no muestra el historial de puntos del visitante

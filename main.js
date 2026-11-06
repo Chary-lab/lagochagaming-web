@@ -3978,6 +3978,15 @@ document.addEventListener('DOMContentLoaded', () => {
     return String(apodo || '?').trim().charAt(0).toUpperCase() || '?';
   }
 
+  // Día natural en hora local como YYYY-MM-DD: sirve para agrupar por día y
+  // comparar fechas sin que la zona horaria mueva los movimientos de día.
+  function claveDiaLocal(fecha) {
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    return anio + '-' + mes + '-' + dia;
+  }
+
   function mesDesde(iso) {
     if (!iso) return '';
     const fecha = new Date(iso);
@@ -4102,33 +4111,37 @@ document.addEventListener('DOMContentLoaded', () => {
             </section>
 
             <section class="mp-seccion" x-bind:hidden="!$store.perfil.haySesion || $store.perfil.publico">
-              <h5 class="mp-seccion-titulo">Historial de puntos</h5>
+              <h5 class="mp-seccion-titulo">Historial de puntos <span class="mp-seccion-nota">últimos 3 días</span></h5>
               <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'cargando'">Cargando historial…</p>
               <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'error'">No se pudo cargar el historial.</p>
-              <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'lista' || $store.perfil.historial.length > 0">Todavía no has ganado puntos.</p>
-              <div class="mp-historial" x-bind:hidden="$store.perfil.historial.length === 0">
-                <template x-for="fila in $store.perfil.historialPorAccion" :key="fila.accion">
-                  <div class="gochi-card mp-historial-card">
-                    <div class="mp-historial-card-inner">
-                      <span class="gochi-chip" x-bind:data-tono="fila.tono">
-                        <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + fila.icono"></use></svg>
-                        <span x-text="fila.etiqueta"></span>
-                      </span>
-                      <span class="mp-historial-veces" x-text="'× ' + fila.veces" x-bind:title="fila.veces + ' movimiento' + (fila.veces === 1 ? '' : 's')"></span>
-                      <span class="mp-historial-puntos" x-text="'+' + fila.puntos"></span>
+              <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'lista' || $store.perfil.historialPorDia.length > 0">No has ganado puntos en los últimos 3 días.</p>
+              <div class="mp-historial" x-bind:hidden="$store.perfil.historialPorDia.length === 0">
+                <template x-for="dia in $store.perfil.historialPorDia" :key="dia.clave">
+                  <div class="mp-historial-dia">
+                    <div class="mp-historial-dia-cabecera">
+                      <span class="mp-historial-dia-label" x-text="dia.etiqueta"></span>
+                      <span class="mp-historial-dia-total" x-text="'+' + dia.puntos + ' pts'"></span>
                     </div>
+                    <template x-for="fila in dia.filas" :key="dia.clave + '-' + fila.accion">
+                      <div class="gochi-card mp-historial-card">
+                        <div class="mp-historial-card-inner">
+                          <span class="gochi-chip" x-bind:data-tono="fila.tono">
+                            <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + fila.icono"></use></svg>
+                            <span x-text="fila.etiqueta"></span>
+                          </span>
+                          <span class="mp-historial-veces" x-text="'× ' + fila.veces" x-bind:title="fila.veces + ' movimiento' + (fila.veces === 1 ? '' : 's')"></span>
+                          <span class="mp-historial-puntos" x-text="'+' + fila.puntos"></span>
+                        </div>
+                      </div>
+                    </template>
                   </div>
                 </template>
               </div>
-              <p class="mp-historial-pie" x-bind:hidden="$store.perfil.historial.length === 0">
-                <span x-text="'Ganado: ' + $store.perfil.historialGanado + ' pts'"></span>
+              <p class="mp-historial-pie" x-bind:hidden="$store.perfil.historialPorDia.length === 0">
+                <span x-text="'Ganado en 3 días: ' + $store.perfil.historialGanado + ' pts'"></span>
                 <span x-text="'· Saldo actual: ' + (Number($store.perfil.usuario.puntos) || 0) + ' pts'"></span>
-                <small>Este historial suma solo lo que ganas. Los canjes de la tienda descuentan de tu saldo, así que el total puede ser menor.</small>
+                <small>El historial suma solo lo que ganas. Los canjes de la tienda descuentan de tu saldo, así que el total puede ser menor.</small>
               </p>
-              <button type="button" class="btn-primary btn-muted mp-historial-mas"
-                      x-bind:hidden="$store.perfil.historial.length === 0 || $store.perfil.historial.length >= $store.perfil.historialTotal"
-                      x-bind:disabled="$store.perfil.historialEstado === 'cargando'"
-                      x-on:click="$store.perfil.cargarHistorial(true)">Ver más</button>
             </section>
           </div>
         </div>
@@ -4425,8 +4438,6 @@ document.addEventListener('DOMContentLoaded', () => {
       estadisticas: {},
       historial: [],
       historialEstado: 'inicial',
-      historialTotal: 0,
-      historialPagina: 0,
       avatares: [],
       avatarSeleccionado: undefined,
       cargadoEn: 0,
@@ -4477,11 +4488,45 @@ document.addEventListener('DOMContentLoaded', () => {
       get haySesion() {
         return !!almacen.texto('comunidad_session_token');
       },
-      // Historial de puntos: una fila por forma de ganar puntos (sin duplicar
-      // el mismo texto por cada ganancia). Suma y cuenta sobre lo cargado.
-      get historialPorAccion() {
-        const mapa = new Map();
+      // Historial de puntos: solo los últimos 3 días (hoy, ayer y antes de ayer),
+      // y dentro de cada día una fila por forma de ganar (sin repetir el texto
+      // en cada movimiento).
+      historialDias: 3,
+      get historialPorDia() {
+        const dias = [];
+        const hoy = new Date();
+        for (let i = 0; i < this.historialDias; i++) {
+          const fecha = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - i);
+          dias.push({
+            clave: claveDiaLocal(fecha),
+            etiqueta: i === 0 ? 'Hoy' : i === 1 ? 'Ayer' : 'Antes de ayer',
+            filas: [],
+            puntos: 0
+          });
+        }
+        const porClave = new Map(dias.map((dia) => [dia.clave, dia]));
         for (const ev of this.historial) {
+          const fecha = new Date(ev.created_at);
+          if (Number.isNaN(fecha.getTime())) continue;
+          const dia = porClave.get(claveDiaLocal(fecha));
+          if (dia) dia.eventos = (dia.eventos || []).concat(ev);
+        }
+        return dias
+          .filter((dia) => dia.eventos && dia.eventos.length)
+          .map((dia) => {
+            const filas = this.agruparPuntos(dia.eventos);
+            return {
+              clave: dia.clave,
+              etiqueta: dia.etiqueta,
+              filas,
+              puntos: filas.reduce((total, fila) => total + fila.puntos, 0)
+            };
+          });
+      },
+      // Una fila por forma de ganar puntos: suma y cuenta.
+      agruparPuntos(eventos) {
+        const mapa = new Map();
+        for (const ev of eventos || []) {
           const clave = String(ev.accion || '').toLowerCase() || 'otros';
           const fila = mapa.get(clave) || {
             accion: clave,
@@ -4498,9 +4543,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Más puntos primero; a igualdad, más veces.
         return Array.from(mapa.values()).sort((a, b) => b.puntos - a.puntos || b.veces - a.veces);
       },
-      // Suma de lo ganado en el historial cargado (no incluye canjes de tienda).
+      // Suma de lo ganado en los días que se muestran (no incluye canjes de tienda
+      // ni movimientos anteriores al corte de 3 días).
       get historialGanado() {
-        return this.historial.reduce((total, ev) => total + (Number(ev.puntos) || 0), 0);
+        return this.historialPorDia.reduce((total, dia) => total + dia.puntos, 0);
       },
       tonoPunto(accion) {
         const tonos = {
@@ -4525,25 +4571,38 @@ document.addEventListener('DOMContentLoaded', () => {
         return iconos[String(accion || '').toLowerCase()] || 'i-solid-circle-info';
       },
       // Historial de puntos: solo se pinta en el perfil propio (no en el público).
-      async cargarHistorial(mas = false) {
+      // Carga páginas de 50 hasta cubrir los últimos 3 días.
+      async cargarHistorial() {
         const token = almacen.texto('comunidad_session_token');
         if (!token) { this.historialEstado = 'vacio'; return; }
         if (this.historialEstado === 'cargando') return;
-        if (!mas) { this.historial = []; this.historialPagina = 0; }
+        this.historial = [];
         this.historialEstado = 'cargando';
-        const res = await window.rpc('mis_puntos_historial', {
-          p_token: token,
-          p_limit: 10,
-          p_offset: this.historialPagina * 10
-        }, { error: false });
-        if (!res.ok || !res.data || res.data.ok !== true) {
-          this.historialEstado = 'error';
-          return;
+        const hoy = new Date();
+        const limite = claveDiaLocal(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - (this.historialDias - 1)));
+        const POR_PAGINA = 50;
+        let offset = 0;
+        for (let intento = 0; intento < 4; intento++) {
+          const res = await window.rpc('mis_puntos_historial', {
+            p_token: token,
+            p_limit: POR_PAGINA,
+            p_offset: offset
+          }, { error: false });
+          if (!res.ok || !res.data || res.data.ok !== true) {
+            this.historialEstado = intento === 0 ? 'error' : 'lista';
+            return;
+          }
+          const eventos = Array.isArray(res.data.eventos) ? res.data.eventos : [];
+          this.historial = this.historial.concat(eventos);
+          offset += eventos.length;
+          const ultimo = eventos[eventos.length - 1];
+          // Sin más eventos, o ya hay movimientos anteriores al corte de 3 días.
+          if (eventos.length < POR_PAGINA) break;
+          if (ultimo) {
+            const fechaUltimo = new Date(ultimo.created_at);
+            if (!Number.isNaN(fechaUltimo.getTime()) && claveDiaLocal(fechaUltimo) < limite) break;
+          }
         }
-        const eventos = Array.isArray(res.data.eventos) ? res.data.eventos : [];
-        this.historial = this.historial.concat(eventos);
-        this.historialTotal = Number(res.data.total) || 0;
-        this.historialPagina += 1;
         this.historialEstado = 'lista';
       },
       etiquetaPunto(accion) {
@@ -4714,8 +4773,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // que no se muestre el del visitante bajo el perfil de otra persona.
         this.historial = [];
         this.historialEstado = 'inicial';
-        this.historialPagina = 0;
-        this.historialTotal = 0;
         this.cargando = true;
         this.abierto = true;
         setNavExpanded(false);
