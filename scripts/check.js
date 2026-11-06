@@ -192,6 +192,45 @@ for (const pagina of PAGES.concat(['404.html'])) {
     }
 }
 
+// La app (mobile/mobile.js) corre sobre el mismo HTML, así que rpcRaw ya está
+// cargado: se prohíbe cualquier `.rpc(` para que no vuelva a colarse una
+// llamada `client.rpc(...)`, que se saltaba la puerta única.
+if (existe('mobile/mobile.js') && /\.rpc\s*\(/.test(leer('mobile/mobile.js'))) {
+    error('mobile/mobile.js: llamada .rpc( directa; usa window.rpcRaw(...)');
+}
+
+// BOM: un archivo publicado con BOM (EF BB BF) rompe parsers estrictos. Pasó con
+// app/version.json: JSON.parse fallaba y el actualizador de la app no lo leía.
+const EXT_TEXTO = new Set(['.html', '.js', '.css', '.json', '.xml', '.txt', '.webmanifest', '.svg']);
+const IGNORADOS = new Set(['.git', 'node_modules', 'supabase', 'scripts', '.playwright-cli', '.playwright-mcp', '.tmp-navegador', '.opencode']);
+function archivosPublicados(dir, salida = []) {
+    for (const entrada of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (IGNORADOS.has(entrada.name)) continue;
+        const ruta = path.join(dir, entrada.name);
+        if (entrada.isDirectory()) archivosPublicados(ruta, salida);
+        else salida.push(path.relative(ROOT, ruta).split(path.sep).join('/'));
+    }
+    return salida;
+}
+for (const archivo of archivosPublicados(ROOT)) {
+    if (!EXT_TEXTO.has(path.extname(archivo).toLowerCase())) continue;
+    const bytes = fs.readFileSync(path.join(ROOT, archivo));
+    if (bytes.length >= 3 && bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+        error(`${archivo}: empieza por BOM UTF-8; guárdalo sin BOM`);
+    }
+}
+
+// Iconos: cada `img/icons.svg#i-*` debe existir en el sprite. Un `<use>` roto no
+// da error de consola, solo un hueco invisible.
+const sprite = existe('img/icons.svg') ? leer('img/icons.svg') : '';
+const simbolos = new Set(Array.from(sprite.matchAll(/<symbol[^>]*\sid="([^"]+)"/g), (m) => m[1]));
+for (const archivo of PAGES.concat(['404.html', 'main.js', 'mobile/mobile.js'])) {
+    if (!existe(archivo)) continue;
+    for (const uso of leer(archivo).matchAll(/img\/icons\.svg#([A-Za-z0-9_-]+)/g)) {
+        if (!simbolos.has(uso[1])) error(`${archivo}: icono inexistente en el sprite: ${uso[1]}`);
+    }
+}
+
 // Ajustes del dispositivo: toda clave que se lee o escribe debe existir en el
 // estado por defecto del store `ajustes`. Una clave huérfana se guarda en
 // `gochi_ajustes` y nunca se aplica: el usuario cree que cambió algo.

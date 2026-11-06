@@ -630,10 +630,10 @@
   }
 
   function rpcLogin(apodo, pin, genero) {
-    return waitForSupabase().then(function (client) {
+    return waitForSupabase().then(function () {
       var call = accountMode === 'registro'
-        ? client.rpc('registrar_comunidad', { p_apodo: apodo, p_pin: pin, p_genero: genero })
-        : client.rpc('login_comunidad', { p_apodo: apodo, p_pin: pin });
+        ? window.rpcRaw('registrar_comunidad', { p_apodo: apodo, p_pin: pin, p_genero: genero })
+        : window.rpcRaw('login_comunidad', { p_apodo: apodo, p_pin: pin });
       return call.then(function (result) {
         if (result && result.error) throw new Error(result.error.message || 'No se pudo completar la operación.');
         var data = result && result.data;
@@ -832,8 +832,8 @@
       try { localStorage.removeItem('gocha_kick_token'); } catch (e) {}
       try { localStorage.removeItem('gocha_kick_recordar_hasta'); } catch (e) {}
     }
-    if (token && window.supabase && typeof window.supabase.rpc === 'function') {
-      try { window.supabase.rpc('cerrar_sesion_comunidad', { p_token: token }); } catch (e) {}
+    if (token && typeof window.rpcRaw === 'function') {
+      try { window.rpcRaw('cerrar_sesion_comunidad', { p_token: token }); } catch (e) {}
     }
     try {
       localStorage.removeItem(SESSION.nick);

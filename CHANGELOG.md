@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.82.1] - 2026-11-06
+
+### Correcciones de auditoría
+
+- `img/icons.svg`: se añade el símbolo `i-solid-plus` (Font Awesome Free 6.6.0), que faltaba. El acordeón *¿Cómo funciona?* de Comunidad lo usaba desde la 1.79 y no resolvía, así que se veía un hueco.
+- `mobile/mobile.js`: `rpcLogin()` y `logoutAccount()` dejan de llamar a `.rpc(` directamente y pasan por `window.rpcRaw()`. Era la única parte del sitio que se saltaba la puerta única de §4.5 y `scripts/check.js` no la revisaba.
+- `app/version.json`: se guarda sin BOM. `JSON.parse` fallaba al leerlo, así que el manifiesto no era parseable por consumidores estrictos.
+- `sitemap.xml`: `lastmod` al 2026-11-06 en `/`, `/comunidad`, `/galeria` y `/cine`, que seguían en 2026-11-04.
+- `scripts/check.js` vigila tres cosas nuevas: `.rpc(` directo en `mobile/mobile.js`, BOM en cualquier archivo publicado y `img/icons.svg#id` contra los símbolos reales del sprite.
+
 ## [1.82.0] - 2026-11-06
 
 ### El sorteo se participa solo con la cuenta de la comunidad
