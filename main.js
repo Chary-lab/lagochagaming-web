@@ -4105,28 +4105,18 @@ document.addEventListener('DOMContentLoaded', () => {
               <h5 class="mp-seccion-titulo">Historial de puntos</h5>
               <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'cargando'">Cargando historial…</p>
               <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'error'">No se pudo cargar el historial.</p>
-              <div class="mp-historial-resumen" x-bind:hidden="$store.perfil.historialEstado !== 'lista' || $store.perfil.historial.length === 0">
-                <span class="mp-resumen-total"><strong x-text="$store.perfil.historialTotal"></strong> movimientos registrados</span>
-              </div>
               <p class="mp-desde" x-bind:hidden="$store.perfil.historialEstado !== 'lista' || $store.perfil.historial.length > 0">Todavía no has ganado puntos.</p>
               <div class="mp-historial" x-bind:hidden="$store.perfil.historial.length === 0">
-                <template x-for="(grupo, gIdx) in $store.perfil.historialAgrupado" :key="grupo.fecha">
-                  <div class="mp-historial-dia">
-                    <span class="mp-historial-dia-label" x-text="$store.perfil.formatoDia(grupo.fecha)"></span>
-                    <template x-for="(evento, i) in grupo.eventos" :key="evento.created_at + '-' + i">
-                      <div class="gochi-card mp-historial-card">
-                        <div class="mp-historial-card-inner">
-                          <div class="mp-historial-card-main">
-                            <span class="gochi-chip" x-bind:data-tono="$store.perfil.tonoPunto(evento.accion)">
-                              <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + $store.perfil.iconoPunto(evento.accion)"></use></svg>
-                              <span x-text="$store.perfil.etiquetaPunto(evento.accion)"></span>
-                            </span>
-                            <span class="mp-historial-fecha" x-text="$store.perfil.horaPunto(evento.created_at)"></span>
-                          </div>
-                          <span class="mp-historial-puntos" x-text="'+' + evento.puntos"></span>
-                        </div>
-                      </div>
-                    </template>
+                <template x-for="fila in $store.perfil.historialPorAccion" :key="fila.accion">
+                  <div class="gochi-card mp-historial-card">
+                    <div class="mp-historial-card-inner">
+                      <span class="gochi-chip" x-bind:data-tono="fila.tono">
+                        <svg class="icon" aria-hidden="true"><use x-bind:href="'img/icons.svg#' + fila.icono"></use></svg>
+                        <span x-text="fila.etiqueta"></span>
+                      </span>
+                      <span class="mp-historial-veces" x-text="'× ' + fila.veces" x-bind:title="fila.veces + ' movimiento' + (fila.veces === 1 ? '' : 's')"></span>
+                      <span class="mp-historial-puntos" x-text="'+' + fila.puntos"></span>
+                    </div>
                   </div>
                 </template>
               </div>
@@ -4482,35 +4472,26 @@ document.addEventListener('DOMContentLoaded', () => {
       get haySesion() {
         return !!almacen.texto('comunidad_session_token');
       },
-      // Historial de puntos: getters computados para la vista agrupada
-      get historialAgrupado() {
-        const grupos = new Map();
+      // Historial de puntos: una fila por forma de ganar puntos (sin duplicar
+      // el mismo texto por cada ganancia). Suma y cuenta sobre lo cargado.
+      get historialPorAccion() {
+        const mapa = new Map();
         for (const ev of this.historial) {
-          const fecha = new Date(ev.created_at);
-          if (Number.isNaN(fecha.getTime())) continue;
-          const clave = fecha.toISOString().slice(0, 10); // YYYY-MM-DD
-          if (!grupos.has(clave)) grupos.set(clave, { fecha: clave, eventos: [] });
-          grupos.get(clave).eventos.push(ev);
+          const clave = String(ev.accion || '').toLowerCase() || 'otros';
+          const fila = mapa.get(clave) || {
+            accion: clave,
+            etiqueta: this.etiquetaPunto(clave),
+            icono: this.iconoPunto(clave),
+            tono: this.tonoPunto(clave),
+            veces: 0,
+            puntos: 0
+          };
+          fila.veces += 1;
+          fila.puntos += Number(ev.puntos) || 0;
+          mapa.set(clave, fila);
         }
-        // Ordenar días descendente (más reciente primero)
-        return Array.from(grupos.values()).sort((a, b) => b.fecha.localeCompare(a.fecha));
-      },
-      formatoDia(iso) {
-        const fecha = new Date(iso + 'T00:00:00');
-        if (Number.isNaN(fecha.getTime())) return iso;
-        const hoy = new Date();
-        const ayer = new Date(hoy);
-        ayer.setDate(ayer.getDate() - 1);
-        const esHoy = fecha.toISOString().slice(0, 10) === hoy.toISOString().slice(0, 10);
-        const esAyer = fecha.toISOString().slice(0, 10) === ayer.toISOString().slice(0, 10);
-        if (esHoy) return 'Hoy';
-        if (esAyer) return 'Ayer';
-        return fecha.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-      },
-      horaPunto(iso) {
-        const fecha = new Date(iso);
-        if (Number.isNaN(fecha.getTime())) return '';
-        return fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        // Más puntos primero; a igualdad, más veces.
+        return Array.from(mapa.values()).sort((a, b) => b.puntos - a.puntos || b.veces - a.veces);
       },
       tonoPunto(accion) {
         const tonos = {

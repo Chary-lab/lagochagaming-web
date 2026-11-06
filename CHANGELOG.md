@@ -16,6 +16,20 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 - Verificado en navegador: por defecto `ajuste=true` e interruptor marcado; cerrar sesión deja `kick=fake-kick` y `hasta` a 30 días con el token de comunidad borrado; con el ajuste apagado, `kick=null` y `hasta=null`; caducado → `kickRecordadoVigente()=false`.
 - Sin cambios de API ni de esquema.
 
+## [1.78.2] - 2026-11-06
+
+### Historial de puntos sin filas repetidas
+
+- El historial del perfil propio pasa a mostrar **una sola fila por forma de ganar puntos** (`tiempo_conectado`, `visita`, `chat`, `reaccion`, `like`, `muro`…), con el total sumado y un contador `× N` de cuántas veces se ganó. Antes se pintaba una fila por cada movimiento y el mismo texto se repetía decenas de veces.
+- Orden por puntos ganados (a igualdad, por número de veces). La paginación de 10 en 10 con **Ver más** sigue, así que las filas se van completando a medida que se cargan más movimientos.
+- Se retiran el resumen de movimientos, los separadores por día y los helpers `formatoDia`/`horaPunto` que ya no se usan.
+
+### El icono del tema vuelve a verse en modo claro
+
+- El sprite no tenía `i-solid-moon`, y `initTema()` lo pedía justo en modo claro: el botón del navbar quedaba **vacío** al pasar a claro. Añadido el símbolo (Font Awesome Free 6.6.0).
+- Verificado en navegador: en claro `use = img/icons.svg#i-solid-moon`, 16 × 18 px visibles; en OLED `i-solid-circle`; en oscuro `i-solid-sun`.
+- Sin cambios de API ni de esquema.
+
 ## [1.78.1] - 2026-11-06
 
 ### Historial de puntos rediseñado en el perfil propio

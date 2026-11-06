@@ -290,7 +290,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.78.1` (Historial de puntos del perfil propio rediseñado: agrupado por día con separadores Hoy/Ayer/fecha, cada movimiento en `gochi-card` con `gochi-chip` e icono/tono según la acción y contador de movimientos del servidor; carga paginada de 10 en 10 con Ver más. Sin cambios de API ni de esquema. La 1.78.0 fue el ajuste `kickRecordar` que conserva el token de Kick 30 días al cerrar sesión).
+- Versión de esta release: `1.78.2` (Historial de puntos del perfil propio: **una fila por forma de ganar** con total sumado y contador `× N`, sin repetir el texto en cada movimiento; orden por puntos y Ver más de 10 en 10. Se arregla el icono del tema en modo claro añadiendo el símbolo `i-solid-moon` que faltaba en el sprite. Sin cambios de API ni de esquema. La 1.78.0 fue el ajuste `kickRecordar` que conserva el token de Kick 30 días al cerrar sesión).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
