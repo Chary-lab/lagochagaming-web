@@ -7530,6 +7530,23 @@ html.alto-contraste .modal-perfil-card {
 .btn-peligro:hover { background: color-mix(in srgb, #ff6b6b 22%, transparent); }
 .btn-peligro:disabled { opacity: 0.55; cursor: progress; }
 
+/* En modo claro el rojo de peligro necesita más contraste: #ff9d9d sobre
+   blanco no llega a 3:1. */
+body.light-mode .mp-peligro {
+    border-color: rgba(185, 28, 28, 0.35);
+    background: rgba(185, 28, 28, 0.06);
+}
+
+body.light-mode .mp-peligro .mp-seccion-titulo { color: #b91c1c; }
+
+body.light-mode .btn-peligro {
+    border-color: #b91c1c;
+    background: rgba(185, 28, 28, 0.08);
+    color: #991b1b;
+}
+
+body.light-mode .btn-peligro:hover { background: rgba(185, 28, 28, 0.16); }
+
 .mp-eliminar {
     position: fixed;
     inset: 0;

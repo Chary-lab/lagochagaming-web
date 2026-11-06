@@ -286,12 +286,12 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.76.0` (galería: nueva RPC `galeria_publica` que devuelve la página, el top 3 y los likes del usuario en una sola llamada, más scroll infinito con `IntersectionObserver` y el botón como respaldo. Sin cambios de esquema).
+- Versión de esta release: `1.76.1` (calidad: `check.js` valida que las claves de `gochi_ajustes` existan en el store `ajustes`; `smoke.js` comprueba las clases de los ajustes y que el like sin sesión pide login sin abrir el lightbox; contraste de `.mp-peligro` y `.btn-peligro` en modo claro. Sin cambios de API ni de esquema).
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
 
-1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, CSP básica, `?v=` contra `VERSION` y directivas Alpine sin `x-data`/`x-store`). Si el bump de `VERSION` deja los busters viejos, `node scripts/check.js --fix` los reescribe. Con navegador real, `node scripts/smoke.js`: abre las 5 páginas a 1690×900 y 390×844 con Chrome/Edge y falla por error HTTP, consola sucia, desborde horizontal o busters viejos; levanta su propio servidor en el puerto 8788 o reutiliza uno con `--url=`.
+1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, CSP básica, `?v=` contra `VERSION` y directivas Alpine sin `x-data`/`x-store`). Si el bump de `VERSION` deja los busters viejos, `node scripts/check.js --fix` los reescribe. Con navegador real, `node scripts/smoke.js`: abre las 5 páginas a 1690×900 y 390×844 con Chrome/Edge y falla por error HTTP, consola sucia, desborde horizontal o busters viejos; levanta su propio servidor en el puerto 8788 o reutiliza uno con `--url=`. También prueba la paleta, el contrato de `gochi_ajustes` (clases `texto-*`, `sin-animaciones` y `ahorro-datos` más el estado del store) y que el like sin sesión pide login sin abrir el lightbox.
 2. `node --check main.js`.
 3. Levantar servidor local: `python -m http.server 8765` y probar en `http://127.0.0.1:8765/`.
 4. Smoke test mínimo:

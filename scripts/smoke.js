@@ -153,6 +153,49 @@ async function servidor(puerto) {
                 return !caja || caja.hidden;
             });
             if (!cerrada) fallos.push('interacción: Escape no cierra la paleta');
+
+            // Ajustes del dispositivo: el script del <head> aplica las clases
+            // antes del primer pintado desde un único JSON en `gochi_ajustes`.
+            await pag.evaluate(() => localStorage.setItem('gochi_ajustes', JSON.stringify({ texto: 110, animaciones: false, ahorro: true })));
+            await pag.reload({ waitUntil: 'domcontentloaded' });
+            await pag.waitForTimeout(1500);
+            const ajustes = await pag.evaluate(() => ({
+                clases: document.documentElement.className,
+                datos: window.Alpine && window.Alpine.store('ajustes') ? window.Alpine.store('ajustes').datos : null
+            }));
+            for (const clase of ['texto-110', 'sin-animaciones', 'ahorro-datos']) {
+                if (!new RegExp('(^|\\s)' + clase + '(\\s|$)').test(ajustes.clases)) {
+                    fallos.push(`interacción: gochi_ajustes no aplica ${clase}`);
+                }
+            }
+            if (!ajustes.datos || Number(ajustes.datos.texto) !== 110) {
+                fallos.push('interacción: el store ajustes no lee gochi_ajustes');
+            }
+
+            // Galería: dar like sin sesión pide login y no abre el lightbox.
+            await pag.goto(`${base}/galeria.html?smoke=like`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+            await pag.waitForTimeout(2500);
+            const hayLike = await pag.evaluate(() => {
+                const btn = document.querySelector('.like-btn[data-action="toggle-like"]');
+                if (!btn) return false;
+                btn.click();
+                return true;
+            });
+            if (!hayLike) {
+                fallos.push('interacción: la galería no pinta tarjetas con like');
+            } else {
+                await pag.waitForTimeout(600);
+                const likeSinSesion = await pag.evaluate(() => {
+                    const caja = document.getElementById('lightbox');
+                    const pila = document.querySelector('.gochi-toast-stack');
+                    return {
+                        lightbox: !!caja && !caja.hidden,
+                        aviso: pila ? pila.textContent : ''
+                    };
+                });
+                if (likeSinSesion.lightbox) fallos.push('interacción: el like sin sesión abre el lightbox');
+                if (!/sesi[oó]n/i.test(likeSinSesion.aviso)) fallos.push('interacción: el like sin sesión no pide iniciar sesión');
+            }
         } finally {
             await ctxInt.close();
         }

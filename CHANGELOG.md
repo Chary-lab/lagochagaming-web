@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.76.1] - 2026-11-06
+
+### Calidad: menos huecos a mano
+
+- `scripts/check.js` valida el contrato de `gochi_ajustes`: extrae las claves del estado por defecto del store `ajustes` y falla si `main.js`, `mobile/mobile.js` o una página leen o escriben una clave que no existe. Una clave huérfana se guardaba y nunca se aplicaba.
+- `scripts/smoke.js` añade dos interacciones:
+  - con `gochi_ajustes` a `{ texto: 110, animaciones: false, ahorro: true }`, el `<html>` debe llevar `texto-110`, `sin-animaciones` y `ahorro-datos`, y el store debe leer `texto: 110`;
+  - en Galería, pulsar like sin sesión debe pedir iniciar sesión y **no** abrir el lightbox.
+- Contraste en modo claro: `.mp-peligro` y `.btn-peligro` usan ahora rojo oscuro (`#991b1b` / `#b91c1c`); el rojo claro anterior no llegaba a 3:1 sobre blanco.
+- Sin cambios de API ni de esquema.
+
 ## [1.76.0] - 2026-11-05
 
 ### Galería: una petición y scroll infinito

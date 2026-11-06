@@ -97,6 +97,38 @@ if (!/abrirHoja\s*:/.test(mainJs) || !/cerrarHoja\s*:/.test(mainJs)) {
     error('main.js: gochiUI debe exponer abrirHoja y cerrarHoja');
 }
 
+// Ajustes del dispositivo: toda clave que se lee o escribe debe existir en el
+// estado por defecto del store `ajustes`. Una clave huérfana se guarda en
+// `gochi_ajustes` y nunca se aplica: el usuario cree que cambió algo.
+const inicioAjustes = mainJs.indexOf("window.Alpine.store('ajustes'");
+const finAjustes = inicioAjustes >= 0 ? mainJs.indexOf('\n    });', inicioAjustes) : -1;
+const cuerpoAjustes = finAjustes > inicioAjustes ? mainJs.slice(inicioAjustes, finAjustes) : '';
+const bloqueDatos = cuerpoAjustes.match(/datos:\s*\{([^}]*)\}/);
+const clavesAjustes = bloqueDatos
+    ? Array.from(bloqueDatos[1].matchAll(/([A-Za-z_]\w*)\s*:/g), (m) => m[1])
+    : [];
+if (!clavesAjustes.length) {
+    error('main.js: no se pudo leer el estado por defecto del store ajustes');
+} else {
+    const patronesAjustes = [
+        /\$store\.ajustes\.datos\.([A-Za-z_]\w*)/g,
+        /store\(\s*['"]ajustes['"]\s*\)\.datos\.([A-Za-z_]\w*)/g,
+        /store\(\s*['"]ajustes['"]\s*\)\.set\(\s*['"]([A-Za-z_]\w*)['"]/g,
+        /guardarAjustesWeb\(\{\s*([A-Za-z_]\w*)\s*:/g
+    ];
+    for (const archivo of ['main.js', 'mobile/mobile.js'].concat(PAGES)) {
+        if (!existe(archivo)) continue;
+        const codigo = leer(archivo);
+        for (const patron of patronesAjustes) {
+            for (const coincidencia of codigo.matchAll(patron)) {
+                const clave = coincidencia[1];
+                if (clavesAjustes.includes(clave)) continue;
+                error(`${archivo}: la clave de ajustes "${clave}" no existe en el store ajustes`);
+            }
+        }
+    }
+}
+
 // CSS
 const css = leer('style.css');
 if (!/\.gochi-toast-item/.test(css) || !/\.gochi-toast-stack/.test(css)) {
