@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.82.5] - 2026-11-07
+
+### Los checks cubren lo que faltaba
+
+- `scripts/check.js` falla ahora si aparece `alert(`, `confirm(` o `prompt(` en `main.js`, `mobile.js`, las 5 páginas o `404.html`: están prohibidos por §4 y nada lo comprobaba.
+- `scripts/check.js` valida `app/version.json`: JSON parseable, campos `versionCode`, `versionName`, `apkUrl`, `sha256` y `size`, `sha256` de 64 hex y `size` positivo. El BOM que se colaba aquí ya se detecta por dos vías.
+- `scripts/smoke.js` abre también `404.html` (6 páginas en vez de 5). Se salta las comprobaciones de navbar y `main.js`, que esa página no lleva a propósito.
+- Limpieza local: 62,8 MB de cachés de herramientas (`.playwright-cli`, `.playwright-mcp`, `.tmp-navegador`). No estaban en el repo.
+
+### Revisado y descartado
+
+- La "duplicación" de CSS era en su mayoría legítima: los 45 selectores repetidos viven en media queries distintas con valores distintos (`.gallery-card-autor` cambia `gap` y `font-size` en móvil; `.tab-btn.active` repite color en dos breakpoints). No se tocó.
+
 ## [1.82.4] - 2026-11-07
 
 ### Una puerta para las Edge Functions y otra para las fechas

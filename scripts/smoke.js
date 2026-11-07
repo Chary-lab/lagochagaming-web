@@ -12,7 +12,7 @@ const path = require('path');
 const fs = require('fs');
 
 const RAIZ = path.resolve(__dirname, '..');
-const PAGINAS = ['index.html', 'comunidad.html', 'galeria.html', 'sorteo.html', 'cine.html'];
+const PAGINAS = ['index.html', 'comunidad.html', 'galeria.html', 'sorteo.html', 'cine.html', '404.html'];
 const VIEWPORTS = [{ w: 1690, h: 900, nombre: 'escritorio' }, { w: 390, h: 844, nombre: 'movil' }];
 
 function cargarPlaywright() {
@@ -111,13 +111,15 @@ async function servidor(puerto) {
                     js: (document.querySelector('script[src*="main.js"]') || {}).src || ''
                 }));
                 const etiqueta = `${archivo} @${vp.nombre}`;
+                // 404 no lleva navbar ni main.js a propósito: no hereda sesión ni ajustes.
+                const es404 = archivo === '404.html';
                 if (!respuesta || respuesta.status() !== 200) fallos.push(`${etiqueta}: HTTP ${respuesta ? respuesta.status() : 'sin respuesta'}`);
                 if (!datos.titulo) fallos.push(`${etiqueta}: sin <title>`);
-                if (!datos.navbar) fallos.push(`${etiqueta}: falta la navbar`);
+                if (!datos.navbar && !es404) fallos.push(`${etiqueta}: falta la navbar`);
                 if (!datos.principal) fallos.push(`${etiqueta}: falta el contenido principal`);
                 if (datos.ancho > datos.ventana + 1) fallos.push(`${etiqueta}: desborde horizontal (${datos.ancho} > ${datos.ventana})`);
                 if (!datos.css.includes(`?v=${version}`)) fallos.push(`${etiqueta}: style.css sin ?v=${version}`);
-                if (!datos.js.includes(`?v=${version}`)) fallos.push(`${etiqueta}: main.js sin ?v=${version}`);
+                if (!datos.js.includes(`?v=${version}`) && !es404) fallos.push(`${etiqueta}: main.js sin ?v=${version}`);
                 if (errores.length) fallos.push(`${etiqueta}: ${errores.length} error(es) de consola -> ${errores[0].slice(0, 120)}`);
             }
             await contexto.close();

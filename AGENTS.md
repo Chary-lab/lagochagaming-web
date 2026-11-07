@@ -45,7 +45,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 | `img/mcchary/` | Ilustraciones del creador: footer, 404 y estados vacíos |
 | `fonts/` | woff2 autoalojados: Inter y Space Grotesk variable (subconjunto latin) |
 | `scripts/check.js` | Validaciones estáticas del repo (no se carga en Pages) |
-| `scripts/smoke.js` | Smoke test con navegador real: 5 páginas × 2 tamaños, consola, desborde, busters e interacciones (Ctrl+K, APIs de ajustes) |
+| `scripts/smoke.js` | Smoke test con navegador real: 6 páginas × 2 tamaños (404 incluida), consola, desborde, busters e interacciones (Ctrl+K, APIs de ajustes) |
 | `app/LaGochaGaming.apk` | APK firmado que descarga la web (se reemplaza en cada release de la app) |
 | `app/version.json` | Manifiesto del actualizador de la app (`versionCode`, `versionName`, `sha256`, `size`, `notes`) |
 | `mobile/mobile.css`, `mobile/mobile.js` | Interfaz móvil que la app descarga encima del APK; única carpeta que la app consume en remoto |
@@ -294,7 +294,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.82.4` (Una puerta para las Edge Functions (`window.llamarEdge`) y otra para las fechas (`window.formatearFecha`, 6 estilos verificados). `mobile.js` reutiliza `escapeHtml`. Sin carpeta local de Supabase: la base es la única fuente de verdad. Sigue vigente el sorteo con identidad de la 1.82.0 y los arreglos de 1.82.1/1.82.2/1.82.3).
+- Versión de esta release: `1.82.5` (`check.js` vigila diálogos del navegador y el manifiesto de la app; `smoke.js` cubre 404. Edge Functions y fechas por `llamarEdge`/`formatearFecha`. Sin carpeta local de Supabase. Sigue vigente el sorteo con identidad de la 1.82.0 y los arreglos de 1.82.1 a 1.82.4).
 - La base se toca **solo** contra Supabase, nunca contra un esquema local. Flujo obligatorio: leer con `supabase db query --remote=cydiyaacnyydprgffmkq --read-only`, probar en una transacción con `DO`/`RAISE` + `ROLLBACK` y aplicar con `--yes`. El wrapper `%APPDATA%\npm\supabase.cmd` funciona aunque el `.ps1` esté bloqueado por ExecutionPolicy.
 - No crear `supabase/migrations/` ni `supabase/functions/` locales. El historial de Supabase no registra lo aplicado con `db query`, así que el registro real de cada cambio es su entrada en `CHANGELOG.md`: qué, por qué y qué se verificó.
 - `supabase db dump` necesita Docker y aquí no hay. El respaldo de la base es el de Supabase (Dashboard → Database → Backups); si no está disponible, se genera un snapshot del esquema por consultas de solo lectura.
@@ -302,7 +302,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 ## 9. Pruebas antes de commitear
 
-1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, **CSP por meta con los hashes de los scripts inline**, RPC por `rpcRaw`, `?v=` contra `VERSION` y directivas Alpine sin `x-data`/`x-store`). Si el bump de `VERSION` deja los busters viejos, `node scripts/check.js --fix` los reescribe. Con navegador real, `node scripts/smoke.js`: abre las 5 páginas a 1690×900 y 390×844 con Chrome/Edge y falla por error HTTP, consola sucia, desborde horizontal o busters viejos; levanta su propio servidor en el puerto 8788 o reutiliza uno con `--url=`. También prueba la paleta, el contrato de `gochi_ajustes` (clases `texto-*`, `sin-animaciones` y `ahorro-datos` más el estado del store) y que el like sin sesión pide login sin abrir el lightbox.
+1. `node scripts/check.js` (sintaxis JS inline, IDs duplicados, recursos, SemVer, **CSP por meta con los hashes de los scripts inline**, RPC por `rpcRaw`, `?v=` contra `VERSION`, directivas Alpine sin `x-data`/`x-store`, `alert`/`confirm`/`prompt`, BOM en archivos publicados, iconos del sprite y el manifiesto `app/version.json`). Si el bump de `VERSION` deja los busters viejos, `node scripts/check.js --fix` los reescribe. Con navegador real, `node scripts/smoke.js`: abre las 6 páginas (404 incluida) a 1690×900 y 390×844 con Chrome/Edge y falla por error HTTP, consola sucia, desborde horizontal o busters viejos; levanta su propio servidor en el puerto 8788 o reutiliza uno con `--url=`. También prueba la paleta, el contrato de `gochi_ajustes` (clases `texto-*`, `sin-animaciones` y `ahorro-datos` más el estado del store) y que el like sin sesión pide login sin abrir el lightbox.
 2. `node --check main.js`.
 2b. Tras tocar HTML (scripts inline) o la CSP: comprobar con navegador que no hay violaciones (`securitypolicyviolation`) ni errores de consola en las 6 páginas × 2 tamaños. Los hashes sin `--fix` dejan el sitio sin JavaScript.
 3. Levantar servidor local: `python -m http.server 8765` y probar en `http://127.0.0.1:8765/`.

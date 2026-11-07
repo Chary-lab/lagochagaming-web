@@ -476,6 +476,40 @@ for (const pagina of PAGES) {
     }
 }
 
+// Diálogos del navegador: prohibidos (bloquean la app y el APK). Los avisos
+// van por mostrarToast y las confirmaciones por confirmarAccion.
+for (const archivo of ['main.js', 'mobile/mobile.js'].concat(PAGES, ['404.html'])) {
+    if (!existe(archivo)) continue;
+    const codigo = leer(archivo);
+    for (const fn of ['alert', 'confirm', 'prompt']) {
+        if (new RegExp('\\b' + fn + '\\s*\\(').test(codigo)) {
+            error(`${archivo}: usa ${fn}(); los avisos van por mostrarToast o confirmarAccion`);
+        }
+    }
+}
+
+// Manifiesto de la app: debe ser JSON válido (el BOM lo rompía) y llevar los
+// campos que el actualizador verifica antes de instalar.
+if (existe('app/version.json')) {
+    let manifiesto = null;
+    try {
+        manifiesto = JSON.parse(leer('app/version.json'));
+    } catch (e) {
+        error('app/version.json: no es JSON válido (' + e.message + ')');
+    }
+    if (manifiesto) {
+        for (const clave of ['versionCode', 'versionName', 'apkUrl', 'sha256', 'size']) {
+            if (manifiesto[clave] === undefined) error('app/version.json: falta ' + clave);
+        }
+        if (manifiesto.sha256 && !/^[a-f0-9]{64}$/.test(manifiesto.sha256)) {
+            error('app/version.json: sha256 debe ser 64 hex en min?sculas');
+        }
+        if (typeof manifiesto.size !== 'number' || manifiesto.size <= 0) {
+            error('app/version.json: size debe ser un n?mero positivo');
+        }
+    }
+}
+
 // Sitemap: todas las páginas públicas
 const sitemap = leer('sitemap.xml');
 for (const pagina of PAGES) {
