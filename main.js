@@ -1531,6 +1531,7 @@ window.pintarEstadoNav = function pintarEstadoNav(vivo) {
 };
 
 window.insertarNavbar();
+window.cargarColoresApodo?.();
 
 // Arrancar con el último estado conocido: el tag no aparece ni empuja la navbar.
 try {
@@ -2161,6 +2162,34 @@ document.addEventListener('keydown', (evento) => {
 window.addEventListener('resize', () => {
     if (panelMisionesAbierto) colocarPanelMisiones();
 });
+
+// === Color de apodo (tienda) ===
+// Mapa apodo normalizado -> hex. Se carga una vez por página y las vistas se
+// repintan al recibir 'gocha:colores'.
+const _coloresApodo = new Map();
+window.cargarColoresApodo = async function cargarColoresApodo() {
+    if (!window.supabase) return;
+    try {
+        const { data, error } = await window.supabase
+            .from('usuarios_comunidad')
+            .select('apodo, color_apodo')
+            .not('color_apodo', 'is', null);
+        if (error) return;
+        _coloresApodo.clear();
+        (data || []).forEach((u) => {
+            if (u && u.apodo && u.color_apodo) {
+                _coloresApodo.set(String(u.apodo).trim().toLowerCase(), u.color_apodo);
+            }
+        });
+        document.dispatchEvent(new CustomEvent('gocha:colores'));
+    } catch (e) { /* sin colores */ }
+};
+window.colorApodoDe = function colorApodoDe(apodo) {
+    return _coloresApodo.get(String(apodo || '').trim().toLowerCase()) || '';
+};
+window.aplicarColoresApodo = function aplicarColoresApodo() {
+    window.cargarColoresApodo();
+};
 
 // === MENÚ MÓVIL ===
 
@@ -4253,7 +4282,9 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
               <div class="mp-profile-info">
                 <div class="mp-nombre-linea">
-                  <h4 class="mp-apodo" x-bind:class="'rango-texto-' + $store.perfil.rango.clave" x-text="$store.perfil.nombre"></h4>
+                  <h4 class="mp-apodo" x-bind:class="'rango-texto-' + $store.perfil.rango.clave"
+                      x-bind:style="$store.perfil.usuario.color_apodo ? 'color:' + $store.perfil.usuario.color_apodo : null"
+                      x-text="$store.perfil.nombre"></h4>
                   <span class="mp-genero" x-bind:hidden="!$store.perfil.publico || !$store.perfil.generoTexto"
                         x-text="$store.perfil.generoTexto"></span>
                   <a class="mp-kick-link" x-show="$store.perfil.publico && $store.perfil.usuario.kick_username"
@@ -5051,7 +5082,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const { data, error } = await window.supabase
             .from('usuarios_comunidad')
-            .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username')
+            .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username,color_apodo,titulo_equipado')
             .ilike('apodo', apodo)
             .maybeSingle();
           if (error) throw error;
@@ -5144,7 +5175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userId
               ? window.supabase
                 .from('usuarios_comunidad')
-                .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username')
+                .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username,color_apodo,titulo_equipado')
                 .eq('id', userId)
                 .maybeSingle()
               : Promise.resolve({ data: null, error: null }),

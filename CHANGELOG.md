@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.91.0] - 2026-11-07
+
+### Tienda: rework con colores de apodo
+
+- Fuera el carrusel con flechas: **filas horizontales con snap** (se desliza, no se baja), «Ahorrando» plegado por defecto y barra de progreso con «Faltan X pts» en el botón.
+- **Colores de apodo**: 7 colores que se compran por separado (60–80 pts) y se equipan cuando quieras. Una sola tarjeta abre la paleta; los tuyos se tocan para ponerlos, los bloqueados muestran su precio.
+- Título **Gochi Fan** (250) y **Marco que resplandece** (350).
+- El color se aplica al apodo en chat, ranking, muro y perfil. `window.colorApodoDe(apodo)` cachea el mapa y las vistas se repintan al evento `gocha:colores`.
+- Base: `usuarios_comunidad.color_apodo/titulo_equipado/marco_equipado`, `tienda_premios.valor`, tipos `color/titulo/marco` en el CHECK, canje extendido y RPC `equipar_color_apodo`/`equipar_titulo`.
+- Mis canjes con `formatearFecha` en vez de `toLocaleString`.
+
+Probado en transacción: compra de color (60 pts, color aplicado), recompra bloqueada (`ya_lo_tiene`), equipar y quitar.
+
 ## [1.90.0] - 2026-11-07
 
 ### Misiones en el navbar

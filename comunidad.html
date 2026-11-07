@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-Ex5HmQy9vNLwxiojk44XajAXxqupnHuFgKnElIgxY2Q=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-jQebbjbE+NMj2z8mctrnFHcU/tu4pt4yNjcuyj/0Zok=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.90.0">
+    <link rel="stylesheet" href="style.css?v=1.91.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -124,6 +124,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                                 </span>
                                 <button type="button" class="leaderboard-nombre leaderboard-nombre-btn"
                                         :class="'rango-texto-' + user.rangoClave"
+                                        :style="user.color ? 'color:' + user.color : null"
                                         @click.stop="window.abrirPerfilUsuario?.(user.apodo)"
                                         x-text="user.medalla + ' ' + user.apodo + (user.icono ? ' ' + user.icono : '')"></button>
                                 <span class="rango-badge leaderboard-badge" :class="'rango-' + user.rangoClave">
@@ -199,6 +200,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     <div class="chat-msg-container" :data-msgid="msg.id" @mouseleave="window.ocultarTooltipReaccion?.()">
                         <div class="chat-msg-header">
                             <span class="chat-msg-autor chat-msg-autor-link" :class="$store.rangosChat.clase(msg.autor)"
+                                  :style="msg.color ? 'color:' + msg.color : null"
                                   role="button" tabindex="0"
                                   @click.stop="window.abrirPerfilUsuario?.(msg.autor)"
                                   @keydown.enter.prevent="window.abrirPerfilUsuario?.(msg.autor)"
@@ -399,72 +401,117 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 <p id="rango-hint-tick" class="tab-hint">Ganas <strong>1 punto cada 5 minutos</strong> conectado en el chat. El rango se actualiza automáticamente al sumar puntos.</p>
             </div>
 
-            <div id="tab-tienda" class="tab-content" hidden role="tabpanel" aria-labelledby="tabbtn-tienda">
-    <h4 class="tab-content-title"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-shop"></use></svg> Tienda de Puntos</h4>
-    <p class="tab-hint">Gasta tus puntos en recompensas exclusivas. Los iconos se muestran junto a tu nombre en todo el sitio.</p>
-    <div class="tienda-carrusel" role="group" aria-roledescription="carrusel" aria-label="Catálogo de premios">
-        <button type="button" class="tienda-flecha tienda-flecha-prev" id="tienda-flecha-prev" aria-label="Premios anteriores" aria-controls="tienda-catalogo">
-            <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-chevron-left"></use></svg>
-        </button>
-        <div id="tienda-catalogo" class="tienda-grid" x-data="{}" tabindex="0" aria-label="Premios disponibles, desplázate en horizontal">
-            <template x-for="n in 4" :key="'tienda-skeleton-' + n">
-                <div class="tienda-item tienda-item--skeleton gochi-card" aria-hidden="true"
-                     x-bind:hidden="!$store.tienda.cargando">
-                    <span class="gochi-skeleton gochi-skeleton--avatar"></span>
-                    <div class="tienda-item-info">
-                        <span class="gochi-skeleton gochi-skeleton--titulo"></span>
-                        <span class="gochi-skeleton gochi-skeleton--texto"></span>
-                        <span class="gochi-skeleton gochi-skeleton--chip"></span>
+            <div id="tab-tienda" class="tab-content" hidden role="tabpanel" aria-labelledby="tabbtn-tienda" x-data>
+                <div class="tienda-cabecera">
+                    <h4 class="tab-content-title"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-shop"></use></svg> Tienda de puntos</h4>
+                    <span class="tienda-saldo" x-text="$store.tienda.saldo + ' pts'"></span>
+                </div>
+                <p class="tab-hint">Gasta tus puntos en lo que se ve: colores de apodo, títulos, marcos e iconos.</p>
+
+                <div id="tienda-catalogo">
+                <div class="tienda-colores" x-bind:hidden="!$store.tienda.colores.length">
+                    <div class="tienda-colores-cabeza">
+                        <strong>Colores de apodo</strong>
+                        <span x-text="$store.tienda.coloresMios.length + ' de ' + $store.tienda.colores.length"></span>
+                    </div>
+                    <div class="tienda-paleta">
+                        <template x-for="c in $store.tienda.colores" :key="c.id">
+                            <button type="button" class="tienda-color"
+                                    :class="{ 'tienda-color--activo': c.valor === $store.tienda.colorActual, 'tienda-color--bloqueado': !$store.tienda.tieneColor(c) }"
+                                    :style="'--c:' + c.valor"
+                                    :aria-label="c.nombre"
+                                    @click="$store.tienda.tocarColor(c)">
+                                <span class="tienda-color-bola" aria-hidden="true"></span>
+                                <small x-text="c.valor === $store.tienda.colorActual ? 'Puesto' : ($store.tienda.tieneColor(c) ? 'Tuyo' : c.costo_puntos + ' pts')"></small>
+                            </button>
+                        </template>
+                    </div>
+                    <p class="tienda-colores-nota">Los que ya tienes se equipan al tocarlos. Los bloqueados se compran y quedan para siempre.</p>
+                </div>
+
+                <div class="tienda-bloque" x-bind:hidden="!$store.tienda.alcanza.length">
+                    <h5 class="tienda-bloque-titulo">Te alcanza</h5>
+                    <div class="tienda-grid">
+                        <template x-for="premio in $store.tienda.alcanza" :key="premio.id">
+                            <article class="tienda-item gochi-card" :class="{ agotado: premio.stock !== null && premio.stock <= 0, obtenido: $store.tienda.yaObtenido(premio) }">
+                                <template x-if="premio.tipo === 'avatar' && premio.avatar_url">
+                                    <div class="tienda-item-avatar"><img :src="premio.avatar_url" :alt="premio.nombre" loading="lazy" width="54" height="54"></div>
+                                </template>
+                                <div class="tienda-item-icon" x-bind:hidden="premio.tipo === 'avatar' && premio.avatar_url" x-text="premio.icono"></div>
+                                <div class="tienda-item-info">
+                                    <span class="tienda-item-nombre" x-text="premio.nombre"></span>
+                                    <span class="tienda-item-desc" x-text="premio.descripcion"></span>
+                                    <div class="tienda-item-meta">
+                                        <span class="tienda-costo" x-text="premio.costo_puntos + ' pts'"></span>
+                                        <template x-if="premio.stock !== null">
+                                            <span class="tienda-stock" x-text="'Stock: ' + premio.stock"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-tienda-comprar"
+                                        :disabled="!$store.tienda.puedeComprar(premio)"
+                                        @click="window.tiendaCanjear(premio.id, $event)"
+                                        x-text="$store.tienda.yaObtenido(premio) ? 'Ya lo tienes' : 'Comprar'"></button>
+                            </article>
+                        </template>
                     </div>
                 </div>
-            </template>
-            <template x-for="premio in $store.tienda.premios" :key="premio.id">
-                <div class="tienda-item gochi-card" :class="{ agotado: premio.stock !== null && premio.stock <= 0, obtenido: $store.tienda.yaObtenido(premio) }">
-                    <template x-if="premio.tipo === 'avatar' && premio.avatar_url">
-                        <div class="tienda-item-avatar"><img :src="premio.avatar_url" :alt="premio.nombre" loading="lazy" width="54" height="54"></div>
-                    </template>
-                    <div class="tienda-item-icon" x-show="premio.tipo !== 'avatar' || !premio.avatar_url" x-text="premio.icono"></div>
-                    <div class="tienda-item-info">
-                        <span class="tienda-item-nombre" x-text="premio.nombre"></span>
-                        <span class="tienda-item-desc" x-text="premio.descripcion"></span>
-                        <div class="tienda-item-meta">
-                            <span class="tienda-costo" x-text="premio.costo_puntos + ' pts'"></span>
-                            <template x-if="premio.stock !== null">
-                                <span class="tienda-stock" x-text="'Stock: ' + premio.stock"></span>
-                            </template>
-                        </div>
+
+                <details class="tienda-detalle" x-bind:hidden="!$store.tienda.ahorrando.length">
+                    <summary class="tienda-bloque-titulo">Ahorrando <span x-text="'(' + $store.tienda.ahorrando.length + ')'"></span></summary>
+                    <div class="tienda-grid">
+                        <template x-for="premio in $store.tienda.ahorrando" :key="'ah-' + premio.id">
+                            <article class="tienda-item gochi-card" :class="{ agotado: premio.stock !== null && premio.stock <= 0, obtenido: $store.tienda.yaObtenido(premio) }">
+                                <template x-if="premio.tipo === 'avatar' && premio.avatar_url">
+                                    <div class="tienda-item-avatar"><img :src="premio.avatar_url" :alt="premio.nombre" loading="lazy" width="54" height="54"></div>
+                                </template>
+                                <div class="tienda-item-icon" x-bind:hidden="premio.tipo === 'avatar' && premio.avatar_url" x-text="premio.icono"></div>
+                                <div class="tienda-item-info">
+                                    <span class="tienda-item-nombre" x-text="premio.nombre"></span>
+                                    <span class="tienda-item-desc" x-text="premio.descripcion"></span>
+                                    <div class="tienda-item-meta">
+                                        <span class="tienda-costo" x-text="premio.costo_puntos + ' pts'"></span>
+                                        <template x-if="premio.stock !== null">
+                                            <span class="tienda-stock" x-text="'Stock: ' + premio.stock"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="tienda-progreso" x-bind:hidden="$store.tienda.yaObtenido(premio)" aria-hidden="true">
+                                    <i :style="'width:' + $store.tienda.progreso(premio) + '%'"></i>
+                                </div>
+                                <button type="button" class="btn-tienda-comprar"
+                                        :disabled="!$store.tienda.puedeComprar(premio)"
+                                        @click="window.tiendaCanjear(premio.id, $event)"
+                                        x-text="$store.tienda.yaObtenido(premio) ? 'Ya lo tienes' : 'Faltan ' + $store.tienda.faltan(premio)"></button>
+                            </article>
+                        </template>
                     </div>
-                    <button type="button" class="btn-tienda-comprar"
-                            :disabled="(premio.stock !== null && premio.stock <= 0) || $store.tienda.yaObtenido(premio)"
-                            @click="window.tiendaCanjear(premio.id, $event)"
-                            x-text="$store.tienda.yaObtenido(premio) ? 'Ya lo tienes' : (premio.costo_puntos === 0 ? 'Gratis' : 'Comprar')"></button>
+                </details>
+
+                <p class="gochi-vacio" x-bind:hidden="$store.tienda.cargando || $store.tienda.premios.length">No hay premios disponibles.</p>
+                <p class="chat-empty-error" x-bind:hidden="!$store.tienda.error" x-text="$store.tienda.error" x-cloak></p>
                 </div>
-            </template>
-            <p class="gochi-vacio" x-bind:hidden="$store.tienda.cargando || $store.tienda.premios.length || $store.tienda.error">No hay premios disponibles.</p>
-            <p class="chat-empty-error" x-show="$store.tienda.error" x-text="$store.tienda.error" x-cloak></p>
-        </div>
-        <button type="button" class="tienda-flecha tienda-flecha-next" id="tienda-flecha-next" aria-label="Siguientes premios" aria-controls="tienda-catalogo">
-            <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-chevron-right"></use></svg>
-        </button>
-    </div>
-    <div id="mis-canjeos" class="tienda-mis-canjeos" hidden>
-        <h4 class="tab-content-title-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bag-shopping"></use></svg> Mis Canjes</h4>
-        <div class="tienda-canjeos-lista" x-data="{}">
-            <template x-for="c in $store.tienda.misCanjes" :key="c.id">
-                <div class="tienda-canjeo-item">
-                    <span class="tienda-canjeo-nombre" x-text="c.nombre"></span>
-                    <span class="tienda-canjeo-estado" :class="c.estado" x-text="c.estado"></span>
-                    <span class="tienda-canjeo-fecha" x-text="new Date(c.created_at).toLocaleString('es-ES')"></span>
+
+                <div id="mis-canjeos" class="tienda-mis-canjeos" hidden>
+                    <h4 class="tab-content-title-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-bag-shopping"></use></svg> Mis canjes</h4>
+                    <div class="tienda-canjeos-lista" x-data="{}">
+                        <template x-for="c in $store.tienda.misCanjes" :key="c.id">
+                            <div class="tienda-canjeo-item">
+                                <span class="tienda-canjeo-nombre" x-text="c.nombre"></span>
+                                <span class="tienda-canjeo-estado" :class="c.estado" x-text="c.estado"></span>
+                                <span class="tienda-canjeo-fecha" x-text="window.formatearFecha(c.created_at, 'dia-mes-hora')"></span>
+                            </div>
+                        </template>
+                        <p class="gallery-empty" x-show="!$store.tienda.misCanjes.length">No has canjeado nada aún.</p>
+                    </div>
                 </div>
-            </template>
-            <p class="gallery-empty" x-show="!$store.tienda.misCanjes.length">No has canjeado nada aún.</p>
-        </div>
-    </div>
-    <div class="tienda-acciones" x-data>
-        <button type="button" class="btn-primary" @click="window.tiendaVerMisCanjes()" id="btn-ver-mis-canjeos">Ver mis canjes</button>
-        <button type="button" class="btn-primary btn-muted" @click="window.tiendaVerCatalogo()" id="btn-ver-catalogo" hidden>Volver a la tienda</button>
-    </div>
-</div><div id="tab-info" class="tab-content" hidden role="tabpanel" aria-labelledby="tabbtn-info">
+                <div class="tienda-acciones" x-data>
+                    <button type="button" class="btn-primary" @click="window.tiendaVerMisCanjes()" id="btn-ver-mis-canjeos">Ver mis canjes</button>
+                    <button type="button" class="btn-primary btn-muted" @click="window.tiendaVerCatalogo()" id="btn-ver-catalogo" hidden>Volver a la tienda</button>
+                </div>
+            </div>
+
+            <div id="tab-info" class="tab-content" hidden role="tabpanel" aria-labelledby="tabbtn-info">
                 <h4 class="tab-content-title-sm"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-shield-halved"></use></svg> Reglas del Chat</h4>
                 <ul class="tab-list">
                     <li>Respeto ante todo con la comunidad.</li>
@@ -549,7 +596,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.90.0" defer></script>
+    <script src="main.js?v=1.91.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -774,10 +821,46 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 cargando: false,
                 error: '',
                 verCatalogo: true,
+                saldo: 0,
+                colorActual: null,
+                procesando: 0,
+                get colores() {
+                    return this.premios.filter((p) => p.tipo === 'color');
+                },
+                get coloresMios() {
+                    return this.colores.filter((p) => this.yaObtenido(p));
+                },
+                get otros() {
+                    return this.premios.filter((p) => p.tipo !== 'color');
+                },
+                get alcanza() {
+                    return this.otros.filter((p) => p.costo_puntos <= this.saldo && !this.yaObtenido(p));
+                },
+                get ahorrando() {
+                    return this.otros.filter((p) => p.costo_puntos > this.saldo || this.yaObtenido(p));
+                },
+                faltan(p) {
+                    return Math.max(0, (p && p.costo_puntos || 0) - this.saldo);
+                },
+                progreso(p) {
+                    return Math.min(100, Math.round((this.saldo / Math.max(1, p && p.costo_puntos || 1)) * 100));
+                },
+                puedePagar(p) {
+                    return this.saldo >= (p && p.costo_puntos || 0);
+                },
+                puedeComprar(p) {
+                    if (!p || this.procesando) return false;
+                    if (p.stock !== null && p.stock <= 0) return false;
+                    return !this.yaObtenido(p) && this.puedePagar(p);
+                },
+                tieneColor(p) {
+                    return this.yaObtenido(p);
+                },
                 yaObtenido(premio) {
                     if (!premio || !Array.isArray(this.misCanjes)) return false;
                     return this.misCanjes.some((c) => {
                         if (!c || !['pendiente', 'entregado'].includes(c.estado)) return false;
+                        if (c.premio_id && premio.id) return c.premio_id === premio.id;
                         if (premio.tipo === 'avatar') {
                             return c.tipo === 'avatar' && c.avatar_url && c.avatar_url === premio.avatar_url;
                         }
@@ -786,6 +869,36 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         }
                         return false;
                     });
+                },
+                async tocarColor(p) {
+                    if (!p || this.procesando) return;
+                    const token = localStorage.getItem('comunidad_session_token');
+                    if (!token) {
+                        window.mostrarToast?.('Inicia sesión para elegir color', true);
+                        return;
+                    }
+                    if (!this.tieneColor(p)) {
+                        if (!this.puedePagar(p)) {
+                            window.mostrarToast?.('Te faltan ' + this.faltan(p) + ' pts', true);
+                            return;
+                        }
+                        await window.tiendaCanjear(p.id);
+                        return;
+                    }
+                    this.procesando = p.id;
+                    try {
+                        const res = await window.rpc('equipar_color_apodo', { p_token: token, p_premio_id: p.id }, { error: false });
+                        if (!res.ok || !res.data || !res.data.ok) {
+                            window.mostrarToast?.('No se pudo equipar el color.', true);
+                            return;
+                        }
+                        this.colorActual = res.data.color_apodo;
+                        window.actualizarSesionUsuarioComunidad?.({ color_apodo: res.data.color_apodo });
+                        window.aplicarColoresApodo?.();
+                        window.mostrarToast?.('Color actualizado.');
+                    } finally {
+                        this.procesando = 0;
+                    }
                 }
             });
 
@@ -927,6 +1040,16 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 window.Alpine?.store('pregunta')?.reclamarSilencioso();
                 window.Alpine?.store('sorteoSemanal')?.cargar();
                 window.Alpine?.store('invitar')?.cargar();
+            });
+            // Colores de la tienda: se repintan chat y ranking cuando llegan.
+            document.addEventListener('gocha:colores', () => {
+                const stChat = window.Alpine?.store('chat');
+                if (stChat && Array.isArray(stChat.mensajes)) {
+                    stChat.mensajes = stChat.mensajes.map((m) => Object.assign({}, m, {
+                        color: window.colorApodoDe?.(m.autor) || ''
+                    }));
+                }
+                window.cargarLeaderboard?.();
             });
             const chatForm = document.getElementById('chat-form');
             const chatMensajes = document.getElementById('chat-mensajes');
@@ -1798,6 +1921,7 @@ setInterval(actualizarTypingIndicator, 1200);
                 const fecha = window.formatearFecha(msg.created_at, 'hora');
                 return {
                     id: id,
+                    color: window.colorApodoDe?.(msg.autor) || '',
                     autor: msg.autor || 'Anónimo',
                     mensaje: msg.mensaje || '',
                     created_at: msg.created_at,
@@ -2718,6 +2842,7 @@ if (chatForm) {
                         return {
                             apodo: user.apodo,
                             puntos: user.puntos,
+                            color: window.colorApodoDe?.(user.apodo) || '',
                             medalla: medalla,
                             rangoClave: clave,
                             rangoEmoji: emoji,
@@ -2871,6 +2996,9 @@ if (chatForm) {
                     return;
                 }
                 store.premios = data.premios || [];
+                const sesionActual = window.obtenerSesionUsuarioComunidad?.() || {};
+                store.saldo = Number(sesionActual.puntos) || 0;
+                store.colorActual = sesionActual.color_apodo || null;
                 guardarCache(CACHE_TIENDA, store.premios);
                 // Los canjes permiten marcar en el catálogo lo que ya se posee.
                 if (typeof cargarMisCanjes === 'function') cargarMisCanjes();
@@ -2934,6 +3062,15 @@ if (chatForm) {
                     if (userPointsDisplay) userPointsDisplay.textContent = data.puntos_restantes + ' pts';
                     window.aplicarEstadoRango?.(data.puntos_restantes, data.rango, { silencioso: true });
                     window.actualizarSesionUsuarioComunidad?.({ puntos: data.puntos_restantes });
+                    store.saldo = data.puntos_restantes;
+                }
+                if (data.color_apodo) {
+                    store.colorActual = data.color_apodo;
+                    window.actualizarSesionUsuarioComunidad?.({ color_apodo: data.color_apodo });
+                    window.aplicarColoresApodo?.();
+                }
+                if (data.titulo_equipado) {
+                    window.actualizarSesionUsuarioComunidad?.({ titulo_equipado: data.titulo_equipado });
                 }
                 actualizarIconoEquipado(data.icono);
                 if (data.tipo === 'avatar' && data.avatar_url) {
