@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.91.8] - 2026-11-07
+
+### App 1.17: chat de comunidad limpio
+
+- Dentro de la app, el chat de comunidad ya no muestra la cabecera «Chat Comunitario (Offline / Online)».
+- Fuera el campo de apodo del medio: se rellena solo con la sesión y no ocupa fila.
+- Compose en una sola fila: mensaje a la izquierda, 7TV y enviar (flecha) en la esquina, como el chat de Kick.
+- Recorte del iframe: sin navbar, sin footer y sin el aire superior de la página.
+
 ## [1.91.7] - 2026-11-07
 
 ### Fix: el panel App tapaba la barra

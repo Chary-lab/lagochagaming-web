@@ -232,7 +232,7 @@
             '<button type="button" class="lg-action-btn" data-action="sugerencias">' + icon('bulb') + 'Sugerencias<small>Enviar una idea</small></button>' +
             '<button type="button" class="lg-action-btn" id="lg-admin-row" data-action="admin" hidden>' + icon('lock') + 'Acceso de administración<small>Solo creadores</small></button>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.16 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.17 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -268,6 +268,18 @@
   var chatKickPane = null;
   var chatEmbedCargado = false;
   var chatConPestanas = page === 'home';
+
+  // Refuerzo del alto de la hoja: no depende del CSS remoto cacheado.
+  if (page === 'home' || page === 'cine') {
+    var estiloChat = document.createElement('style');
+    estiloChat.id = 'lg-chat-fix';
+    estiloChat.textContent =
+      '#lg-chat-sheet .lg-sheet{overflow:hidden!important}' +
+      '#lg-chat-sheet .lg-sheet-scroll{flex:1 1 0!important;min-height:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}' +
+      '#lg-chat-sheet .lg-chat-pane{flex:1 1 0!important;min-height:0!important;overflow:hidden!important}' +
+      '#lg-chat-sheet .lg-chat-iframe{height:100%!important;min-height:0!important}';
+    document.head.appendChild(estiloChat);
+  }
 
   if (page === 'home' || page === 'cine') {
     chatSource = document.querySelector('#stream .chat-sidebar') || document.querySelector('.chat-box-cine');
@@ -325,13 +337,28 @@
       try {
         var doc = marco.contentDocument;
         var estilo = doc.createElement('style');
-        estilo.textContent = 'body{background:#060b0a!important;margin:0!important}' +
-          '.navbar,footer,.site-footer,.gochi-breadcrumb-nav,#nav-misiones-panel{display:none!important}' +
-          'main.comunidad-layout{display:block!important;padding:0!important;margin:0!important;max-width:none!important;width:100%!important}' +
-          'main.comunidad-layout > *:not(.chat-box-container){display:none!important}' +
-          '.chat-box-container{height:100vh!important;max-height:none!important;margin:0!important;border-radius:0!important;border:0!important;width:100%!important}' +
-          '.page-layout{padding-top:0!important}';
+        estilo.textContent = 'html,body{background:#060b0a!important;margin:0!important;padding:0!important}' +
+          'header,.navbar,.skip-link,footer,.site-footer,.main-footer,.gochi-breadcrumb-nav,#nav-misiones-panel{display:none!important}' +
+          '.page-shell{padding:0!important;margin:0!important}' +
+          'main,main.comunidad-layout{display:block!important;padding:0!important;margin:0!important;max-width:none!important;width:100%!important}' +
+          'main > *:not(.chat-box-container){display:none!important}' +
+          '.chat-box-container{height:100vh!important;max-height:100vh!important;margin:0!important;padding:0!important;border-radius:0!important;border:0!important;width:100%!important}' +
+          '.chat-header{display:none!important}' +
+          '#chat-form.chat-form.is-visible{display:grid!important;grid-template-columns:minmax(0,1fr) 44px!important;gap:6px!important;align-items:end!important;padding:8px 10px!important}' +
+          '#chat-autor{display:none!important}' +
+          '#streak-badge-chat{display:none!important}' +
+          '#chat-form .chat-campo-wrap{grid-column:1;min-width:0}' +
+          '#chat-form .chat-submit-btn{grid-column:2;width:44px;height:42px;padding:0!important;border-radius:10px!important;font-size:0!important;display:flex;align-items:center;justify-content:center;text-transform:none!important}' +
+          '#chat-form .chat-submit-btn::after{content:"➤";font-size:16px;line-height:1}' +
+          '#chat-form .chat-emote-btn{height:42px}';
         doc.head.appendChild(estilo);
+        try {
+          var autorEmbed = doc.getElementById('chat-autor');
+          if (autorEmbed && !autorEmbed.value) {
+            var sesionEmbed = JSON.parse(doc.defaultView.localStorage.getItem('comunidad_session_usuario') || '{}');
+            if (sesionEmbed && sesionEmbed.apodo) autorEmbed.value = sesionEmbed.apodo;
+          }
+        } catch (e) { /* sin sesión en el iframe */ }
       } catch (e) { /* mismo origen, pero si falla se muestra igual */ }
       marco.style.opacity = '1';
     });
@@ -1650,3 +1677,4 @@
     else if (mq.addListener) mq.addListener(onScheme);
   }
 })();
+
