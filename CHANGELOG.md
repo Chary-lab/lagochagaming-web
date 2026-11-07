@@ -3,6 +3,20 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.82.3] - 2026-11-07
+
+### Una sola fuente de verdad: Supabase
+
+- Se borra la carpeta local `supabase/`: 24 migraciones que **no** eran las aplicadas en producción (contenían cosas que nunca se ejecutaron), 6 de las 12 Edge Functions y la caché del CLI. `supabase db dump` no es alternativa porque exige Docker y aquí no hay.
+- `AGENTS.md` §3, §5.7, §8 y §9.6 reescritos: la base se toca solo contra el proyecto `cydiyaacnyydprgffmkq` con `db query --remote`, y el registro de cada cambio es su entrada en este changelog.
+- La lista de Edge Functions se completa con las 12 reales: `kick-oauth-exchange`, `instagram-feed`, `tiktok-feed`, `app-telemetria` y `kick-setup-temp` faltaban. Comprobado que `kick-setup-temp` no es un resto: es una lápida que responde `410 Gone`.
+- El CLI recrea `supabase/.temp/` en cada orden; queda como caché ignorada y está documentado así.
+
+### Verificación
+
+- `supabase db query --remote` funciona sin la carpeta local: `select count(*) from usuarios_comunidad` → 6 filas, en solo lectura.
+- 87 migraciones y 12 Edge Functions confirmadas por API contra producción.
+
 ## [1.82.2] - 2026-11-07
 
 ### Código muerto fuera

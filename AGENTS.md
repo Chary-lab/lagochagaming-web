@@ -49,9 +49,8 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 | `app/LaGochaGaming.apk` | APK firmado que descarga la web (se reemplaza en cada release de la app) |
 | `app/version.json` | Manifiesto del actualizador de la app (`versionCode`, `versionName`, `sha256`, `size`, `notes`) |
 | `mobile/mobile.css`, `mobile/mobile.js` | Interfaz móvil que la app descarga encima del APK; única carpeta que la app consume en remoto |
-| `supabase/functions/app-descarga/` | Copia local de la Edge Function que cuenta descargas y redirige al APK (no se despliega desde el repo) |
 
-Las migraciones SQL no se versionan en este repo: el historial vive en Supabase. La carpeta local `supabase/` está ignorada.
+La base de datos vive **solo en Supabase**. No se mantiene carpeta `supabase/` con contenido: ni migraciones, ni copias de Edge Functions. El CLI puede recrear `supabase/.temp/` como caché (ignorada por git); eso no es fuente de verdad ni respaldo. El esquema, las RPC, las políticas y las funciones se leen y se cambian contra el proyecto `cydiyaacnyydprgffmkq`.
 
 La navbar vive en `main.js` (`window.NAVBAR_ENLACES`): cada página solo tiene un `<nav id="navbar-root">` vacío y `insertarNavbar()` pinta enlaces, orden y estado activo. Para cambiar el menú, editar solo `main.js`. El estado EN VIVO (`#nav-live-tag` + `.navbar.live-glow`) lo alterna `verificarEstadoStream()`. El desplegable `#nav-app` también se genera ahí: su versión y tamaño del APK están escritos a mano y deben coincidir con `app/version.json` en cada release.
 
@@ -207,7 +206,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 ### 5.7 Kick
 
-- Edge Functions: `kick-oauth-callback` (intercambio OAuth), `kick-comunidad` (acciones `entrar` y `vincular`), `kick-clips` (caché de clips), `kick-chat`, `kick-chat-setup` y `kick-chat-webhook`. Todas con `verify_jwt=false`: validan por su cuenta.
+- Edge Functions: `kick-oauth-callback` (intercambio OAuth), `kick-oauth-exchange`, `kick-comunidad` (acciones `entrar` y `vincular`), `kick-clips` (caché de clips), `kick-chat`, `kick-chat-setup`, `kick-chat-webhook`, `instagram-feed`, `tiktok-feed` y `app-telemetria`. Todas con `verify_jwt=false`: validan por su cuenta. `kick-setup-temp` no es un resto: es una lápida que responde `410 Gone` a una URL antigua de Kick, y se deja tal cual.
 - Tablas: `kick_config`, `kick_sessions`, `kick_oauth_pendientes` (RLS sin políticas, solo `service_role` y RPC) y `kick_clips`.
 - Cliente: `window.KICK_COMUNIDAD` en `main.js` (`vinculado`, `vincular`, `abrirOAuth`, `volverDelHash`). El objetivo del OAuth viaja en `sessionStorage` (`gocha_kick_objetivo`): `entrar` o `vincular`.
 - Registro con Kick: `#btn-registro-kick` del modal de registro usa el mismo OAuth que "Conectar con Kick" y deja `gocha_kick_intencion=registro`. Al volver, `entrarConKickComunidad()` lo convierte en `gocha_ajustes_pendientes=1` y la página abre `Alpine.store('perfil').abrir('ajustes')` para completar género y avatar.
@@ -293,8 +292,10 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.82.2` (Limpieza: fuera `window.gochiUI` y los selectores/atributos sin uso; los arreglos de la 1.82.1 siguen vigentes: `i-solid-plus` en el sprite, `mobile.js` por `rpcRaw`, `app/version.json` sin BOM, `lastmod` al 2026-11-06 y `check.js` con las guardas de `.rpc(`, BOM e iconos. Backend verificado contra producción: las 54 RPC del cliente existen y la auditoría es una sola tabla; `supabase/migrations/` es histórico parcial y **no** refleja la base. Sigue vigente el sorteo con identidad de la 1.82.0: solo con cuenta de comunidad, sin campo de Kick ni verificación en cliente; sin sesión se enlaza a `comunidad`. La migración `20261106120000_sorteo_identidad_y_ganador_unico.sql` **ya está aplicada** (2026-11-06), junto con `20261106121500_sortear_siguiente_permiso_anon.sql`, que concede `sortear_siguiente()` a `anon`; la autorización sigue en `es_admin()`).
-- Aplicar SQL en producción sin MCP: `supabase db query --remote=<ref> -f migracion.sql --yes` (el wrapper `%APPDATA%\npm\supabase.cmd` funciona aunque el `.ps1` esté bloqueado por ExecutionPolicy). Leer el estado con `--read-only` y probar con `DO`/`RAISE` + `ROLLBACK` antes de dar nada por hecho.
+- Versión de esta release: `1.82.3` (Se retira la carpeta local `supabase/`: 24 migraciones que no reflejaban producción, 6 de las 12 Edge Functions y la caché del CLI. La base es la única fuente de verdad y `AGENTS.md` lo deja escrito con el flujo obligatorio de `db query --remote`. `kick-setup-temp` se documenta como lápida `410 Gone`, no como resto. Sigue vigente el sorteo con identidad de la 1.82.0 y los arreglos de 1.82.1/1.82.2).
+- La base se toca **solo** contra Supabase, nunca contra un esquema local. Flujo obligatorio: leer con `supabase db query --remote=cydiyaacnyydprgffmkq --read-only`, probar en una transacción con `DO`/`RAISE` + `ROLLBACK` y aplicar con `--yes`. El wrapper `%APPDATA%\npm\supabase.cmd` funciona aunque el `.ps1` esté bloqueado por ExecutionPolicy.
+- No crear `supabase/migrations/` ni `supabase/functions/` locales. El historial de Supabase no registra lo aplicado con `db query`, así que el registro real de cada cambio es su entrada en `CHANGELOG.md`: qué, por qué y qué se verificó.
+- `supabase db dump` necesita Docker y aquí no hay. El respaldo de la base es el de Supabase (Dashboard → Database → Backups); si no está disponible, se genera un snapshot del esquema por consultas de solo lectura.
 - `VERSION` describe la web. La app lleva su propio `versionName`/`versionCode` en `D:\Apk Gocha`; ambos se publican juntos, pero no comparten número.
 
 ## 9. Pruebas antes de commitear
@@ -326,8 +327,8 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 6. Cambios de base de datos:
    - Preparar el SQL y probarlo en una transacción con un usuario temporal y `ROLLBACK`.
    - Verificar que no queden usuarios, mensajes, likes ni sesiones de prueba.
-   - Aplicarlo en Supabase con una migración nombrada y volver a correr advisors.
-   - No commitear la carpeta local `supabase/` (está ignorada). Documentar el cambio en `CHANGELOG.md`.
+   - Aplicarlo contra el proyecto `cydiyaacnyydprgffmkq` con `supabase db query --remote=... --yes` y revisar los advisors.
+   - No crear ni commitear una carpeta `supabase/` local: la base es Supabase. Documentar el cambio en `CHANGELOG.md`.
 7. Revisar `git diff` y `git status`; no commitear archivos temporales, secretos ni datos de prueba.
 
 ## 10. Flujo de trabajo
