@@ -8000,3 +8000,7 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .nav-app-descargar:hover { transform: translateY(-1px); }
 .nav-app-descargar:active { transform: translateY(0) scale(.985); }
 .nav-app-detalle p b { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: rgba(94,234,212,.14); font-size: .62rem; margin-right: 3px; }
+
+.nav-app-ventajas { margin: 12px 0 10px; padding-top: 11px; border-top: 1px solid var(--border-color); }
+
+.nav-app-descargar, .nav-app-gratis { color: var(--btn-text); }

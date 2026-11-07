@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.91.5] - 2026-11-07
+
+### Separación en el desplegable App
+
+- Línea divisoria y 12 px de aire entre el botón de descarga y las ventajas.
+- El botón y el chip usan `var(--btn-text)`: en modo claro el texto ya contrasta sobre el verde oscuro.
+
 ## [1.91.4] - 2026-11-07
 
 ### Desplegable App con vida
