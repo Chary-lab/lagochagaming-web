@@ -110,6 +110,32 @@ window.escapeAttr = function escapeAttr(s) {
     }[c]));
 };
 
+// Formatos de fecha del sitio: una sola implementación con locale es-ES. Antes
+// había seis copias con opciones sueltas y cualquier cambio de formato se
+// hacía en un sitio distinto cada vez.
+window.formatearFecha = function formatearFecha(valor, estilo = 'completo') {
+    if (!valor) return '';
+    const fecha = valor instanceof Date ? valor : new Date(valor);
+    if (Number.isNaN(fecha.getTime())) return '';
+    switch (estilo) {
+        case 'completo':
+            return fecha.toLocaleString('es-ES');
+        case 'dia-mes':
+            return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+        case 'hora':
+            return fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        case 'mes-anio':
+            return fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+        case 'fecha-corta':
+            return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        case 'dia-mes-hora':
+            return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' · ' +
+                fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        default:
+            return '';
+    }
+};
+
 // Acceso único a localStorage: un solo try/catch, claves centralizadas y
 // variantes para texto plano y para JSON. Los scripts inline que corren antes
 // de main.js (tema) siguen usando localStorage directamente.
@@ -390,6 +416,21 @@ window.rpc = async function rpc(nombre, params, opciones = {}) {
     }
 };
 
+// Edge Functions del proyecto: mismo patrón en todas (POST JSON y cuerpo
+// tolerante a respuestas vacías). No captura errores de red: cada llamada
+// decide su mensaje. Devuelve { ok, status, datos }.
+window.llamarEdge = async function llamarEdge(nombre, cuerpo, opciones = {}) {
+    const cabeceras = { 'Content-Type': 'application/json' };
+    if (opciones.token) cabeceras.Authorization = 'Bearer ' + opciones.token;
+    const res = await fetch(SUPABASE_URL + '/functions/v1/' + nombre, {
+        method: 'POST',
+        headers: cabeceras,
+        body: JSON.stringify(cuerpo)
+    });
+    const datos = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, datos };
+};
+
 window.esAdminActual = async function esAdminActual() {
     if (!window.supabase) return false;
     const token = almacen.texto('comunidad_session_token') || '';
@@ -660,7 +701,6 @@ window.vueltaKickApp = function vueltaKickApp(objetivo) {
 };
 
 window.KICK_COMUNIDAD = (function () {
-    const FN = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1';
     const CLAVE_OBJETIVO = 'gocha_kick_objetivo';
 
     function sesion() {
@@ -689,12 +729,7 @@ window.KICK_COMUNIDAD = (function () {
             }
             sessionStorage.setItem(CLAVE_OBJETIVO, objetivo);
             const vuelta = window.vueltaKickApp(objetivo);
-            const res = await fetch(FN + '/kick-chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ accion: 'entrar', vuelta })
-            });
-            const datos = await res.json().catch(() => ({}));
+            const { datos } = await window.llamarEdge('kick-chat', { accion: 'entrar', vuelta });
             if (datos.url) {
                 location.href = datos.url;
                 return false;
@@ -715,12 +750,8 @@ window.KICK_COMUNIDAD = (function () {
         const tokenKick = almacen.texto('gocha_kick_token');
         if (!tokenKick) return abrirOAuth('vincular');
         try {
-            const res = await fetch(FN + '/kick-comunidad', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tokenKick },
-                body: JSON.stringify({ accion: 'vincular', token: tokenComunidad })
-            });
-            const datos = await res.json().catch(() => ({}));
+            const res = await window.llamarEdge('kick-comunidad', { accion: 'vincular', token: tokenComunidad }, { token: tokenKick });
+            const datos = res.datos;
             if (res.status === 401) {
                 almacen.borrar('gocha_kick_token');
                 return abrirOAuth('vincular');
@@ -901,12 +932,8 @@ window.entrarConKickCuenta = async function entrarConKickCuenta(opciones) {
         let res;
         let datos;
         try {
-            res = await fetch(SUPABASE_URL + '/functions/v1/kick-comunidad', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tokenKick },
-                body: JSON.stringify(Object.assign({ accion: 'entrar' }, extra))
-            });
-            datos = await res.json().catch(() => ({}));
+            res = await window.llamarEdge('kick-comunidad', Object.assign({ accion: 'entrar' }, extra), { token: tokenKick });
+            datos = res.datos;
         } catch (e) {
             return { error: 'sin_conexion', mensaje: 'No se pudo conectar con la comunidad.' };
         }
@@ -2714,9 +2741,7 @@ document.addEventListener('alpine:init', () => {
         errorDesc: '',
 
         fecha(valor) {
-            if (!valor) return '';
-            const d = new Date(valor);
-            return Number.isNaN(d.getTime()) ? '' : d.toLocaleString('es-ES');
+            return window.formatearFecha(valor, 'completo');
         },
 
         hace(valor) {
@@ -3244,7 +3269,7 @@ window.CHAT_KICK = {
         if (dia !== ultimoDiaKick) {
             const separador = document.createElement('div');
             separador.className = 'chat-kick-dia';
-            separador.textContent = new Date(horaMs).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+            separador.textContent = window.formatearFecha(horaMs, 'dia-mes');
             fila.appendChild(separador);
             ultimoDiaKick = dia;
             ultimoAutorKick = '';
@@ -3286,7 +3311,7 @@ window.CHAT_KICK = {
         hora.className = 'chat-kick-hora';
         if (!Number.isNaN(fecha.getTime())) {
             hora.dateTime = fecha.toISOString();
-            hora.textContent = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            hora.textContent = window.formatearFecha(fecha, 'hora');
         }
         cabeza.appendChild(hora);
 
@@ -3974,10 +3999,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function mesDesde(iso) {
-    if (!iso) return '';
-    const fecha = new Date(iso);
-    if (Number.isNaN(fecha.getTime())) return '';
-    return fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    return window.formatearFecha(iso, 'mes-anio');
   }
 
   function setNavExpanded(abierto) {
@@ -4574,9 +4596,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return tonos[String(estado || '').toLowerCase()] || 'neutro';
       },
       fechaCanje(iso) {
-        const fecha = new Date(iso);
-        if (Number.isNaN(fecha.getTime())) return '';
-        return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return window.formatearFecha(iso, 'fecha-corta');
       },
       async cargarCanjes() {
         const token = almacen.texto('comunidad_session_token');
@@ -4665,10 +4685,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return clave.charAt(0).toUpperCase() + clave.slice(1).replace(/_/g, ' ');
       },
       fechaPunto(iso) {
-        const fecha = new Date(iso);
-        if (Number.isNaN(fecha.getTime())) return '';
-        return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' · ' +
-               fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        return window.formatearFecha(iso, 'dia-mes-hora');
       },
       avatarPorGenero() {
         if (this.genero === 'femenino') return '/img/avatars/avatar-female.webp';
@@ -4701,12 +4718,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (!ok) return;
         try {
-          const res = await fetch(SUPABASE_URL + '/functions/v1/kick-comunidad', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ accion: 'desvincular', token })
-          });
-          const datos = await res.json().catch(() => ({}));
+          const res = await window.llamarEdge('kick-comunidad', { accion: 'desvincular', token });
+          const datos = res.datos;
           if (!res.ok || !datos.ok) {
             this.error = datos.error || 'No se pudo desvincular Kick.';
             return;

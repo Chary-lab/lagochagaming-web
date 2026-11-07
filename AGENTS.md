@@ -59,7 +59,9 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 ## 4. Convenciones de JavaScript
 
 - Scripts clásicos, sin módulos ES. Para helpers usados desde HTML/Alpine, exponer en `window` (`window.escapeHtml`, `window.abrirLightboxDesdeTarjeta`, etc.).
-- Escapar SIEMPRE datos no confiables antes de `innerHTML`: usar `escapeHtml`/`escapeAttr` o `textContent`. Nunca interpolar apodos, mensajes, títulos, URLs ni emojis sin escapar.
+- Escapar SIEMPRE datos no confiables antes de `innerHTML`: usar `escapeHtml`/`escapeAttr` o `textContent`. Nunca interpolar apodos, mensajes, títulos, URLs ni emojis sin escapar. `escapeHtml` es la única implementación: `mobile.js` la reutiliza.
+- Llamar a las Edge Functions SIEMPRE por `window.llamarEdge(nombre, cuerpo, { token })`: devuelve `{ ok, status, datos }` y evita repetir el `fetch` con su `json().catch()`. No añadir `fetch` sueltos a `/functions/v1/`.
+- Fechas SIEMPRE por `window.formatearFecha(valor, estilo)` con los estilos `completo`, `dia-mes`, `hora`, `mes-anio`, `fecha-corta` y `dia-mes-hora`. No volver a escribir `toLocaleDateString` sueltos.
 - **Nada de diálogos del navegador:** prohibido `alert()`, `confirm()` y `prompt()`. Los avisos van con `mostrarToast()` o el store `toast`. Las confirmaciones van con `await window.confirmarAccion({ titulo, mensaje, textoConfirmar, tono, icono })` (tonos `peligro`, `aviso`, `info` y `exito`) o con `window.mostrarConfirmacionModal(...)`. No crear otro modal de confirmación por página.
 - Preferir `textContent` y creación de nodos a `innerHTML` cuando sea posible.
 - No usar `eval`, `new Function` ni `document.write`.
@@ -292,7 +294,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.82.3` (Se retira la carpeta local `supabase/`: 24 migraciones que no reflejaban producción, 6 de las 12 Edge Functions y la caché del CLI. La base es la única fuente de verdad y `AGENTS.md` lo deja escrito con el flujo obligatorio de `db query --remote`. `kick-setup-temp` se documenta como lápida `410 Gone`, no como resto. Sigue vigente el sorteo con identidad de la 1.82.0 y los arreglos de 1.82.1/1.82.2).
+- Versión de esta release: `1.82.4` (Una puerta para las Edge Functions (`window.llamarEdge`) y otra para las fechas (`window.formatearFecha`, 6 estilos verificados). `mobile.js` reutiliza `escapeHtml`. Sin carpeta local de Supabase: la base es la única fuente de verdad. Sigue vigente el sorteo con identidad de la 1.82.0 y los arreglos de 1.82.1/1.82.2/1.82.3).
 - La base se toca **solo** contra Supabase, nunca contra un esquema local. Flujo obligatorio: leer con `supabase db query --remote=cydiyaacnyydprgffmkq --read-only`, probar en una transacción con `DO`/`RAISE` + `ROLLBACK` y aplicar con `--yes`. El wrapper `%APPDATA%\npm\supabase.cmd` funciona aunque el `.ps1` esté bloqueado por ExecutionPolicy.
 - No crear `supabase/migrations/` ni `supabase/functions/` locales. El historial de Supabase no registra lo aplicado con `db query`, así que el registro real de cada cambio es su entrada en `CHANGELOG.md`: qué, por qué y qué se verificó.
 - `supabase db dump` necesita Docker y aquí no hay. El respaldo de la base es el de Supabase (Dashboard → Database → Backups); si no está disponible, se genera un snapshot del esquema por consultas de solo lectura.

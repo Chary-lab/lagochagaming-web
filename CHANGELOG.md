@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.82.4] - 2026-11-07
+
+### Una puerta para las Edge Functions y otra para las fechas
+
+- `window.llamarEdge(nombre, cuerpo, { token })` sustituye los 4 bloques de `fetch` a `/functions/v1/` de `main.js` (login de Kick, vincular, entrar y desvincular). Devuelve `{ ok, status, datos }` y mantiene el `json().catch()` tolerante a respuestas vacías. La constante `FN` quedó sin uso y se retira.
+- `window.formatearFecha(valor, estilo)` centraliza las **6** copias de formato: `completo`, `dia-mes`, `hora`, `mes-anio`, `fecha-corta` y `dia-mes-hora`. Comprobado en Node que las 6 salidas son idénticas a las anteriores, incluido el separador `·` de U+00B7, el vacío para valores nulos y el vacío para fechas inválidas.
+- `mobile/mobile.js` deja de tener su propio mapa de escapado: `esc` usa `window.escapeHtml`, con el mapa local solo como respaldo si la app cargara el archivo sin la página.
+- `AGENTS.md` §4 fija las tres reglas: escapado único, `llamarEdge` para Edge Functions y `formatearFecha` para fechas.
+
 ## [1.82.3] - 2026-11-07
 
 ### Una sola fuente de verdad: Supabase

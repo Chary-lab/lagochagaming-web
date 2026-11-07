@@ -429,11 +429,13 @@
     return !!localStorage.getItem(SESSION.token) && !!localStorage.getItem(SESSION.nick);
   }
 
-  function esc(value) {
+  // Una sola verdad de escapado: el helper de main.js. El respaldo solo actúa
+  // si la app cargara mobile.js sin la página del sitio.
+  var esc = window.escapeHtml || function (value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
     });
-  }
+  };
 
   function rankData(user) {
     try {
