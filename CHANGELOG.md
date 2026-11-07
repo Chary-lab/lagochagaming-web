@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.91.4] - 2026-11-07
+
+### Desplegable App con vida
+
+- Mini móvil animado en la cabecera: punto EN VIVO que late, burbujas de chat que respiran y flotación suave.
+- Botón de descarga con brillo al pasar el ratón, elevación y pulsación; anillo de foco visible.
+- Acordeones con entrada suave, hover en el título y números en círculo.
+- Glow superior en el panel y sombra interior de acento.
+- En móvil el panel limita su alto y hace scroll interno.
+- Todo respeta `prefers-reduced-motion`.
+
 ## [1.91.3] - 2026-11-07
 
 ### Desplegable App del navbar

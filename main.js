@@ -1377,26 +1377,33 @@ window.insertarNavbar = function insertarNavbar() {
                 <span>App</span>
             </button>
             <div class="nav-app-panel" id="nav-app-panel" hidden :hidden="$store.ui.menuNav !== 'app'">
-                <div class="nav-app-cabeza">
-                    <span class="nav-app-logo" aria-hidden="true">📱</span>
-                    <div class="nav-app-datos">
-                        <strong>Gochita App</strong>
-                        <small>Android 7+ · 4,2 MB</small>
+                <div class="nav-app-hero">
+                    <div class="nav-app-phone" aria-hidden="true">
+                        <span class="nav-app-vivo"><i></i>VIVO</span>
+                        <span class="nav-app-burbuja"></span>
+                        <span class="nav-app-burbuja"></span>
+                        <span class="nav-app-burbuja"></span>
                     </div>
-                    <span class="nav-app-gratis">Gratis</span>
+                    <div class="nav-app-hero-texto">
+                        <strong>Gochita App</strong>
+                        <small>El directo, el chat y los puntos, sin abrir el navegador.</small>
+                        <span class="nav-app-gratis">Gratis · Android 7+</span>
+                    </div>
                 </div>
                 <a class="nav-app-descargar" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=1.15&o=web" rel="noopener" data-umami-event="descarga-apk">
                     <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
-                    Descargar APK
+                    <span>Descargar APK</span>
+                    <em>4,2 MB</em>
                 </a>
-                <div class="nav-app-chips">
-                    <span>v1.15</span>
-                    <span>Sin anuncios</span>
-                    <span>Se actualiza sola</span>
-                </div>
                 <ul class="nav-app-ventajas">
-                    <li><span><strong>Aviso de directo</strong>: te notifico cuando empiezo a emitir.</span></li>
-                    <li><span><strong>Chat y puntos</strong> cómodos, sin la barra del navegador.</span></li>
+                    <li>
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>
+                        <span><strong>Aviso de directo</strong>: te notifico cuando empiezo a emitir.</span>
+                    </li>
+                    <li>
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-comments"></use></svg>
+                        <span><strong>Chat y puntos</strong> cómodos, sin la barra del navegador.</span>
+                    </li>
                 </ul>
                 <details class="nav-app-detalle" open>
                     <summary>Cómo se instala <span>3 pasos</span></summary>
@@ -1408,7 +1415,7 @@ window.insertarNavbar = function insertarNavbar() {
                     <summary>¿Sale aviso de Play Protect? <span>es normal</span></summary>
                     <p>Avisa de cualquier app que no venga de Play Store. La nuestra está firmada y se descarga del dominio oficial.</p>
                 </details>
-                <p class="nav-app-nota">iPhone / iPad: aún no disponible.</p>
+                <p class="nav-app-nota">Versión 1.15 · iPhone / iPad: aún no disponible.</p>
             </div>
         </div>`;
 

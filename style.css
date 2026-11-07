@@ -7925,17 +7925,11 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 
 /* App del navbar: ficha de descarga compacta */
 .nav-app-panel { width: 320px; }
-.nav-app-cabeza { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.nav-app-logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-color), #3ddc97); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex: 0 0 auto; }
-.nav-app-datos { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .nav-app-datos strong { font-size: 0.9rem; }
-.nav-app-datos small { font-size: 0.7rem; color: var(--text-muted); }
 .nav-app-gratis { margin-left: auto; font-size: 0.58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #04120c; background: var(--accent-color); border-radius: 999px; padding: 3px 8px; }
 .nav-app-descargar { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px; border-radius: 10px; background: var(--accent-color); color: #04120c; font-weight: 800; font-size: 0.84rem; text-decoration: none; }
 .nav-app-descargar:hover { filter: brightness(1.06); }
 .nav-app-descargar .icon { width: 16px; height: 16px; }
-.nav-app-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 9px 0 10px; }
-.nav-app-chips span { font-size: 0.62rem; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border-color); border-radius: 999px; padding: 2px 8px; }
 .nav-app-ventajas { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
 .nav-app-ventajas li { display: flex; gap: 6px; font-size: 0.74rem; color: var(--text-muted); line-height: 1.35; }
 .nav-app-ventajas li::before { content: "✓"; color: var(--accent-color); font-weight: 900; flex: 0 0 auto; }
@@ -7949,3 +7943,60 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .nav-app-detalle p { margin: 0 0 7px; font-size: 0.72rem; color: var(--text-muted); line-height: 1.45; }
 .nav-app-detalle p:last-child { margin-bottom: 10px; }
 .nav-app-detalle b { color: var(--accent-color); font-weight: 800; }
+
+/* App del navbar: hero animado, brillo del botón y acordeones vivos */
+.nav-app-panel { position: relative; overflow: hidden; }
+.nav-app-panel > * { position: relative; z-index: 1; }
+.nav-app-panel::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 140px; background: radial-gradient(150px 90px at 16% 0%, rgba(34,230,165,.20), transparent 70%); pointer-events: none; }
+.nav-app-hero { position: relative; display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.nav-app-phone { position: relative; flex: 0 0 auto; width: 58px; height: 96px; border-radius: 14px; border: 1px solid #2a4a3e; background: linear-gradient(170deg, #142a23, #0a1713); padding: 12px 6px 6px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+.nav-app-phone::before { content: ""; position: absolute; top: 4px; left: 50%; transform: translateX(-50%); width: 18px; height: 2px; border-radius: 99px; background: #2a4a3e; }
+.nav-app-vivo { display: inline-flex; align-items: center; gap: 3px; font-size: 0.42rem; font-weight: 900; letter-spacing: 0.06em; color: #ff5470; }
+.nav-app-vivo i { width: 4px; height: 4px; border-radius: 50%; background: #ff5470; animation: lgVivo 1.6s ease-in-out infinite; }
+.nav-app-burbuja { display: block; height: 6px; border-radius: 3px; background: #1d3b31; margin-top: 5px; }
+.nav-app-burbuja:nth-of-type(2) { width: 80%; animation: lgBurbuja 2.4s ease-in-out infinite; }
+.nav-app-burbuja:nth-of-type(3) { width: 92%; animation: lgBurbuja 2.4s ease-in-out 0.5s infinite; }
+.nav-app-burbuja:nth-of-type(4) { width: 64%; animation: lgBurbuja 2.4s ease-in-out 1s infinite; }
+.nav-app-hero-texto { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.nav-app-hero-texto strong { font-family: var(--font-display); font-size: 1rem; }
+.nav-app-hero-texto small { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+.nav-app-gratis { align-self: flex-start; margin-top: 2px; font-size: 0.56rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #04120c; background: var(--accent-color); border-radius: 999px; padding: 3px 8px; }
+.nav-app-descargar { position: relative; overflow: hidden; display: flex; align-items: center; gap: 8px; padding: 11px 13px; border-radius: 10px; background: var(--accent-color); color: #04120c; font-weight: 900; font-size: 0.85rem; text-decoration: none; }
+.nav-app-descargar em { margin-left: auto; font-style: normal; font-size: 0.7rem; font-weight: 800; opacity: 0.7; }
+.nav-app-descargar::after { content: ""; position: absolute; top: 0; left: -40%; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent); transform: skewX(-18deg); opacity: 0; }
+.nav-app-descargar:hover::after { opacity: 1; animation: lgBrillo 0.65s ease; }
+.nav-app-descargar:hover { filter: brightness(1.05); }
+.nav-app-descargar:active { transform: scale(0.985); }
+.nav-app-descargar:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.nav-app-ventajas li { align-items: flex-start; }
+.nav-app-ventajas li::before { content: none; }
+.nav-app-ventajas .icon { width: 12px; height: 12px; color: var(--accent-color); margin-top: 3px; flex: 0 0 auto; }
+.nav-app-detalle summary:hover { color: var(--accent-color); }
+.nav-app-detalle summary:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; border-radius: 4px; }
+.nav-app-detalle p { animation: lgAcordeon 0.18s ease; }
+@keyframes lgVivo { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@keyframes lgBurbuja { 0%, 100% { opacity: 0.45; transform: translateX(0); } 50% { opacity: 1; transform: translateX(2px); } }
+@keyframes lgBrillo { from { left: -40%; } to { left: 120%; } }
+@keyframes lgAcordeon { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+    .nav-app-vivo i, .nav-app-burbuja, .nav-app-detalle p { animation: none; }
+    .nav-app-descargar::after { display: none; }
+}
+
+/* Ajustes de vida: móvil algo mayor, burbujas legibles y flotación suave */
+.nav-app-panel { box-shadow: inset 0 1px 0 rgba(94,234,212,.35), 0 18px 40px rgba(0,0,0,.45); }
+.nav-app-phone { width: 64px; height: 104px; border-color: #2f5a4a; animation: lgFlota 4.5s ease-in-out infinite; }
+.nav-app-phone::after { content: ""; position: absolute; inset: 0; background: radial-gradient(40px 30px at 70% 15%, rgba(94,234,212,.22), transparent 70%); pointer-events: none; }
+.nav-app-vivo { font-size: 0.46rem; }
+.nav-app-burbuja { background: rgba(94,234,212,.22); }
+.nav-app-burbuja:nth-of-type(2) { background: rgba(94,234,212,.45); }
+.nav-app-descargar { padding: 12px 13px; font-size: 0.86rem; }
+.nav-app-descargar .icon { width: 17px; height: 17px; }
+.nav-links .nav-app-panel { max-height: calc(100vh - 150px); overflow-y: auto; }
+@keyframes lgFlota { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .nav-app-phone { animation: none; } }
+
+.nav-app-descargar { transition: transform .16s ease, filter .16s ease; }
+.nav-app-descargar:hover { transform: translateY(-1px); }
+.nav-app-descargar:active { transform: translateY(0) scale(.985); }
+.nav-app-detalle p b { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: rgba(94,234,212,.14); font-size: .62rem; margin-right: 3px; }
