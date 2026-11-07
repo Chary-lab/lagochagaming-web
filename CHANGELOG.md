@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.89.0] - 2026-11-07
+
+### Logros propios
+
+- Tablas `logros` (10 catálogo) y `logros_usuario` (uno por cuenta y logro). RLS activo sin políticas.
+- `evaluar_logros(usuario)` calcula los que cumple con datos reales: fotos, mensajes, saludos, racha, referidos pagados, antigüedad, Kick vinculado y top 3 del mes (este último exige 100 pts en el mes, para no regalarlo).
+- Cada logro entrega puntos una sola vez (`puntos_acciones.logro` con el importe como override) y es idempotente: la segunda evaluación devuelve `nuevos: []`.
+- `mis_logros(token)` evalúa y devuelve el perfil propio; `logros_de(apodo)` es público para el perfil ajeno. Cron diario `gocha-logros` (05:30) repasa hasta 500 cuentas.
+- UI: sección «Logros» en el panel de perfil, con emoji, nombre y descripción al pasar el ratón. Al abrir el perfil propio se evalúan al momento y sale toast si hay alguno nuevo.
+
+Probado en transacción: primera evaluación entrega 4 logros (primera foto, semana seguida, veterano, Kick), la segunda no repite y `logros_de` los lista.
+
 ## [1.88.0] - 2026-11-07
 
 ### Referidos

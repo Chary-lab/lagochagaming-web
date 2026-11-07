@@ -4088,6 +4088,18 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             </section>
 
+            <section class="mp-seccion" x-show="$store.perfil.logros.length">
+              <h5 class="mp-seccion-titulo">Logros</h5>
+              <div class="mp-logros">
+                <template x-for="l in $store.perfil.logros" :key="l.clave">
+                  <span class="mp-logro" x-bind:title="l.descripcion">
+                    <span class="mp-logro-emoji" aria-hidden="true" x-text="l.emoji"></span>
+                    <span x-text="l.nombre"></span>
+                  </span>
+                </template>
+              </div>
+            </section>
+
             <section class="mp-seccion" x-show="$store.perfil.usuario.bio">
               <h5 class="mp-seccion-titulo">Bio</h5>
               <p class="mp-bio" x-text="$store.perfil.usuario.bio"></p>
@@ -4465,6 +4477,7 @@ document.addEventListener('DOMContentLoaded', () => {
       error: '',
       usuario: {},
       estadisticas: {},
+      logros: [],
       historial: [],
       historialEstado: 'inicial',
       canjes: [],
@@ -4828,6 +4841,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.error = '';
         this.usuario = {};
         this.estadisticas = {};
+        this.logros = [];
         // El historial es del token, no del perfil que se mira: se limpia para
         // que no se muestre el del visitante bajo el perfil de otra persona.
         this.historial = [];
@@ -4848,6 +4862,12 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           this.usuario = data;
           const apodoPedido = data.apodo;
+          window.rpc('logros_de', { p_apodo: data.apodo }, { error: false })
+            .then((res) => {
+              if (res.ok && res.data && res.data.ok && this.publico && this.usuario && this.usuario.apodo === apodoPedido) {
+                this.logros = res.data.logros || [];
+              }
+            });
           window.rpc('estadisticas_perfil_comunidad', { p_apodo: data.apodo }, { error: false })
             .then((res) => {
               if (!res.ok) {
@@ -4898,6 +4918,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Abrir con lo que ya hay en la sesión: el panel no espera a la red.
         let u = window.obtenerSesionUsuarioComunidad() || {};
         this.aplicarPerfil(u);
+        this.logros = [];
+        if (u.apodo) {
+          window.rpc('mis_logros', { p_token: token }, { error: false }).then((res) => {
+            if (!res.ok || !res.data || !res.data.ok) return;
+            this.logros = res.data.logros || [];
+            const nuevos = res.data.nuevos || [];
+            if (nuevos.length) {
+              window.mostrarToast?.('🏅 Nuevo logro: ' + nuevos.map((n) => n.nombre).join(', '));
+              window.refrescarPuntosDia?.();
+            }
+          });
+        }
         if (avataresCache) this.avatares = avataresCache;
         this.cargando = !u.apodo;
 
