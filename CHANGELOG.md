@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.89.1] - 2026-11-07
+
+### Muro: cupo por IP
+
+- El límite de `publicar_saludo_muro` era solo por apodo (3/hora y 1/minuto), así que un bot lo saltaba cambiando de nombre. Ahora también cuenta por IP.
+- `muro_saludos` gana `ip_hash` (md5 de `x-forwarded-for`) e índice `(ip_hash, created_at desc)`.
+- 3 saludos por hora y 1 por minuto por IP, con `pg_advisory_xact_lock` para que dos peticiones simultáneas no lo salten.
+- El límite por cuenta (5/hora) y por apodo se mantienen; el muro avisa con los mismos códigos de siempre, así que el cliente no cambia.
+- Probado en transacción con 5 envíos desde la misma IP y nombres distintos: pasan 3, los otros dos devuelven `limite_hora`.
+
 ## [1.89.0] - 2026-11-07
 
 ### Logros propios
