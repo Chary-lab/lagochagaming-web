@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.91.2] - 2026-11-07
+
+### App 1.15: aviso de directo
+
+- La app comprueba cada 15 minutos si el canal está en directo y avisa con una notificación local al empezar. Sin Firebase ni servidor propio.
+- Ajuste **Aviso de directo** en la hoja de Ajustes de la app, activado por defecto; pide el permiso de notificaciones la primera vez.
+- Android: `LiveCheckWorker` (WorkManager), canal `lg_directo`, permiso `POST_NOTIFICATIONS` y puente `setLiveAlerts`/`liveAlertsEnabled`.
+- `versionCode` 18, `versionName` 1.15.
+
+## [1.91.1] - 2026-11-07
+
+### Tienda: equipar y quitar
+
 - **Mis compras** en Mi cuenta: lista lo que tienes y deja **Equipar/Quitar** (color, título, marco, icono y avatar) con `equipar_canje`.
 - Marco y título ya se dibujan: aro con brillo en el avatar del perfil y del ranking, y etiqueta junto al apodo en perfil, chat, ranking y muro.
 

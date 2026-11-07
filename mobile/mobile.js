@@ -24,7 +24,7 @@
   }
 
   var originalTitle = document.title;
-  var DEFAULTS = { theme: 'auto', text: 'normal', motion: false, haptics: true, keepAwake: true, dataSaver: false };
+  var DEFAULTS = { theme: 'auto', text: 'normal', motion: false, haptics: true, keepAwake: true, dataSaver: false, liveAlerts: true };
   var settings = {};
   try {
     var saved = JSON.parse(localStorage.getItem('lg_mobile_settings') || '{}');
@@ -215,6 +215,7 @@
             '<div class="lg-row"><div class="lg-row-main"><div class="lg-row-title">Mantener pantalla encendida</div><div class="lg-row-sub">Evita que se apague en stream y cine</div></div><button type="button" class="lg-switch" data-toggle="keepAwake" aria-label="Mantener pantalla encendida"></button></div>' +
             '<div class="lg-row"><div class="lg-row-main"><div class="lg-row-title">Reducir animaciones</div><div class="lg-row-sub">Interfaz más rápida y sobria</div></div><button type="button" class="lg-switch" data-toggle="motion" aria-label="Reducir animaciones"></button></div>' +
             '<div class="lg-row"><div class="lg-row-main"><div class="lg-row-title">Ahorro de datos</div><div class="lg-row-sub">Oculta feeds sociales y chat incrustado</div></div><button type="button" class="lg-switch" data-toggle="dataSaver" aria-label="Ahorro de datos"></button></div>' +
+            '<div class="lg-row"><div class="lg-row-main"><div class="lg-row-title">Aviso de directo</div><div class="lg-row-sub">Te aviso cuando La Gocha empiece a emitir</div></div><button type="button" class="lg-switch" data-toggle="liveAlerts" aria-label="Aviso de directo"></button></div>' +
           '</div></div>' +
           '<div class="lg-settings-group"><h3>Aplicación</h3><div class="lg-card">' +
             '<button type="button" class="lg-action-btn" data-action="share">' + icon('share') + 'Compartir LaGochaGaming</button>' +
@@ -231,7 +232,7 @@
             '<button type="button" class="lg-action-btn" data-action="sugerencias">' + icon('bulb') + 'Sugerencias<small>Enviar una idea</small></button>' +
             '<button type="button" class="lg-action-btn" id="lg-admin-row" data-action="admin" hidden>' + icon('lock') + 'Acceso de administración<small>Solo creadores</small></button>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.14 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.15 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -1249,6 +1250,7 @@
       settings[key] = !settings[key];
       saveSettings();
       sincronizarAjustesWeb(key);
+      if (key === 'liveAlerts') native('setLiveAlerts', !!settings[key]);
       applyAll();
       syncSettingsUI();
       haptic();
@@ -1329,6 +1331,14 @@
   syncTopbarAccount();
   syncTopbarMeta();
   setInterval(syncTopbarMeta, 8000);
+  if (window.LaGochaNative) {
+    if (settings.liveAlerts === false) {
+      native('setLiveAlerts', false);
+    } else if (!localStorage.getItem('lg_live_perm_asked')) {
+      localStorage.setItem('lg_live_perm_asked', '1');
+      native('setLiveAlerts', true);
+    }
+  }
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
       window.__lgReady = true;

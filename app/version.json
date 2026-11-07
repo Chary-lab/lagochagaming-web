@@ -1,8 +1,8 @@
 {
-    "versionCode":  17,
-    "versionName":  "1.14",
-    "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256":  "82b77d834fbb7d4cec6350a38825493f53ee35c8d6a7c941df72634c745f7a0f",
-    "size":  4047286,
-    "notes":  "Interfaz movil sincronizada con la web: tamano de texto, animaciones y ahorro de datos. Limpieza interna y version unica."
+    "versionCode": 18,
+    "versionName": "1.15",
+    "apkUrl": "https://lagochagaming.com/app/LaGochaGaming.apk",
+    "sha256": "052a47a4542d7a9dea11f451e1cfa121daefe4ec0964615d777b8086af361aea",
+    "size": 4366831,
+    "notes": "Aviso de directo: la app te notifica cuando empieza el stream. Actívalo o desactívalo en Ajustes."
 }
