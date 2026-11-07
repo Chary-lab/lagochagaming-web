@@ -3,6 +3,23 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.84.1] - 2026-11-07
+
+### Auditoría: endurecimiento de base y arreglo de subida
+
+**Base de datos (aplicado contra `cydiyaacnyydprgffmkq`, probado en transacción con `ROLLBACK` antes)**
+
+- `owner_marcar_sugerencia` y `owner_eliminar_sugerencia` usaban `es_admin()`: un `admin` podía leer, marcar y borrar el buzón, que es exclusivo de `owner`. Ahora exigen `es_owner()`, como dice la regla del proyecto.
+- `REVOKE ALL ON app_descargas FROM anon, authenticated`: residuo de un `GRANT ALL`. Incluía `TRUNCATE`, que RLS no filtra. La tabla queda solo para `service_role` vía Edge Function y la RPC de estadísticas.
+- `REVOKE ALL ON comunidad_sesiones FROM anon, authenticated`: el token solo se lee dentro de RPC `SECURITY DEFINER`. Sin acceso directo, una fuga de tabla no se puede explotar desde PostgREST.
+- `DROP POLICY "Ver fotos del bucket"` en `storage.objects`: el bucket es público y las fotos se sirven por URL pública, así que la política solo servía para **listar** el bucket, incluidas fotos pendientes y rechazadas. Sin ella se sigue viendo todo lo aprobado.
+
+**Cliente**
+
+- `galeria.html`: la comprobación de sesión estaba después de subir el archivo a Storage. Un visitante sin sesión gastaba una subida de hasta 5 MB y se quedaba con un error. Ahora se comprueba antes de leer el archivo; `guardar()` mantiene su comprobación como respaldo.
+
+**Verificado**: `check.js`, `node --check main.js`, `smoke.js` y consultas de comprobación en Supabase (funciones con `es_owner`, 0 grants para `anon`/`authenticated`, 0 políticas de listado).
+
 ## [1.84.0] - 2026-11-06
 
 ### Home: los dos últimos vídeos de YouTube, uno por canal
