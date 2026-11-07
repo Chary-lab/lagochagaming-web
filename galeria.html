@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-87m3M5D2TD6Ju9VQif5g+lCVIMVLBi+6CUrGi9VMZ6s=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-YbbUM6dPWk2WqYfVXiuIDqIpYSKhU3/ga/FOeZHRa3Y=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galería | LaGochaGaming</title>
     <meta name="description" content="Galería de fotos de la comunidad de LaGochaGaming. Sube tus imágenes, vota las más populares y forma parte del top.">
@@ -27,7 +27,7 @@
     <meta name="twitter:image" content="https://lagochagaming.com/img/3.jpg">
     <meta name="twitter:image:alt" content="Galería de fotos de la comunidad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.84.2">
+    <link rel="stylesheet" href="style.css?v=1.85.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -89,6 +89,19 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 </button>
             </div>
         </div>
+
+        <!-- RETO DE LA SEMANA -->
+        <section class="reto-card" x-data x-cloak x-init="$store.reto.cargar()"
+                 :hidden="!$store.reto.titulo" aria-label="Reto de la semana">
+            <span class="reto-icono" aria-hidden="true">🏆</span>
+            <div class="reto-texto">
+                <h2 class="reto-titulo">Reto de la semana: <span x-text="$store.reto.titulo"></span></h2>
+                <p class="reto-desc" x-text="$store.reto.descripcion"></p>
+                <p class="reto-meta">La foto con más likes se lleva
+                    <strong x-text="$store.reto.premio + ' puntos'"></strong>.
+                    <span x-text="$store.reto.plazo"></span></p>
+            </div>
+        </section>
 
         <!-- PANEL DE MODERACIÓN -->
         <div id="panelAdminUnificado" class="panel-admin-unificado" x-data="{ }" hidden>
@@ -382,6 +395,27 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         let observadorGaleria = null; // scroll infinito de la galería
 
         document.addEventListener('alpine:init', () => {
+        // Reto de galería de la semana (lo abre y cierra pg_cron).
+        window.Alpine.store('reto', {
+            titulo: '',
+            descripcion: '',
+            premio: 0,
+            hasta: '',
+            plazo: '',
+            async cargar() {
+                const res = await window.rpc('reto_galeria_actual', {}, { error: false });
+                if (!res.ok || !res.data || !res.data.ok) return;
+                this.titulo = res.data.titulo || '';
+                this.descripcion = res.data.descripcion || '';
+                this.premio = Number(res.data.premio) || 0;
+                this.hasta = res.data.hasta || '';
+                if (this.hasta) {
+                    const dias = Math.max(0, Math.ceil((new Date(this.hasta).getTime() - Date.now()) / 86400000));
+                    this.plazo = dias === 1 ? 'Queda 1 día.' : 'Quedan ' + dias + ' días.';
+                }
+            }
+        });
+
         window.Alpine.store('galeria', {
             fotos: [],
             cargando: false,
@@ -1368,7 +1402,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
     </script>
 
-    <script src="main.js?v=1.84.2" defer></script>
+    <script src="main.js?v=1.85.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

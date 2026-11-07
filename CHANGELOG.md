@@ -3,6 +3,35 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.85.0] - 2026-11-07
+
+### Comunidad: rebalanceo de puntos, misiones, pregunta del día y reto de galería
+
+**Motivo**: 6 cuentas, 3 mensajes de chat y 0 fotos, pero 149 eventos de `tiempo_conectado` en una semana. La economía premiaba mirar, no participar.
+
+**Rebalanceo** (solo datos, en `puntos_acciones`):
+
+| Acción | Antes | Ahora |
+|---|---|---|
+| `tiempo_conectado` | 1 pt · 288/día | 1 pt · 12/día |
+| `chat` | 1 pt · 20/día | 2 pts · 20/día |
+| `foto` | 3 pts · 5/día | 15 pts · 3/día |
+| `muro` | 2 pts · 5/día | 5 pts · 5/día |
+| `like` / `reaccion` | 1 pt · 10/día | 2 pts · 10/día |
+| `visita` | 2 pts · 1/día | 5 pts · 1/día |
+
+Nuevas acciones: `mision` (override por misión), `pregunta` (5 pts · 1/día) y `reto` (200 pts · 1/día). Los topes diarios por rango siguen mandando.
+
+**Misiones** (`misiones` + `misiones_estado` + `reclamar_mision`): perfil completo 50, vincular Kick 40, primer saludo 20, primer mensaje 20, primera foto 30. La condición se valida en el servidor con `puntos_eventos` y el cobro es idempotente por `(usuario, 'mision', clave)`. Tarjeta en la columna izquierda de Comunidad.
+
+**Pregunta del día** (`preguntas_chat`, `pregunta_del_dia`, `pregunta_del_dia_actual`, `reclamar_pregunta_dia`): 10 preguntas que rotan, publicadas por `pg_cron` a las 14:00 UTC. El extra de 5 puntos se cobra solo si hay un mensaje de chat posterior a la publicación; se intenta al cargar Comunidad y al enviar un mensaje.
+
+**Reto de galería** (`retos_temas`, `retos_galeria`, `reto_galeria_actual`, `abrir_reto_galeria`, `cerrar_retos_galeria`): 6 temas que rotan; uno abierto cada semana con premio de 200 pts a la foto aprobada con más likes. Cron cierra el domingo por la noche y abre el siguiente. Banner en Galería.
+
+**Cron**: `gocha-pregunta-diaria` (14:00), `gocha-cerrar-retos` (04:00), `gocha-abrir-reto` (04:05 UTC).
+
+**Permisos**: RLS activo sin políticas en las 5 tablas nuevas (solo RPC `SECURITY DEFINER`); `EXECUTE` revocado a `public` y concedido solo a `anon`/`authenticated` en las que usa el cliente.
+
 ## [1.84.2] - 2026-11-07
 
 ### Auditoría frontend: bugs de datos y puertas únicas

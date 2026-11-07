@@ -7776,3 +7776,40 @@ body.light-mode .btn-peligro:hover { background: rgba(185, 28, 28, 0.16); }
 html.densidad-compacta .chat-kick-mensaje { padding-block: 1px; }
 html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 }
+
+/* === Comunidad: misiones, pregunta del día y reto de galería === */
+.misiones-card { display: flex; flex-direction: column; gap: 10px; }
+.misiones-intro { margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+.misiones-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.mision-item { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--card-bg-subtle); }
+.mision-item-hecha { opacity: 0.6; }
+.mision-marca { font-weight: 900; text-align: center; color: var(--accent-color); }
+.mision-item-hecha .mision-marca { color: #53fc18; }
+.mision-datos { display: flex; flex-direction: column; min-width: 0; }
+.mision-titulo { font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+.mision-desc { font-size: 0.72rem; line-height: 1.3; color: var(--text-muted); }
+.mision-btn { border: 1px solid var(--accent-color); background: transparent; color: var(--accent-color); border-radius: 999px; padding: 4px 10px; font-family: inherit; font-size: 0.78rem; font-weight: 800; cursor: pointer; }
+.mision-btn:hover:not(:disabled) { background: var(--accent-color); color: var(--btn-text); }
+.mision-btn:disabled { opacity: 0.5; cursor: progress; }
+
+.chat-pregunta { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--card-bg-subtle); border-bottom: 1px solid var(--border-color); }
+.chat-pregunta-icono { font-size: 1.1rem; }
+.chat-pregunta-texto { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.chat-pregunta-texto strong { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-color); }
+.chat-pregunta-texto span { font-size: 0.85rem; line-height: 1.35; color: var(--text-main); }
+.chat-pregunta-btn { flex: 0 0 auto; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); border-radius: 999px; padding: 5px 12px; font-family: inherit; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+.chat-pregunta-btn:hover, .chat-pregunta-btn:focus-visible { border-color: var(--accent-color); color: var(--accent-color); }
+
+.reto-card { display: flex; align-items: flex-start; gap: 14px; margin: 18px 0 0; padding: 16px 18px; border: 1px solid var(--border-color); border-left: 3px solid var(--accent-color); border-radius: 14px; background: var(--card-bg); }
+.reto-icono { font-size: 1.6rem; line-height: 1; }
+.reto-texto { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.reto-titulo { margin: 0; font-size: 1.05rem; color: var(--text-main); }
+.reto-titulo span { color: var(--accent-color); }
+.reto-desc { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+.reto-meta { margin: 0; font-size: 0.82rem; color: var(--text-muted); }
+.reto-meta strong { color: var(--accent-color); }
+
+@media (max-width: 600px) {
+    .reto-card { flex-direction: column; gap: 8px; padding: 14px; }
+    .chat-pregunta { flex-wrap: wrap; }
+}

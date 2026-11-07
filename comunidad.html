@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-/hSNC8s+FxB1TlqdGkm5uxhaka0YtctdW3h2zWrKHZg=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-xTXNklOIJPqwt5PhttDDdI44nK6oryEzgX+zzvqR48Q=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.84.2">
+    <link rel="stylesheet" href="style.css?v=1.85.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -133,6 +133,33 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 </div>
             </div>
 
+            <!-- MISIONES DE BIENVENIDA -->
+            <div class="chat-sidebar-section misiones-card" x-data x-cloak
+                 :hidden="!$store.misiones.logueado" x-init="$store.misiones.cargar()">
+                <h3 class="chat-sidebar-subtitle">
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-gift"></use></svg> Misiones
+                </h3>
+                <p class="misiones-intro" x-text="$store.misiones.pendientes
+                    ? 'Tienes ' + $store.misiones.pendientes + ' recompensa(s) por cobrar.'
+                    : 'Completa acciones y cobra puntos extra.'"></p>
+                <ul class="misiones-lista">
+                    <template x-for="m in $store.misiones.lista" :key="m.clave">
+                        <li class="mision-item" :class="{ 'mision-item-hecha': m.reclamada }">
+                            <span class="mision-marca" x-text="m.reclamada ? '✓' : (m.cumplida ? '!' : '○')" aria-hidden="true"></span>
+                            <span class="mision-datos">
+                                <span class="mision-titulo" x-text="m.titulo"></span>
+                                <span class="mision-desc" x-text="m.descripcion"></span>
+                            </span>
+                            <button type="button" class="mision-btn" :hidden="m.reclamada || !m.cumplida"
+                                    :disabled="$store.misiones.reclamando === m.clave"
+                                    @click="$store.misiones.reclamar(m)"
+                                    :aria-label="'Cobrar ' + m.puntos + ' puntos por ' + m.titulo"
+                                    x-text="'+' + m.puntos"></button>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+
         </section>
 
         <!-- COLUMNA CENTRO: CHAT EN VIVO -->
@@ -141,6 +168,18 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 <svg class="icon chat-header-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-comments"></use></svg>
                 <span>Chat Comunitario (Offline / Online)</span>
                 <span id="typing-indicator" class="typing-indicator" hidden></span>
+            </div>
+
+            <!-- PREGUNTA DEL DÍA -->
+            <div class="chat-pregunta" x-data x-cloak x-init="$store.pregunta.cargar()"
+                 :hidden="!$store.pregunta.texto">
+                <span class="chat-pregunta-icono" aria-hidden="true">💬</span>
+                <div class="chat-pregunta-texto">
+                    <strong>Pregunta del día</strong>
+                    <span x-text="$store.pregunta.texto"></span>
+                </div>
+                <button type="button" class="chat-pregunta-btn"
+                        @click="window.document.getElementById('chat-mensaje')?.focus()">Responder</button>
             </div>
 
             <button type="button" id="btn-scroll-nuevos" class="btn-scroll-nuevos" hidden>Nuevos mensajes ↓</button>
@@ -494,7 +533,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.84.2" defer></script>
+    <script src="main.js?v=1.85.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -536,6 +575,74 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 insignias(apodo) {
                     const k = String(apodo || '').trim().toLowerCase();
                     return this.badges[k] || [];
+                }
+            });
+
+            // Misiones de bienvenida: se cobran una vez, validadas en el servidor.
+            window.Alpine.store('misiones', {
+                lista: [],
+                reclamando: '',
+                logueado: false,
+                get pendientes() {
+                    return this.lista.filter((m) => m.cumplida && !m.reclamada).length;
+                },
+                async cargar() {
+                    const token = localStorage.getItem('comunidad_session_token');
+                    this.logueado = !!token;
+                    if (!token) { this.lista = []; return; }
+                    const res = await window.rpc('misiones_estado', { p_token: token }, { error: false });
+                    if (res.ok && res.data && res.data.ok) this.lista = res.data.misiones || [];
+                },
+                async reclamar(m) {
+                    if (this.reclamando || !m) return;
+                    const token = localStorage.getItem('comunidad_session_token');
+                    if (!token) return;
+                    this.reclamando = m.clave;
+                    try {
+                        const res = await window.rpc('reclamar_mision', { p_token: token, p_clave: m.clave }, { error: false });
+                        const datos = res.data || {};
+                        if (!res.ok || !datos.ok) {
+                            window.mostrarToast?.(datos.error === 'sin_cumplir'
+                                ? 'Todavía no cumples esa misión.'
+                                : 'No se pudo cobrar la misión.', true);
+                            return;
+                        }
+                        if (datos.ganados > 0) {
+                            window.mostrarToast?.('+' + datos.ganados + ' puntos: ' + m.titulo);
+                            window.actualizarSesionUsuarioComunidad?.({ puntos: datos.puntos });
+                            window.actualizarUsuarioNavComunidad?.();
+                            window.refrescarPuntosDia?.();
+                        } else if (datos.motivo === 'tope_diario') {
+                            window.mostrarToast?.('Ya alcanzaste el tope de puntos de hoy.', true);
+                        }
+                        await this.cargar();
+                    } finally {
+                        this.reclamando = '';
+                    }
+                }
+            });
+
+            // Pregunta del día: se intenta cobrar sola cuando ya respondiste en el chat.
+            window.Alpine.store('pregunta', {
+                texto: '',
+                publicadaEn: '',
+                async cargar() {
+                    const res = await window.rpc('pregunta_del_dia_actual', {}, { error: false });
+                    if (res.ok && res.data && res.data.ok) {
+                        this.texto = res.data.pregunta || '';
+                        this.publicadaEn = res.data.publicada_en || '';
+                    }
+                },
+                async reclamarSilencioso() {
+                    const token = localStorage.getItem('comunidad_session_token');
+                    if (!token) return;
+                    const res = await window.rpc('reclamar_pregunta_dia', { p_token: token }, { error: false });
+                    const datos = res.data || {};
+                    if (res.ok && datos.ok && datos.ganados > 0) {
+                        window.mostrarToast?.('+' + datos.ganados + ' puntos por la pregunta del día');
+                        window.refrescarPuntosDia?.();
+                        window.Alpine?.store('misiones')?.cargar();
+                    }
                 }
             });
 
@@ -747,6 +854,11 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
+            // Al entrar o salir de la cuenta, refresca misiones y pregunta del día.
+            document.addEventListener('gocha:sesion', () => {
+                window.Alpine?.store('misiones')?.cargar();
+                window.Alpine?.store('pregunta')?.reclamarSilencioso();
+            });
             const chatForm = document.getElementById('chat-form');
             const chatMensajes = document.getElementById('chat-mensajes');
             const btnScrollNuevos = document.getElementById('btn-scroll-nuevos');
@@ -2196,6 +2308,9 @@ if (chatForm) {
                             // Actualizar streak de mensajes
                             actualizarStreak();
                             window.avisarPuntos?.(resultado.ganados);
+                            // Si era la primera respuesta del día a la pregunta, cae el extra.
+                            window.Alpine?.store('pregunta')?.reclamarSilencioso();
+                            window.Alpine?.store('misiones')?.cargar();
                             // ultima_actividad se actualiza dentro del RPC
                         }
                     } catch (e) {
