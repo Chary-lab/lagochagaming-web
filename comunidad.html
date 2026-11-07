@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-z5vkK44TUziEEzBJSheQrILeP9JF0fnPWYUPYdUbE6Y=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-RnznhVWgfzmpFqClKsJfhmuCJKw3wYnKBb1kb/pbY8A=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.87.0">
+    <link rel="stylesheet" href="style.css?v=1.88.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -182,6 +182,20 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         :disabled="$store.sorteoSemanal.enviando"
                         @click="$store.sorteoSemanal.entrar()">Entrar al sorteo</button>
                 <p class="sorteo-semanal-nota" :hidden="!$store.sorteoSemanal.aviso" x-text="$store.sorteoSemanal.aviso"></p>
+            </div>
+
+            <!-- INVITA Y GANA -->
+            <div class="chat-sidebar-section invitar-card" x-data x-cloak x-init="$store.invitar.cargar()"
+                 :hidden="!$store.invitar.codigo">
+                <h3 class="chat-sidebar-subtitle">
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-user-plus"></use></svg> Invita y gana
+                </h3>
+                <p class="invitar-texto">Tu código: <strong x-text="$store.invitar.codigo"></strong></p>
+                <button type="button" class="invitar-btn" @click="$store.invitar.copiar()">Copiar código</button>
+                <p class="invitar-meta">
+                    <span x-text="$store.invitar.invitados"></span> invitados ·
+                    <span x-text="$store.invitar.pagados"></span> con premio
+                </p>
             </div>
 
         </section>
@@ -538,6 +552,11 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         </label>
                     </div>
                 </fieldset>
+                <div class="gochi-campo" id="nickname-modal-ref" hidden>
+                    <label class="gochi-campo-label" for="nickname-modal-ref-input">Código de invitación (opcional)</label>
+                    <input type="text" id="nickname-modal-ref-input" placeholder="EJ: GOCHA-4821" maxlength="20" autocomplete="off">
+                    <span class="gochi-campo-ayuda">Si te invitó alguien, los dos ganáis puntos cuando llegues a 100.</span>
+                </div>
                 <div>
                     <button type="submit" id="nickname-modal-set-btn" class="btn-primary">Entrar</button>
                 </div>
@@ -557,7 +576,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.87.0" defer></script>
+    <script src="main.js?v=1.88.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -738,6 +757,27 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 }
             });
 
+            // Referidos: código propio para invitar
+            window.Alpine.store('invitar', {
+                codigo: '',
+                invitados: 0,
+                pagados: 0,
+                async cargar() {
+                    const token = localStorage.getItem('comunidad_session_token');
+                    if (!token) { this.codigo = ''; return; }
+                    const res = await window.rpc('mi_codigo_referido', { p_token: token }, { error: false });
+                    if (res.ok && res.data && res.data.ok) {
+                        this.codigo = res.data.codigo || '';
+                        this.invitados = Number(res.data.invitados) || 0;
+                        this.pagados = Number(res.data.pagados) || 0;
+                    }
+                },
+                async copiar() {
+                    if (!this.codigo) return;
+                    await window.copiarEnlace?.(this.codigo, '¡Código copiado!');
+                }
+            });
+
             window.Alpine.store('reacciones', {
                 cache: {},
                 mias: {},
@@ -862,6 +902,10 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
             const generoWrap = document.getElementById('nickname-modal-genero');
             if (generoWrap) generoWrap.hidden = modo !== 'registro';
+            const refWrap = document.getElementById('nickname-modal-ref');
+            if (refWrap) refWrap.hidden = modo !== 'registro';
+            const refInput = document.getElementById('nickname-modal-ref-input');
+            if (refInput) refInput.value = '';
             const kickWrap = document.getElementById('nickname-modal-kick');
             if (kickWrap) kickWrap.hidden = modo !== 'registro';
             document.querySelectorAll('input[name="nickname-genero"]').forEach((radio) => { radio.checked = false; });
@@ -951,6 +995,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 window.Alpine?.store('misiones')?.cargar();
                 window.Alpine?.store('pregunta')?.reclamarSilencioso();
                 window.Alpine?.store('sorteoSemanal')?.cargar();
+                window.Alpine?.store('invitar')?.cargar();
             });
             const chatForm = document.getElementById('chat-form');
             const chatMensajes = document.getElementById('chat-mensajes');
@@ -1343,11 +1388,15 @@ setInterval(actualizarTypingIndicator, 1200);
                 if (window.desactivarTrampaFoco) window.desactivarTrampaFoco(true);
             }
 
-            async function registrarUsuario(apodo, pin, genero) {
+            async function registrarUsuario(apodo, pin, genero, codigoRef) {
                 if (!window.supabase) return { ok: false, error: 'Supabase no disponible' };
                 try {
                     const { data, error } = await window.rpcRaw('registrar_comunidad', { p_apodo: apodo, p_pin: pin, p_genero: genero });
                     if (error) return { ok: false, error: error.message };
+                    // El código de invitación no bloquea el registro: si falla, la cuenta ya está creada.
+                    if (data?.ok && data.token && codigoRef) {
+                        await window.rpcRaw('canjear_codigo_referido', { p_token: data.token, p_codigo: codigoRef });
+                    }
                     return { ok: !!data?.ok, error: data?.error, token: data?.token, usuario: data?.usuario };
                 } catch (e) { return { ok: false, error: e.message }; }
             }
@@ -1784,7 +1833,8 @@ setInterval(actualizarTypingIndicator, 1200);
                             if (generoWrap) generoWrap.hidden = false;
                             return;
                         }
-                        const reg = await registrarUsuario(nick, pin, generoSeleccionado.value);
+                        const reg = await registrarUsuario(nick, pin, generoSeleccionado.value,
+                            (document.getElementById('nickname-modal-ref-input')?.value || '').trim());
                         if (reg.ok && reg.token && reg.usuario) {
                             guardarSesion(reg.usuario, reg.token);
                             hideNicknameModal();

@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.88.0] - 2026-11-07
+
+### Referidos
+
+- `usuarios_comunidad` gana `codigo_ref` (único), `referido_por` y `referido_pagado`.
+- `mi_codigo_referido` genera el código al pedirlo (`APODO-1234`, único) y devuelve invitados y cuántos ya cobraron.
+- `canjear_codigo_referido` se llama al terminar el registro si se escribió un código. No bloquea el registro: si el código es inválido, la cuenta se crea igual.
+- `pagar_referidos` (cron diario 05:00) abona **100 pts al padrino y 50 al invitado** cuando el invitado acumula 100 puntos y 2 días con actividad real. El bono no consume el tope diario: se abona directo y el trigger recalcula el rango.
+- Antifarmeo: un código por cuenta, nada de autorreferencia, cuenta invitada con más de un día y exigencia de actividad real (`tiempo_conectado` no cuenta) antes de pagar.
+- UI: campo opcional «Código de invitación» en el registro y tarjeta «Invita y gana» en Comunidad con el código y botón de copiar.
+
+Probado en transacción: código generado, canje correcto, segundo canje rechazado (`ya_referido`), código propio rechazado (`codigo_propio`) y pago con +100/+50.
+
 ## [1.87.0] - 2026-11-07
 
 ### Reto individual y sorteo semanal sin farmeo

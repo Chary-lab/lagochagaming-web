@@ -7832,3 +7832,11 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .sorteo-semanal-nota { margin: 6px 0 0; font-size: 0.74rem; color: #ff8a8a; }
 
 .sorteo-semanal-card { display: flex; flex-direction: column; gap: 6px; }
+
+/* Invita y gana */
+.invitar-card { display: flex; flex-direction: column; gap: 6px; }
+.invitar-texto { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
+.invitar-texto strong { color: var(--accent-color); letter-spacing: 0.04em; }
+.invitar-btn { width: 100%; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); border-radius: 999px; padding: 6px 10px; font-family: inherit; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+.invitar-btn:hover, .invitar-btn:focus-visible { border-color: var(--accent-color); color: var(--accent-color); }
+.invitar-meta { margin: 0; font-size: 0.72rem; color: var(--text-muted); }
