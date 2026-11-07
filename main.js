@@ -1444,6 +1444,13 @@ window.insertarNavbar = function insertarNavbar() {
                 <span class="nav-racha" id="nav-racha" aria-hidden="true" hidden></span>
                 <span class="nav-puntos-suma" aria-hidden="true"></span>
             </button>
+            <button type="button" id="nav-misiones" class="nav-misiones" hidden
+                    aria-haspopup="dialog" aria-expanded="false" aria-controls="nav-misiones-panel"
+                    title="Misiones de la comunidad" aria-label="Abrir misiones">
+                <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-gift"></use></svg>
+                <span class="nav-misiones-texto">Misiones</span>
+                <span class="nav-misiones-badge" id="nav-misiones-badge" aria-hidden="true" hidden></span>
+            </button>
             <div id="nav-user-info"></div>
         </div>
     `;
@@ -1469,6 +1476,9 @@ window.insertarNavbar = function insertarNavbar() {
         ui.menuNav = '';
         boton?.focus();
     });
+
+    const btnMisiones = document.getElementById('nav-misiones');
+    if (btnMisiones) btnMisiones.addEventListener('click', () => window.toggleMisiones());
 };
 
 // === Menú de acceso del navbar: única entrada de login ===
@@ -1961,6 +1971,195 @@ document.addEventListener('keydown', (evento) => {
             return;
         }
     }
+});
+
+// === MISIONES GLOBALES (navbar) ===
+let panelMisionesEl = null;
+let panelMisionesAbierto = false;
+
+function pintarBadgeMisiones(estado) {
+    const badge = document.getElementById('nav-misiones-badge');
+    if (!badge || !estado) return;
+    const pendientes = estado.pendientes || 0;
+    const hechas = estado.hechas || 0;
+    const total = estado.total || 0;
+    if (pendientes > 0) {
+        badge.textContent = pendientes;
+        badge.hidden = false;
+        badge.classList.remove('nav-misiones-badge--ok');
+    } else if (total > 0 && hechas === total) {
+        badge.textContent = '✓';
+        badge.hidden = false;
+        badge.classList.add('nav-misiones-badge--ok');
+    } else {
+        badge.textContent = '';
+        badge.hidden = true;
+    }
+}
+
+function crearPanelMisiones() {
+    if (panelMisionesEl) return panelMisionesEl;
+    panelMisionesEl = document.createElement('div');
+    panelMisionesEl.id = 'nav-misiones-panel';
+    panelMisionesEl.className = 'nav-misiones-panel';
+    panelMisionesEl.hidden = true;
+    panelMisionesEl.setAttribute('role', 'dialog');
+    panelMisionesEl.setAttribute('aria-label', 'Misiones de la comunidad');
+    panelMisionesEl.setAttribute('x-data', '{ }');
+    panelMisionesEl.setAttribute('x-cloak', '');
+    panelMisionesEl.addEventListener('click', (evento) => {
+        if (evento.target === panelMisionesEl) window.toggleMisiones(false);
+    });
+    panelMisionesEl.innerHTML = `
+        <div class="nav-misiones-caja" role="document">
+            <div class="nav-misiones-cabeza">
+                <strong>Misiones</strong>
+                <span class="nav-misiones-cuenta" x-text="$store.misiones.pendientes
+                    ? $store.misiones.pendientes + ' por cobrar'
+                    : ($store.misiones.lista.length && $store.misiones.cumplidas === $store.misiones.lista.length ? 'Todo cobrado' : 'Sin pendientes')"></span>
+            </div>
+            <p class="nav-misiones-vacio" x-bind:hidden="$store.misiones.lista.length || $store.misiones.cargando">Cargando misiones...</p>
+            <template x-for="m in $store.misiones.lista" :key="m.clave">
+                <div class="nav-mision" x-bind:class="{ 'nav-mision--hecha': m.reclamada }">
+                    <span class="nav-mision-marca" x-text="m.reclamada ? '✓' : (m.cumplida ? '!' : '○')" aria-hidden="true"></span>
+                    <span class="nav-mision-datos">
+                        <span class="nav-mision-titulo" x-text="m.titulo"></span>
+                        <span class="nav-mision-desc" x-text="m.descripcion"></span>
+                    </span>
+                    <button type="button" class="nav-mision-btn" x-bind:hidden="m.reclamada || !m.cumplida"
+                            x-bind:disabled="$store.misiones.reclamando === m.clave"
+                            x-on:click="$store.misiones.reclamar(m)"
+                            x-bind:aria-label="'Cobrar ' + m.puntos + ' puntos por ' + m.titulo"
+                            x-text="'+' + m.puntos"></button>
+                </div>
+            </template>
+        </div>`;
+    document.body.appendChild(panelMisionesEl);
+    return panelMisionesEl;
+}
+
+function colocarPanelMisiones() {
+    if (!panelMisionesEl) return;
+    const btn = document.getElementById('nav-misiones');
+    if (!btn) return;
+    if (window.innerWidth < 900) {
+        panelMisionesEl.style.top = '';
+        panelMisionesEl.style.right = '';
+        return;
+    }
+    const r = btn.getBoundingClientRect();
+    panelMisionesEl.style.top = Math.round(r.bottom + 8) + 'px';
+    panelMisionesEl.style.right = Math.max(12, Math.round(window.innerWidth - r.right)) + 'px';
+}
+
+window.toggleMisiones = function toggleMisiones(forzar) {
+    const btn = document.getElementById('nav-misiones');
+    if (!btn) return;
+    const abrir = typeof forzar === 'boolean' ? forzar : !panelMisionesAbierto;
+    if (abrir && !panelMisionesEl) crearPanelMisiones();
+    panelMisionesAbierto = abrir;
+    if (panelMisionesEl) {
+        panelMisionesEl.hidden = !abrir;
+        panelMisionesEl.classList.toggle('nav-misiones-panel--hoja', window.innerWidth < 900);
+    }
+    btn.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+    if (abrir) {
+        colocarPanelMisiones();
+        window.Alpine?.store('misiones')?.cargar();
+    }
+};
+
+window.refrescarMisionesNav = function refrescarMisionesNav() {
+    const estado = window.Alpine?.store('misiones');
+    if (!estado) return;
+    pintarBadgeMisiones({
+        pendientes: estado.pendientes,
+        hechas: estado.cumplidas,
+        total: estado.lista.length
+    });
+};
+
+document.addEventListener('alpine:init', () => {
+    window.Alpine.store('misiones', {
+        lista: [],
+        logueado: false,
+        cargando: false,
+        reclamando: '',
+        get pendientes() {
+            return this.lista.filter((m) => m.cumplida && !m.reclamada).length;
+        },
+        get cumplidas() {
+            return this.lista.filter((m) => m.reclamada).length;
+        },
+        async cargar() {
+            const token = window.almacen.texto('comunidad_session_token');
+            const btn = document.getElementById('nav-misiones');
+            this.logueado = !!token;
+            if (btn) btn.hidden = !token;
+            if (!token) {
+                this.lista = [];
+                window.refrescarMisionesNav?.();
+                return;
+            }
+            if (this.cargando) return;
+            this.cargando = true;
+            try {
+                const res = await window.rpc('misiones_estado', { p_token: token }, { error: false });
+                if (res.ok && res.data && res.data.ok) this.lista = res.data.misiones || [];
+            } finally {
+                this.cargando = false;
+                window.refrescarMisionesNav?.();
+            }
+        },
+        async reclamar(m) {
+            if (this.reclamando || !m) return;
+            const token = window.almacen.texto('comunidad_session_token');
+            if (!token) return;
+            this.reclamando = m.clave;
+            try {
+                const res = await window.rpc('reclamar_mision', { p_token: token, p_clave: m.clave }, { error: false });
+                const datos = res.data || {};
+                if (!res.ok || !datos.ok) {
+                    window.mostrarToast?.(datos.error === 'sin_cumplir'
+                        ? 'Todavía no cumples esa misión.'
+                        : 'No se pudo cobrar la misión.', true);
+                    return;
+                }
+                if (datos.ganados > 0) {
+                    window.mostrarToast?.('+' + datos.ganados + ' puntos: ' + m.titulo);
+                    window.actualizarSesionUsuarioComunidad?.({ puntos: datos.puntos });
+                    window.actualizarUsuarioNavComunidad?.();
+                    window.refrescarPuntosDia?.();
+                } else if (datos.motivo === 'tope_diario') {
+                    window.mostrarToast?.('Ya alcanzaste el tope de puntos de hoy.', true);
+                }
+                await this.cargar();
+            } finally {
+                this.reclamando = '';
+            }
+        }
+    });
+});
+
+document.addEventListener('alpine:initialized', () => {
+    window.Alpine?.store('misiones')?.cargar();
+});
+document.addEventListener('gocha:sesion', () => {
+    window.Alpine?.store('misiones')?.cargar();
+});
+document.addEventListener('pointerdown', (evento) => {
+    if (!panelMisionesAbierto) return;
+    const panel = document.getElementById('nav-misiones-panel');
+    const btn = document.getElementById('nav-misiones');
+    if (panel && panel.contains(evento.target)) return;
+    if (btn && btn.contains(evento.target)) return;
+    window.toggleMisiones(false);
+});
+document.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Escape' && panelMisionesAbierto) window.toggleMisiones(false);
+});
+window.addEventListener('resize', () => {
+    if (panelMisionesAbierto) colocarPanelMisiones();
 });
 
 // === MENÚ MÓVIL ===

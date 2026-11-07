@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.90.0] - 2026-11-07
+
+### Misiones en el navbar
+
+- El store `misiones` pasa de `comunidad.html` a `main.js`: funciona en las 6 páginas y se refresca al entrar o salir de la cuenta.
+- Botón `🎯 Misiones` en el navbar, oculto sin sesión. Badge con las misiones **cumplidas sin cobrar**; `✓` cuando ya está todo cobrado; sin badge si no hay nada que cobrar.
+- Panel desplegable anclado al botón en escritorio y hoja inferior en móvil (`<900px`). Lista con `○` pendiente, `!` lista para cobrar y `✓` cobrada; solo las cobrables muestran botón `+puntos`.
+- Cierra con Escape, clic fuera o el mismo botón; se recoloca al redimensionar.
+- Se quita la tarjeta de misiones de la columna izquierda de Comunidad y su CSS, que ocupaba tres bloques apilados.
+
 ## [1.89.1] - 2026-11-07
 
 ### Muro: cupo por IP

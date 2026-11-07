@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-RnznhVWgfzmpFqClKsJfhmuCJKw3wYnKBb1kb/pbY8A=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-Ex5HmQy9vNLwxiojk44XajAXxqupnHuFgKnElIgxY2Q=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.89.1">
+    <link rel="stylesheet" href="style.css?v=1.90.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -141,33 +141,6 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     <div class="chat-empty-note" x-show="!$store.ranking.cargando && !$store.ranking.error && !$store.ranking.usuarios.length" x-cloak>Sin participantes aún</div>
                     <div class="chat-empty-note" x-show="$store.ranking.error" x-text="$store.ranking.error" x-cloak></div>
                 </div>
-            </div>
-
-            <!-- MISIONES DE BIENVENIDA -->
-            <div class="chat-sidebar-section misiones-card" x-data x-cloak
-                 :hidden="!$store.misiones.logueado" x-init="$store.misiones.cargar()">
-                <h3 class="chat-sidebar-subtitle">
-                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-gift"></use></svg> Misiones
-                </h3>
-                <p class="misiones-intro" x-text="$store.misiones.pendientes
-                    ? 'Tienes ' + $store.misiones.pendientes + ' recompensa(s) por cobrar.'
-                    : 'Completa acciones y cobra puntos extra.'"></p>
-                <ul class="misiones-lista">
-                    <template x-for="m in $store.misiones.lista" :key="m.clave">
-                        <li class="mision-item" :class="{ 'mision-item-hecha': m.reclamada }">
-                            <span class="mision-marca" x-text="m.reclamada ? '✓' : (m.cumplida ? '!' : '○')" aria-hidden="true"></span>
-                            <span class="mision-datos">
-                                <span class="mision-titulo" x-text="m.titulo"></span>
-                                <span class="mision-desc" x-text="m.descripcion"></span>
-                            </span>
-                            <button type="button" class="mision-btn" :hidden="m.reclamada || !m.cumplida"
-                                    :disabled="$store.misiones.reclamando === m.clave"
-                                    @click="$store.misiones.reclamar(m)"
-                                    :aria-label="'Cobrar ' + m.puntos + ' puntos por ' + m.titulo"
-                                    x-text="'+' + m.puntos"></button>
-                        </li>
-                    </template>
-                </ul>
             </div>
 
             <!-- SORTEO SEMANAL -->
@@ -576,7 +549,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.89.1" defer></script>
+    <script src="main.js?v=1.90.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -629,49 +602,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 }
             });
 
-            // Misiones de bienvenida: se cobran una vez, validadas en el servidor.
-            window.Alpine.store('misiones', {
-                lista: [],
-                reclamando: '',
-                logueado: false,
-                get pendientes() {
-                    return this.lista.filter((m) => m.cumplida && !m.reclamada).length;
-                },
-                async cargar() {
-                    const token = localStorage.getItem('comunidad_session_token');
-                    this.logueado = !!token;
-                    if (!token) { this.lista = []; return; }
-                    const res = await window.rpc('misiones_estado', { p_token: token }, { error: false });
-                    if (res.ok && res.data && res.data.ok) this.lista = res.data.misiones || [];
-                },
-                async reclamar(m) {
-                    if (this.reclamando || !m) return;
-                    const token = localStorage.getItem('comunidad_session_token');
-                    if (!token) return;
-                    this.reclamando = m.clave;
-                    try {
-                        const res = await window.rpc('reclamar_mision', { p_token: token, p_clave: m.clave }, { error: false });
-                        const datos = res.data || {};
-                        if (!res.ok || !datos.ok) {
-                            window.mostrarToast?.(datos.error === 'sin_cumplir'
-                                ? 'Todavía no cumples esa misión.'
-                                : 'No se pudo cobrar la misión.', true);
-                            return;
-                        }
-                        if (datos.ganados > 0) {
-                            window.mostrarToast?.('+' + datos.ganados + ' puntos: ' + m.titulo);
-                            window.actualizarSesionUsuarioComunidad?.({ puntos: datos.puntos });
-                            window.actualizarUsuarioNavComunidad?.();
-                            window.refrescarPuntosDia?.();
-                        } else if (datos.motivo === 'tope_diario') {
-                            window.mostrarToast?.('Ya alcanzaste el tope de puntos de hoy.', true);
-                        }
-                        await this.cargar();
-                    } finally {
-                        this.reclamando = '';
-                    }
-                }
-            });
+            // Las misiones viven en main.js (store global y botón del navbar).
 
             // Pregunta del día: se intenta cobrar sola cuando ya respondiste en el chat.
             window.Alpine.store('pregunta', {
