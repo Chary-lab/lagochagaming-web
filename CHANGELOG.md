@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.91.3] - 2026-11-07
+
+### Desplegable App del navbar
+
+- El menú **App** pasa a ser una ficha de descarga: cabecera con versión y peso, botón grande de descarga, chips, ventajas y dos acordeones (cómo se instalar y aviso de Play Protect).
+- iPhone queda como una nota al pie, sin ocupar una fila entera.
+- Sin página nueva: todo vive en `#nav-app-panel` de `main.js`.
+
 ## [1.91.2] - 2026-11-07
 
 ### App 1.15: aviso de directo

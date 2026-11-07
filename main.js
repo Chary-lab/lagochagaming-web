@@ -1377,18 +1377,38 @@ window.insertarNavbar = function insertarNavbar() {
                 <span>App</span>
             </button>
             <div class="nav-app-panel" id="nav-app-panel" hidden :hidden="$store.ui.menuNav !== 'app'">
-                <p class="nav-app-titulo">Gochita App</p>
-                <a class="nav-app-opcion" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=1.15&o=web" rel="noopener" data-umami-event="descarga-apk">
-                    <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
-                    <span class="nav-app-texto"><strong>Android</strong><small>v1.15 · 4,2 MB · Android 7+</small></span>
-                    <span class="nav-app-accion">Descargar</span>
-                </a>
-                <div class="nav-app-opcion nav-app-opcion--pronto">
-                    <svg class="icon nav-app-icono" aria-hidden="true"><use href="img/icons.svg#i-brands-apple"></use></svg>
-                    <span class="nav-app-texto"><strong>iPhone / iPad</strong><small>Aún no disponible</small></span>
-                    <span class="nav-app-accion"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-clock"></use></svg> En camino</span>
+                <div class="nav-app-cabeza">
+                    <span class="nav-app-logo" aria-hidden="true">📱</span>
+                    <div class="nav-app-datos">
+                        <strong>Gochita App</strong>
+                        <small>Android 7+ · 4,2 MB</small>
+                    </div>
+                    <span class="nav-app-gratis">Gratis</span>
                 </div>
-                <p class="nav-app-nota">Si Android pide permiso para instalar apps desconocidas, acéptalo: es el APK oficial.</p>
+                <a class="nav-app-descargar" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=1.15&o=web" rel="noopener" data-umami-event="descarga-apk">
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
+                    Descargar APK
+                </a>
+                <div class="nav-app-chips">
+                    <span>v1.15</span>
+                    <span>Sin anuncios</span>
+                    <span>Se actualiza sola</span>
+                </div>
+                <ul class="nav-app-ventajas">
+                    <li><span><strong>Aviso de directo</strong>: te notifico cuando empiezo a emitir.</span></li>
+                    <li><span><strong>Chat y puntos</strong> cómodos, sin la barra del navegador.</span></li>
+                </ul>
+                <details class="nav-app-detalle" open>
+                    <summary>Cómo se instala <span>3 pasos</span></summary>
+                    <p><b>1</b> Descarga el APK con el botón de arriba.</p>
+                    <p><b>2</b> Si Android avisa, activa «Permitir desde esta fuente».</p>
+                    <p><b>3</b> Abre la app y acepta las notificaciones.</p>
+                </details>
+                <details class="nav-app-detalle">
+                    <summary>¿Sale aviso de Play Protect? <span>es normal</span></summary>
+                    <p>Avisa de cualquier app que no venga de Play Store. La nuestra está firmada y se descarga del dominio oficial.</p>
+                </details>
+                <p class="nav-app-nota">iPhone / iPad: aún no disponible.</p>
             </div>
         </div>`;
 

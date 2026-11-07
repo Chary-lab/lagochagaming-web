@@ -7922,3 +7922,30 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .mp-compra-btn { margin-left: auto; border: 1px solid var(--accent-color); background: transparent; color: var(--accent-color); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: .72rem; font-weight: 800; cursor: pointer; }
 .mp-compra-puesto { margin-left: auto; font-size: .68rem; font-weight: 800; color: var(--accent-color); }
 @media (prefers-reduced-motion: reduce) { .avatar-marco { box-shadow: 0 0 0 2px var(--accent-color); } }
+
+/* App del navbar: ficha de descarga compacta */
+.nav-app-panel { width: 320px; }
+.nav-app-cabeza { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.nav-app-logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-color), #3ddc97); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex: 0 0 auto; }
+.nav-app-datos { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.nav-app-datos strong { font-size: 0.9rem; }
+.nav-app-datos small { font-size: 0.7rem; color: var(--text-muted); }
+.nav-app-gratis { margin-left: auto; font-size: 0.58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #04120c; background: var(--accent-color); border-radius: 999px; padding: 3px 8px; }
+.nav-app-descargar { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px; border-radius: 10px; background: var(--accent-color); color: #04120c; font-weight: 800; font-size: 0.84rem; text-decoration: none; }
+.nav-app-descargar:hover { filter: brightness(1.06); }
+.nav-app-descargar .icon { width: 16px; height: 16px; }
+.nav-app-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 9px 0 10px; }
+.nav-app-chips span { font-size: 0.62rem; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border-color); border-radius: 999px; padding: 2px 8px; }
+.nav-app-ventajas { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
+.nav-app-ventajas li { display: flex; gap: 6px; font-size: 0.74rem; color: var(--text-muted); line-height: 1.35; }
+.nav-app-ventajas li::before { content: "✓"; color: var(--accent-color); font-weight: 900; flex: 0 0 auto; }
+.nav-app-ventajas strong { color: var(--text-main); }
+.nav-app-detalle { border-top: 1px solid var(--border-color); }
+.nav-app-detalle summary { list-style: none; cursor: pointer; padding: 9px 0; font-size: 0.74rem; font-weight: 700; display: flex; gap: 6px; align-items: center; }
+.nav-app-detalle summary::-webkit-details-marker { display: none; }
+.nav-app-detalle summary::before { content: "▸"; color: var(--accent-color); font-size: 0.7rem; }
+.nav-app-detalle[open] summary::before { content: "▾"; }
+.nav-app-detalle summary span { margin-left: auto; font-weight: 600; font-size: 0.66rem; color: var(--text-muted); }
+.nav-app-detalle p { margin: 0 0 7px; font-size: 0.72rem; color: var(--text-muted); line-height: 1.45; }
+.nav-app-detalle p:last-child { margin-bottom: 10px; }
+.nav-app-detalle b { color: var(--accent-color); font-weight: 800; }
