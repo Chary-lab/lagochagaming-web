@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.85.1] - 2026-11-07
+
+### Reto de galería: temas concretos
+
+- Los 6 temas rotativos pasan a ser cosas que la gente puede subir sin dudar: `Meme de La Gocha`, `Momento del directo`, `Fan art`, `Tu rincón de directo`, `Mascota gochil` y `Tu edit favorito`. Antes eran genéricos («Colección», «Figuras, juegos, merchandising: presume de estantería»).
+- El reto abierto ahora mismo se renombra a `Meme de La Gocha` sin tocar fechas ni premio: los textos se copian al abrirlo, así que el cambio de catálogo no llegaba al reto en curso.
+- Banner: «Sube la tuya: la que más likes reciba se lleva 200 puntos.»
+
 ## [1.85.0] - 2026-11-07
 
 ### Comunidad: rebalanceo de puntos, misiones, pregunta del día y reto de galería
