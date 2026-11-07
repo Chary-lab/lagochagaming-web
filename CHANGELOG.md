@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.91.6] - 2026-11-07
+
+### App 1.16: chat con pestañas, recompensa y ajustes
+
+- **Chat con pestañas** en el inicio de la app: Comunidad por defecto y Kick. Si hay directo, abre en Kick; la elección manual se recuerda durante la sesión. El chat de comunidad se carga en un iframe `comunidad.html?embed=chat` con la página recortada por CSS.
+- **Recompensa por instalar**: RPC `reclamar_recompensa_app` con 100 puntos, una vez por cuenta y por móvil (hash), cuenta con más de 24 h. Tabla `app_recompensas` y acción `app_instalada`. Se reclama al abrir la app con sesión y avisa por toast.
+- **Ajustes técnicos**: `allowBackup=false` (el token de sesión no viaja en copias) y errores JS/promesas a Umami como `error-app`, sin datos personales.
+- CSP: `frame-src` acepta `'self'` para poder incrustar la comunidad.
+- El desplegable App anuncia los 100 puntos.
+
 ## [1.91.5] - 2026-11-07
 
 ### Separación en el desplegable App

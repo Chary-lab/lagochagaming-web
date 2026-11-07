@@ -10,7 +10,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
 - Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
 - Versión actual: ver `VERSION` (SemVer). Changelog: `CHANGELOG.md`.
-- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`. Estado actual (2026-11-07): app v1.15, `versionCode` 18, APK de 4.366.831 B con sha256 `052a47a4542d7a9dea11f451e1cfa121daefe4ec0964615d777b8086af361aea`. Trae aviso de directo con notificación local cada 15 min (`LiveCheckWorker`, WorkManager). Los assets empaquetados coinciden byte a byte con `mobile/`, y `build-apk.ps1` lo copia y lo verifica en cada build.
+- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`. Estado actual (2026-11-07): app v1.16, `versionCode` 19, APK de 4.368.359 B con sha256 `eaf31a71123b1a8fa2b7f54df5ab5e7d9d3c4422febe92586136732cefb93a7c`. Trae chat con pestañas Comunidad/Kick, recompensa de 100 puntos por instalar y aviso de directo con notificación local cada 15 min (`LiveCheckWorker`, WorkManager). Los assets empaquetados coinciden byte a byte con `mobile/`, y `build-apk.ps1` lo copia y lo verifica en cada build.
 
 ## 2. Reglas de stack
 

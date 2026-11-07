@@ -8004,3 +8004,5 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .nav-app-ventajas { margin: 12px 0 10px; padding-top: 11px; border-top: 1px solid var(--border-color); }
 
 .nav-app-descargar, .nav-app-gratis { color: var(--btn-text); }
+
+.nav-app-bono { margin: 8px 0 0; font-size: 0.7rem; font-weight: 700; color: var(--accent-color); text-align: center; }

@@ -1,8 +1,8 @@
 {
-    "versionCode": 18,
-    "versionName": "1.15",
+    "versionCode": 19,
+    "versionName": "1.16",
     "apkUrl": "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256": "052a47a4542d7a9dea11f451e1cfa121daefe4ec0964615d777b8086af361aea",
-    "size": 4366831,
-    "notes": "Aviso de directo: la app te notifica cuando empieza el stream. Actívalo o desactívalo en Ajustes."
+    "sha256": "eaf31a71123b1a8fa2b7f54df5ab5e7d9d3c4422febe92586136732cefb93a7c",
+    "size": 4368359,
+    "notes": "Chat con pestañas Comunidad y Kick, recompensa de 100 puntos por instalar y ajustes de seguridad."
 }

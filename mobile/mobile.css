@@ -2151,3 +2151,45 @@ html.lg-app #lg-nav-loading span {
 
 @keyframes lgSpin { to { transform: rotate(360deg); } }
 
+
+/* Pestañas del chat: Comunidad (por defecto) y Kick */
+html.lg-app .lg-chat-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 18px 10px;
+}
+html.lg-app .lg-chat-tab {
+  border: 1px solid var(--lg-line-strong);
+  background: transparent;
+  color: var(--lg-muted);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+html.lg-app .lg-chat-tab-on {
+  background: var(--lg-teal);
+  border-color: var(--lg-teal);
+  color: #04120c;
+}
+html.lg-app .lg-chat-pane {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+html.lg-app .lg-chat-pane[hidden] { display: none !important; }
+html.lg-app .lg-chat-iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 44vh;
+  border: 0;
+  display: block;
+  background: #060b0a;
+  transition: opacity .24s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.lg-app .lg-chat-iframe { transition: none; }
+}

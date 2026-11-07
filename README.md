@@ -1,4 +1,4 @@
-# LaGochaGaming
+﻿# LaGochaGaming
 
 Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin build ni dependencias npm de runtime.
 
@@ -65,7 +65,7 @@ node --check main.js
 
 El APK se distribuye desde este repo:
 
-- `app/LaGochaGaming.apk` - último APK firmado (versión actual: 1.15, versionCode 18).
+- `app/LaGochaGaming.apk` - último APK firmado (versión actual: 1.16, versionCode 19).
 - `app/version.json` — manifiesto del actualizador (`versionCode`, `versionName`, `sha256`, `size`, `notes`).
 - `mobile/mobile.css` y `mobile/mobile.js` — interfaz móvil que la app descarga por encima del APK (caché de 6 h, válida 7 días).
 
@@ -105,3 +105,4 @@ entera cuando el usuario vuelve a abrir la app después de actualizar.
 
 Leer `AGENTS.md` antes de modificar código, base de datos o despliegue.
 Si el cambio toca la app Android, leer también `D:\Apk Gocha\AGENTS.md`.
+

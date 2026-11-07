@@ -232,7 +232,7 @@
             '<button type="button" class="lg-action-btn" data-action="sugerencias">' + icon('bulb') + 'Sugerencias<small>Enviar una idea</small></button>' +
             '<button type="button" class="lg-action-btn" id="lg-admin-row" data-action="admin" hidden>' + icon('lock') + 'Acceso de administración<small>Solo creadores</small></button>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.15 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.16 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -264,22 +264,39 @@
   var chatSource = null;
   var chatOverlay = null;
   var chatFab = null;
+  var chatComunidadPane = null;
+  var chatKickPane = null;
+  var chatEmbedCargado = false;
+  var chatConPestanas = page === 'home';
 
   if (page === 'home' || page === 'cine') {
     chatSource = document.querySelector('#stream .chat-sidebar') || document.querySelector('.chat-box-cine');
     if (chatSource) {
+      var tabsChat = chatConPestanas
+        ? '<div class="lg-chat-tabs" role="tablist" aria-label="Chat de la comunidad o de Kick">' +
+            '<button type="button" class="lg-chat-tab" role="tab" data-chat-tab="comunidad" aria-selected="true">Comunidad</button>' +
+            '<button type="button" class="lg-chat-tab" role="tab" data-chat-tab="kick" aria-selected="false">Kick</button>' +
+          '</div>'
+        : '';
+      var paneles = chatConPestanas
+        ? '<div id="lg-chat-pane-comunidad" class="lg-chat-pane" role="tabpanel" aria-label="Chat de la comunidad"></div>' +
+          '<div id="lg-chat-body" class="lg-chat-pane" role="tabpanel" aria-label="Chat de Kick" hidden></div>'
+        : '<div id="lg-chat-body" class="lg-chat-pane"></div>';
       body.insertAdjacentHTML('beforeend',
         '<div id="lg-chat-sheet" class="lg-overlay" aria-hidden="true">' +
           '<div class="lg-scrim" data-close-chat></div>' +
           '<section class="lg-sheet" role="dialog" aria-modal="true" aria-label="Chat en vivo">' +
             '<div class="lg-sheet-handle"></div>' +
             '<div class="lg-sheet-head"><div><small>EN VIVO</small><h2>Chat</h2></div><button type="button" class="lg-sheet-close" data-close-chat aria-label="Cerrar chat">' + icon('close') + '</button></div>' +
-            '<div class="lg-sheet-scroll"><div id="lg-chat-body"></div></div>' +
+            tabsChat +
+            '<div class="lg-sheet-scroll">' + paneles + '</div>' +
           '</section>' +
         '</div>'
       );
       chatOverlay = document.getElementById('lg-chat-sheet');
-      document.getElementById('lg-chat-body').appendChild(chatSource);
+      chatKickPane = document.getElementById('lg-chat-body');
+      chatComunidadPane = document.getElementById('lg-chat-pane-comunidad');
+      if (chatKickPane) chatKickPane.appendChild(chatSource);
       var fab = document.createElement('button');
       fab.type = 'button';
       fab.className = 'lg-chat-fab';
@@ -290,6 +307,53 @@
       body.appendChild(fab);
       chatFab = fab;
     }
+  }
+
+  function hayDirecto() {
+    var nav = document.querySelector('.navbar');
+    return !!(nav && nav.classList.contains('live-glow'));
+  }
+
+  function cargarChatComunidad() {
+    if (chatEmbedCargado || !chatComunidadPane) return;
+    chatEmbedCargado = true;
+    var marco = document.createElement('iframe');
+    marco.className = 'lg-chat-iframe';
+    marco.title = 'Chat de la comunidad';
+    marco.style.opacity = '0';
+    marco.addEventListener('load', function () {
+      try {
+        var doc = marco.contentDocument;
+        var estilo = doc.createElement('style');
+        estilo.textContent = 'body{background:#060b0a!important;margin:0!important}' +
+          '.navbar,footer,.site-footer,.gochi-breadcrumb-nav,#nav-misiones-panel{display:none!important}' +
+          'main.comunidad-layout{display:block!important;padding:0!important;margin:0!important;max-width:none!important;width:100%!important}' +
+          'main.comunidad-layout > *:not(.chat-box-container){display:none!important}' +
+          '.chat-box-container{height:100vh!important;max-height:none!important;margin:0!important;border-radius:0!important;border:0!important;width:100%!important}' +
+          '.page-layout{padding-top:0!important}';
+        doc.head.appendChild(estilo);
+      } catch (e) { /* mismo origen, pero si falla se muestra igual */ }
+      marco.style.opacity = '1';
+    });
+    marco.src = '/comunidad.html?embed=chat';
+    chatComunidadPane.appendChild(marco);
+  }
+
+  function mostrarTabChat(nombre, manual) {
+    if (!chatOverlay || !chatConPestanas) return;
+    var destino = nombre === 'kick' ? 'kick' : 'comunidad';
+    if (manual) {
+      try { sessionStorage.setItem('lg_chat_tab', destino); } catch (e) {}
+    }
+    var botones = chatOverlay.querySelectorAll('[data-chat-tab]');
+    for (var i = 0; i < botones.length; i++) {
+      var on = botones[i].getAttribute('data-chat-tab') === destino;
+      botones[i].classList.toggle('lg-chat-tab-on', on);
+      botones[i].setAttribute('aria-selected', on ? 'true' : 'false');
+    }
+    if (chatKickPane) chatKickPane.hidden = destino !== 'kick';
+    if (chatComunidadPane) chatComunidadPane.hidden = destino !== 'comunidad';
+    if (destino === 'comunidad') cargarChatComunidad();
   }
 
   function closeAllOverlays() {
@@ -360,6 +424,11 @@
     loadChatIframe();
     openOverlay(chatOverlay);
     body.classList.add('lg-chat-open');
+    if (chatConPestanas) {
+      var elegida = null;
+      try { elegida = sessionStorage.getItem('lg_chat_tab'); } catch (e) {}
+      mostrarTabChat(elegida || (hayDirecto() ? 'kick' : 'comunidad'));
+    }
     if (chatFab) {
       chatFab.classList.add('lg-show');
       chatFab.setAttribute('aria-expanded', 'true');
@@ -1287,7 +1356,15 @@
 
   if (chatOverlay) {
     chatOverlay.addEventListener('click', function (event) {
-      if (event.target.closest('[data-close-chat]')) closeAllOverlays();
+      if (event.target.closest('[data-close-chat]')) {
+        closeAllOverlays();
+        return;
+      }
+      var tabChat = event.target.closest('[data-chat-tab]');
+      if (tabChat) {
+        mostrarTabChat(tabChat.getAttribute('data-chat-tab'), true);
+        haptic();
+      }
     });
   }
 
@@ -1496,6 +1573,51 @@
   }
 
   reportarInstalacion();
+
+  /* ---------- Recompensa única por instalar la app ---------- */
+  function reclamarRecompensaApp() {
+    var token = null;
+    try { token = localStorage.getItem('comunidad_session_token'); } catch (e) {}
+    if (!token || typeof window.rpcRaw !== 'function') return;
+    var id = idDispositivo();
+    if (!id) return;
+    var marca = 'lg_app_recompensa';
+    try {
+      if (sessionStorage.getItem(marca)) return;
+      sessionStorage.setItem(marca, '1');
+    } catch (e) {}
+    window.rpcRaw('reclamar_recompensa_app', { p_token: token, p_dispositivo: id }).then(function (res) {
+      var d = res && res.data;
+      if (!d || !d.ok || d.ya) return;
+      toast('🎁 +' + d.puntos + ' puntos por instalar la app');
+      window.refrescarPuntosDia?.();
+      window.actualizarSesionUsuarioComunidad?.({ puntos: d.saldo });
+      window.actualizarUsuarioNavComunidad?.();
+    }).catch(function () {});
+  }
+
+  reclamarRecompensaApp();
+  document.addEventListener('gocha:sesion', reclamarRecompensaApp);
+
+  /* ---------- Errores de la app en Umami (sin datos personales) ---------- */
+  function reportarErrorApp(tipo, detalle) {
+    try {
+      if (window.umami && typeof window.umami.track === 'function') {
+        window.umami.track('error-app', {
+          tipo: String(tipo || '').slice(0, 24),
+          detalle: String(detalle || '').slice(0, 140),
+          pagina: String(location.pathname || '').slice(0, 40)
+        });
+      }
+    } catch (e) {}
+  }
+  window.addEventListener('error', function (evento) {
+    reportarErrorApp('js', evento && evento.message);
+  });
+  window.addEventListener('unhandledrejection', function (evento) {
+    var motivo = evento && evento.reason;
+    reportarErrorApp('promesa', motivo && (motivo.message || motivo));
+  });
 
   (function prefetchPages() {
     var idx = navIndex(activeNavId());
