@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.83.2] - 2026-11-06
+
+### Home: fuera el bloque de horarios
+
+- Se retira la sección `#directo` de `index.html` (H2 de horarios y dos párrafos): el contenido se veía sobrecargado entre el player y los clips.
+- La pregunta `¿A qué hora empieza La Gocha en Kick?` sigue en la FAQ visible y en el `FAQPage` del JSON-LD, así que la home mantiene la respuesta de horarios sin el bloque largo.
+- Sin cambios de script inline ni de CSP. Busters `?v=1.83.2` reescritos con `check.js --fix`.
+
 ## [1.83.1] - 2026-11-06
 
 ### SEO de la home: directo en Kick
