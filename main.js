@@ -1371,7 +1371,7 @@ window.insertarNavbar = function insertarNavbar() {
         <div class="nav-app" id="nav-app">
             <button type="button" class="nav-link nav-app-toggle" aria-haspopup="true" aria-controls="nav-app-panel"
                     x-bind:aria-expanded="$store.ui.menuNav === 'app' ? 'true' : 'false'"
-                    x-on:click="$store.ui.menuNav = $store.ui.menuNav === 'app' ? '' : 'app'"
+                    x-on:click="$store.ui.menuNav = $store.ui.menuNav === 'app' ? '' : 'app'; $store.ui.menuAbierto = false"
                     aria-label="Opciones de descarga de Gochita App">
                 <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
                 <span>App</span>
