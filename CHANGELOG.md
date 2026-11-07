@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.83.3] - 2026-11-06
+
+### Limpieza del bloque retirado
+
+- Fuera las dos reglas `.content-section .hero-bio a` y `:hover` de `style.css`: solo las usaba la sección `#directo` que se quitó en la 1.83.2. `hero-bio` se queda porque el hero de la home lo usa.
+- Sin cambios de script inline ni de CSP. Busters `?v=1.83.3` reescritos con `check.js --fix`.
+
 ## [1.83.2] - 2026-11-06
 
 ### Home: fuera el bloque de horarios
