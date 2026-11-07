@@ -4,7 +4,6 @@ html.lg-app {
   --lg-safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   --lg-safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
   --lg-bg: #05070a;
-  --lg-bg-soft: #0a0e14;
   --lg-surface: #0d131b;
   --lg-surface-2: #121a24;
   --lg-surface-3: #182230;
@@ -13,12 +12,9 @@ html.lg-app {
   --lg-line: rgba(255, 255, 255, .09);
   --lg-line-strong: rgba(255, 255, 255, .15);
   --lg-pink: #ff66b2;
-  --lg-pink-soft: rgba(255, 102, 178, .15);
   --lg-teal: #3ee0c6;
-  --lg-purple: #a855f7;
   --lg-gradient: linear-gradient(135deg, #ff66b2 0%, #a855f7 52%, #3ee0c6 100%);
   --lg-shadow: 0 18px 50px rgba(0, 0, 0, .42);
-  --lg-radius: 20px;
   --lg-topbar: calc(58px + var(--lg-safe-top));
   --lg-bottom: calc(68px + var(--lg-safe-bottom));
   color-scheme: dark;
@@ -26,7 +22,6 @@ html.lg-app {
 
 html.lg-app.lg-theme-light {
   --lg-bg: #eef1f7;
-  --lg-bg-soft: #f6f8fc;
   --lg-surface: #ffffff;
   --lg-surface-2: #f4f6fa;
   --lg-surface-3: #e9edf5;
@@ -40,7 +35,6 @@ html.lg-app.lg-theme-light {
 
 html.lg-app.lg-theme-oled {
   --lg-bg: #000000;
-  --lg-bg-soft: #000000;
   --lg-surface: #080808;
   --lg-surface-2: #0d0d0d;
   --lg-surface-3: #141414;

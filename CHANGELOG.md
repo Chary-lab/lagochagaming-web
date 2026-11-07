@@ -3,6 +3,21 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.82.2] - 2026-11-07
+
+### Código muerto fuera
+
+- `main.js`: se retira `window.gochiUI`, un agregador de 8 métodos con **cero consumidores** en las 6 páginas, `main.js` y `mobile.js`. Los ayudantes que envolvía (`gochiChip`, `gochiSkeleton`, `gochiDropdown`, `cerrarGochiMenus`) siguen igual porque sí se usan.
+- `main.js`: fuera `btn.onclick = null` del menú móvil; nadie asignaba nunca ese `onclick` (el botón lo gobierna Alpine).
+- `style.css`: fuera `html.densidad-compacta .ranking-item` (la clase no existe en el sitio) y la referencia a `.nav-app-dropdown` en `html.sin-transparencias`, otro selector que nunca casa.
+- `mobile/mobile.css`: fuera 4 variables sin un solo `var()`: `--lg-bg-soft`, `--lg-pink-soft`, `--lg-purple` y `--lg-radius`.
+- Atributos huérfanos: `data-rango` en el ranking de Comunidad, `id="reporte-foto-modal"` en Galería y `id="btn-join-cuenta"` en Sorteo. Los dos últimos no aparecían en ningún JS ni CSS.
+
+### Backend verificado, sin cambios
+
+- Comprobado contra producción con `supabase db query --remote --read-only`: las **54 RPC** que llama el cliente existen en la base y la auditoría es una sola tabla (`admin_audit_log`) con `admin_auditar()`, que ya resuelve el autor por JWT o por `x-comunidad-token`.
+- `supabase/migrations/` **no refleja producción**: contiene migraciones que nunca se aplicaron (la tabla `admin_audit` y `registrar_admin_audit` no existen en la base). Se deja como histórico parcial, no como fuente de verdad.
+
 ## [1.82.1] - 2026-11-06
 
 ### Correcciones de auditoría

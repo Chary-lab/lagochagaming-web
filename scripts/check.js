@@ -168,13 +168,10 @@ if (!/navigator\.clipboard\s*\.\s*writeText/.test(mainJs)) {
 if (/cdn\.tailwindcss\.com/.test(mainJs)) {
     error('main.js: no debe cargar el CDN de Tailwind (rompe los bordes al inyectarse)');
 }
-for (const api of ['gochiUI', 'gochiDropdown', 'gochiSkeleton', 'gochiChip', 'cerrarGochiMenus']) {
+for (const api of ['gochiDropdown', 'gochiSkeleton', 'gochiChip', 'cerrarGochiMenus']) {
     if (!new RegExp('window\\.' + api + '\\s*=').test(mainJs)) {
         error(`main.js: falta window.${api} (API de componentes Gochi)`);
     }
-}
-if (!/abrirHoja\s*:/.test(mainJs) || !/cerrarHoja\s*:/.test(mainJs)) {
-    error('main.js: gochiUI debe exponer abrirHoja y cerrarHoja');
 }
 
 // RPC: una sola puerta. Toda llamada pasa por window.rpcRaw / window.rpc, que

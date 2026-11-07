@@ -1629,18 +1629,6 @@ document.addEventListener('keydown', (evento) => {
     }
 });
 
-window.gochiUI = {
-    toast: (mensaje, esError = false) => window.mostrarToast(mensaje, esError),
-    confirmar: (opciones) => window.confirmarAccion(opciones),
-    chip: (texto, tono) => window.gochiChip(texto, tono),
-    skeleton: (tipo, cantidad) => window.gochiSkeleton(tipo, cantidad),
-    dropdown: (id, abrir) => window.gochiDropdown(id, abrir),
-    cerrarMenus: () => window.cerrarGochiMenus(),
-    // Hoja lateral: hoy la única del sitio es el panel de administración.
-    abrirHoja: (tab) => window.Alpine?.store('adminPanel')?.abrir(tab),
-    cerrarHoja: () => window.Alpine?.store('adminPanel')?.cerrar()
-};
-
 // === TOOLTIP GLOBAL (delegado, un solo nodo) ===
 (function iniciarTooltips() {
     // En pantallas táctiles el tooltip se queda pegado tras el toque y tapa la UI.
@@ -1994,8 +1982,6 @@ window.inicializarMenuMovil = function inicializarMenuMovil() {
     btn.setAttribute('aria-controls', navLinks.id);
     btn.setAttribute('aria-expanded', 'false');
     btn.setAttribute('aria-label', 'Abrir menú');
-
-    btn.onclick = null;
 
     if (window.escapeMenuMovilRegistrado) return;
     window.escapeMenuMovilRegistrado = true;
