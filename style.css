@@ -7907,3 +7907,18 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .tienda-detalle > summary::before { content: "▸"; color: var(--accent-color); font-size: .8rem; }
 .tienda-detalle[open] > summary::before { content: "▾"; }
 .tienda-detalle > summary span { color: var(--text-muted); }
+
+/* Adornos comprados: marco, título y lista de compras */
+.avatar-marco { box-shadow: 0 0 0 2px var(--accent-color), 0 0 10px rgba(34,230,165,.45); border-radius: 50%; }
+.mp-avatar.avatar-marco { padding: 2px; }
+.mp-titulo { display: inline-flex; align-items: center; font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: #04120c; background: linear-gradient(135deg, #ffc94d, #ff8a3d); padding: 2px 7px; border-radius: 999px; }
+.chat-msg-titulo { font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #ffc94d; border: 1px solid #3a2f14; border-radius: 999px; padding: 1px 6px; margin-left: 4px; }
+.leaderboard-titulo { font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #ffc94d; }
+.muro-titulo { font-size: .55rem; padding: 1px 5px; }
+.mp-compras { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.mp-compra { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border: 1px solid var(--border-color); border-radius: 10px; font-size: .82rem; }
+.mp-compra-nombre { font-weight: 700; }
+.mp-compra-tipo { font-size: .62rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+.mp-compra-btn { margin-left: auto; border: 1px solid var(--accent-color); background: transparent; color: var(--accent-color); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: .72rem; font-weight: 800; cursor: pointer; }
+.mp-compra-puesto { margin-left: auto; font-size: .68rem; font-weight: 800; color: var(--accent-color); }
+@media (prefers-reduced-motion: reduce) { .avatar-marco { box-shadow: 0 0 0 2px var(--accent-color); } }

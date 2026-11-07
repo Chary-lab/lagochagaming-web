@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-jQebbjbE+NMj2z8mctrnFHcU/tu4pt4yNjcuyj/0Zok=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-77wHXz0gSMNmplLtNdL6HmQz95JawNkRxVHKP3VaghI=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.91.0">
+    <link rel="stylesheet" href="style.css?v=1.91.1">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -114,7 +114,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     <template x-for="(user, index) in $store.ranking.usuarios" :key="user.apodo">
                         <div class="leaderboard-item" :class="{ 'leaderboard-item-first': index === 0 }">
                             <span class="leaderboard-user">
-                                <span class="leaderboard-avatar">
+                                <span class="leaderboard-avatar" :class="{ 'avatar-marco': user.marco }">
                                     <template x-if="user.avatar">
                                         <img :src="user.avatar" alt="" loading="lazy" width="26" height="26">
                                     </template>
@@ -130,6 +130,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                                 <span class="rango-badge leaderboard-badge" :class="'rango-' + user.rangoClave">
                                     <span x-text="user.rangoEmoji"></span><span x-text="user.rangoNombre"></span>
                                 </span>
+                                <span class="leaderboard-titulo" x-show="user.titulo" x-text="user.titulo"></span>
                             </span>
                             <span class="leaderboard-points"><span x-text="user.puntos"></span> pts</span>
                         </div>
@@ -206,6 +207,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                                   @keydown.enter.prevent="window.abrirPerfilUsuario?.(msg.autor)"
                                   @keydown.space.prevent="window.abrirPerfilUsuario?.(msg.autor)"
                                   x-text="msg.autor || 'Anónimo'"></span>
+                            <span class="chat-msg-titulo" x-show="msg.titulo" x-text="msg.titulo"></span>
                             <span class="chat-msg-badges" x-show="$store.rangosChat.insignias(msg.autor).length" x-cloak>
                                 <template x-for="b in $store.rangosChat.insignias(msg.autor)" :key="b.tipo">
                                     <span class="chat-kick-badge" :class="'kick-badge-' + b.tipo" :title="b.texto">
@@ -596,7 +598,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.91.0" defer></script>
+    <script src="main.js?v=1.91.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1046,7 +1048,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 const stChat = window.Alpine?.store('chat');
                 if (stChat && Array.isArray(stChat.mensajes)) {
                     stChat.mensajes = stChat.mensajes.map((m) => Object.assign({}, m, {
-                        color: window.colorApodoDe?.(m.autor) || ''
+                        color: window.colorApodoDe?.(m.autor) || '',
+                        titulo: window.tituloApodoDe?.(m.autor) || ''
                     }));
                 }
                 window.cargarLeaderboard?.();
@@ -1922,6 +1925,7 @@ setInterval(actualizarTypingIndicator, 1200);
                 return {
                     id: id,
                     color: window.colorApodoDe?.(msg.autor) || '',
+                    titulo: window.tituloApodoDe?.(msg.autor) || '',
                     autor: msg.autor || 'Anónimo',
                     mensaje: msg.mensaje || '',
                     created_at: msg.created_at,
@@ -2843,6 +2847,8 @@ if (chatForm) {
                             apodo: user.apodo,
                             puntos: user.puntos,
                             color: window.colorApodoDe?.(user.apodo) || '',
+                            titulo: window.tituloApodoDe?.(user.apodo) || '',
+                            marco: window.marcoApodoDe?.(user.apodo) || false,
                             medalla: medalla,
                             rangoClave: clave,
                             rangoEmoji: emoji,

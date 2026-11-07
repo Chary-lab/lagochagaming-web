@@ -2166,26 +2166,38 @@ window.addEventListener('resize', () => {
 // === Color de apodo (tienda) ===
 // Mapa apodo normalizado -> hex. Se carga una vez por página y las vistas se
 // repintan al recibir 'gocha:colores'.
-const _coloresApodo = new Map();
+const _perfilesApodo = new Map();
 window.cargarColoresApodo = async function cargarColoresApodo() {
     if (!window.supabase) return;
     try {
         const { data, error } = await window.supabase
             .from('usuarios_comunidad')
-            .select('apodo, color_apodo')
-            .not('color_apodo', 'is', null);
+            .select('apodo, color_apodo, titulo_equipado, marco_equipado')
+            .or('color_apodo.not.is.null,titulo_equipado.not.is.null,marco_equipado.is.true');
         if (error) return;
-        _coloresApodo.clear();
+        _perfilesApodo.clear();
         (data || []).forEach((u) => {
-            if (u && u.apodo && u.color_apodo) {
-                _coloresApodo.set(String(u.apodo).trim().toLowerCase(), u.color_apodo);
-            }
+            if (!u || !u.apodo) return;
+            _perfilesApodo.set(String(u.apodo).trim().toLowerCase(), {
+                color: u.color_apodo || '',
+                titulo: u.titulo_equipado || '',
+                marco: !!u.marco_equipado
+            });
         });
         document.dispatchEvent(new CustomEvent('gocha:colores'));
-    } catch (e) { /* sin colores */ }
+    } catch (e) { /* sin adornos */ }
 };
 window.colorApodoDe = function colorApodoDe(apodo) {
-    return _coloresApodo.get(String(apodo || '').trim().toLowerCase()) || '';
+    const p = _perfilesApodo.get(String(apodo || '').trim().toLowerCase());
+    return (p && p.color) || '';
+};
+window.tituloApodoDe = function tituloApodoDe(apodo) {
+    const p = _perfilesApodo.get(String(apodo || '').trim().toLowerCase());
+    return (p && p.titulo) || '';
+};
+window.marcoApodoDe = function marcoApodoDe(apodo) {
+    const p = _perfilesApodo.get(String(apodo || '').trim().toLowerCase());
+    return !!(p && p.marco);
 };
 window.aplicarColoresApodo = function aplicarColoresApodo() {
     window.cargarColoresApodo();
@@ -4260,7 +4272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   x-on:click="$store.perfil.vista = 'perfil'">Perfil</button>
           <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'cuenta' }"
                   x-bind:aria-selected="$store.perfil.vista === 'cuenta'"
-                  x-on:click="$store.perfil.vista = 'cuenta'; $store.perfil.cargarCanjes()">Mi cuenta</button>
+                  x-on:click="$store.perfil.vista = 'cuenta'; $store.perfil.cargarCompras()">Mi cuenta</button>
           <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'ajustes' }"
                   x-bind:aria-selected="$store.perfil.vista === 'ajustes'"
                   x-on:click="$store.perfil.vista = 'ajustes'">Ajustes</button>
@@ -4276,7 +4288,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="mp-perfil" x-bind:hidden="$store.perfil.cargando || !!$store.perfil.error">
             <div class="mp-profile-head">
               <div class="mp-avatar-wrap">
-                <img class="mp-avatar" x-bind:src="$store.perfil.avatar" x-bind:hidden="!$store.perfil.avatar"
+                <img class="mp-avatar" x-bind:class="{ 'avatar-marco': $store.perfil.usuario.marco_equipado }"
+                     x-bind:src="$store.perfil.avatar" x-bind:hidden="!$store.perfil.avatar"
                      x-bind:alt="'Avatar de ' + $store.perfil.nombre">
                 <span class="mp-avatar-inicial" x-bind:hidden="!!$store.perfil.avatar" x-text="$store.perfil.inicial"></span>
               </div>
@@ -4285,6 +4298,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   <h4 class="mp-apodo" x-bind:class="'rango-texto-' + $store.perfil.rango.clave"
                       x-bind:style="$store.perfil.usuario.color_apodo ? 'color:' + $store.perfil.usuario.color_apodo : null"
                       x-text="$store.perfil.nombre"></h4>
+                  <span class="mp-titulo" x-bind:hidden="!$store.perfil.usuario.titulo_equipado"
+                        x-text="$store.perfil.usuario.titulo_equipado"></span>
                   <span class="mp-genero" x-bind:hidden="!$store.perfil.publico || !$store.perfil.generoTexto"
                         x-text="$store.perfil.generoTexto"></span>
                   <a class="mp-kick-link" x-show="$store.perfil.publico && $store.perfil.usuario.kick_username"
@@ -4475,6 +4490,25 @@ document.addEventListener('DOMContentLoaded', () => {
                       x-show="$store.perfil.kickUsuario"
                       x-on:click="$store.perfil.desvincularKick()">Desvincular</button>
             </div>
+          </section>
+
+          <section class="mp-seccion">
+            <h5 class="mp-seccion-titulo">Mis compras <span class="mp-seccion-nota">tienda</span></h5>
+            <p class="mp-desde" x-bind:hidden="$store.perfil.comprasEstado !== 'cargando'">Cargando compras…</p>
+            <p class="mp-desde" x-bind:hidden="$store.perfil.comprasEstado !== 'lista' || $store.perfil.compras.length > 0">Aún no has comprado nada en la tienda.</p>
+            <ul class="mp-compras" x-bind:hidden="$store.perfil.compras.length === 0">
+              <template x-for="c in $store.perfil.compras" :key="'compra-' + c.id">
+                <li class="mp-compra">
+                  <span class="mp-compra-nombre" x-text="c.nombre"></span>
+                  <span class="mp-compra-tipo" x-text="c.tipo"></span>
+                  <button type="button" class="mp-compra-btn"
+                          x-bind:hidden="!$store.perfil.ponible(c)"
+                          x-on:click="$store.perfil.equiparCompra(c)"
+                          x-text="$store.perfil.estaPuesto(c) ? 'Quitar' : 'Equipar'"></button>
+                  <span class="mp-compra-puesto" x-bind:hidden="!$store.perfil.estaPuesto(c) || c.tipo !== 'avatar'">Puesto</span>
+                </li>
+              </template>
+            </ul>
           </section>
 
           <section class="mp-seccion">
@@ -4713,6 +4747,8 @@ document.addEventListener('DOMContentLoaded', () => {
       canjes: [],
       canjesEstado: 'inicial',
       canjesCargadoEn: 0,
+      compras: [],
+      comprasEstado: 'inicial',
       avatares: [],
       avatarSeleccionado: undefined,
       cargadoEn: 0,
@@ -4855,6 +4891,62 @@ document.addEventListener('DOMContentLoaded', () => {
         this.canjes = Array.isArray(res.data.canjes) ? res.data.canjes : [];
         this.canjesCargadoEn = Date.now();
         this.canjesEstado = 'lista';
+        this.compras = this.canjes.filter((c) => ['color', 'titulo', 'marco', 'icono', 'avatar'].includes(c.tipo));
+        this.comprasEstado = 'lista';
+      },
+      async cargarCompras() {
+        await this.cargarCanjes();
+        this.compras = (this.canjes || []).filter((c) => ['color', 'titulo', 'marco', 'icono', 'avatar'].includes(c.tipo));
+        this.comprasEstado = this.canjesEstado === 'error' ? 'error' : 'lista';
+      },
+      ponible(c) {
+        if (!c) return false;
+        return ['color', 'titulo', 'marco', 'icono', 'avatar'].includes(c.tipo);
+      },
+      estaPuesto(c) {
+        if (!c) return false;
+        const u = this.usuario || {};
+        const sesion = window.obtenerSesionUsuarioComunidad?.() || {};
+        if (c.tipo === 'color') return !!c.valor && c.valor === (u.color_apodo || sesion.color_apodo);
+        if (c.tipo === 'titulo') return !!c.valor && c.valor === u.titulo_equipado;
+        if (c.tipo === 'marco') return !!u.marco_equipado;
+        if (c.tipo === 'icono') return !!c.icono && c.icono === (u.icono_equipado || sesion.icono);
+        if (c.tipo === 'avatar') return !!c.avatar_url && c.avatar_url === (u.avatar_url || sesion.avatar);
+        return false;
+      },
+      async equiparCompra(c) {
+        if (!c) return;
+        const token = almacen.texto('comunidad_session_token');
+        if (!token) { window.mostrarToast?.('Inicia sesión para equipar.', true); return; }
+        const quitar = c.tipo !== 'avatar' && this.estaPuesto(c);
+        const res = await window.rpc('equipar_canje', {
+          p_token: token,
+          p_canje_id: c.id,
+          p_equipar: !quitar
+        }, { error: false });
+        if (!res.ok || !res.data || !res.data.ok) {
+          window.mostrarToast?.('No se pudo equipar el premio.', true);
+          return;
+        }
+        const d = res.data;
+        this.usuario = Object.assign({}, this.usuario, {
+          color_apodo: d.color_apodo,
+          titulo_equipado: d.titulo_equipado,
+          marco_equipado: d.marco_equipado,
+          icono_equipado: d.icono_equipado,
+          avatar_url: d.avatar_url
+        });
+        window.actualizarSesionUsuarioComunidad?.({
+          color_apodo: d.color_apodo,
+          titulo_equipado: d.titulo_equipado,
+          marco_equipado: d.marco_equipado,
+          icono: d.icono_equipado || '',
+          avatar: d.avatar_url,
+          avatar_url: d.avatar_url
+        });
+        window.actualizarUsuarioNavComunidad?.();
+        window.aplicarColoresApodo?.();
+        window.mostrarToast?.(quitar ? 'Quitado.' : 'Equipado.');
       },
       tonoPunto(accion) {
         const tonos = {
@@ -4993,7 +5085,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setNavExpanded(true);
         this.cargar();
         if (this.vista === 'perfil') this.cargarHistorial();
-        if (this.vista === 'cuenta') this.cargarCanjes();
+        if (this.vista === 'cuenta') this.cargarCompras();
       },
 
       abrirEliminar() {
@@ -5082,7 +5174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const { data, error } = await window.supabase
             .from('usuarios_comunidad')
-            .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username,color_apodo,titulo_equipado')
+            .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username,color_apodo,titulo_equipado,marco_equipado')
             .ilike('apodo', apodo)
             .maybeSingle();
           if (error) throw error;
@@ -5175,7 +5267,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userId
               ? window.supabase
                 .from('usuarios_comunidad')
-                .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username,color_apodo,titulo_equipado')
+                .select('apodo,puntos,rango,genero,avatar_url,bio,links_json,icono_equipado,creado_en,kick_badges,kick_badges_at,kick_user_id,kick_username,color_apodo,titulo_equipado,marco_equipado')
                 .eq('id', userId)
                 .maybeSingle()
               : Promise.resolve({ data: null, error: null }),
@@ -5196,6 +5288,9 @@ document.addEventListener('DOMContentLoaded', () => {
               bio: d.bio ?? null,
               links_json: d.links_json ?? null,
               icono: d.icono_equipado ?? '',
+              color_apodo: d.color_apodo ?? null,
+              titulo_equipado: d.titulo_equipado ?? null,
+              marco_equipado: !!d.marco_equipado,
               creado_en: d.creado_en ?? u.creado_en ?? null,
               kick_user_id: d.kick_user_id ?? null,
               kick_username: d.kick_username ?? null

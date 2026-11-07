@@ -3,6 +3,9 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+- **Mis compras** en Mi cuenta: lista lo que tienes y deja **Equipar/Quitar** (color, título, marco, icono y avatar) con `equipar_canje`.
+- Marco y título ya se dibujan: aro con brillo en el avatar del perfil y del ranking, y etiqueta junto al apodo en perfil, chat, ranking y muro.
+
 ## [1.91.0] - 2026-11-07
 
 ### Tienda: rework con colores de apodo
