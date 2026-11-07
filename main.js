@@ -1376,7 +1376,8 @@ window.insertarNavbar = function insertarNavbar() {
                 <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
                 <span>App</span>
             </button>
-            <div class="nav-app-panel" id="nav-app-panel" hidden :hidden="$store.ui.menuNav !== 'app'">
+            <div class="nav-app-panel" id="nav-app-panel" hidden :hidden="$store.ui.menuNav !== 'app'"
+                 x-effect="window.portalPanelApp && window.portalPanelApp($el, $store.ui.menuNav === 'app')">
                 <div class="nav-app-hero">
                     <div class="nav-app-phone" aria-hidden="true">
                         <span class="nav-app-vivo"><i></i>VIVO</span>
@@ -1416,7 +1417,7 @@ window.insertarNavbar = function insertarNavbar() {
                     <summary>¿Sale aviso de Play Protect? <span>es normal</span></summary>
                     <p>Avisa de cualquier app que no venga de Play Store. La nuestra está firmada y se descarga del dominio oficial.</p>
                 </details>
-                <p class="nav-app-nota">Versión 1.16 · iPhone / iPad: aún no disponible.</p>
+                <p class="nav-app-nota">Versión 1.18 · iPhone / iPad: aún no disponible.</p>
             </div>
         </div>`;
 
@@ -2191,8 +2192,22 @@ window.addEventListener('resize', () => {
     if (panelMisionesAbierto) colocarPanelMisiones();
 });
 
-// === Color de apodo (tienda) ===
-// Mapa apodo normalizado -> hex. Se carga una vez por página y las vistas se
+// === Panel App: en móvil se ancla a la pantalla, no al menú ===
+window.portalPanelApp = function portalPanelApp(el, abierto) {
+    if (!el) return;
+    const movil = window.matchMedia('(max-width: 1100px)').matches;
+    const portal = abierto && movil;
+    el.classList.toggle('nav-app-panel--portal', portal);
+    if (portal) {
+        if (el.parentElement !== document.body) document.body.appendChild(el);
+        return;
+    }
+    const ancla = document.querySelector('.nav-app');
+    if (ancla && el.parentElement !== ancla) ancla.appendChild(el);
+    if (!abierto) el.hidden = true;
+};
+
+// === Color de apodo (tienda) ===// Mapa apodo normalizado -> hex. Se carga una vez por página y las vistas se
 // repintan al recibir 'gocha:colores'.
 const _perfilesApodo = new Map();
 window.cargarColoresApodo = async function cargarColoresApodo() {

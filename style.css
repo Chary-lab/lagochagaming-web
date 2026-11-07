@@ -223,7 +223,8 @@ body.light-mode .chat-kick-login span { color: #15803d; }
 @media (max-width: 1100px) {
     .nav-links .nav-app { width: 100%; justify-content: center; }
     .nav-links .nav-app-toggle { width: 100%; justify-content: center; }
-    .nav-links .nav-app-panel { position: static; transform: none; width: 100%; margin-top: 10px; box-shadow: none; }
+    .nav-links .nav-app { flex-wrap: wrap; }
+    .nav-links .nav-app-panel { position: static; transform: none; width: 100%; flex: 0 0 100%; max-width: 100%; margin-top: 10px; box-shadow: none; }
 
     /* El Login sigue en la barra superior, compacto y con el panel anclado a la derecha. */
     .nav-login { width: auto; }
@@ -8006,3 +8007,22 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .nav-app-descargar, .nav-app-gratis { color: var(--btn-text); }
 
 .nav-app-bono { margin: 8px 0 0; font-size: 0.7rem; font-weight: 700; color: var(--accent-color); text-align: center; }
+
+
+/* Panel App en móvil: hoja anclada a la pantalla */
+.nav-app-panel--portal {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    top: auto;
+    width: auto;
+    max-width: none;
+    max-height: 72vh;
+    overflow-y: auto;
+    margin: 0;
+    transform: none;
+    z-index: 1300;
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .55);
+}

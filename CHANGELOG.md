@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.92.0] - 2026-11-08
+
+### Fix: panel App en el móvil web
+
+- En el menú móvil el panel se colocaba al lado del botón App, fuera de la pantalla: había que deslizar a la derecha para ver la descarga.
+- Ahora, al abrirlo en móvil, se mueve al `body` y se ancla como hoja inferior (12 px de margen, máximo 72vh con scroll). En escritorio sigue colgando del botón.
+- El menú recupera el panel al cerrarse.
+
 ## [1.91.9] - 2026-11-07
 
 ### App 1.18: apodo arriba y aviso de login en el chat
