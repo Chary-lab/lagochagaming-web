@@ -65,7 +65,7 @@ node --check main.js
 
 El APK se distribuye desde este repo:
 
-- `app/LaGochaGaming.apk` — último APK firmado (versión actual: 1.13, versionCode 16).
+- `app/LaGochaGaming.apk` — último APK firmado (versión actual: 1.14, versionCode 17).
 - `app/version.json` — manifiesto del actualizador (`versionCode`, `versionName`, `sha256`, `size`, `notes`).
 - `mobile/mobile.css` y `mobile/mobile.js` — interfaz móvil que la app descarga por encima del APK (caché de 6 h, válida 7 días).
 
@@ -86,7 +86,7 @@ pestaña **Descargas** con total, únicos, hoy, 7/30 días y desglose por versi�
 Las actualizaciones internas de la app no pasan por ese enlace. Se miden aparte
 con la Edge Function `app-telemetria`: `mobile/mobile.js` envía un ID anónimo de
 dispositivo y la versión instalada al abrir la app. Si la versión subió, se
-guarda el salto `v1.12 → v1.13`. El panel muestra dispositivos, activos de los
+guarda el salto `v1.13 → v1.14`. El panel muestra dispositivos, activos de los
 últimos 7 días, versiones instaladas y las últimas actualizaciones. Solo se
 entera cuando el usuario vuelve a abrir la app después de actualizar.
 

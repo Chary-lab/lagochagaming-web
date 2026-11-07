@@ -1,8 +1,8 @@
 {
-    "versionCode": 16,
-    "versionName": "1.13",
-    "apkUrl": "https://lagochagaming.com/app/LaGochaGaming.apk",
-    "sha256": "299c9053139a0a8bd529119a4306b5538092025989192e1a3f7c0df435f92fb8",
-    "size": 4043426,
-    "notes": "Con el chat abierto la pagina se puede deslizar: coloca el directo a tu gusto. Hoja mas baja, sin blur, boton para ocultar el chat y arranque sin logo."
+    "versionCode":  17,
+    "versionName":  "1.14",
+    "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
+    "sha256":  "82b77d834fbb7d4cec6350a38825493f53ee35c8d6a7c941df72634c745f7a0f",
+    "size":  4047286,
+    "notes":  "Interfaz movil sincronizada con la web: tamano de texto, animaciones y ahorro de datos. Limpieza interna y version unica."
 }

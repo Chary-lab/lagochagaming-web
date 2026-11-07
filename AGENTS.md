@@ -10,7 +10,7 @@ Guía operativa para agentes que trabajen en este repositorio. Leerla completa a
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
 - Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
 - Versión actual: ver `VERSION` (SemVer). Changelog: `CHANGELOG.md`.
-- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`. Estado actual (2026-11-04): app v1.13, `versionCode` 16, APK de 4.043.426 B con sha256 `299c9053139a0a8bd529119a4306b5538092025989192e1a3f7c0df435f92fb8`; los assets empaquetados son la copia de `mobile/` de esa fecha. Desde la 1.75.0 `mobile/mobile.js` cambió (ajustes unificados): la app lo recoge por su refresco remoto, pero el próximo build del APK debe copiar `mobile/` a `android/app/src/main/assets/mobile/` para recuperar la paridad.
+- App Android: proyecto aparte en `D:\Apk Gocha` (Capacitor + WebView). Su guía vive en `D:\Apk Gocha\AGENTS.md`; este repo solo publica el APK en `app/` y su `version.json`. Estado actual (2026-11-07): app v1.14, `versionCode` 17, APK de 4.047.286 B con sha256 `82b77d834fbb7d4cec6350a38825493f53ee35c8d6a7c941df72634c745f7a0f`. Los assets empaquetados coinciden byte a byte con `mobile/`, y `build-apk.ps1` lo copia y lo verifica en cada build.
 
 ## 2. Reglas de stack
 
@@ -255,8 +255,8 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 ### 7.2 Release de la app (checklist obligatorio)
 
 1. En `D:\Apk Gocha`: subir `versionCode` y `versionName` en `android/app/build.gradle`.
-2. Subir `ASSET_CACHE_VERSION` en `MainActivity.java` cuando cambien los assets empaquetados (`mobile.css`/`mobile.js`); así se descarta la caché vieja.
-3. Sincronizar `D:\Gocha\mobile\mobile.css` y `mobile.js` con `android/app/src/main/assets/mobile/` si cambiaron.
+2. `ASSET_CACHE_VERSION` sale de `BuildConfig.VERSION_CODE`: subir `versionCode` invalida la caché de assets, sin pasos manuales.
+3. `build-apk.ps1` copia `D:\Gocha\mobile\mobile.css` y `mobile.js` a `android/app/src/main/assets/mobile/` y aborta si no quedan idénticos byte a byte: la paridad ya no depende de la memoria.
 4. Compilar y firmar:
    ```powershell
    $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot'
@@ -294,7 +294,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - En cada release, actualizar el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los HTML (GitHub Pages cachea agresivamente).
 - Formato de commit: `vX.Y.Z - resumen corto` (seguir el historial existente).
 - No commitear ni pushear una versión inestable. Probar antes.
-- Versión de esta release: `1.82.5` (`check.js` vigila diálogos del navegador y el manifiesto de la app; `smoke.js` cubre 404. Edge Functions y fechas por `llamarEdge`/`formatearFecha`. Sin carpeta local de Supabase. Sigue vigente el sorteo con identidad de la 1.82.0 y los arreglos de 1.82.1 a 1.82.4).
+- Versión de esta release: `1.83.0` (App 1.14: paridad de `mobile/` verificada dentro del APK, `versionCode` 17, notas por parámetro, versión desde `BuildConfig` y restos de plantilla fuera. Web: `check.js` vigila diálogos y el manifiesto; `smoke.js` cubre 404; Edge Functions y fechas por `llamarEdge`/`formatearFecha`; sin carpeta local de Supabase).
 - La base se toca **solo** contra Supabase, nunca contra un esquema local. Flujo obligatorio: leer con `supabase db query --remote=cydiyaacnyydprgffmkq --read-only`, probar en una transacción con `DO`/`RAISE` + `ROLLBACK` y aplicar con `--yes`. El wrapper `%APPDATA%\npm\supabase.cmd` funciona aunque el `.ps1` esté bloqueado por ExecutionPolicy.
 - No crear `supabase/migrations/` ni `supabase/functions/` locales. El historial de Supabase no registra lo aplicado con `db query`, así que el registro real de cada cambio es su entrada en `CHANGELOG.md`: qué, por qué y qué se verificó.
 - `supabase db dump` necesita Docker y aquí no hay. El respaldo de la base es el de Supabase (Dashboard → Database → Backups); si no está disponible, se genera un snapshot del esquema por consultas de solo lectura.

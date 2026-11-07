@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.83.0] - 2026-11-07
+
+### App 1.14: paridad de assets y versión única
+
+- APK nuevo: `versionCode` 17, `versionName` 1.14, 4.047.286 B, sha256 `82b77d83…`. Firma intacta (`41a6cdc7…`).
+- **Paridad recuperada**: `assets/mobile/mobile.js` era una copia de antes de los ajustes unificados y le faltaban 62 líneas (`leerAjustesWeb`/`guardarAjustesWeb`). Ahora coincide byte a byte con `mobile/`, comprobado dentro del propio APK.
+- `build-apk.ps1` copia `D:\Gocha\mobile\*` a los assets **antes** de compilar y aborta si los hashes no coinciden. Antes dependía de que alguien se acordara a mano.
+- Las notas de la versión dejan de estar hardcodeadas: `-Notes "..."` o `notes.txt`, y el script falla si no hay. Antes escribía siempre el mismo texto y pisaba las notas reales.
+- Versión única: `getVersion()` y `ASSET_CACHE_VERSION` salen de `BuildConfig`, así que subir `versionCode` basta para invalidar la caché de assets.
+- Fuera los restos de plantilla de Capacitor: los dos tests de ejemplo del paquete `com.getcapacitor.myapp` y los `cordova.js`/`cordova_plugins.js` vacíos.
+- `package.json` a 1.14.0, README de la web y de la app al día, y el checklist de release sin el paso manual de copiar assets.
+
 ## [1.82.5] - 2026-11-07
 
 ### Los checks cubren lo que faltaba
