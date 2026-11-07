@@ -3,7 +3,7 @@
 > Comunidad con chat, puntos y rangos, galería, sorteos y GochiWatch (cine sincronizado).
 
 ## Páginas
-- [Inicio](https://lagochagaming.com/): directos, clips, redes y muro de saludos.
+- [Inicio](https://lagochagaming.com/): directo en Kick, horarios, clips, redes y muro de saludos.
 - [Comunidad](https://lagochagaming.com/comunidad): chat, ranking, tienda y perfil.
 - [Galería](https://lagochagaming.com/galeria): fotos de la comunidad y likes.
 - [Sorteo](https://lagochagaming.com/sorteo): sorteos en vivo y modo manual.

@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.83.1] - 2026-11-06
+
+### SEO de la home: directo en Kick
+
+- `<title>` a `La Gocha Gaming (Gochita) Oficial | Directo en Kick` (50 caracteres). Search Console (3 meses) mostraba `kick la gocha gaming` con 12 impresiones, 0 clics y posición 5,83, y `gochita oficial` / `gocha oficial` / `gochaoficial` con 6 impresiones y 0 clics: el title no contenía ni `Oficial` ni la query con `Kick`.
+- H1 de `La Gocha Gaming` a `La Gocha Gaming en Kick`.
+- Sección nueva `#directo` con H2 `Directo de La Gocha en Kick: horarios y cómo verlo`, colocada entre el player y los clips. Sin horario inventado: enlaza al calendario del canal en Kick y explica cómo verlo y dónde seguir.
+- FAQ visible y `FAQPage` del JSON-LD: nueva pregunta `¿A qué hora empieza La Gocha en Kick?` con el mismo texto en ambos sitios.
+- `description`, `og:title`, `og:description`, `twitter:title` y `twitter:description` alineados con el title nuevo; `llms.txt` actualizado.
+- CSP intacta: `check.js` no hashea los bloques `ld+json` (solo scripts ejecutables y `speculationrules`), así que la meta no cambia. Busters `?v=1.83.1` reescritos con `check.js --fix`.
+- Canibalización comprobada antes del cambio: las 7 consultas del periodo son de marca y las gana la home; comunidad, galería, sorteo y cine mantienen su intención. Sin conflicto.
+- Hallazgo pendiente (fuera de este cambio): `https://www.lagochagaming.com/` falla el certificado (`SEC_E_WRONG_PRINCIPAL`); hay que reemitirlo desde GitHub Pages con `www` incluido.
+
 ## [1.83.0] - 2026-11-07
 
 ### App 1.14: paridad de assets y versión única
