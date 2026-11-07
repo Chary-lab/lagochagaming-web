@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.91.9] - 2026-11-07
+
+### App 1.18: apodo arriba y aviso de login en el chat
+
+- Con sesión, el chat de comunidad muestra una fila con **tu apodo** («Hablas con tu cuenta») justo encima de la pregunta del día.
+- Sin sesión, en vez del formulario aparece un aviso con **Entrar o registrarme**. El botón abre la hoja de cuenta de la app desde el iframe (`postMessage`).
+- El formulario sigue oculto mientras no haya cuenta: nadie escribe sin identificarse.
+
 ## [1.91.8] - 2026-11-07
 
 ### App 1.17: chat de comunidad limpio

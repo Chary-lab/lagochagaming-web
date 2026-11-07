@@ -232,7 +232,7 @@
             '<button type="button" class="lg-action-btn" data-action="sugerencias">' + icon('bulb') + 'Sugerencias<small>Enviar una idea</small></button>' +
             '<button type="button" class="lg-action-btn" id="lg-admin-row" data-action="admin" hidden>' + icon('lock') + 'Acceso de administración<small>Solo creadores</small></button>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.17 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.18 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -350,7 +350,13 @@
           '#chat-form .chat-campo-wrap{grid-column:1;min-width:0}' +
           '#chat-form .chat-submit-btn{grid-column:2;width:44px;height:42px;padding:0!important;border-radius:10px!important;font-size:0!important;display:flex;align-items:center;justify-content:center;text-transform:none!important}' +
           '#chat-form .chat-submit-btn::after{content:"➤";font-size:16px;line-height:1}' +
-          '#chat-form .chat-emote-btn{height:42px}';
+          '#chat-form .chat-emote-btn{height:42px}' +
+          '.lg-embed-nick{display:flex;align-items:center;gap:6px;padding:7px 12px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.06)}' +
+          '.lg-embed-nick b{color:#3ee0c6;font-weight:800}' +
+          '.lg-embed-nick span{color:#8a94a6}' +
+          '.chat-login-area{display:flex;flex-direction:column;gap:8px;padding:12px}' +
+          '.chat-login-area p{margin:0;font-size:12px;color:#8a94a6;text-align:center}' +
+          '.lg-embed-login{align-self:center;border:0;border-radius:999px;padding:10px 18px;font:inherit;font-weight:800;background:#3ee0c6;color:#04120c;cursor:pointer}';
         doc.head.appendChild(estilo);
         try {
           var autorEmbed = doc.getElementById('chat-autor');
@@ -359,6 +365,41 @@
             if (sesionEmbed && sesionEmbed.apodo) autorEmbed.value = sesionEmbed.apodo;
           }
         } catch (e) { /* sin sesión en el iframe */ }
+        try {
+          var docEmbed = doc;
+          var tokenEmbed = docEmbed.defaultView.localStorage.getItem('comunidad_session_token');
+          var sesEmbed = {};
+          try { sesEmbed = JSON.parse(docEmbed.defaultView.localStorage.getItem('comunidad_session_usuario') || '{}'); } catch (e) {}
+          var contEmbed = docEmbed.querySelector('.chat-box-container');
+          if (tokenEmbed && sesEmbed && sesEmbed.apodo && contEmbed) {
+            var chip = docEmbed.createElement('div');
+            chip.className = 'lg-embed-nick';
+            var chipNombre = docEmbed.createElement('b');
+            chipNombre.textContent = sesEmbed.apodo;
+            var chipTexto = docEmbed.createElement('span');
+            chipTexto.textContent = 'Hablas con tu cuenta';
+            chip.appendChild(chipNombre);
+            chip.appendChild(chipTexto);
+            var pregunta = contEmbed.querySelector('.chat-pregunta');
+            contEmbed.insertBefore(chip, pregunta || contEmbed.firstChild);
+          } else if (!tokenEmbed) {
+            var areaEmbed = docEmbed.getElementById('chat-login-area');
+            if (areaEmbed) {
+              areaEmbed.textContent = '';
+              var aviso = docEmbed.createElement('p');
+              aviso.textContent = 'Entra para escribir en el chat y ganar puntos.';
+              var entrar = docEmbed.createElement('button');
+              entrar.type = 'button';
+              entrar.className = 'lg-embed-login';
+              entrar.textContent = 'Entrar o registrarme';
+              entrar.addEventListener('click', function () {
+                try { docEmbed.defaultView.parent.postMessage('lg-cuenta', '*'); } catch (e) {}
+              });
+              areaEmbed.appendChild(aviso);
+              areaEmbed.appendChild(entrar);
+            }
+          }
+        } catch (e) { /* sin acceso al iframe */ }
       } catch (e) { /* mismo origen, pero si falla se muestra igual */ }
       marco.style.opacity = '1';
     });
@@ -1625,6 +1666,14 @@
 
   reclamarRecompensaApp();
   document.addEventListener('gocha:sesion', reclamarRecompensaApp);
+
+  /* El chat de la comunidad pide abrir la cuenta desde el iframe. */
+  window.addEventListener('message', function (evento) {
+    if (evento.origin !== window.location.origin) return;
+    if (evento.data !== 'lg-cuenta') return;
+    closeAllOverlays();
+    openProfile();
+  });
 
   /* ---------- Errores de la app en Umami (sin datos personales) ---------- */
   function reportarErrorApp(tipo, detalle) {

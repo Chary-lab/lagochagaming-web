@@ -1390,7 +1390,7 @@ window.insertarNavbar = function insertarNavbar() {
                         <span class="nav-app-gratis">Gratis · Android 7+</span>
                     </div>
                 </div>
-                <a class="nav-app-descargar" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=1.17&o=web" rel="noopener" data-umami-event="descarga-apk">
+                <a class="nav-app-descargar" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=1.18&o=web" rel="noopener" data-umami-event="descarga-apk">
                     <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
                     <span>Descargar APK</span>
                     <em>4,2 MB</em>
