@@ -3,6 +3,20 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.84.2] - 2026-11-07
+
+### Auditoría frontend: bugs de datos y puertas únicas
+
+- **Mis canjes**: la RPC `tienda_mis_canjes` devuelve `costo_puntos`, pero el panel leía `puntos_gastados`. Cada canje pintaba `−undefined` y el pie «Gastado en la tienda» siempre sumaba 0. Corregido en las dos referencias de `main.js`.
+- **RPC por la puerta única**: `estadisticas_perfil_comunidad` (`main.js`) y `streamer_config_sorteo` (`sorteo.html`) llamaban a `supabase.rpc` partido en dos líneas, esquivando el chequeo de `check.js`. Ahora van por `window.rpc`/`window.rpcRaw`, y `scripts/check.js` compara el código sin espacios para que una llamada partida no vuelva a colarse.
+- **Edge Functions**: `pedir` y `reconectar` del chat de Kick usaban `fetch` a `/functions/v1/kick-chat`; ahora pasan por `window.llamarEdge`, como el resto.
+- **Perfil del navbar**: `#nav-user-info` tenía `display: inline-flex !important`, que ganaba al `style.display` de `main.js`; el perfil "oculto" seguía ocupando espacio. Quitado el `!important`.
+- **Chat de comunidad**: la hora del mensaje usaba `toLocaleTimeString` suelto; ahora `window.formatearFecha(msg.created_at, 'hora')`.
+- **Tómbola**: el nombre en el giro se escapaba dentro de `innerText`, así que un apodo con `&` o `'` mostraba entidades literales. Ahora `textContent`.
+- **Accesibilidad**: fuera `aria-live` de `#kick-clips`, `#ig-feed` y `#tiktok-feed`; anunciaban el bloque entero al cargar.
+
+**Verificado**: `check.js` (incluida la comprobación nueva de RPC), `node --check main.js`, `smoke.js` y prueba en navegador del perfil del navbar y del panel de canjes.
+
 ## [1.84.1] - 2026-11-07
 
 ### Auditoría: endurecimiento de base y arreglo de subida

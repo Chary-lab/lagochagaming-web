@@ -178,13 +178,14 @@ for (const api of ['gochiDropdown', 'gochiSkeleton', 'gochiChip', 'cerrarGochiMe
 // normalizan el error. Se permite exactamente UNA llamada directa a
 // window.supabase.rpc: la implementación de rpcRaw. Las páginas no pueden
 // llamar a supabase.rpc (se colaban llamadas nuevas sin try/catch).
-const directasMain = (mainJs.match(/window\.supabase\.rpc\s*\(/g) || []).length;
+const sinEspacios = (texto) => String(texto).replace(/\s+/g, '');
+const directasMain = (sinEspacios(mainJs).match(/window\.supabase\.rpc\(/g) || []).length;
 if (directasMain > 1) {
     error(`main.js: ${directasMain} llamadas a window.supabase.rpc; usa window.rpcRaw/window.rpc (solo se permite la de rpcRaw)`);
 }
 for (const pagina of PAGES.concat(['404.html'])) {
     if (!existe(pagina)) continue;
-    if (/(?<![.\w])supabase\.rpc\s*\(/.test(leer(pagina))) {
+    if (/(?<!window\.)supabase\.rpc\(/.test(sinEspacios(leer(pagina)))) {
         error(`${pagina}: usa supabase.rpc directo; cámbialo a window.rpcRaw(...)`);
     }
 }

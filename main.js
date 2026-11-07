@@ -3182,16 +3182,9 @@ window.CHAT_KICK = {
     const api = window.CHAT_KICK;
 
     const pedir = async (cuerpo, token) => {
-        const cabeceras = { 'Content-Type': 'application/json' };
-        if (token) cabeceras.Authorization = 'Bearer ' + token;
         try {
-            const res = await fetch(api.funcion + '/kick-chat', {
-                method: 'POST',
-                headers: cabeceras,
-                body: JSON.stringify(cuerpo)
-            });
-            const datos = await res.json().catch(() => ({}));
-            return { ok: res.ok, estado: res.status, datos };
+            const r = await window.llamarEdge('kick-chat', cuerpo, { token });
+            return { ok: r.ok, estado: r.status, datos: r.datos };
         } catch (e) {
             console.error('chat kick:', e);
             return { ok: false, estado: 0, datos: { error: 'Sin conexión con el chat' } };
@@ -3647,17 +3640,13 @@ window.CHAT_KICK = {
             // vincular Kick o al iniciar sesión con Kick.
             if (almacen.texto('gocha_kick_sin_vincular') === tokenComunidad) return null;
             try {
-                const res = await fetch(api.funcion + '/kick-chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ accion: 'reconectar', token: tokenComunidad })
-                });
-                if (res.status === 409) {
+                const r = await window.llamarEdge('kick-chat', { accion: 'reconectar', token: tokenComunidad });
+                if (r.status === 409) {
                     almacen.guardarTexto('gocha_kick_sin_vincular', tokenComunidad);
                     return null;
                 }
-                const datos = await res.json().catch(() => ({}));
-                if (!res.ok || !datos.ok || !datos.token || !datos.usuario) return null;
+                const datos = r.datos || {};
+                if (!r.ok || !datos.ok || !datos.token || !datos.usuario) return null;
                 almacen.guardarTexto(api.claveToken, datos.token);
                 return { token: datos.token, usuario: datos.usuario };
             } catch (e) {
@@ -4246,7 +4235,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   <span class="mp-canje-nombre" x-text="c.nombre"></span>
                   <span class="gochi-chip mp-canje-estado" x-bind:data-tono="$store.perfil.tonoCanje(c.estado)" x-text="$store.perfil.etiquetaCanje(c.estado)"></span>
                   <span class="mp-canje-fecha" x-text="$store.perfil.fechaCanje(c.created_at)"></span>
-                  <span class="mp-canje-puntos" x-text="'−' + c.puntos_gastados"></span>
+                  <span class="mp-canje-puntos" x-text="'−' + c.costo_puntos"></span>
                 </li>
               </template>
             </ul>
@@ -4585,7 +4574,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const anulados = ['rechazado', 'cancelado'];
         return this.canjes
           .filter((c) => !anulados.includes(String(c.estado || '').toLowerCase()))
-          .reduce((total, c) => total + (Number(c.puntos_gastados) || 0), 0);
+          .reduce((total, c) => total + (Number(c.costo_puntos) || 0), 0);
       },
       etiquetaCanje(estado) {
         const etiquetas = { pendiente: 'Pendiente', entregado: 'Entregado', rechazado: 'Rechazado', cancelado: 'Cancelado' };
@@ -4848,15 +4837,14 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           this.usuario = data;
           const apodoPedido = data.apodo;
-          window.supabase
-            .rpc('estadisticas_perfil_comunidad', { p_apodo: data.apodo })
-            .then(({ data: stats, error: statsError }) => {
-              if (statsError) {
-                console.warn('No se pudieron cargar las estadísticas:', statsError.message);
+          window.rpc('estadisticas_perfil_comunidad', { p_apodo: data.apodo }, { error: false })
+            .then((res) => {
+              if (!res.ok) {
+                console.warn('No se pudieron cargar las estadísticas:', res.error);
                 return;
               }
               if (this.publico && this.usuario && this.usuario.apodo === apodoPedido) {
-                this.estadisticas = stats || {};
+                this.estadisticas = res.data || {};
               }
             });
         } catch (e) {

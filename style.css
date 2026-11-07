@@ -1807,7 +1807,7 @@ body.light-mode .reporte-foto-box {
 @media (max-width: 1399px) {
     /* Perfil compacto: solo avatar, sin nombre ni logout (el logout vive en el modal). */
     #nav-user-info {
-        display: inline-flex !important;
+        display: inline-flex;
     }
 
     #nav-user-info .nav-user-name,
