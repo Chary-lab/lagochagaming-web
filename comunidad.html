@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-xTXNklOIJPqwt5PhttDDdI44nK6oryEzgX+zzvqR48Q=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-a1T/8D2vcHyn/+LrKm8b9oWDo6j2YKtYBlngvZvoVUg=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.85.1">
+    <link rel="stylesheet" href="style.css?v=1.86.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -96,10 +96,20 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             </div>
 
             <!-- LEADERBOARD PÚBLICO DE PUNTOS -->
-            <div class="chat-sidebar-section">
+            <div class="chat-sidebar-section" x-data="{}">
                 <h3 class="chat-sidebar-subtitle">
                     <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-trophy"></use></svg> Top Comunidad
                 </h3>
+                <div class="ranking-modos" role="group" aria-label="Periodo del ranking">
+                    <button type="button" class="ranking-modo"
+                            :class="{ 'ranking-modo-activo': $store.ranking.modo !== 'mes' }"
+                            :aria-pressed="$store.ranking.modo !== 'mes'"
+                            @click="$store.ranking.setModo('total')">Total</button>
+                    <button type="button" class="ranking-modo"
+                            :class="{ 'ranking-modo-activo': $store.ranking.modo === 'mes' }"
+                            :aria-pressed="$store.ranking.modo === 'mes'"
+                            @click="$store.ranking.setModo('mes')">Este mes</button>
+                </div>
                 <div id="leaderboard-list" class="leaderboard-scroll" aria-live="polite" aria-label="Ranking de puntos de la comunidad" x-data="{}">
                     <template x-for="(user, index) in $store.ranking.usuarios" :key="user.apodo">
                         <div class="leaderboard-item" :class="{ 'leaderboard-item-first': index === 0 }">
@@ -533,7 +543,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.85.1" defer></script>
+    <script src="main.js?v=1.86.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -558,7 +568,15 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             window.Alpine.store('ranking', {
                 usuarios: [],
                 cargando: true,
-                error: ''
+                error: '',
+                modo: 'total',
+                setModo(modo) {
+                    const nuevo = modo === 'mes' ? 'mes' : 'total';
+                    if (nuevo === this.modo) return;
+                    this.modo = nuevo;
+                    this.cargando = true;
+                    window.cargarLeaderboard?.();
+                }
             });
 
             // Rangos por apodo para el "relieve" del nombre en el chat.
@@ -2596,7 +2614,7 @@ if (chatForm) {
                     }
                     return;
                 }
-                if (store.cargando) {
+                if (store.cargando && store.modo !== 'mes') {
                     const cache = leerCache(CACHE_RANKING);
                     if (Array.isArray(cache) && cache.length) {
                         store.usuarios = cache;
@@ -2604,27 +2622,40 @@ if (chatForm) {
                     }
                 }
                 try {
-                    const { data, error } = await supabase
-                        .from('usuarios_comunidad')
-                        .select('apodo, puntos, rango, icono_equipado, avatar_url')
-                        .is('eliminado_en', null)
-                        .order('puntos', { ascending: false })
-                        .limit(3);
+                    let filas = [];
+                    if (store.modo === 'mes') {
+                        const res = await window.rpc('ranking_del_mes', {}, { error: false });
+                        filas = (res.ok && res.data && res.data.ok) ? (res.data.usuarios || []) : [];
+                        if (!filas.length) {
+                            store.usuarios = [];
+                            store.error = '';
+                            store.cargando = false;
+                            return;
+                        }
+                    } else {
+                        const { data, error } = await supabase
+                            .from('usuarios_comunidad')
+                            .select('apodo, puntos, rango, icono_equipado, avatar_url')
+                            .is('eliminado_en', null)
+                            .order('puntos', { ascending: false })
+                            .limit(3);
 
-                    if (error) {
-                        store.usuarios = [];
-                        store.error = 'Error al cargar ranking';
-                        store.cargando = false;
-                        return;
-                    }
-                    if (!data || data.length === 0) {
-                        store.usuarios = [];
-                        store.error = '';
-                        store.cargando = false;
-                        return;
+                        if (error) {
+                            store.usuarios = [];
+                            store.error = 'Error al cargar ranking';
+                            store.cargando = false;
+                            return;
+                        }
+                        filas = data || [];
+                        if (!filas.length) {
+                            store.usuarios = [];
+                            store.error = '';
+                            store.cargando = false;
+                            return;
+                        }
                     }
 
-                    store.usuarios = data.map((user, index) => {
+                    store.usuarios = filas.map((user, index) => {
                         const medalla = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
                         // Rango calculado con los puntos (la clave de la BD puede ser antigua)
                         const { clave, emoji, nombre } = datosRango(user.rango, user.puntos);
@@ -2642,7 +2673,7 @@ if (chatForm) {
                     });
                     store.error = '';
                     store.cargando = false;
-                    guardarCache(CACHE_RANKING, store.usuarios);
+                    if (store.modo !== 'mes') guardarCache(CACHE_RANKING, store.usuarios);
                 } catch (e) {
                     console.error('Error leaderboard:', e);
                     store.usuarios = [];
@@ -2650,6 +2681,7 @@ if (chatForm) {
                     store.cargando = false;
                 }
             }
+            window.cargarLeaderboard = cargarLeaderboard;
 
 // Inicializar
             if (!obtenerStoreChat()) {

@@ -982,6 +982,10 @@ window.latidoComunidad = async function latidoComunidad() {
     if (!token) return false;
     try {
         const { data, error } = await window.rpcRaw('latido_comunidad', { p_token: token });
+        if (!error && data && data.ok && data.ganados > 0) {
+            window.mostrarToast?.('🔥 Racha de ' + data.racha + ' días: +' + data.ganados + ' pts');
+            window.refrescarPuntosDia?.();
+        }
         return !error && data && data.ok === true;
     } catch (e) {
         return false;
@@ -1437,6 +1441,7 @@ window.insertarNavbar = function insertarNavbar() {
                     title="Puntos que llevas hoy" aria-label="Puntos de hoy">
                 <span class="nav-puntos-ring" aria-hidden="true"></span>
                 <span class="nav-puntos-texto" aria-hidden="true"><span id="nav-puntos-hoy">0</span><span class="nav-puntos-sep">/</span><span id="nav-puntos-tope">60</span></span>
+                <span class="nav-racha" id="nav-racha" aria-hidden="true" hidden></span>
                 <span class="nav-puntos-suma" aria-hidden="true"></span>
             </button>
             <div id="nav-user-info"></div>
@@ -1789,11 +1794,17 @@ window.pintarPuntosDia = function pintarPuntosDia(datos) {
     if (elTope) elTope.textContent = tope;
     const previo = Number(btn.dataset.hoy ?? '-1');
     const alcanzoTope = hoy >= tope && previo < tope;
+    const racha = Math.max(0, Number(datos?.racha) || 0);
+    const elRacha = document.getElementById('nav-racha');
+    if (elRacha) {
+        elRacha.textContent = racha > 1 ? '🔥' + racha : '';
+        elRacha.hidden = racha <= 1;
+    }
     btn.style.setProperty('--p', Math.min(100, Math.round((hoy / tope) * 100)) + '%');
     btn.classList.toggle('nav-puntos-dia--completo', hoy >= tope);
     btn.hidden = false;
-    btn.title = 'Hoy: ' + hoy + ' / ' + tope + ' pts';
-    btn.setAttribute('aria-label', 'Puntos de hoy: ' + hoy + ' de ' + tope);
+    btn.title = 'Hoy: ' + hoy + ' / ' + tope + ' pts' + (racha > 1 ? ' · Racha: ' + racha + ' días' : '');
+    btn.setAttribute('aria-label', 'Puntos de hoy: ' + hoy + ' de ' + tope + (racha > 1 ? '. Racha de ' + racha + ' días' : ''));
     if (alcanzoTope) {
         btn.classList.remove('nav-puntos-dia--remate');
         void btn.offsetWidth;

@@ -7813,3 +7813,13 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     .reto-card { flex-direction: column; gap: 8px; padding: 14px; }
     .chat-pregunta { flex-wrap: wrap; }
 }
+
+/* Racha diaria dentro de la píldora de puntos */
+.nav-racha { margin-left: 2px; font-size: 0.72rem; font-weight: 800; color: #ffb020; letter-spacing: 0; }
+.nav-racha[hidden] { display: none; }
+
+/* Ranking: total o del mes */
+.ranking-modos { display: flex; gap: 6px; margin: 0 0 8px; }
+.ranking-modo { flex: 1; padding: 4px 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-muted); border-radius: 999px; font-family: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
+.ranking-modo:hover, .ranking-modo:focus-visible { color: var(--text-main); border-color: var(--accent-color); }
+.ranking-modo-activo { color: var(--accent-color); border-color: var(--accent-color); }

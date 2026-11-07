@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.86.0] - 2026-11-07
+
+### Racha diaria y ranking del mes
+
+- `usuarios_comunidad` gana `racha` y `ultimo_dia`. `latido_comunidad` la actualiza en cada visita: mismo día no cambia, día siguiente suma uno, día saltado vuelve a 1.
+- Cada 7 días seguidos se cobra un bonus único de 30 pts (`puntos_acciones.racha`), con `ref` por fecha para que no se repita.
+- La píldora de puntos del navbar muestra `🔥N` cuando la racha pasa de 1, y su `title`/`aria-label` incluyen los días.
+- `obtener_puntos_hoy` devuelve `racha`, así que el dato llega en el mismo sondeo que ya existía.
+- Ranking de Comunidad con dos vistas: **Total** (puntos históricos) y **Este mes**. La segunda usa `ranking_del_mes`, que suma `puntos_eventos` del mes en curso sin resetear nada.
+- Probado en transacción: día 1 → racha 1 sin bonus; día 7 → racha 7 con +30; `obtener_puntos_hoy` devuelve `racha: 7`; `ranking_del_mes` devuelve el top del mes.
+
 ## [1.85.1] - 2026-11-07
 
 ### Reto de galería: temas concretos
