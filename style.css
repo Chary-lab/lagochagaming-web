@@ -776,11 +776,19 @@ body.light-mode .hero-bio {
     .ig-card img { transition: none; }
 }
 
-/* YouTube Compacto */
-.youtube-wrapper { border-color: var(--border-color); padding: 28px; border-radius: 20px; background-color: var(--card-bg); margin: 30px auto 0; max-width: 980px; }
-.youtube-box-compact { position: relative; width: 100%; aspect-ratio: 16/9; min-height: 0; border-radius: 16px; overflow: hidden; background: var(--card-bg-subtle); }
-.youtube-iframe-compact { display: block; width: 100%; height: 100%; border: none; }
-.youtube-fallback { display: none; }
+/* YouTube: último vídeo de cada canal (lista de subidas, se actualiza sola) */
+.yt-videos { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; margin-top: 10px; }
+.yt-video { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.yt-video-caja { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: var(--card-bg-subtle); border: 1px solid var(--border-color); }
+.yt-video-iframe { display: block; width: 100%; height: 100%; border: none; }
+.yt-video-pie { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.yt-video-canal { font-size: 0.85rem; font-weight: 700; color: var(--accent-color); }
+.yt-video-enlace { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-decoration: none; }
+.yt-video-enlace:hover, .yt-video-enlace:focus-visible { color: var(--accent-color); }
+.yt-video-enlace .icon { width: 16px; height: 16px; }
+@media (max-width: 600px) {
+    .yt-videos { grid-template-columns: 1fr; gap: 18px; }
+}
 
 /* Galería Grid */
 /* --- GALLERY GRID: RESPONSIVE --- */
@@ -2800,23 +2808,6 @@ body.light-mode {
             flex-wrap: wrap;
             align-items: center;
             gap: 6px;
-        }
-        .youtube-fallback {
-            display: none;
-            padding: 20px;
-            text-align: center;
-            border-radius: 12px;
-            background: var(--card-bg-subtle);
-            border: 1px solid var(--border-color);
-            margin-top: 12px;
-        }
-        .youtube-fallback p {
-            margin: 0 0 10px;
-            color: var(--text-muted);
-        }
-        .youtube-fallback .btn-primary {
-            display: inline-block;
-            padding: 10px 24px;
         }
         .muro-feedback {
             text-align: center;

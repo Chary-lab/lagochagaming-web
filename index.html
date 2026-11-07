@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-3IgA5JvReoGBY1diX1ijlU3rx35Pu/wPeYdCibf0Snw=' 'sha256-ods727qX2fKui1s7PxFbpR7se5x3cX/Vny/e3gpq9IU=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-3IgA5JvReoGBY1diX1ijlU3rx35Pu/wPeYdCibf0Snw=' 'sha256-KFnsdA91gMuqnukyIyvJHuyeQyz4JSACEyv8uOufHww=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Gocha Gaming (Gochita) Oficial | Directo en Kick</title>
     <meta name="description" content="Sitio oficial de La Gocha Gaming (Gochita), streamer venezolana en Kick. Directo, horarios, clips, galería, GochiWatch y comunidad con chat y sorteos.">
@@ -31,7 +31,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.83.3">
+    <link rel="stylesheet" href="style.css?v=1.84.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -257,16 +257,27 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
     <!-- 🎮 SECCIÓN DE VIDEOS DE YOUTUBE -->
     <section id="youtube" class="content-section">
-        <h2>📺 MI ÚLTIMO VIDEO EN YOUTUBE</h2>
-<div class="social-column youtube-wrapper">
-    <div class="youtube-box-compact">
-        <iframe class="youtube-iframe-compact" id="yt-iframe" src="https://www.youtube.com/embed/videoseries?list=PLdVAlz18ZwEk" title="Lista de reproducción de LaGochaGaming" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        <div class="youtube-fallback">
-            <p>Algunos videos no se pueden incrustar directamente en esta página.</p>
-            <a href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer" class="btn-primary">🎬 Ver canal de YouTube</a>
+        <h2>📺 MIS ÚLTIMOS VIDEOS EN YOUTUBE</h2>
+        <div class="yt-videos">
+            <article class="yt-video">
+                <div class="yt-video-caja">
+                    <iframe class="yt-video-iframe" src="https://www.youtube.com/embed/videoseries?list=UURC1cfFCsiPMbOhF_WE0PfQ&rel=0" title="Último vídeo del canal de juegos de La Gocha" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+                </div>
+                <div class="yt-video-pie">
+                    <span class="yt-video-canal">🎮 La Gocha Gaming</span>
+                    <a class="yt-video-enlace" href="https://www.youtube.com/@lagochagaming/videos" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-youtube"></use></svg> Ver el canal</a>
+                </div>
+            </article>
+            <article class="yt-video">
+                <div class="yt-video-caja">
+                    <iframe class="yt-video-iframe" src="https://www.youtube.com/embed/videoseries?list=UUlxRgWolRY-8l7rczzooHzw&rel=0" title="Último vídeo del canal personal de Stefany" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+                </div>
+                <div class="yt-video-pie">
+                    <span class="yt-video-canal">🎀 Oscuro Stefany</span>
+                    <a class="yt-video-enlace" href="https://www.youtube.com/@OscuroStefany/videos" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-youtube"></use></svg> Ver el canal</a>
+                </div>
+            </article>
         </div>
-    </div>
-</div>
     </section>
 
     <!-- 💬 MURO DE SALUDOS DE LA COMUNIDAD -->
@@ -471,7 +482,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.83.3" defer></script>
+    <script src="main.js?v=1.84.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>
@@ -1189,30 +1200,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
         // escapeHtml / escapeAttr viven en main.js (fuente única del sitio)
-
-        // Detección de fallo de YouTube (timeout) sin depender de contentWindow cross-origin
-        const ytIframe = document.getElementById('yt-iframe');
-        const ytFallback = document.querySelector('.youtube-fallback');
-        if (ytIframe && ytFallback) {
-            let cargado = false;
-            ytIframe.addEventListener('load', () => {
-                cargado = true;
-                ytIframe.style.display = '';
-                ytFallback.style.display = 'none';
-            });
-            ytIframe.addEventListener('error', () => {
-                cargado = true;
-                ytIframe.style.display = 'none';
-                ytFallback.style.display = 'block';
-            });
-            // Timeout: si no se cargó en 10s, muestra fallback
-            setTimeout(() => {
-                if (!cargado) {
-                    ytIframe.style.display = 'none';
-                    ytFallback.style.display = 'block';
-                }
-            }, 10000);
-        }
     </script>
 </body>
 </html>

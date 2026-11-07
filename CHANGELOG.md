@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.84.0] - 2026-11-06
+
+### Home: los dos últimos vídeos de YouTube, uno por canal
+
+- La sección `#youtube` pasa de un iframe de lista a dos tarjetas grandes lado a lado: `🎮 La Gocha Gaming` (canal de juegos) y `🎀 Oscuro Stefany` (canal personal).
+- Cada columna incrusta la **lista de subidas** del canal (`videoseries?list=UU…`), que siempre tiene arriba el último vídeo publicado: `UURC1cfFCsiPMbOhF_WE0PfQ` y `UUlxRgWolRY-8l7rczzooHzw`. Se actualiza sola, sin IDs a mano, sin API key y sin Edge Function.
+- Comprobado contra YouTube: el primer elemento de cada lista de subidas es el último vídeo (`zladXBbRocI` y `soIUbUya2aw`). La lista anterior (`PLdVAlz18ZwEk`, serie GTA) solo mostraba el vídeo nuevo mientras alguien la mantuviera ordenada.
+- Fuera el JS inline que detectaba el fallo del iframe y el bloque `.youtube-wrapper`/`.youtube-fallback` de `style.css`, sin uso tras el cambio. `.youtube-grid` se queda: la usan los clips de Kick.
+- CSP y busters recalculados con `check.js --fix` (el script inline cambió de contenido).
+
 ## [1.83.3] - 2026-11-06
 
 ### Limpieza del bloque retirado
