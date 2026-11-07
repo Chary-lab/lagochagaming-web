@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-a1T/8D2vcHyn/+LrKm8b9oWDo6j2YKtYBlngvZvoVUg=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-z5vkK44TUziEEzBJSheQrILeP9JF0fnPWYUPYdUbE6Y=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.86.0">
+    <link rel="stylesheet" href="style.css?v=1.87.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -168,6 +168,20 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         </li>
                     </template>
                 </ul>
+            </div>
+
+            <!-- SORTEO SEMANAL -->
+            <div class="chat-sidebar-section sorteo-semanal-card" x-data x-cloak x-init="$store.sorteoSemanal.cargar()"
+                 aria-label="Sorteo semanal">
+                <h3 class="chat-sidebar-subtitle">
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-gift"></use></svg>
+                    Sorteo semanal
+                </h3>
+                <p class="sorteo-semanal-texto" x-text="$store.sorteoSemanal.resumen"></p>
+                <button type="button" class="sorteo-semanal-btn" :hidden="!$store.sorteoSemanal.puedeEntrar"
+                        :disabled="$store.sorteoSemanal.enviando"
+                        @click="$store.sorteoSemanal.entrar()">Entrar al sorteo</button>
+                <p class="sorteo-semanal-nota" :hidden="!$store.sorteoSemanal.aviso" x-text="$store.sorteoSemanal.aviso"></p>
             </div>
 
         </section>
@@ -543,7 +557,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.86.0" defer></script>
+    <script src="main.js?v=1.87.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -660,6 +674,66 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         window.mostrarToast?.('+' + datos.ganados + ' puntos por la pregunta del día');
                         window.refrescarPuntosDia?.();
                         window.Alpine?.store('misiones')?.cargar();
+                    }
+                }
+            });
+
+            // Sorteo semanal: elegibilidad por días con actividad real.
+            window.Alpine.store('sorteoSemanal', {
+                premio: 300,
+                participantes: 0,
+                mio: null,
+                enviando: false,
+                aviso: '',
+                get puedeEntrar() {
+                    return !!(this.mio && this.mio.logueado && this.mio.elegible && !this.mio.apuntado);
+                },
+                get resumen() {
+                    if (!this.mio || !this.mio.logueado) {
+                        return this.premio + ' puntos para uno de los participantes. Entra con tu cuenta para optar.';
+                    }
+                    if (this.mio.apuntado) {
+                        return 'Estás dentro con ' + this.mio.tickets + ' ticket(s). ' + this.participantes + ' en el bombo.';
+                    }
+                    if (this.mio.elegible) {
+                        return 'Puedes entrar con ' + this.mio.tickets + ' ticket(s): llevas ' + this.mio.dias + ' días activos.';
+                    }
+                    if (this.mio.motivo === 'cuenta_nueva') return 'Tu cuenta necesita tener más de un día para entrar.';
+                    if (this.mio.motivo === 'descanso') return 'Ganaste hace poco: descansas dos semanas.';
+                    return 'Necesitas 2 días con actividad (chat, muro, fotos, likes o reacciones). Llevas ' + this.mio.dias + '.';
+                },
+                async cargar() {
+                    const token = localStorage.getItem('comunidad_session_token') || '';
+                    const res = await window.rpc('sorteo_semanal_estado', { p_token: token || null }, { error: false });
+                    if (!res.ok || !res.data || !res.data.ok) return;
+                    this.premio = Number(res.data.premio) || 300;
+                    this.participantes = Number(res.data.participantes) || 0;
+                    this.mio = res.data.mio || null;
+                },
+                async entrar() {
+                    if (this.enviando) return;
+                    const token = localStorage.getItem('comunidad_session_token') || '';
+                    if (!token) { window.mostrarToast?.('Entra con tu cuenta para participar.', true); return; }
+                    this.enviando = true;
+                    this.aviso = '';
+                    try {
+                        const res = await window.rpc('entrar_sorteo_semanal', { p_token: token }, { error: false });
+                        const datos = res.data || {};
+                        if (!res.ok || !datos.ok) {
+                            const textos = {
+                                cuenta_nueva: 'Tu cuenta es demasiado nueva para el sorteo.',
+                                faltan_dias: 'Te faltan días de actividad para entrar.',
+                                descanso: 'Ganaste hace poco: descansas dos semanas.',
+                                baneado: 'Tu cuenta está suspendida.'
+                            };
+                            this.aviso = textos[datos.error] || 'No se pudo entrar al sorteo.';
+                            return;
+                        }
+                        this.participantes = Number(datos.participantes) || this.participantes;
+                        if (this.mio) this.mio.apuntado = true;
+                        window.mostrarToast?.('Dentro del sorteo con ' + datos.tickets + ' ticket(s). ¡Suerte!');
+                    } finally {
+                        this.enviando = false;
                     }
                 }
             });
@@ -876,6 +950,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             document.addEventListener('gocha:sesion', () => {
                 window.Alpine?.store('misiones')?.cargar();
                 window.Alpine?.store('pregunta')?.reclamarSilencioso();
+                window.Alpine?.store('sorteoSemanal')?.cargar();
             });
             const chatForm = document.getElementById('chat-form');
             const chatMensajes = document.getElementById('chat-mensajes');

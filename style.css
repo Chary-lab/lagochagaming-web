@@ -7823,3 +7823,12 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .ranking-modo { flex: 1; padding: 4px 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-muted); border-radius: 999px; font-family: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
 .ranking-modo:hover, .ranking-modo:focus-visible { color: var(--text-main); border-color: var(--accent-color); }
 .ranking-modo-activo { color: var(--accent-color); border-color: var(--accent-color); }
+
+/* Sorteo semanal en Comunidad */
+.sorteo-semanal-texto { margin: 0 0 8px; font-size: 0.78rem; line-height: 1.4; color: var(--text-muted); }
+.sorteo-semanal-btn { width: 100%; border: 1px solid var(--accent-color); background: transparent; color: var(--accent-color); border-radius: 999px; padding: 6px 10px; font-family: inherit; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
+.sorteo-semanal-btn:hover:not(:disabled), .sorteo-semanal-btn:focus-visible { background: var(--accent-color); color: var(--btn-text); }
+.sorteo-semanal-btn:disabled { opacity: 0.5; cursor: progress; }
+.sorteo-semanal-nota { margin: 6px 0 0; font-size: 0.74rem; color: #ff8a8a; }
+
+.sorteo-semanal-card { display: flex; flex-direction: column; gap: 6px; }

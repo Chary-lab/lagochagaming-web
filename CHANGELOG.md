@@ -3,6 +3,24 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.87.0] - 2026-11-07
+
+### Reto individual y sorteo semanal sin farmeo
+
+**Reto de galería: de concurso único a recompensa por participar.** Antes solo cobraba la foto con más likes, así que con pocas cuentas nadie más tenía motivo para subir.
+- Cada foto aprobada del tema da **50 pts** (`puntos_acciones.reto`), una vez por cuenta y reto.
+- La más votada se lleva además el premio del reto (`retos_galeria.premio`, 200) como `reto_ganador`.
+- El banner lo explica: «Cada foto aprobada del tema suma 50 puntos, y la más votada se lleva 200 extra».
+
+**Sorteo semanal** (`sorteos_semanales`, `sorteo_participantes`, `sorteo_semana_actual`, `sorteo_semanal_estado`, `entrar_sorteo_semanal`, `cerrar_sorteo_semanal`): 300 pts entre quienes entren.
+- **Elegibilidad por actividad real**: 2 días distintos en los últimos 7 con chat, muro, foto, like o reacción. `tiempo_conectado` no cuenta: dejar la pestaña abierta no da tickets.
+- **Tickets con techo**: 1 base + 1 por día activo, máximo 3.
+- **Entrada explícita**: hay que pulsar «Entrar al sorteo».
+- **Antifarmeo de cuentas**: una entrada por cuenta y semana, cuentas de menos de 24 h fuera y el ganador descansa 2 semanas.
+- **Mínimo de 3 participantes**: si no se llega, el sorteo se anula y el premio se acumula al siguiente (`sorteo_semana_actual` suma los anulados).
+- Cierre domingo 23:30 UTC (`gocha-cerrar-sorteo`).
+- Probado en transacción: elegible con 2 días, alta idempotente, cierre con 3 participantes da ganador y 300 pts, cierre con 1 participante queda `anulado`.
+
 ## [1.86.0] - 2026-11-07
 
 ### Racha diaria y ranking del mes
