@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.91.7] - 2026-11-07
+
+### Fix: el panel App tapaba la barra
+
+- Una regla del rework (`.nav-app-panel { position: relative }`) pisaba el `position: absolute` del desplegable: el panel se centraba encima de la barra y se cortaba por arriba.
+- Ahora cuelga debajo del botón App, como el resto de paneles.
+- La nota de versión pasa a 1.16.
+
 ## [1.91.6] - 2026-11-07
 
 ### App 1.16: chat con pestañas, recompensa y ajustes

@@ -1416,7 +1416,7 @@ window.insertarNavbar = function insertarNavbar() {
                     <summary>¿Sale aviso de Play Protect? <span>es normal</span></summary>
                     <p>Avisa de cualquier app que no venga de Play Store. La nuestra está firmada y se descarga del dominio oficial.</p>
                 </details>
-                <p class="nav-app-nota">Versión 1.15 · iPhone / iPad: aún no disponible.</p>
+                <p class="nav-app-nota">Versión 1.16 · iPhone / iPad: aún no disponible.</p>
             </div>
         </div>`;
 

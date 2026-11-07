@@ -7945,7 +7945,7 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .nav-app-detalle b { color: var(--accent-color); font-weight: 800; }
 
 /* App del navbar: hero animado, brillo del botón y acordeones vivos */
-.nav-app-panel { position: relative; overflow: hidden; }
+.nav-app-panel { overflow: hidden; }
 .nav-app-panel > * { position: relative; z-index: 1; }
 .nav-app-panel::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 140px; background: radial-gradient(150px 90px at 16% 0%, rgba(34,230,165,.20), transparent 70%); pointer-events: none; }
 .nav-app-hero { position: relative; display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
