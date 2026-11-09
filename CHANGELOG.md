@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.99.0] - 2026-11-09
+
+### Campaña reiniciable y misiones semanales
+
+- Al completar los cinco niveles, el menú principal reconoce la **campaña completada** y ofrece **Nueva partida** desde El Setup. Los niveles siguen sin ser seleccionables a mano; se conservan medallas, récords, logros, sellos y skins.
+- Nuevas **3 misiones semanales** generadas de forma local por semana: completar un nivel sin perder vidas, conseguir una cantidad de GP o terminarlo bajo un tiempo. Cada misión fija su nivel y se juega desde Progreso sin desbloquear atajos permanentes.
+- Las misiones se renuevan cada semana, dan **1 sello** la primera vez y se marcan como completadas. Los sellos son acumulativos y desbloquean la quinta skin **Circuito** con 3 sellos.
+- **14 logros** en total: **Misionero** (primera misión) y **Semana perfecta** (las 3 misiones de una semana).
+- El panel de nivel completado distingue las misiones, muestra el resultado y permite repetirlas; las misiones no envían partidas al ranking.
+- El HUD muestra `MISIÓN · NIVEL` y el pie de Progreso explica los sellos y la skin Circuito.
+
 ## [1.98.0] - 2026-11-09
 
 ### Retos: Boss Rush y reto diario

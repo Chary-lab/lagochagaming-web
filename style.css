@@ -9002,7 +9002,7 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 
 .game-skins {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 8px;
 }
 
@@ -9047,7 +9047,92 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     font-size: 0.66rem;
 }
 
+.game-progreso-nota {
+    margin: -4px 0 10px;
+    color: #94a3b8;
+    font-size: 0.72rem;
+    line-height: 1.4;
+}
+
+.game-misiones {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.game-mision {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid rgba(255, 79, 163, 0.24);
+    border-radius: 10px;
+    background: rgba(3, 8, 18, 0.45);
+}
+
+.game-mision--hecha {
+    border-color: rgba(94, 234, 212, 0.5);
+    background: rgba(94, 234, 212, 0.08);
+}
+
+.game-mision-etiqueta {
+    color: #ff8fc4;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.game-mision--hecha .game-mision-etiqueta {
+    color: #5eead4;
+}
+
+.game-mision strong {
+    color: #f8fafc;
+    font-size: 0.8rem;
+    line-height: 1.25;
+}
+
+.game-mision small {
+    color: #94a3b8;
+    font-size: 0.68rem;
+    line-height: 1.35;
+}
+
+.game-mision-recompensa {
+    margin-top: auto;
+    color: #ffd166;
+    font-size: 0.66rem;
+    font-weight: 600;
+}
+
+.game-mision-btn {
+    min-height: 44px;
+    padding: 6px 8px;
+    border: 1px solid rgba(94, 234, 212, 0.35);
+    border-radius: 6px;
+    background: rgba(94, 234, 212, 0.1);
+    color: #ccfbf1;
+    font: inherit;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.game-mision-btn:hover:not(:disabled) {
+    background: rgba(94, 234, 212, 0.2);
+}
+
+.game-mision-btn:disabled {
+    border-color: rgba(148, 163, 184, 0.25);
+    background: transparent;
+    color: #94a3b8;
+    cursor: default;
+}
+
 .game-skin:focus-visible,
+.game-mision-btn:focus-visible,
 .game-ranking-cerrar:focus-visible {
     outline: 2px solid #5eead4;
     outline-offset: 2px;
@@ -9069,6 +9154,10 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     }
 
     .game-retos {
+        grid-template-columns: 1fr;
+    }
+
+    .game-misiones {
         grid-template-columns: 1fr;
     }
 

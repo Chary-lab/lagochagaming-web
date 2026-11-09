@@ -30,7 +30,7 @@
     <meta name="twitter:image:alt" content="La Gocha Gaming, streamer de Kick">
 
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.98.0">
+    <link rel="stylesheet" href="style.css?v=1.99.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -92,9 +92,9 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         <span class="game-panel-etiqueta" x-text="'NIVEL ' + $store.juego.nivelActual + '/' + $store.juego.totalNiveles + ' · ' + $store.juego.nivelNombre.toUpperCase()"></span>
                         <h2 class="game-panel-titulo">¿Lista para el directo?</h2>
                         <p class="game-panel-texto">Junta <strong>GochiPoints (GP)</strong>, esquiva a los <strong>haters</strong> y llega a <strong>GO LIVE</strong>. El <strong>Regalito</strong> da un escudo de 3 golpes y la <strong>Donación</strong> suma 5 clips (máximo 12). Cada zona termina con un <strong>jefe</strong>; desde La Purga, el escenario se borra detrás de ti.</p>
-                        <p class="game-panel-texto">Gana medallas <strong>S/A/B/C</strong> y encuentra <strong>logros, skins, Boss Rush y el reto diario</strong> en Progreso.</p>
+                        <p class="game-panel-texto">Gana medallas <strong>S/A/B/C</strong> y encuentra <strong>logros, skins, misiones semanales, Boss Rush y el reto diario</strong> en Progreso.</p>
                         <p class="game-record" x-text="$store.juego.record"></p>
-                        <p class="game-nivel-aviso" x-text="'Progreso: ' + $store.juego.nivelDesbloqueado + ' de ' + $store.juego.totalNiveles + ' desbloqueados. Los niveles se abren al completar el anterior.'"></p>
+                        <p class="game-nivel-aviso" x-text="$store.juego.campanaCompletada ? 'Campaña completada. Nueva partida empieza en El Setup; medallas, logros y sellos se conservan.' : ('Progreso: ' + $store.juego.nivelDesbloqueado + ' de ' + $store.juego.totalNiveles + ' desbloqueados. Los niveles se abren al completar el anterior.')"></p>
                         <div class="game-niveles" role="list" aria-label="Progreso de niveles">
                             <div class="game-nivel" role="listitem" :class="{ 'game-nivel--activo': $store.juego.nivelActual === 1, 'game-nivel--hecho': $store.juego.nivelDesbloqueado > 1, 'game-nivel--bloqueado': $store.juego.nivelDesbloqueado < 1 }" :aria-current="$store.juego.nivelActual === 1 ? 'step' : null">
                                 <span class="game-nivel-num" x-text="$store.juego.nivelDesbloqueado > 1 ? '1 ✓' : '1'"></span>
@@ -116,14 +116,14 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                                 <span>Overclock</span>
                                 <span class="game-nivel-medalla" :class="'game-medalla--' + ($store.juego.medallas[3] || 'vacia').toLowerCase()" x-text="$store.juego.medallas[3] || '—'"></span>
                             </div>
-                            <div class="game-nivel" role="listitem" :class="{ 'game-nivel--activo': $store.juego.nivelActual === 5, 'game-nivel--bloqueado': $store.juego.nivelDesbloqueado < 5 }" :aria-current="$store.juego.nivelActual === 5 ? 'step' : null">
-                                <span class="game-nivel-num" x-text="$store.juego.nivelDesbloqueado < 5 ? '🔒' : '5'"></span>
+                            <div class="game-nivel" role="listitem" :class="{ 'game-nivel--activo': $store.juego.nivelActual === 5, 'game-nivel--hecho': $store.juego.campanaCompletada, 'game-nivel--bloqueado': $store.juego.nivelDesbloqueado < 5 }" :aria-current="$store.juego.nivelActual === 5 ? 'step' : null">
+                                <span class="game-nivel-num" x-text="$store.juego.nivelDesbloqueado < 5 ? '🔒' : ($store.juego.campanaCompletada ? '5 ✓' : '5')"></span>
                                 <span>El Núcleo</span>
                                 <span class="game-nivel-medalla" :class="'game-medalla--' + ($store.juego.medallas[4] || 'vacia').toLowerCase()" x-text="$store.juego.medallas[4] || '—'"></span>
                             </div>
                         </div>
                         <div class="game-panel-acciones">
-                            <button type="button" class="game-btn game-btn--primario" @click="$store.juego.iniciar()">Jugar</button>
+                            <button type="button" class="game-btn game-btn--primario" @click="$store.juego.iniciar()" x-text="$store.juego.campanaCompletada && $store.juego.nivelActual >= $store.juego.totalNiveles ? 'Nueva partida' : 'Jugar'">Jugar</button>
                             <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.abrirRanking('general')">Ranking</button>
                             <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.abrirProgreso()">Progreso</button>
                         </div>
@@ -156,9 +156,10 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     </div>
 
                     <div class="game-panel" :hidden="$store.juego.fase !== 'completo'">
-                        <span class="game-panel-etiqueta" x-text="$store.juego.modo === 'rush' ? ('BOSS RUSH · JEFE ' + $store.juego.rushJefe + '/' + $store.juego.rushTotal + ' SUPERADO') : ($store.juego.modo === 'reto' ? 'RETO DIARIO SUPERADO' : ('NIVEL ' + $store.juego.nivelActual + '/' + $store.juego.totalNiveles + ' COMPLETADO'))"></span>
-                        <h2 class="game-panel-titulo" x-text="$store.juego.modo === 'rush' ? ($store.juego.rushCompletado ? '¡Boss Rush completado!' : '¡Jefe superado!') : ($store.juego.modo === 'reto' ? '¡Reto diario completado!' : ($store.juego.haySiguiente ? '¡Nivel superado!' : '¡Directo terminado!'))">Nivel completado</h2>
+                        <span class="game-panel-etiqueta" x-text="$store.juego.modo === 'rush' ? ('BOSS RUSH · JEFE ' + $store.juego.rushJefe + '/' + $store.juego.rushTotal + ' SUPERADO') : ($store.juego.modo === 'reto' ? 'RETO DIARIO SUPERADO' : ($store.juego.modo === 'mision' ? ('MISIÓN · ' + $store.juego.misionNombre.toUpperCase()) : ('NIVEL ' + $store.juego.nivelActual + '/' + $store.juego.totalNiveles + ' COMPLETADO')))"></span>
+                        <h2 class="game-panel-titulo" x-text="$store.juego.modo === 'rush' ? ($store.juego.rushCompletado ? '¡Boss Rush completado!' : '¡Jefe superado!') : ($store.juego.modo === 'reto' ? '¡Reto diario completado!' : ($store.juego.modo === 'mision' ? ($store.juego.misionResultado === 'completada' ? '¡Misión superada!' : 'Objetivo pendiente') : ($store.juego.haySiguiente ? '¡Nivel superado!' : '¡Directo terminado!')))">Nivel completado</h2>
                         <p class="game-panel-texto"><strong x-text="$store.juego.haters"></strong> haters · <strong x-text="$store.juego.gp"></strong> GP · <strong x-text="$store.juego.formatearTiempo($store.juego.tiempo)"></strong></p>
+                        <p class="game-panel-texto" :hidden="$store.juego.modo !== 'mision'" x-text="$store.juego.misionDesc"></p>
                         <p class="game-record" x-text="$store.juego.record"></p>
                         <p class="game-medalla-final" :class="'game-medalla--' + ($store.juego.medallaActual || 'vacia').toLowerCase()" :hidden="$store.juego.modo !== 'normal'">
                             <span>Medalla</span>
@@ -167,7 +168,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         <p class="game-ranking-mensaje" x-text="$store.juego.rankingMensaje"></p>
                         <div class="game-panel-acciones">
                             <button type="button" class="game-btn game-btn--primario" :hidden="!$store.juego.haySiguiente" @click="$store.juego.siguienteNivel()" x-text="$store.juego.modo === 'rush' ? 'Siguiente jefe' : 'Siguiente nivel'">Siguiente nivel</button>
-                            <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.reiniciar()" x-text="$store.juego.modo === 'rush' ? 'Reiniciar Rush' : ($store.juego.modo === 'reto' ? 'Repetir reto' : 'Repetir nivel')">Repetir nivel</button>
+                            <button type="button" class="game-btn game-btn--primario" :hidden="$store.juego.modo !== 'normal' || !$store.juego.campanaCompletada || $store.juego.nivelActual < $store.juego.totalNiveles" @click="$store.juego.nuevaCampana()">Nueva partida</button>
+                            <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.reiniciar()" x-text="$store.juego.modo === 'rush' ? 'Reiniciar Rush' : ($store.juego.modo === 'reto' ? 'Repetir reto' : ($store.juego.modo === 'mision' ? 'Repetir misión' : 'Repetir nivel'))">Repetir nivel</button>
                             <button type="button" class="game-btn game-btn--secundario" :hidden="$store.juego.modo !== 'normal'" @click="$store.juego.abrirRanking('general')">Ver ranking</button>
                             <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.salir()">Salir al menú</button>
                         </div>
@@ -175,8 +177,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
                     <div class="game-panel" :hidden="$store.juego.fase !== 'gameover'">
                         <span class="game-panel-etiqueta">FIN DE LA PARTIDA</span>
-                        <h2 class="game-panel-titulo" x-text="$store.juego.modo === 'rush' ? 'Boss Rush terminado' : ($store.juego.modo === 'reto' ? 'Reto diario fallido' : 'Te tumbaron los haters')">Te tumbaron los haters</h2>
-                        <p class="game-panel-texto">Te quedaste sin vidas con <strong x-text="$store.juego.gp"></strong> GP. El chat no perdona.</p>
+                        <h2 class="game-panel-titulo" x-text="$store.juego.modo === 'rush' ? 'Boss Rush terminado' : ($store.juego.modo === 'reto' ? 'Reto diario fallido' : ($store.juego.modo === 'mision' ? 'Misión fallida' : 'Te tumbaron los haters'))">Te tumbaron los haters</h2>
+                        <p class="game-panel-texto">Te quedaste sin vidas con <strong x-text="$store.juego.gp"></strong> GP. <span x-text="$store.juego.modo === 'mision' ? 'Puedes reintentar la misión.' : 'El chat no perdona.'"></span></p>
                         <div class="game-panel-acciones">
                             <button type="button" class="game-btn game-btn--primario" @click="$store.juego.reiniciar()">Reintentar</button>
                             <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.salir()">Salir al menú</button>
@@ -255,8 +257,23 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
                         <p class="game-progreso-resumen">
                             <strong x-text="$store.juego.medallasConseguidas"></strong> medallas ·
-                            <strong x-text="$store.juego.logrosDesbloqueados"></strong>/<span x-text="$store.juego.logros.length"></span> logros
+                            <strong x-text="$store.juego.logrosDesbloqueados"></strong>/<span x-text="$store.juego.logros.length"></span> logros ·
+                            <strong x-text="$store.juego.sellos"></strong> <span x-text="$store.juego.sellos === 1 ? 'sello' : 'sellos'"></span>
                         </p>
+
+                        <h3 class="game-progreso-subtitulo">Misiones semanales</h3>
+                        <p class="game-progreso-nota">Tres misiones nuevas cada semana. Cada una da un sello; con 3 sellos se desbloquea la skin Circuito.</p>
+                        <div class="game-misiones">
+                            <template x-for="mision in $store.juego.misiones" :key="mision.id">
+                                <article class="game-mision" :class="{ 'game-mision--hecha': mision.hecha }">
+                                    <span class="game-mision-etiqueta" x-text="mision.hecha ? 'COMPLETADA' : 'MISIÓN SEMANAL'"></span>
+                                    <strong x-text="mision.nombre + ' · ' + mision.nivelNombre"></strong>
+                                    <small x-text="mision.desc"></small>
+                                    <span class="game-mision-recompensa" x-text="mision.hecha ? 'Sello conseguido' : mision.recompensa"></span>
+                                    <button type="button" class="game-mision-btn" :disabled="mision.hecha" @click="$store.juego.jugarMision(mision.id)" x-text="mision.hecha ? 'Completada' : 'Jugar misión'"></button>
+                                </article>
+                            </template>
+                        </div>
 
                         <h3 class="game-progreso-subtitulo">Retos</h3>
                         <div class="game-retos">
@@ -303,7 +320,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                             </template>
                         </div>
 
-                        <p class="game-ranking-pie">Las medallas usan tu mejor GP y tiempo por nivel. Las skins se desbloquean con logros.</p>
+                        <p class="game-ranking-pie">Las medallas usan tu mejor GP y tiempo por nivel. Las skins se desbloquean con logros y sellos de misión.</p>
                     </div>
                 </div>
 
@@ -360,8 +377,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-<script src="main.js?v=1.98.0" defer></script>
-<script src="game.js?v=1.98.0" defer></script>
+<script src="main.js?v=1.99.0" defer></script>
+<script src="game.js?v=1.99.0" defer></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
 </body>

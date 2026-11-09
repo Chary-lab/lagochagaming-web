@@ -59,7 +59,9 @@
         { id: 'velocista', nombre: 'Velocista', desc: 'Completa un nivel con tiempo de medalla A o mejor.' },
         { id: 'sin_escudo', nombre: 'Sin red', desc: 'Completa un nivel sin recoger regalitos.' },
         { id: 'cazajefes', nombre: 'Cazajefes', desc: 'Completa el Boss Rush.' },
-        { id: 'reto', nombre: 'Rutina diaria', desc: 'Completa el reto diario.' }
+        { id: 'reto', nombre: 'Rutina diaria', desc: 'Completa el reto diario.' },
+        { id: 'misionero', nombre: 'Misionero', desc: 'Completa una misión semanal.' },
+        { id: 'semana_perfecta', nombre: 'Semana perfecta', desc: 'Completa las 3 misiones de una semana.' }
     ];
 
     const SKINS = [
@@ -78,6 +80,10 @@
         {
             id: 'oro', nombre: 'Oro', color: '#facc15',
             colores: { pelo: '#1c1917', piel: '#ffe8c2', top: '#78350f', topClaro: '#f59e0b', rosa: '#fde047', zapato: '#fbbf24' }
+        },
+        {
+            id: 'circuito', nombre: 'Circuito', color: '#a3e635',
+            colores: { pelo: '#0f1a24', piel: '#d9f99d', top: '#365314', topClaro: '#a3e635', rosa: '#22d3ee', zapato: '#84cc16' }
         }
     ];
 
@@ -149,7 +155,12 @@
         rushRecord: '',
         retoFecha: '',
         retoNivel: 0,
-        retoHecho: false
+        retoHecho: false,
+        campanaCompletada: false,
+        misiones: [],
+        sellos: 0,
+        misionActiva: null,
+        misionResultado: ''
     };
 
     // === NIVEL 1: EL SETUP ===
@@ -1248,6 +1259,95 @@
         actualizarProgreso();
     }
 
+    function semanaActual() {
+        const hoy = new Date();
+        const fecha = new Date(Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()));
+        const dia = (fecha.getUTCDay() + 6) % 7;
+        fecha.setUTCDate(fecha.getUTCDate() - dia + 3);
+        const primerJueves = new Date(Date.UTC(fecha.getUTCFullYear(), 0, 4));
+        const diaPrimer = (primerJueves.getUTCDay() + 6) % 7;
+        primerJueves.setUTCDate(primerJueves.getUTCDate() - diaPrimer + 3);
+        const semana = 1 + Math.round((fecha - primerJueves) / (7 * 86400000));
+        return fecha.getUTCFullYear() + '-W' + String(semana).padStart(2, '0');
+    }
+
+    function misionesDeLaSemana() {
+        const semana = semanaActual();
+        const datos = leerDatos();
+        const completadas = datos.misiones && datos.misiones.semana === semana
+            ? (datos.misiones.completadas || {})
+            : {};
+        const semilla = semana.split('').reduce((total, letra) => total + letra.charCodeAt(0), 0);
+        const tipos = [
+            { tipo: 'sin_dano', nombre: 'Sin daño' },
+            { tipo: 'gp', nombre: 'Botín' },
+            { tipo: 'tiempo', nombre: 'Contrarreloj' }
+        ];
+        return tipos.map((entrada, indice) => {
+            const nivel = ((semilla + indice * 2) % NIVELES.length) + 1;
+            const maximo = maxGpNivel(nivel);
+            const objetivoTiempo = (OBJETIVOS[nivel - 1] || OBJETIVOS[0]).b;
+            let objetivo;
+            let desc;
+            if (entrada.tipo === 'sin_dano') {
+                objetivo = 0;
+                desc = 'Completa ' + NIVELES[nivel - 1].nombre + ' sin perder vidas.';
+            } else if (entrada.tipo === 'gp') {
+                objetivo = Math.max(30, Math.round((maximo * 0.6) / 10) * 10);
+                desc = 'Consigue ' + objetivo + ' GP en ' + NIVELES[nivel - 1].nombre + '.';
+            } else {
+                objetivo = objetivoTiempo;
+                desc = 'Completa ' + NIVELES[nivel - 1].nombre + ' en menos de ' + formatearTiempo(objetivoTiempo) + '.';
+            }
+            const id = semana + '-' + entrada.tipo + '-' + nivel;
+            return {
+                id: id,
+                semana: semana,
+                tipo: entrada.tipo,
+                nombre: entrada.nombre,
+                nivel: nivel,
+                nivelNombre: NIVELES[nivel - 1].nombre,
+                objetivo: objetivo,
+                desc: desc,
+                recompensa: 'Sello semanal +1',
+                hecha: !!completadas[id]
+            };
+        });
+    }
+
+    function guardarMisionCompletada(mision) {
+        const datos = leerDatos();
+        const semana = semanaActual();
+        if (!datos.misiones || datos.misiones.semana !== semana) {
+            datos.misiones = { semana: semana, completadas: {} };
+        }
+        if (datos.misiones.completadas[mision.id]) return false;
+        datos.misiones.completadas[mision.id] = true;
+        datos.sellos = (Number(datos.sellos) || 0) + 1;
+        guardarDatos(datos);
+        estado.sellos = datos.sellos;
+        const totalSemana = Object.keys(datos.misiones.completadas).length;
+        if (totalSemana >= 3) desbloquearLogro('semana_perfecta');
+        desbloquearLogro('misionero');
+        return true;
+    }
+
+    function marcarCampanaCompletada() {
+        const datos = leerDatos();
+        if (datos.campanaCompletada) {
+            estado.campanaCompletada = true;
+            return;
+        }
+        datos.campanaCompletada = true;
+        guardarDatos(datos);
+        estado.campanaCompletada = true;
+    }
+
+    function nivelDeInicio() {
+        if (estado.campanaCompletada && estado.nivelActual >= NIVELES.length) return 1;
+        return estado.nivelActual || estado.nivelDesbloqueado || 1;
+    }
+
     function calcularMedalla(numero, record) {
         if (!record || record.version !== 2) return '';
         const maximo = maxGpNivel(numero);
@@ -1277,6 +1377,7 @@
         if (id === 'neon') return tieneLogro('primer_jefe') || estado.nivelDesbloqueado >= 2;
         if (id === 'purga') return tieneLogro('purga');
         if (id === 'oro') return tieneLogro('campana') || contarMedallas() >= 5;
+        if (id === 'circuito') return estado.sellos >= 3;
         return false;
     }
 
@@ -1289,6 +1390,13 @@
             return calcularMedalla(numero, registros[numero] || (numero === 1 ? datos.nivel1 : null));
         });
         estado.medallasConseguidas = contarMedallas();
+        estado.sellos = Number(datos.sellos) || 0;
+        estado.campanaCompletada = !!datos.campanaCompletada || tieneLogro('campana') || !!registros[5];
+        if (estado.campanaCompletada && !datos.campanaCompletada) {
+            datos.campanaCompletada = true;
+            guardarDatos(datos);
+        }
+        estado.misiones = misionesDeLaSemana();
         const reto = retoDelDia();
         estado.retoFecha = reto.fecha;
         estado.retoNivel = reto.nivel;
@@ -1353,7 +1461,7 @@
     }
 
     function cargarNivel(nivelNumero, mantenerCheckpoint) {
-        const maximo = (estado.modo === 'rush' || estado.modo === 'reto')
+        const maximo = (estado.modo === 'rush' || estado.modo === 'reto' || estado.modo === 'mision')
             ? NIVELES.length
             : Math.max(1, Math.min(NIVELES.length, estado.nivelDesbloqueado || 1));
         const numero = limitar(Math.round(nivelNumero || maximo), 1, maximo);
@@ -1511,6 +1619,81 @@
         });
     }
 
+    function iniciarMision(id) {
+        const mision = misionesDeLaSemana().find((item) => item.id === id);
+        if (!mision) return;
+        estado.modo = 'mision';
+        estado.misionActiva = mision;
+        estado.misionResultado = '';
+        estado.gp = 0;
+        estado.gpNivel = 0;
+        estado.hatersMuertos = 0;
+        estado.hatersNivel = 0;
+        estado.vidas = VIDAS_INICIALES;
+        estado.tiempo = 0;
+        estado.invulnerable = 1.1;
+        estado.parpadeo = 1.2;
+        estado.medallaActual = '';
+        estado.danoRecibidoNivel = 0;
+        estado.clipsDisparados = 0;
+        estado.hatersPisados = 0;
+        estado.escudosRecogidos = 0;
+        estado.runId = null;
+        estado.runNivel = 0;
+        estado.runEnviado = false;
+        limpiarEntrada();
+        cargarNivel(mision.nivel);
+        estado.modo = 'mision';
+        estado.tiempo = 0;
+        estado.gpNivel = 0;
+        estado.hatersNivel = 0;
+        const tienda = window.Alpine && typeof window.Alpine.store === 'function'
+            ? window.Alpine.store('juego')
+            : null;
+        if (tienda) {
+            tienda.progresoAbierto = false;
+            tienda.rankingAbierto = false;
+        }
+        fijarFase('jugando');
+        sincronizarUi({ rankingMensaje: '', rankingError: '', medallaActual: '', record: '' });
+        const aviso = document.getElementById('game-aviso');
+        if (aviso) {
+            aviso.textContent = 'Misión: ' + mision.desc + ' Recompensa: ' + mision.recompensa + '.';
+        }
+    }
+
+    function finalizarMision(gpNivel) {
+        const mision = estado.misionActiva;
+        if (!mision) {
+            salirAlMenu();
+            return;
+        }
+        let exito = false;
+        if (mision.tipo === 'sin_dano') exito = estado.danoRecibidoNivel === 0;
+        if (mision.tipo === 'gp') exito = gpNivel >= mision.objetivo;
+        if (mision.tipo === 'tiempo') exito = estado.tiempo <= mision.objetivo;
+        estado.misionResultado = exito ? 'completada' : 'fallida';
+        if (exito) {
+            guardarMisionCompletada(mision);
+            actualizarProgreso();
+        }
+        estado.medallaActual = '';
+        sfx(exito ? 'meta' : 'dano');
+        fijarFase('completo');
+        sincronizarUi({
+            record: exito ? 'Misión superada · ' + mision.recompensa : 'Objetivo no cumplido: ' + mision.desc,
+            rankingMensaje: '',
+            medallaActual: '',
+            haySiguiente: false
+        });
+        const aviso = document.getElementById('game-aviso');
+        if (aviso) {
+            aviso.textContent = exito
+                ? 'Misión completada. ' + mision.recompensa + '.'
+                : 'Nivel terminado, pero el objetivo no se cumplió.';
+        }
+    }
+
     function siguienteJefeRush() {
         if (estado.modo !== 'rush' || estado.rushCompletado) return;
         const siguiente = estado.rushJefe + 1;
@@ -1527,6 +1710,8 @@
 
     function empezarNivel(nivelNumero) {
         estado.modo = 'normal';
+        estado.misionActiva = null;
+        estado.misionResultado = '';
         estado.rushJefe = 0;
         estado.rushTotal = 0;
         estado.rushCompletado = false;
@@ -1551,7 +1736,7 @@
 
     function iniciarPartida(nivelNumero) {
         const maximo = Math.max(1, Math.min(NIVELES.length, estado.nivelDesbloqueado || 1));
-        const numero = limitar(Math.round(nivelNumero || estado.nivelActual || maximo), 1, maximo);
+        const numero = limitar(Math.round(nivelNumero || nivelDeInicio()), 1, maximo);
         estado.gp = 0;
         estado.vidas = VIDAS_INICIALES;
         estado.tiempo = 0;
@@ -1570,6 +1755,10 @@
             iniciarRetoDiario();
             return;
         }
+        if (estado.modo === 'mision' && estado.misionActiva) {
+            iniciarMision(estado.misionActiva.id);
+            return;
+        }
         iniciarPartida(estado.nivelActual);
     }
 
@@ -1579,6 +1768,10 @@
             return;
         }
         if (estado.modo === 'reto') {
+            salirAlMenu();
+            return;
+        }
+        if (estado.modo === 'mision') {
             salirAlMenu();
             return;
         }
@@ -1672,6 +1865,8 @@
         estado.clipsDisparados = 0;
         estado.hatersPisados = 0;
         estado.escudosRecogidos = 0;
+        estado.misionActiva = null;
+        estado.misionResultado = '';
         const tienda = window.Alpine && typeof window.Alpine.store === 'function'
             ? window.Alpine.store('juego')
             : null;
@@ -1697,8 +1892,12 @@
                 pausa: 'Juego en pausa.',
                 completo: estado.modo === 'rush'
                     ? (estado.rushCompletado ? 'Boss Rush completado.' : 'Jefe superado.')
-                    : (estado.modo === 'reto' ? 'Reto diario completado.' : 'Nivel completado.'),
-                gameover: 'Fin de la partida.'
+                    : (estado.modo === 'reto'
+                        ? 'Reto diario completado.'
+                        : (estado.modo === 'mision'
+                            ? (estado.misionResultado === 'completada' ? 'Misión completada.' : 'Nivel terminado con la misión pendiente.')
+                            : 'Nivel completado.')),
+                gameover: estado.modo === 'mision' ? 'Misión fallida.' : 'Fin de la partida.'
             };
             aviso.textContent = textos[fase] || '';
         }
@@ -1743,6 +1942,13 @@
         store.retoNivel = estado.retoNivel;
         store.retoNombre = estado.retoNivel ? NIVELES[estado.retoNivel - 1].nombre : '';
         store.retoHecho = estado.retoHecho;
+        store.campanaCompletada = estado.campanaCompletada;
+        store.misiones = estado.misiones.slice();
+        store.sellos = estado.sellos;
+        store.misionResultado = estado.misionResultado;
+        store.misionNombre = estado.misionActiva ? estado.misionActiva.nivelNombre : '';
+        store.misionDesc = estado.misionActiva ? estado.misionActiva.desc : '';
+        store.misionActivaId = estado.misionActiva ? estado.misionActiva.id : '';
         store.medallas = estado.medallas.slice();
         store.medallasConseguidas = estado.medallasConseguidas;
         store.medallaActual = estado.medallaActual;
@@ -1803,13 +2009,20 @@
         if (estado.fase !== 'jugando') return;
         const numero = estado.nivelActual;
         const gpNivel = Math.max(0, estado.gp - estado.gpNivel);
+        if (estado.modo === 'mision') {
+            finalizarMision(gpNivel);
+            return;
+        }
         const maximo = maxGpNivel(numero);
         guardarRecord(numero);
         estado.medallaActual = estado.medallas[numero - 1] || '';
         if (estado.danoRecibidoNivel === 0) desbloquearLogro('sin_dano');
         if (maximo && gpNivel >= maximo * 0.9) desbloquearLogro('todos_gp');
         if (numero === 3) desbloquearLogro('purga');
-        if (numero === 5) desbloquearLogro('campana');
+        if (numero === 5) {
+            desbloquearLogro('campana');
+            marcarCampanaCompletada();
+        }
         if (estado.tiempo <= (OBJETIVOS[numero - 1] || OBJETIVOS[0]).a) desbloquearLogro('velocista');
         if (estado.escudosRecogidos === 0) desbloquearLogro('sin_escudo');
         desbloquearSiguiente();
@@ -3777,7 +3990,9 @@
             ? 'JEFE ' + estado.rushJefe + '/' + estado.rushTotal
             : (estado.modo === 'reto'
                 ? 'RETO DIARIO'
-                : 'NIVEL ' + estado.nivelActual + '/' + NIVELES.length + ' · ' + nombreNivel.toUpperCase());
+                : (estado.modo === 'mision'
+                    ? 'MISIÓN · ' + nombreNivel.toUpperCase()
+                    : 'NIVEL ' + estado.nivelActual + '/' + NIVELES.length + ' · ' + nombreNivel.toUpperCase()));
         c.fillText(etiquetaNivel, VISTA_ANCHO / 2, 15);
 
         c.textAlign = 'right';
@@ -4026,6 +4241,8 @@
         salir: salirAlMenu,
         iniciarBossRush,
         iniciarRetoDiario,
+        iniciarMision,
+        nuevaCampana: () => iniciarPartida(1),
         fijarVolumen,
         alternarMovimientoReducido,
         estado: () => ({
@@ -4046,6 +4263,10 @@
             rushCompletado: estado.rushCompletado,
             retoNivel: estado.retoNivel,
             retoHecho: estado.retoHecho,
+            campanaCompletada: estado.campanaCompletada,
+            sellos: estado.sellos,
+            misionActiva: estado.misionActiva ? estado.misionActiva.id : '',
+            misionResultado: estado.misionResultado,
             enemigos: estado.nivelDatos ? estado.nivelDatos.haters.filter((h) => h.vivo).length : 0,
             purga: estado.purga ? Math.round(estado.purga.x) : null,
             sonido: estado.sonido,
@@ -4096,6 +4317,13 @@
             retoNivel: 0,
             retoNombre: '',
             retoHecho: false,
+            campanaCompletada: false,
+            misiones: [],
+            sellos: 0,
+            misionResultado: '',
+            misionNombre: '',
+            misionDesc: '',
+            misionActivaId: '',
             progresoAbierto: false,
             rankingAbierto: false,
             rankingTab: 'general',
@@ -4109,7 +4337,7 @@
             sonido: true,
             reducirMovimiento: false,
             escala: ESCALA_RENDER,
-            iniciar() { iniciarPartida(this.nivelActual); },
+            iniciar() { iniciarPartida(); },
             pausar() { pausarPartida(); },
             reanudar() { reanudarPartida(); },
             reiniciar() { reiniciarPartida(); },
@@ -4126,6 +4354,8 @@
             seleccionarSkin(id) { elegirSkin(id); },
             iniciarBossRush() { iniciarBossRush(); },
             iniciarRetoDiario() { iniciarRetoDiario(); },
+            jugarMision(id) { iniciarMision(id); },
+            nuevaCampana() { iniciarPartida(1); },
             formatearTiempo(valor) { return formatearTiempo(valor); }
         });
         sincronizarUi({ record: textoRecord(1) });
