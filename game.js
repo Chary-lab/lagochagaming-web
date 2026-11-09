@@ -1,5 +1,5 @@
-/* GochitaRunner — motor del minijuego (fase 1).
-   Física, cámara y nivel de prueba. Sin arte final ni ranking todavía. */
+/* GochitaRunner — motor del minijuego.
+   Campaña de cinco niveles dentro de un PC gaming, jefes y ranking. */
 (function () {
     'use strict';
 
@@ -19,7 +19,10 @@
     const COYOTE = 0.1;
     const BUFFER_SALTO = 0.12;
     const VIDAS_INICIALES = 3;
-    const MAX_CLIPS = 5;
+    const MAX_CLIPS = 12;
+    const CLIPS_POR_DONACION = 5;
+    const ESCUDO_JEFE_TIEMPO = 2.6;
+    const ESCUDO_JEFE_ESPERA = 8;
     const VEL_CLIP = 340;
     const VEL_HATER = 30;
     const INTERVALO_TIRO = 2.6;
@@ -27,6 +30,10 @@
     const ESCUDO_MAX = 3;
     const VEL_PURGA = 30;
     const RETRASO_PURGA = 2.5;
+    const VIDA_JEFE = 5;
+    const BONUS_JEFE = 25;
+    const ESCALA_RENDER = 2;
+    const VOLUMEN_INICIAL = 0.85;
 
     const CLAVE_GUARDADO = 'lg_game_v1';
     const NOMBRE_NIVEL = 'El Setup';
@@ -76,7 +83,11 @@
         tunelBloqueado: false,
         runId: null,
         runNivel: 0,
-        runEnviado: false
+        runEnviado: false,
+        checkpoint: null,
+        avisoJefe: false,
+        volumen: VOLUMEN_INICIAL,
+        reducirMovimiento: false
     };
 
     // === NIVEL 1: EL SETUP ===
@@ -117,7 +128,7 @@
         for (let x = 70; x <= 72; x++) poner(x, 14, '^');
         for (let x = 108; x <= 110; x++) poner(x, 14, '^');
 
-        // Kicks.
+        // GochiPoints.
         [
             [6, 13], [7, 13], [8, 13],
             [14, 10], [15, 10], [16, 10],
@@ -145,11 +156,25 @@
         poner(49, 11, 'R');
         poner(90, 8, 'D');
 
+        poner(59, 14, 'C');
+        poner(124, 14, 'C');
+
         poner(3, 14, 'P');
         poner(166, 13, 'G');
         poner(166, 14, 'G');
 
-        return { nombre: NOMBRE_NIVEL, ancho, alto, mapa: mapa.map((fila) => fila.join('')), tema: 'setup' };
+        return {
+            nombre: NOMBRE_NIVEL,
+            ancho,
+            alto,
+            mapa: mapa.map((fila) => fila.join('')),
+            tema: 'setup',
+            jefe: {
+                x: 157, y: 12.75, ancho: 28, alto: 34, arenaInicio: 151,
+                hp: 3, tipo: 'tecnico', nombre: 'EL TÉCNICO',
+                ataque: 'cable', intervalo: 1.7, bonus: 15, velocidad: 16
+            }
+        };
     }
 
     function nuevoNivel(ancho, alto = 17) {
@@ -238,6 +263,9 @@
             [142, 13], [143, 13], [144, 13]
         ]);
 
+        n.poner(40, 14, 'C');
+        n.poner(104, 14, 'C');
+
         n.poner(3, 14, 'P');
         n.poner(147, 13, 'G');
         n.poner(147, 14, 'G');
@@ -247,7 +275,12 @@
             ancho: n.ancho,
             alto: n.alto,
             mapa: n.mapa.map((fila) => fila.join('')),
-            tema: 'raid'
+            tema: 'raid',
+            jefe: {
+                x: 142, y: 12.2, ancho: 32, alto: 38, arenaInicio: 135,
+                hp: 4, tipo: 'raid', nombre: 'RAID LEADER',
+                ataque: 'triple', intervalo: 1.6, bonus: 20, velocidad: 20
+            }
         };
     }
 
@@ -270,12 +303,16 @@
         n.rect(88, 10, 5, 1, '=');
         n.rect(120, 11, 5, 1, '=');
 
+        // Arena del jefe: plataformas para saltarle encima.
+        n.rect(131, 11, 4, 1, '=');
+        n.rect(142, 11, 4, 1, '=');
+
         // Lag spikes.
         [18, 19, 20, 45, 46, 47, 72, 73, 74, 128, 129, 130]
             .forEach((x) => n.poner(x, 14, '^'));
 
         // Haters de suelo y voladores.
-        [[40, 14], [68, 14], [100, 14], [140, 14]]
+        [[40, 14], [68, 14], [100, 14]]
             .forEach(([x, y]) => n.poner(x, y, 'H'));
         [[15, 8], [58, 7], [90, 8], [122, 9]]
             .forEach(([x, y]) => n.poner(x, y, 'V'));
@@ -285,6 +322,7 @@
         n.poner(30, 14, 'D');
         n.poner(88, 9, 'R');
         n.poner(121, 10, 'D');
+        n.poner(132, 14, 'D');
 
         filaMonedas(n, [
             [6, 13], [7, 13],
@@ -311,6 +349,9 @@
             [141, 13], [142, 13], [143, 13]
         ]);
 
+        n.poner(49, 14, 'C');
+        n.poner(108, 14, 'C');
+
         n.poner(3, 14, 'P');
         n.poner(147, 13, 'G');
         n.poner(147, 14, 'G');
@@ -321,14 +362,187 @@
             alto: n.alto,
             mapa: n.mapa.map((fila) => fila.join('')),
             tema: 'purga',
-            purga: { inicio: -40, velocidad: VEL_PURGA, retraso: RETRASO_PURGA }
+            purga: { inicio: -40, velocidad: VEL_PURGA, retraso: RETRASO_PURGA },
+            jefe: {
+                x: 136, y: 12.25, ancho: 34, alto: 40, arenaInicio: 130,
+                hp: 5, tipo: 'hater', nombre: 'HATER FINAL',
+                ataque: 'burbuja', intervalo: 1.3, bonus: 25, velocidad: 24
+            }
+        };
+    }
+
+    // === NIVEL 4: OVERCLOCK ===
+
+    function crearNivel4() {
+        const n = nuevoNivel(160);
+
+        n.rect(0, 15, 23, 2, '#');
+        n.rect(27, 15, 22, 2, '#');
+        n.rect(53, 15, 24, 2, '#');
+        n.rect(81, 15, 24, 2, '#');
+        n.rect(109, 15, 24, 2, '#');
+        n.rect(136, 15, 24, 2, '#');
+
+        n.rect(8, 12, 5, 1, '=');
+        n.rect(30, 11, 6, 1, '=');
+        n.rect(42, 9, 4, 1, '=');
+        n.rect(56, 12, 5, 1, '=');
+        n.rect(68, 10, 6, 1, '=');
+        n.rect(86, 12, 5, 1, '=');
+        n.rect(95, 9, 4, 1, '=');
+        n.rect(112, 11, 6, 1, '=');
+        n.rect(121, 9, 4, 1, '=');
+        n.rect(141, 11, 4, 1, '=');
+        n.rect(148, 9, 4, 1, '=');
+
+        [18, 19, 20, 60, 61, 62, 92, 93, 94, 126, 127, 128]
+            .forEach((x) => n.poner(x, 14, '^'));
+
+        [[35, 14], [64, 14], [88, 14], [100, 14], [124, 14]]
+            .forEach(([x, y]) => n.poner(x, y, 'H'));
+        [[15, 8], [45, 7], [72, 9], [114, 8]]
+            .forEach(([x, y]) => n.poner(x, y, 'V'));
+
+        n.poner(6, 14, 'R');
+        n.poner(12, 14, 'D');
+        n.poner(58, 11, 'R');
+        n.poner(84, 8, 'D');
+        n.poner(138, 14, 'D');
+
+        filaMonedas(n, [
+            [5, 13], [6, 13], [7, 13],
+            [9, 11], [10, 11], [11, 11],
+            [16, 12], [17, 12],
+            [25, 13], [26, 13],
+            [29, 10], [30, 10], [31, 10],
+            [39, 8], [40, 8],
+            [43, 10], [44, 10],
+            [48, 12], [49, 12],
+            [56, 11], [57, 11],
+            [59, 10], [60, 10],
+            [69, 9], [70, 9], [71, 9],
+            [78, 12], [79, 12],
+            [87, 11], [88, 11],
+            [96, 8], [97, 8],
+            [102, 12], [103, 12],
+            [113, 10], [114, 10],
+            [122, 8], [123, 8],
+            [130, 12], [131, 12],
+            [141, 13], [142, 13], [143, 13]
+        ]);
+
+        n.poner(52, 14, 'C');
+        n.poner(108, 14, 'C');
+
+        n.poner(3, 14, 'P');
+        n.poner(157, 13, 'G');
+        n.poner(157, 14, 'G');
+
+        return {
+            nombre: 'Overclock',
+            ancho: n.ancho,
+            alto: n.alto,
+            mapa: n.mapa.map((fila) => fila.join('')),
+            tema: 'overclock',
+            purga: { inicio: -40, velocidad: 38, retraso: 2.8 },
+            jefe: {
+                x: 148, y: 12.2, ancho: 34, alto: 40, arenaInicio: 140,
+                hp: 6, tipo: 'turbina', nombre: 'LA TURBINA',
+                ataque: 'viento', intervalo: 1.2, bonus: 30, velocidad: 18
+            }
+        };
+    }
+
+    // === NIVEL 5: EL NÚCLEO ===
+
+    function crearNivel5() {
+        const n = nuevoNivel(170);
+
+        n.rect(0, 15, 19, 2, '#');
+        n.rect(22, 15, 19, 2, '#');
+        n.rect(44, 15, 19, 2, '#');
+        n.rect(66, 15, 23, 2, '#');
+        n.rect(92, 15, 21, 2, '#');
+        n.rect(116, 15, 23, 2, '#');
+        n.rect(142, 15, 28, 2, '#');
+
+        n.rect(8, 12, 4, 1, '=');
+        n.rect(25, 11, 5, 1, '=');
+        n.rect(34, 9, 4, 1, '=');
+        n.rect(50, 12, 5, 1, '=');
+        n.rect(58, 10, 4, 1, '=');
+        n.rect(70, 11, 5, 1, '=');
+        n.rect(80, 9, 4, 1, '=');
+        n.rect(96, 12, 5, 1, '=');
+        n.rect(104, 10, 4, 1, '=');
+        n.rect(120, 11, 5, 1, '=');
+        n.rect(128, 9, 4, 1, '=');
+        n.rect(149, 11, 4, 1, '=');
+        n.rect(156, 9, 4, 1, '=');
+
+        [15, 16, 17, 54, 55, 56, 84, 85, 86, 106, 107, 108, 132, 133, 134]
+            .forEach((x) => n.poner(x, 14, '^'));
+
+        [[30, 14], [52, 14], [74, 14], [100, 14], [124, 14], [136, 14]]
+            .forEach(([x, y]) => n.poner(x, y, 'H'));
+        [[12, 8], [37, 7], [60, 9], [90, 8], [118, 7], [145, 8]]
+            .forEach(([x, y]) => n.poner(x, y, 'V'));
+
+        n.poner(5, 14, 'R');
+        n.poner(11, 14, 'D');
+        n.poner(62, 10, 'R');
+        n.poner(94, 8, 'D');
+        n.poner(143, 14, 'D');
+
+        filaMonedas(n, [
+            [5, 13], [6, 13],
+            [9, 11], [10, 11],
+            [16, 12], [17, 12],
+            [26, 10], [27, 10],
+            [35, 8], [36, 8],
+            [45, 12], [46, 12],
+            [50, 11], [51, 11],
+            [58, 9], [59, 9],
+            [67, 12], [68, 12],
+            [70, 10], [71, 10],
+            [81, 8], [82, 8],
+            [96, 11], [97, 11],
+            [105, 9], [106, 9],
+            [117, 12], [118, 12],
+            [120, 10], [121, 10],
+            [129, 8], [130, 8],
+            [137, 13], [138, 13],
+            [149, 13], [150, 13], [151, 13]
+        ]);
+
+        n.poner(58, 14, 'C');
+        n.poner(118, 14, 'C');
+
+        n.poner(3, 14, 'P');
+        n.poner(167, 13, 'G');
+        n.poner(167, 14, 'G');
+
+        return {
+            nombre: 'El Núcleo',
+            ancho: n.ancho,
+            alto: n.alto,
+            mapa: n.mapa.map((fila) => fila.join('')),
+            tema: 'nucleo',
+            purga: { inicio: -40, velocidad: 46, retraso: 3.2 },
+            jefe: {
+                x: 155, y: 12.2, ancho: 36, alto: 42, arenaInicio: 148,
+                hp: 8, tipo: 'nucleo', nombre: 'EL NÚCLEO',
+                ataque: 'ondas', intervalo: 1.1, bonus: 40, velocidad: 0
+            }
         };
     }
 
     const NIVELES = [
         { nombre: 'El Setup', crear: crearNivel1 },
         { nombre: 'Raid City', crear: crearNivel2 },
-        { nombre: 'La Purga', crear: crearNivel3 }
+        { nombre: 'La Purga', crear: crearNivel3 },
+        { nombre: 'Overclock', crear: crearNivel4 },
+        { nombre: 'El Núcleo', crear: crearNivel5 }
     ];
 
     function parsearNivel(datos) {
@@ -336,14 +550,58 @@
         const powerups = [];
         const haters = [];
         const tuneles = [];
+        const checkpoints = [];
         let spawn = { x: 2 * TILE, y: 10 * TILE };
         let meta = null;
+        let jefe = null;
+
+        if (datos.jefe) {
+            const j = datos.jefe;
+            const hp = Math.max(1, Math.round(j.hp || VIDA_JEFE));
+            jefe = {
+                x: j.x * TILE,
+                baseX: j.x * TILE,
+                y: j.y * TILE,
+                baseY: j.y * TILE,
+                ancho: j.ancho,
+                alto: j.alto,
+                arenaInicio: j.arenaInicio * TILE,
+                hp,
+                hpMax: hp,
+                tipo: j.tipo || 'hater',
+                nombre: j.nombre || 'HATER FINAL',
+                ataque: j.ataque || 'burbuja',
+                intervalo: j.intervalo || 1.3,
+                bonus: j.bonus || BONUS_JEFE,
+                velocidad: j.velocidad || 24,
+                vivo: true,
+                activado: false,
+                golpe: 0,
+                tiro: j.intervalo || 1.3,
+                fase: Math.random() * Math.PI * 2,
+                movT: 0,
+                aviso: 0,
+                carga: 0,
+                cargaDir: 1,
+                cargaT: 2.2 + Math.random() * 1.2,
+                escudo: 0,
+                escudoT: 3.5
+            };
+        }
 
         for (let y = 0; y < datos.alto; y++) {
             for (let x = 0; x < datos.ancho; x++) {
                 const ch = datos.mapa[y][x];
                 if (ch === 'P') {
                     spawn = { x: x * TILE + 3, y: y * TILE + 2 };
+                } else if (ch === 'C') {
+                    checkpoints.push({
+                        x: x * TILE + 3,
+                        y: y * TILE + 2,
+                        tileX: x,
+                        tileY: y,
+                        activo: false
+                    });
                 } else if (ch === 'o') {
                     monedas.push({
                         x: x * TILE + TILE / 2,
@@ -375,6 +633,7 @@
                         tiro: INTERVALO_TIRO * (0.5 + Math.random()),
                         texto: '',
                         volador,
+                        escudo: haters.length % 4 === 2,
                         baseX: x * TILE + 2,
                         baseY: y * TILE + 2,
                         fase: Math.random() * Math.PI * 2,
@@ -409,8 +668,10 @@
             powerups,
             haters,
             tuneles,
+            checkpoints,
             spawn,
-            meta
+            meta,
+            jefe
         };
     }
 
@@ -454,7 +715,7 @@
         osc.type = tipo || 'square';
         osc.frequency.setValueAtTime(freq, t);
         gan.gain.setValueAtTime(0.0001, t);
-        gan.gain.exponentialRampToValueAtTime(volumen || 0.05, t + 0.01);
+        gan.gain.exponentialRampToValueAtTime((volumen || 0.05) * estado.volumen, t + 0.01);
         gan.gain.exponentialRampToValueAtTime(0.0001, t + duracion);
         osc.connect(gan);
         gan.connect(c.destination);
@@ -505,9 +766,14 @@
     function leerSonido() {
         try {
             const datos = JSON.parse(localStorage.getItem(CLAVE_GUARDADO) || '{}');
-            return datos.sonido !== false;
+            estado.sonido = datos.sonido !== false;
+            estado.volumen = typeof datos.volumen === 'number' ? limitar(datos.volumen, 0, 1) : VOLUMEN_INICIAL;
+            const prefiere = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            estado.reducirMovimiento = typeof datos.reducirMovimiento === 'boolean' ? datos.reducirMovimiento : prefiere;
         } catch (e) {
-            return true;
+            estado.sonido = true;
+            estado.volumen = VOLUMEN_INICIAL;
+            estado.reducirMovimiento = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
         }
     }
 
@@ -515,6 +781,8 @@
         try {
             const datos = JSON.parse(localStorage.getItem(CLAVE_GUARDADO) || '{}');
             datos.sonido = estado.sonido;
+            datos.volumen = estado.volumen;
+            datos.reducirMovimiento = estado.reducirMovimiento;
             localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(datos));
         } catch (e) { /* sin almacenamiento */ }
     }
@@ -528,9 +796,26 @@
 
     function alternarSonido() {
         estado.sonido = !estado.sonido;
+        if (estado.sonido && estado.volumen <= 0) estado.volumen = VOLUMEN_INICIAL;
         guardarSonido();
         actualizarBotonSonido();
+        sincronizarUi();
         if (estado.sonido) sfx('moneda');
+    }
+
+    function fijarVolumen(valor) {
+        estado.volumen = limitar(Number(valor) || 0, 0, 1);
+        estado.sonido = estado.volumen > 0;
+        guardarSonido();
+        actualizarBotonSonido();
+        sincronizarUi();
+        if (estado.sonido) sfx('moneda');
+    }
+
+    function alternarMovimientoReducido() {
+        estado.reducirMovimiento = !estado.reducirMovimiento;
+        guardarSonido();
+        sincronizarUi();
     }
 
     function avisoFlotante(texto, x, y) {
@@ -560,7 +845,7 @@
         estado.hatersMuertos += 1;
         estado.gp += 5;
         generarChispas(10, h.x + h.ancho / 2, h.y + h.alto / 2, '#ff4fa3');
-        avisoFlotante('+5 KICKS', h.x + h.ancho / 2, h.y - 2);
+        avisoFlotante('+5 GP', h.x + h.ancho / 2, h.y - 2);
         if (porSalto) sfx('golpe');
         sincronizarUi();
     }
@@ -571,7 +856,7 @@
         if (p.tipo === 'regalo') {
             if (estado.escudo >= ESCUDO_MAX) {
                 estado.gp += 10;
-                avisoFlotante('+10 KICKS', p.x, p.y - 10);
+                avisoFlotante('+10 GP', p.x, p.y - 10);
                 generarChispas(10, p.x, p.y, '#ffd166');
             } else {
                 estado.escudo = ESCUDO_MAX;
@@ -580,9 +865,17 @@
                 generarChispas(12, p.x, p.y, '#ff8fc4');
             }
         } else {
-            estado.clips = MAX_CLIPS;
-            avisoFlotante('+5 CLIPS', p.x, p.y - 10);
-            generarChispas(12, p.x, p.y, '#67e8f9');
+            const hueco = MAX_CLIPS - estado.clips;
+            if (hueco <= 0) {
+                estado.gp += 10;
+                avisoFlotante('CLIPS AL MÁXIMO · +10 GP', p.x, p.y - 10);
+                generarChispas(10, p.x, p.y, '#ffd166');
+            } else {
+                const sumados = Math.min(CLIPS_POR_DONACION, hueco);
+                estado.clips += sumados;
+                avisoFlotante('+' + sumados + ' CLIPS', p.x, p.y - 10);
+                generarChispas(12, p.x, p.y, '#67e8f9');
+            }
         }
         sfx('poder');
         sincronizarUi();
@@ -814,12 +1107,13 @@
         guardarNivelDesbloqueado(siguiente);
     }
 
-    function cargarNivel(nivelNumero) {
+    function cargarNivel(nivelNumero, mantenerCheckpoint) {
         const maximo = Math.max(1, Math.min(NIVELES.length, estado.nivelDesbloqueado || 1));
         const numero = limitar(Math.round(nivelNumero || maximo), 1, maximo);
         const definicion = NIVELES[numero - 1];
         estado.nivelActual = numero;
         estado.nivelDatos = parsearNivel(definicion.crear());
+        if (!mantenerCheckpoint) estado.checkpoint = null;
         estado.spawn = estado.nivelDatos.spawn;
         estado.jugador = crearJugador(estado.spawn);
         estado.camara.x = limitar(estado.spawn.x - VISTA_ANCHO / 2, 0, Math.max(0, estado.nivelDatos.ancho * TILE - VISTA_ANCHO));
@@ -836,10 +1130,13 @@
         estado.paso = 0;
         estado.squash = 0;
         estado.tunelBloqueado = false;
+        estado.avisoJefe = false;
         estado.purga = null;
         if (estado.nivelDatos.purga) {
             estado.purga = {
                 x: estado.nivelDatos.purga.inicio,
+                base: estado.nivelDatos.purga.velocidad,
+                rampa: estado.nivelDatos.purga.rampa || 26,
                 velocidad: estado.nivelDatos.purga.velocidad,
                 retraso: estado.nivelDatos.purga.retraso,
                 ultimo: 0
@@ -889,12 +1186,30 @@
         const hatersNivel = estado.hatersNivel;
         const vidas = estado.vidas;
         const tiempo = estado.tiempo;
-        cargarNivel(estado.nivelActual);
+        const checkpoint = estado.checkpoint;
+        const jefeAntes = estado.nivelDatos.jefe;
+        const jefeHp = jefeAntes ? jefeAntes.hp : null;
+        cargarNivel(estado.nivelActual, true);
+        estado.checkpoint = checkpoint;
+        if (checkpoint) {
+            for (const cp of estado.nivelDatos.checkpoints) {
+                if (cp.tileX === checkpoint.tileX && cp.tileY === checkpoint.tileY) cp.activo = true;
+            }
+        }
+        // El jefe conserva el daño recibido; si ya cayó, la meta sigue abierta.
+        const jefe = estado.nivelDatos.jefe;
+        if (jefe && jefeHp !== null) {
+            jefe.hp = Math.min(jefeHp, jefe.hpMax);
+            jefe.vivo = jefe.hp > 0;
+            jefe.activado = false;
+            jefe.golpe = 0;
+        }
         estado.gp = gpNivel;
         estado.hatersMuertos = hatersNivel;
         estado.vidas = vidas;
         estado.tiempo = tiempo;
         estado.invulnerable = 1.2;
+        colocarEnSpawn();
     }
 
     function limpiarEntrada() {
@@ -908,8 +1223,9 @@
 
     function colocarEnSpawn() {
         const j = estado.jugador;
-        j.x = estado.spawn.x;
-        j.y = estado.spawn.y;
+        const punto = estado.checkpoint || estado.spawn;
+        j.x = punto.x;
+        j.y = punto.y;
         j.vx = 0;
         j.vy = 0;
         j.enSuelo = false;
@@ -929,6 +1245,23 @@
     function alternarPausa() {
         if (estado.fase === 'jugando') pausarPartida();
         else if (estado.fase === 'pausa') reanudarPartida();
+    }
+
+    function salirAlMenu() {
+        limpiarEntrada();
+        estado.gp = 0;
+        estado.gpNivel = 0;
+        estado.hatersMuertos = 0;
+        estado.hatersNivel = 0;
+        estado.vidas = VIDAS_INICIALES;
+        estado.tiempo = 0;
+        estado.checkpoint = null;
+        estado.invulnerable = 0;
+        cargarNivel(estado.nivelActual);
+        fijarFase('inicio');
+        sincronizarUi({ rankingMensaje: '' });
+        const aviso = document.getElementById('game-aviso');
+        if (aviso) aviso.textContent = 'Menú principal. Elige nivel y pulsa Jugar.';
     }
 
     function fijarFase(fase) {
@@ -969,6 +1302,10 @@
         store.haySiguiente = estado.nivelActual < NIVELES.length;
         store.rankingSesion = !!tokenComunidad();
         store.rankingApodo = apodoComunidad();
+        store.volumen = Math.round(estado.volumen * 100);
+        store.sonido = estado.sonido;
+        store.reducirMovimiento = estado.reducirMovimiento;
+        store.escala = ESCALA_RENDER;
         if (extra) Object.assign(store, extra);
     }
 
@@ -1102,7 +1439,7 @@
                 puntos: fila.puntos,
                 detalle: tab === 'general'
                     ? fila.niveles + (Number(fila.niveles) === 1 ? ' nivel' : ' niveles')
-                    : fila.gp + ' Kicks · ' + fila.haters + ' haters',
+                    : fila.gp + ' GP · ' + fila.haters + ' haters',
                 tiempo: formatearTiempo((Number(fila.tiempo_ms) || 0) / 1000)
             }));
         } catch (e) {
@@ -1161,7 +1498,7 @@
         const numero = nivelNumero || estado.nivelActual;
         const record = leerRecord(numero);
         if (!record) return 'Nivel ' + numero + ': aún no hay marca guardada.';
-        return 'Nivel ' + numero + ' · mejor: ' + formatearTiempo(record.mejorTiempo) + ' · ' + record.mejorGp + ' Kicks';
+        return 'Nivel ' + numero + ' · mejor: ' + formatearTiempo(record.mejorTiempo) + ' · ' + record.mejorGp + ' GP';
     }
 
     function guardarRecord(nivelNumero) {
@@ -1257,11 +1594,31 @@
             if (!quitar && esSolido(nivel, Math.floor(clip.x / TILE), Math.floor(clip.y / TILE))) {
                 quitar = true;
             }
+            if (!quitar && nivel.jefe && nivel.jefe.vivo && nivel.jefe.activado) {
+                const b = nivel.jefe;
+                if (clip.x > b.x && clip.x < b.x + b.ancho && clip.y > b.y && clip.y < b.y + b.alto) {
+                    if (b.escudo > 0) {
+                        generarChispas(5, clip.x, clip.y, '#67e8f9');
+                        avisoFlotante('CLIP BLOQUEADO', clip.x, clip.y - 8);
+                        sfx('golpe');
+                    } else {
+                        golpearJefe(b, estado.jugador, true);
+                    }
+                    quitar = true;
+                }
+            }
             if (!quitar) {
                 for (const h of nivel.haters) {
                     if (!h.vivo) continue;
                     if (clip.x > h.x && clip.x < h.x + h.ancho && clip.y > h.y && clip.y < h.y + h.alto) {
-                        matarHater(h, false);
+                        if (h.escudo) {
+                            h.escudo = false;
+                            generarChispas(6, clip.x, clip.y, '#67e8f9');
+                            avisoFlotante('ESCUDO ROTO', clip.x, clip.y - 8);
+                            sfx('golpe');
+                        } else {
+                            matarHater(h, false);
+                        }
                         quitar = true;
                         break;
                     }
@@ -1309,6 +1666,188 @@
         }
     }
 
+    function actualizarCheckpoints(nivel, j) {
+        for (const cp of nivel.checkpoints) {
+            if (cp.activo) continue;
+            const caja = { x: cp.x + 2, y: cp.y - 18, ancho: 10, alto: 20 };
+            if (!rectSolapa(j, caja)) continue;
+            cp.activo = true;
+            estado.checkpoint = { x: cp.x, y: cp.y, tileX: cp.tileX, tileY: cp.tileY };
+            avisoFlotante('CHECKPOINT', cp.x + 4, cp.y - 10);
+            generarChispas(10, cp.x + 6, cp.y + 4, '#5eead4');
+            sfx('poder');
+        }
+    }
+
+    function golpearJefe(b, j, forzar) {
+        if (!b.vivo || (!forzar && b.golpe > 0.05)) return;
+        b.hp -= 1;
+        b.golpe = 0.3;
+        generarChispas(14, b.x + b.ancho / 2, b.y + b.alto / 2, '#ff4fa3');
+        avisoFlotante(b.nombre + ' ' + Math.max(0, b.hp) + '/' + b.hpMax, b.x + b.ancho / 2, b.y - 8);
+        sfx('golpe');
+        if (b.hp <= 0) derrotarJefe(b);
+    }
+
+    function derrotarJefe(b) {
+        if (!b.vivo) return;
+        b.vivo = false;
+        b.activado = false;
+        estado.gp += b.bonus;
+        estado.avisoJefe = false;
+        const cx = b.x + b.ancho / 2;
+        const cy = b.y + b.alto / 2;
+        generarChispas(30, cx, cy, '#ffd166');
+        generarChispas(18, cx, cy, '#ff4fa3');
+        avisoFlotante('¡' + b.nombre + ' DERROTADO! +' + b.bonus + ' GP', cx, b.y - 10);
+        sfx('meta');
+        sincronizarUi();
+    }
+
+    function lanzarBurbujaJefe(b, j, opciones) {
+        const extra = opciones || {};
+        const dx = (j.x + j.ancho / 2) - (b.x + b.ancho / 2);
+        const dy = (j.y + j.alto / 2) - (b.y + b.alto / 2);
+        estado.burbujas.push({
+            x: b.x + b.ancho / 2,
+            y: b.y + b.alto / 2,
+            vx: limitar(dx * 0.5, -150, 150) + (extra.vx || 0),
+            vy: limitar(dy * 0.35, -150, 40) + (extra.vy || 0),
+            vida: 4,
+            texto: extra.texto || 'BANEO',
+            tipo: extra.tipo || 'burbuja'
+        });
+        sfx('burbuja');
+    }
+
+    function actualizarJefe(dt, nivel, j) {
+        const b = nivel.jefe;
+        if (!b || !b.vivo) return;
+
+        if (!b.activado) {
+            if (j.x + j.ancho <= b.arenaInicio) return;
+            b.activado = true;
+            estado.avisoJefe = false;
+            avisoFlotante('¡' + b.nombre + '!', b.x + b.ancho / 2, b.y - 8);
+            sfx('dano');
+        }
+
+        b.golpe = Math.max(0, b.golpe - dt);
+        b.fase += dt;
+        b.movT += dt;
+
+        const patrones = {
+            tecnico: { vx: 44, vy: 36, rango: 52, bob: 1.4, dashT: 4.2, dashVel: 150, dashDur: 0.38 },
+            raid: { vx: 60, vy: 48, rango: 68, bob: 1.7, dashT: 3.6, dashVel: 185, dashDur: 0.42 },
+            hater: { vx: 74, vy: 60, rango: 80, bob: 2.1, dashT: 2.9, dashVel: 215, dashDur: 0.44 },
+            turbina: { vx: 32, vy: 32, rango: 62, bob: 1.2, dashT: 4.8, dashVel: 150, dashDur: 0.4 },
+            nucleo: { vx: 66, vy: 52, rango: 84, bob: 1.8, dashT: 3.3, dashVel: 205, dashDur: 0.46 }
+        };
+        const p = patrones[b.tipo] || patrones.hater;
+        const reducido = estado.reducirMovimiento;
+        const furia = b.hp <= b.hpMax / 2;
+
+        // Escudo periódico: bloquea clips, pero no el pisotón.
+        if (b.escudo > 0) {
+            b.escudo = Math.max(0, b.escudo - dt);
+            if (b.escudo === 0) b.escudoT = ESCUDO_JEFE_ESPERA * (furia ? 0.72 : 1);
+        } else {
+            b.escudoT -= dt;
+            if (b.escudoT <= 0) {
+                b.escudo = ESCUDO_JEFE_TIEMPO;
+                avisoFlotante('ESCUDO ANTI-CLIPS', b.x + b.ancho / 2, b.y - 12);
+                generarChispas(10, b.x + b.ancho / 2, b.y + b.alto / 2, '#67e8f9');
+                sfx('poder');
+            }
+        }
+
+        const minX = b.arenaInicio + 10;
+        const maxX = Math.max(minX, nivel.meta.x - b.ancho - 20);
+        const minY = 4 * TILE;
+        const maxY = b.baseY;
+        const centro = (minX + maxX) / 2;
+        const amplitud = Math.max(0, (maxX - minX) * 0.42);
+
+        const avisoAntes = b.aviso || 0;
+        b.aviso = Math.max(0, avisoAntes - dt);
+        b.carga = Math.max(0, (b.carga || 0) - dt);
+        b.cargaT -= dt;
+
+        if (!reducido && b.aviso <= 0 && b.carga <= 0 && b.cargaT <= 0) {
+            b.aviso = 0.45;
+            b.cargaT = p.dashT * (furia ? 0.78 : 1);
+            b.cargaDir = Math.sign((j.x + j.ancho / 2) - (b.x + b.ancho / 2)) || 1;
+        }
+        if (avisoAntes > 0 && b.aviso === 0) b.carga = p.dashDur;
+
+        if (b.aviso > 0) {
+            // Telegrafiado: se queda quieto y parpadea antes de embestir.
+        } else if (b.carga > 0) {
+            b.x += b.cargaDir * p.dashVel * dt;
+        } else {
+            let objetivoX;
+            if (b.tipo === 'turbina' || b.tipo === 'nucleo') {
+                objetivoX = centro + Math.sin(b.movT * (b.tipo === 'nucleo' ? 0.95 : 0.65) + b.fase) * amplitud;
+            } else {
+                const strafe = Math.sin(b.movT * 1.8 + b.fase) * 14;
+                objetivoX = j.x + j.ancho / 2 - b.ancho / 2 + strafe;
+            }
+            const objetivoY = b.baseY - (0.5 + 0.5 * Math.sin(b.movT * p.bob + b.fase)) * (reducido ? 18 : p.rango);
+            b.x = acercar(b.x, objetivoX, p.vx * dt * (furia ? 1.25 : 1));
+            b.y = acercar(b.y, objetivoY, p.vy * dt);
+        }
+        b.x = limitar(b.x, minX, maxX);
+        b.y = limitar(b.y, minY, maxY);
+
+        if (b.tipo === 'turbina' && !reducido) {
+            j.vx = limitar(j.vx - 190 * dt, -VEL_CORRER, VEL_CORRER);
+        }
+
+        b.tiro -= dt;
+        if (b.tiro <= 0) {
+            b.tiro = Math.max(0.42, b.intervalo * (furia ? 0.7 : 1));
+            if (b.ataque === 'triple') {
+                lanzarBurbujaJefe(b, j, { vx: -55, vy: -30, texto: 'RAID' });
+                lanzarBurbujaJefe(b, j, { texto: 'RAID' });
+                lanzarBurbujaJefe(b, j, { vx: 55, vy: 20, texto: 'RAID' });
+                if (furia) {
+                    lanzarBurbujaJefe(b, j, { vx: -90, vy: 35, texto: 'RAID' });
+                    lanzarBurbujaJefe(b, j, { vx: 90, vy: -35, texto: 'RAID' });
+                }
+            } else if (b.ataque === 'cable') {
+                lanzarBurbujaJefe(b, j, { vy: 55, texto: 'CABLE', tipo: 'cable' });
+                lanzarBurbujaJefe(b, j, { vy: -20, texto: 'CABLE', tipo: 'cable' });
+                if (furia) lanzarBurbujaJefe(b, j, { vx: -40, vy: 35, texto: 'CABLE', tipo: 'cable' });
+            } else if (b.ataque === 'viento') {
+                lanzarBurbujaJefe(b, j, { vy: -40, texto: 'VIENTO' });
+                lanzarBurbujaJefe(b, j, { vy: 30, texto: 'VIENTO' });
+                if (furia) lanzarBurbujaJefe(b, j, { vx: -50, texto: 'VIENTO' });
+            } else if (b.ataque === 'ondas') {
+                lanzarBurbujaJefe(b, j, { vy: -90, texto: 'ONDA' });
+                lanzarBurbujaJefe(b, j, { texto: 'ONDA' });
+                lanzarBurbujaJefe(b, j, { vy: 90, texto: 'ONDA' });
+                if (furia) {
+                    lanzarBurbujaJefe(b, j, { vx: -70, vy: -45, texto: 'ONDA' });
+                    lanzarBurbujaJefe(b, j, { vx: 70, vy: 45, texto: 'ONDA' });
+                }
+            } else {
+                lanzarBurbujaJefe(b, j);
+                if (furia) lanzarBurbujaJefe(b, j, { vy: -55 });
+            }
+        }
+
+        if (!rectSolapa(j, b)) return;
+        const pisando = j.vy > 40 && (j.y + j.alto) - b.y < 16;
+        if (pisando) {
+            j.vy = -330;
+            j.y = b.y - j.alto - 0.1;
+            j.enSuelo = false;
+            golpearJefe(b, j);
+        } else {
+            danar();
+        }
+    }
+
     function actualizarAvisos(dt) {
         for (let i = estado.avisos.length - 1; i >= 0; i--) {
             const a = estado.avisos[i];
@@ -1349,9 +1888,19 @@
     function actualizarPurga(dt, nivel, j) {
         const purga = estado.purga;
         if (!purga || estado.fase !== 'jugando') return;
+        if (nivel.jefe && nivel.jefe.activado && nivel.jefe.vivo) return;
         if (estado.tiempo < purga.retraso) return;
 
-        purga.x += purga.velocidad * dt;
+        // La pared se detiene antes de la arena para que el jefe se pueda pelear.
+        const parada = nivel.jefe ? nivel.jefe.arenaInicio - 4 * TILE : nivel.ancho * TILE;
+        if (purga.x >= parada) {
+            purga.x = parada;
+            return;
+        }
+
+        const progreso = limitar(purga.x / Math.max(1, parada), 0, 1);
+        purga.velocidad = purga.base + progreso * purga.rampa;
+        purga.x = Math.min(parada, purga.x + purga.velocidad * dt);
         const hasta = Math.floor(purga.x / TILE);
 
         for (let tx = purga.ultimo; tx <= hasta; tx++) {
@@ -1455,11 +2004,15 @@
         actualizarHaters(dt, nivel, j);
         if (estado.jugador !== j) return;
         if (estado.fase !== 'jugando') return;
+        actualizarJefe(dt, nivel, j);
+        if (estado.jugador !== j) return;
+        if (estado.fase !== 'jugando') return;
         actualizarPowerups(dt, nivel, j);
         actualizarClips(dt, nivel);
         actualizarBurbujas(dt, nivel);
         if (estado.jugador !== j) return;
         actualizarAvisos(dt);
+        actualizarCheckpoints(nivel, j);
         actualizarPurga(dt, nivel, j);
         if (estado.jugador !== j) return;
         if (estado.fase !== 'jugando') return;
@@ -1487,6 +2040,13 @@
 
         // La meta se activa al cruzar su columna, aunque el jugador vaya saltando.
         if (nivel.meta && j.x + j.ancho > nivel.meta.x && j.x < nivel.meta.x + nivel.meta.ancho) {
+            if (nivel.jefe && nivel.jefe.vivo) {
+                if (!estado.avisoJefe) {
+                    estado.avisoJefe = true;
+                    avisoFlotante('DERROTA A ' + nivel.jefe.nombre, nivel.jefe.x + nivel.jefe.ancho / 2, nivel.jefe.y - 10);
+                }
+                return;
+            }
             completarNivel();
             return;
         }
@@ -1513,12 +2073,45 @@
         c.closePath();
     }
 
+    function dibujarVentilador(c, x, y, radio, color, giro) {
+        c.save();
+        c.translate(x, y);
+        c.fillStyle = 'rgba(8, 15, 30, 0.72)';
+        c.beginPath();
+        c.arc(0, 0, radio, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = color;
+        c.globalAlpha = 0.35;
+        c.lineWidth = 1.5;
+        c.beginPath();
+        c.arc(0, 0, radio, 0, Math.PI * 2);
+        c.stroke();
+        c.globalAlpha = 1;
+        if (!estado.reducirMovimiento) c.rotate(estado.anim * giro);
+        c.fillStyle = color;
+        c.globalAlpha = 0.22;
+        for (let i = 0; i < 5; i++) {
+            c.rotate((Math.PI * 2) / 5);
+            c.beginPath();
+            c.ellipse(0, -radio * 0.46, radio * 0.2, radio * 0.42, 0.35, 0, Math.PI * 2);
+            c.fill();
+        }
+        c.globalAlpha = 1;
+        c.fillStyle = color;
+        c.beginPath();
+        c.arc(0, 0, radio * 0.18, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+    }
+
     function dibujarFondo(c) {
         const tema = estado.nivelActual;
         const paletas = {
-            1: ['#080d1c', '#141033', '#23103d', 'rgba(94, 234, 212, 0.06)', 'rgba(255, 79, 163, 0.08)'],
-            2: ['#041018', '#062430', '#0a3340', 'rgba(83, 252, 24, 0.07)', 'rgba(103, 232, 249, 0.08)'],
-            3: ['#14060f', '#2a0a1e', '#3a0d16', 'rgba(255, 79, 163, 0.10)', 'rgba(255, 107, 107, 0.10)']
+            1: ['#070b18', '#101a36', '#241243', '#5eead4', '#ff4fa3'],
+            2: ['#031015', '#06242c', '#0a3340', '#53fc18', '#67e8f9'],
+            3: ['#150510', '#2a0a1e', '#3a0d16', '#ff4fa3', '#ff6b6b'],
+            4: ['#160d05', '#2b1908', '#3d220a', '#ffb020', '#ffd166'],
+            5: ['#0a0618', '#1b1240', '#2a155c', '#a78bfa', '#67e8f9']
         };
         const paleta = paletas[tema] || paletas[1];
         const gradiente = c.createLinearGradient(0, 0, 0, VISTA_ALTO);
@@ -1528,26 +2121,82 @@
         c.fillStyle = gradiente;
         c.fillRect(0, 0, VISTA_ANCHO, VISTA_ALTO);
 
+        // Placa base lejana: pistas, chips y condensadores.
+        const desplazamiento = (estado.camara.x * 0.22) % 120;
+        c.strokeStyle = paleta[3];
+        c.globalAlpha = 0.1;
+        c.lineWidth = 1;
+        for (let i = -1; i < 6; i++) {
+            const x = i * 120 - desplazamiento;
+            c.beginPath();
+            c.moveTo(x, 34);
+            c.lineTo(x + 18, 34);
+            c.lineTo(x + 30, 52);
+            c.lineTo(x + 30, 150);
+            c.stroke();
+            c.beginPath();
+            c.moveTo(x + 70, 210);
+            c.lineTo(x + 70, 120);
+            c.lineTo(x + 88, 100);
+            c.stroke();
+        }
+        c.globalAlpha = 0.14;
+        for (let i = 0; i < 7; i++) {
+            const x = ((i * 83 - estado.camara.x * 0.3) % (VISTA_ANCHO + 80)) - 40;
+            const y = 58 + (i % 3) * 52;
+            c.fillStyle = paleta[3];
+            c.fillRect(x, y, 26, 14);
+            c.fillStyle = 'rgba(3, 7, 15, 0.6)';
+            c.fillRect(x + 3, y + 3, 20, 8);
+        }
+        c.globalAlpha = 1;
+
+        if (tema === 1) {
+            // Escritorio: monitor apagado con reflejo y teclado.
+            const mx = 250 - (estado.camara.x * 0.12) % 30;
+            c.fillStyle = 'rgba(3, 7, 16, 0.55)';
+            rectRedondeado(c, mx, 42, 190, 112, 6);
+            c.fill();
+            c.fillStyle = 'rgba(94, 234, 212, 0.06)';
+            rectRedondeado(c, mx + 7, 49, 176, 92, 3);
+            c.fill();
+            c.fillStyle = 'rgba(94, 234, 212, 0.16)';
+            for (let i = 0; i < 4; i++) c.fillRect(mx + 16, 62 + i * 13, 44 + (i % 2) * 28, 2);
+            c.fillStyle = 'rgba(3, 7, 16, 0.75)';
+            c.fillRect(mx + 88, 154, 14, 22);
+            c.fillRect(mx + 62, 176, 66, 5);
+        } else {
+            // Interior de la torre: cristal templado, bahías y cableado.
+            c.strokeStyle = 'rgba(180, 220, 255, 0.09)';
+            c.lineWidth = 2;
+            c.strokeRect(26, 28, VISTA_ANCHO - 52, VISTA_ALTO - 66);
+            c.fillStyle = 'rgba(3, 8, 18, 0.32)';
+            for (let i = 0; i < 3; i++) c.fillRect(34, 36 + i * 15, 54, 10);
+            c.strokeStyle = 'rgba(180, 220, 255, 0.06)';
+            c.beginPath();
+            c.moveTo(430, 30);
+            c.bezierCurveTo(400, 90, 445, 140, 408, 220);
+            c.stroke();
+        }
+
+        // Ventiladores con parallax.
+        dibujarVentilador(c, 64 - (estado.camara.x * 0.16) % 40, 96, 24, paleta[3], 1.6);
+        dibujarVentilador(c, 382 - (estado.camara.x * 0.26) % 60, 168, 31, paleta[4], -1.1);
+        dibujarVentilador(c, 240 - (estado.camara.x * 0.1) % 24, 226, 18, paleta[3], 2.1);
+
+        // Tiras RGB con pulso.
+        const pulso = 0.1 + Math.abs(Math.sin(estado.anim * 1.6)) * 0.12;
         c.fillStyle = paleta[3];
-        const desplazamiento = (estado.camara.x * 0.3) % 160;
-        for (let i = -1; i < 5; i++) {
-            const bx = i * 160 - desplazamiento;
-            const alto = 46 + ((i + 5) % 3) * 22;
-            c.fillRect(bx, VISTA_ALTO - alto - 30, 70, alto);
-        }
+        c.globalAlpha = pulso;
+        c.fillRect(0, 26, VISTA_ANCHO, 2);
+        c.fillRect(0, VISTA_ALTO - 10, VISTA_ANCHO, 2);
+        c.globalAlpha = 1;
 
-        c.fillStyle = paleta[4];
-        for (let i = 0; i < 6; i++) {
-            const bx = ((i * 97 - estado.camara.x * 0.45) % (VISTA_ANCHO + 60)) - 30;
-            const alto = 30 + (i % 4) * 16;
-            c.fillRect(bx, VISTA_ALTO - alto - 54, 34, alto);
-        }
-
-        if (tema === 3) {
-            c.fillStyle = 'rgba(255, 79, 163, 0.16)';
-            const pulso = (estado.anim * 60) % 220;
+        if (tema === 3 || tema === 5) {
+            c.fillStyle = tema === 3 ? 'rgba(255, 79, 163, 0.14)' : 'rgba(167, 139, 250, 0.12)';
+            const barrido = (estado.anim * 60) % 220;
             for (let i = 0; i < 4; i++) {
-                c.fillRect(0, (i * 70 + pulso) % VISTA_ALTO, VISTA_ANCHO, 1);
+                c.fillRect(0, (i * 70 + barrido) % VISTA_ALTO, VISTA_ANCHO, 1);
             }
         }
     }
@@ -1555,6 +2204,14 @@
     function dibujarNivel(c) {
         const nivel = estado.nivelDatos;
         if (!nivel) return;
+        const paletas = {
+            setup: ['#10283f', '#2bd9b0', '#5eead4'],
+            raid: ['#0b2f2a', '#53fc18', '#b6ff9e'],
+            purga: ['#3a1024', '#ff4fa3', '#ffd1e6'],
+            overclock: ['#33220e', '#ffb020', '#ffd166'],
+            nucleo: ['#1b1240', '#a78bfa', '#c4b5fd']
+        };
+        const paleta = paletas[nivel.tema] || paletas.setup;
         const x0 = Math.max(0, Math.floor(estado.camara.x / TILE) - 1);
         const x1 = Math.min(nivel.ancho - 1, Math.floor((estado.camara.x + VISTA_ANCHO) / TILE) + 1);
         const y0 = Math.max(0, Math.floor(estado.camara.y / TILE) - 1);
@@ -1566,19 +2223,26 @@
                 const px = tx * TILE;
                 const py = ty * TILE;
                 if (ch === '#') {
-                    c.fillStyle = '#122c44';
+                    c.fillStyle = paleta[0];
                     c.fillRect(px, py, TILE, TILE);
-                    c.fillStyle = '#2bd9b0';
+                    c.fillStyle = paleta[1];
                     c.fillRect(px, py, TILE, 3);
+                    c.fillStyle = 'rgba(3, 8, 18, 0.32)';
+                    c.fillRect(px, py + TILE - 2, TILE, 2);
                     if ((tx + ty) % 3 === 0) {
-                        c.fillStyle = 'rgba(94, 234, 212, 0.12)';
+                        c.fillStyle = paleta[2];
+                        c.globalAlpha = 0.35;
                         c.fillRect(px + 3, py + 7, 4, 4);
+                        c.fillRect(px + 10, py + 11, 2, 2);
+                        c.globalAlpha = 1;
                     }
                 } else if (ch === '=') {
-                    c.fillStyle = '#1b2350';
+                    c.fillStyle = '#151d38';
                     c.fillRect(px, py, TILE, TILE);
-                    c.fillStyle = '#ff4fa3';
+                    c.fillStyle = paleta[1];
                     c.fillRect(px, py, TILE, 3);
+                    c.fillStyle = '#ffd166';
+                    for (let i = 0; i < 4; i++) c.fillRect(px + 2 + i * 4, py + TILE - 4, 2, 2);
                 } else if (ch === '^') {
                     c.fillStyle = '#ff6b6b';
                     c.beginPath();
@@ -1587,6 +2251,8 @@
                     c.lineTo(px + TILE - 2, py + TILE);
                     c.closePath();
                     c.fill();
+                    c.fillStyle = 'rgba(255, 209, 230, 0.55)';
+                    c.fillRect(px + TILE / 2 - 1, py + 8, 1.5, 6);
                 }
             }
         }
@@ -1821,6 +2487,13 @@
                 c.fillText('!', cx, h.y - 3);
                 c.textAlign = 'left';
             }
+            if (h.escudo) {
+                c.strokeStyle = 'rgba(103, 232, 249, .85)';
+                c.lineWidth = 1;
+                c.beginPath();
+                c.ellipse(cx, h.y + 7 + bob, 10, 10, 0, 0, Math.PI * 2);
+                c.stroke();
+            }
         }
     }
 
@@ -1896,6 +2569,200 @@
         c.font = 'bold 5px monospace';
         c.textAlign = 'left';
         c.fillText('LIVE', x - 14, meta.y + 10);
+    }
+
+    function dibujarCheckpoints(c) {
+        const nivel = estado.nivelDatos;
+        if (!nivel) return;
+        for (const cp of nivel.checkpoints) {
+            const baseY = cp.tileY * TILE + TILE;
+            const x = cp.tileX * TILE + 10;
+            c.fillStyle = '#334155';
+            c.fillRect(x, baseY - 22, 1.5, 22);
+            c.fillStyle = cp.activo ? '#5eead4' : '#64748b';
+            c.beginPath();
+            c.moveTo(x + 1.5, baseY - 22);
+            c.lineTo(x + 1.5, baseY - 12);
+            c.lineTo(x + 12, baseY - 17);
+            c.closePath();
+            c.fill();
+            if (cp.activo) {
+                c.fillStyle = 'rgba(94, 234, 212, .55)';
+                c.beginPath();
+                c.arc(x + 1, baseY - 23, 2.4, 0, Math.PI * 2);
+                c.fill();
+            }
+        }
+    }
+
+    function dibujarJefe(c) {
+        const b = estado.nivelDatos && estado.nivelDatos.jefe;
+        if (!b || !b.vivo) return;
+
+        const cx = b.x + b.ancho / 2;
+        const aleteo = Math.sin(estado.anim * 9 + b.fase) * 4;
+        const colores = {
+            tecnico: '#5eead4',
+            raid: '#53fc18',
+            hater: '#ff4fa3',
+            turbina: '#ffb020',
+            nucleo: '#a78bfa'
+        };
+        const color = b.aviso > 0 ? '#fde047' : (colores[b.tipo] || colores.hater);
+
+        if (b.tipo === 'turbina') {
+            c.save();
+            c.translate(cx, b.y + b.alto / 2);
+            if (!estado.reducirMovimiento) c.rotate(estado.anim * 3.2);
+            c.fillStyle = color;
+            c.globalAlpha = 0.28;
+            for (let i = 0; i < 4; i++) {
+                c.rotate(Math.PI / 2);
+                c.beginPath();
+                c.ellipse(0, -20, 9, 20, 0.4, 0, Math.PI * 2);
+                c.fill();
+            }
+            c.globalAlpha = 1;
+            c.restore();
+        } else {
+            c.fillStyle = color;
+            c.globalAlpha = 0.45;
+            c.beginPath();
+            c.moveTo(b.x + 2, b.y + 16);
+            c.lineTo(b.x - 16, b.y + 6 + aleteo);
+            c.lineTo(b.x - 10, b.y + 24);
+            c.closePath();
+            c.fill();
+            c.beginPath();
+            c.moveTo(b.x + b.ancho - 2, b.y + 16);
+            c.lineTo(b.x + b.ancho + 16, b.y + 6 + aleteo);
+            c.lineTo(b.x + b.ancho + 10, b.y + 24);
+            c.closePath();
+            c.fill();
+            c.globalAlpha = 1;
+        }
+
+        if (b.escudo > 0) {
+            const pulso = 0.55 + Math.abs(Math.sin(estado.anim * 8)) * 0.3;
+            c.strokeStyle = 'rgba(103, 232, 249, ' + pulso + ')';
+            c.lineWidth = 2;
+            c.beginPath();
+            c.ellipse(cx, b.y + b.alto / 2, b.ancho / 2 + 7, b.alto / 2 + 7, 0, 0, Math.PI * 2);
+            c.stroke();
+            c.strokeStyle = 'rgba(248, 250, 252, .25)';
+            c.lineWidth = 1;
+            c.beginPath();
+            c.ellipse(cx, b.y + b.alto / 2, b.ancho / 2 + 3, b.alto / 2 + 3, 0, 0, Math.PI * 2);
+            c.stroke();
+        }
+
+        c.fillStyle = '#111827';
+        rectRedondeado(c, b.x - 1, b.y - 1, b.ancho + 2, b.alto + 2, 11);
+        c.fill();
+        c.fillStyle = b.golpe > 0 ? '#fecdd3' : '#9aa4b8';
+        rectRedondeado(c, b.x, b.y, b.ancho, b.alto, 10);
+        c.fill();
+
+        c.fillStyle = '#f8fafc';
+        c.beginPath();
+        c.arc(cx - 7, b.y + 13, 4.2, 0, Math.PI * 2);
+        c.arc(cx + 7, b.y + 13, 4.2, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = '#b91c1c';
+        c.beginPath();
+        c.arc(cx - 6.4, b.y + 13.5, 2, 0, Math.PI * 2);
+        c.arc(cx + 7.6, b.y + 13.5, 2, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = '#1f2937';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.moveTo(cx - 12, b.y + 6);
+        c.lineTo(cx - 3, b.y + 9);
+        c.moveTo(cx + 12, b.y + 6);
+        c.lineTo(cx + 3, b.y + 9);
+        c.stroke();
+        c.beginPath();
+        c.arc(cx, b.y + 26, 4, Math.PI, Math.PI * 2);
+        c.stroke();
+
+        c.fillStyle = '#111827';
+        rectRedondeado(c, cx - 6, b.y + 21, 12, 16, 3);
+        c.fill();
+        c.fillStyle = b.tiro < 0.35 ? '#fde047' : color;
+        c.fillRect(cx - 3.5, b.y + 24, 7, 8);
+
+        if (b.tipo === 'tecnico') {
+            c.strokeStyle = color;
+            c.lineWidth = 1.5;
+            c.beginPath();
+            c.moveTo(cx - 5, b.y + 1);
+            c.lineTo(cx - 9, b.y - 7);
+            c.moveTo(cx + 5, b.y + 1);
+            c.lineTo(cx + 9, b.y - 7);
+            c.stroke();
+            c.fillStyle = color;
+            c.beginPath();
+            c.arc(cx - 9, b.y - 7, 2, 0, Math.PI * 2);
+            c.arc(cx + 9, b.y - 7, 2, 0, Math.PI * 2);
+            c.fill();
+        } else if (b.tipo === 'raid') {
+            c.fillStyle = color;
+            c.beginPath();
+            c.moveTo(b.x + 3, b.y + 6);
+            c.lineTo(b.x - 6, b.y - 8);
+            c.lineTo(b.x + 10, b.y + 2);
+            c.closePath();
+            c.fill();
+            c.beginPath();
+            c.moveTo(b.x + b.ancho - 3, b.y + 6);
+            c.lineTo(b.x + b.ancho + 6, b.y - 8);
+            c.lineTo(b.x + b.ancho - 10, b.y + 2);
+            c.closePath();
+            c.fill();
+        } else if (b.tipo === 'nucleo') {
+            c.fillStyle = color;
+            c.globalAlpha = 0.35 + Math.abs(Math.sin(estado.anim * 3)) * 0.3;
+            c.beginPath();
+            c.arc(cx, b.y + b.alto / 2, 9, 0, Math.PI * 2);
+            c.fill();
+            c.globalAlpha = 0.8;
+            c.strokeStyle = color;
+            c.lineWidth = 1.5;
+            c.beginPath();
+            c.ellipse(cx, b.y + b.alto / 2, 18, 7, estado.anim, 0, Math.PI * 2);
+            c.stroke();
+            c.globalAlpha = 1;
+        }
+
+        c.fillStyle = color;
+        c.font = 'bold 7px monospace';
+        c.textAlign = 'center';
+        c.fillText(b.nombre, cx, b.y - 5);
+        if (b.aviso > 0) {
+            c.fillStyle = '#fde047';
+            c.font = 'bold 10px monospace';
+            c.fillText('!', cx, b.y - 14);
+        }
+        c.textAlign = 'left';
+    }
+
+    function dibujarJefeHud(c) {
+        const b = estado.nivelDatos && estado.nivelDatos.jefe;
+        if (!b || !b.activado || !b.vivo) return;
+        const ancho = 140;
+        const x = (VISTA_ANCHO - ancho) / 2;
+        const y = 29;
+        c.fillStyle = 'rgba(5, 10, 20, .8)';
+        rectRedondeado(c, x, y, ancho, 10, 4);
+        c.fill();
+        c.fillStyle = '#ff4fa3';
+        rectRedondeado(c, x + 2, y + 2, (ancho - 4) * Math.max(0, b.hp) / b.hpMax, 6, 3);
+        c.fill();
+        c.fillStyle = '#f8fafc';
+        c.font = 'bold 6px monospace';
+        c.textAlign = 'center';
+        c.fillText(b.nombre, VISTA_ANCHO / 2, y + 7.4);
+        c.textAlign = 'left';
     }
 
     function dibujarParticulas(c) {
@@ -2169,7 +3036,7 @@
         c.font = 'bold 10px monospace';
         c.textAlign = 'left';
         c.fillStyle = '#ffd166';
-        c.fillText('KICKS × ' + estado.gp, 8, 15);
+        c.fillText('GP × ' + estado.gp, 8, 15);
 
         c.textAlign = 'center';
         c.fillStyle = '#cbd5e1';
@@ -2214,19 +3081,24 @@
 
     function dibujar() {
         if (!ctx) return;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, lienzo.width, lienzo.height);
         ctx.imageSmoothingEnabled = false;
+        ctx.setTransform(ESCALA_RENDER, 0, 0, ESCALA_RENDER, 0, 0);
         dibujarFondo(ctx);
 
         ctx.save();
         ctx.translate(-Math.round(estado.camara.x), -Math.round(estado.camara.y));
         dibujarNivel(ctx);
         dibujarTuneles(ctx);
+        dibujarCheckpoints(ctx);
         dibujarPurga(ctx);
         dibujarPowerups(ctx);
         dibujarMonedas(ctx);
         dibujarMeta(ctx);
         dibujarParticulas(ctx);
         dibujarHaters(ctx);
+        dibujarJefe(ctx);
         dibujarClips(ctx);
         dibujarPersonaje(ctx);
         dibujarBurbujas(ctx);
@@ -2235,6 +3107,7 @@
 
         dibujarAlertaPurga(ctx);
         dibujarHud(ctx);
+        dibujarJefeHud(ctx);
     }
 
     // === BUCLE ===
@@ -2363,6 +3236,14 @@
             const control = boton.dataset.control;
             if (!control) return;
 
+            if (control === 'pausa') {
+                boton.addEventListener('pointerdown', (evento) => {
+                    evento.preventDefault();
+                    alternarPausa();
+                });
+                return;
+            }
+
             const cambiar = (activo) => {
                 if (control === 'disparar') {
                     if (activo) disparar();
@@ -2400,6 +3281,9 @@
         pausar: pausarPartida,
         reanudar: reanudarPartida,
         reiniciar: reiniciarPartida,
+        salir: salirAlMenu,
+        fijarVolumen,
+        alternarMovimientoReducido,
         estado: () => ({
             fase: estado.fase,
             gp: estado.gp,
@@ -2453,10 +3337,18 @@
             rankingMensaje: '',
             rankingSesion: false,
             rankingApodo: '',
+            volumen: 85,
+            sonido: true,
+            reducirMovimiento: false,
+            escala: ESCALA_RENDER,
             iniciar() { iniciarPartida(this.nivelActual); },
             pausar() { pausarPartida(); },
             reanudar() { reanudarPartida(); },
             reiniciar() { reiniciarPartida(); },
+            salir() { salirAlMenu(); },
+            fijarVolumen(valor) { fijarVolumen(valor); },
+            alternarSonido() { alternarSonido(); },
+            alternarMovimiento() { alternarMovimientoReducido(); },
             siguienteNivel() { siguienteNivelJuego(); },
             abrirRanking(tab) { mostrarRanking(tab); },
             cerrarRanking() { ocultarRanking(); },
@@ -2467,7 +3359,7 @@
     });
 
     function iniciar() {
-        estado.sonido = leerSonido();
+        leerSonido();
         estado.nivelDesbloqueado = leerNivelDesbloqueado();
         actualizarBotonSonido();
         const botonSonido = document.getElementById('game-sonido');

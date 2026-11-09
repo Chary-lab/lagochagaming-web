@@ -8100,8 +8100,8 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     width: 100%;
     aspect-ratio: 16 / 9;
     background: #05070f;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
+    /* El canvas se dibuja al doble y se reduce: nitidez sin bordes dentados. */
+    image-rendering: auto;
 }
 
 .game-overlay {
@@ -8111,8 +8111,7 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     display: grid;
     place-items: center;
     padding: 20px;
-    background: rgba(4, 8, 18, .72);
-    backdrop-filter: blur(2px);
+    background: rgba(4, 8, 18, .84);
 }
 
 .game-panel {
@@ -8122,9 +8121,15 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     padding: 22px 24px;
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    background: rgba(15, 23, 42, .96);
+    background: #0d1628;
     box-shadow: 0 22px 60px rgba(0, 0, 0, .55);
     text-align: center;
+    animation: game-panel-in .18s ease-out;
+}
+
+@keyframes game-panel-in {
+    from { opacity: 0; transform: translateY(6px) scale(.99); }
+    to { opacity: 1; transform: none; }
 }
 
 .game-panel-etiqueta {
@@ -8395,15 +8400,19 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     .game-tactil-btn {
         transition: none;
     }
+
+    .game-panel {
+        animation: none;
+    }
 }
 
 /* Selector de niveles de GochitaRunner */
 .game-niveles {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 8px;
     width: 100%;
-    max-width: 420px;
+    max-width: 460px;
     margin: 2px auto 4px;
 }
 
@@ -8465,8 +8474,7 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     display: grid;
     place-items: center;
     padding: 16px;
-    background: rgba(3, 8, 18, 0.86);
-    backdrop-filter: blur(5px);
+    background: rgba(3, 8, 18, 0.92);
 }
 
 .game-ranking-caja {
@@ -8515,12 +8523,16 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 
 .game-ranking-tabs {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
     margin: 14px 0 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
 }
 
 .game-ranking-tab {
+    flex: 0 0 auto;
     padding: 6px 10px;
     border-radius: 999px;
     border: 1px solid rgba(94, 234, 212, 0.18);
@@ -8636,4 +8648,102 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     .game-ranking-tabla table {
         font-size: 0.72rem;
     }
+
+    .game-niveles {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Ajustes de partida, nitidez y foco visible */
+.game-panel,
+.game-ranking-caja {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+.game-ajustes {
+    display: grid;
+    gap: 8px;
+    margin: 14px 0 4px;
+    padding: 12px;
+    border: 1px solid rgba(94, 234, 212, 0.2);
+    border-radius: 12px;
+    background: rgba(3, 8, 18, 0.55);
+    text-align: left;
+}
+
+.game-ajuste {
+    display: grid;
+    gap: 6px;
+    color: #cbd5e1;
+    font-size: 0.78rem;
+}
+
+.game-ajuste b {
+    color: #5eead4;
+    font-variant-numeric: tabular-nums;
+}
+
+.game-ajuste input[type="range"] {
+    width: 100%;
+    accent-color: #ff4fa3;
+    cursor: pointer;
+}
+
+.game-ajuste-btn {
+    padding: 8px 10px;
+    border: 1px solid rgba(94, 234, 212, 0.22);
+    border-radius: 9px;
+    background: rgba(15, 23, 42, 0.75);
+    color: #cbd5e1;
+    font: inherit;
+    font-size: 0.78rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.game-ajuste-btn:hover {
+    border-color: rgba(94, 234, 212, 0.5);
+    color: #fff;
+}
+
+.game-ajuste-btn[aria-pressed="true"] {
+    border-color: #5eead4;
+    background: rgba(94, 234, 212, 0.14);
+    color: #ecfeff;
+}
+
+.game-ranking-acciones {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.game-ranking-menu {
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid rgba(94, 234, 212, 0.3);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.7);
+    color: #cbd5e1;
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.game-ranking-menu:hover,
+.game-ranking-menu:focus-visible {
+    border-color: #5eead4;
+    color: #fff;
+    outline: none;
+}
+
+.game-btn:focus-visible,
+.game-sonido:focus-visible,
+.game-ranking-tab:focus-visible,
+.game-ajuste-btn:focus-visible,
+.game-ranking-menu:focus-visible {
+    outline: 2px solid #5eead4;
+    outline-offset: 2px;
 }

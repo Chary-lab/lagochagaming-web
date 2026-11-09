@@ -9,7 +9,7 @@ Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin b
 - `galeria.html` — subida de fotos, galería pública, likes, reporte de fotos y moderación.
 - `sorteo.html` — sorteo manual, tómbola online y modo streamer.
 - `cine.html` — GochiWatch: sincronización de películas/videos y cola de la sala.
-- `game.html` — GochitaRunner: minijuego de plataformas con 3 niveles, Kicks, Regalitos, Donaciones, Haters y ranking de comunidad.
+- `game.html` - GochitaRunner: minijuego de plataformas de cinco zonas de un PC gaming, con GochiPoints (GP), clips acumulables, Regalitos, Donaciones, Haters, jefes con escudo y ranking de comunidad.
 
 ## GochitaRunner
 
@@ -17,7 +17,7 @@ Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin b
 - Controles: flechas o A/D para mover, Shift/X para correr, Espacio/Z/W/↑ para saltar, J/K para disparar clips, P/Esc para pausar y R para reiniciar. En móvil aparecen controles táctiles.
 - Niveles: El Setup, Raid City (túneles de raid y haters voladores) y La Purga (el escenario se borra detrás de ti). Se desbloquean en orden: para jugar el siguiente hay que completar el anterior.
 - Ranking: `game_iniciar_partida` abre una partida, `game_enviar_partida` valida y guarda la mejor marca por nivel, y `game_ranking_general` / `game_ranking_nivel` leen el top 50. Requiere sesión de comunidad (`comunidad_session_token`); los invitados juegan solo en local.
-- Puntos del juego: Kicks, Haters y bonus por tiempo. No se mezclan con los puntos de comunidad.
+- Puntos del juego: GochiPoints (GP), Haters y bonus por tiempo. No se mezclan con los puntos de comunidad.
 
 ## Perfiles y avatares
 

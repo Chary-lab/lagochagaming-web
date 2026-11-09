@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-fkKX6KsJsKfY+uzCu1NeBSH+VINJ4q0GjgAgkvVMKFk=' 'sha256-9AStRekHwIj/veaYvYaDUVWBTBWyuhSmnGx+SkRBMY4=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-fkKX6KsJsKfY+uzCu1NeBSH+VINJ4q0GjgAgkvVMKFk=' 'sha256-GzwCzCx56MH5nJ8ogWDDDPIC6ApostTYYybqgCJ9mSQ=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Gocha Gaming (Gochita) Oficial | Directo en Kick</title>
     <meta name="description" content="Sitio oficial de La Gocha Gaming (Gochita), streamer venezolana en Kick. Directo, horarios, clips, galería, GochiWatch y comunidad con chat y sorteos.">
@@ -31,7 +31,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.93.0">
+    <link rel="stylesheet" href="style.css?v=1.96.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -484,7 +484,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=1.93.0" defer></script>
+    <script src="main.js?v=1.96.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>
@@ -531,13 +531,20 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         const TT_FEED_URL = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/tiktok-feed?limit=6';
         const TT_IMG_URL = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/tiktok-feed?img=';
         const KICK_FEED_URL = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/kick-clips?limit=6';
-        const KICK_IMG_URL = 'https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/kick-clips?img=';
 
         function formatearNumeroFeed(n) {
             const v = Number(n) || 0;
             if (v >= 1000000) return (v / 1000000).toFixed(1).replace('.', ',') + 'M';
             if (v >= 1000) return (v / 1000).toFixed(1).replace('.', ',') + 'K';
             return String(v);
+        }
+
+        // Instagram caduca la firma de sus URLs de scontent (parámetro oe) y su
+        // CDN responde 403. El navegador tampoco puede pedirlas directo porque
+        // manda cross-origin-resource-policy: same-origin, así que la única vía
+        // es el proxy ?img= de la función, que sí las descarga en servidor.
+        function urlImagenInstagram(post) {
+            return post && post.imagen ? IG_IMG_URL + encodeURIComponent(post.imagen) : '';
         }
 
         async function cargarFeedInstagram() {
@@ -563,10 +570,11 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     enlace.dataset.mediaId = post.shortcode || '';
                     enlace.dataset.mediaUrl = post.url || '';
                     enlace.dataset.mediaTitulo = desc;
-                    if (!post.esVideo) enlace.dataset.mediaImagen = IG_IMG_URL + encodeURIComponent(post.imagen);
+                    const urlImagen = urlImagenInstagram(post);
+                    if (!post.esVideo) enlace.dataset.mediaImagen = urlImagen;
 
                     const img = document.createElement('img');
-                    img.src = IG_IMG_URL + encodeURIComponent(post.imagen);
+                    img.src = urlImagenInstagram(post);
                     img.alt = desc || 'Publicación de Instagram de La Gocha';
                     img.loading = 'lazy';
                     img.decoding = 'async';
@@ -669,7 +677,9 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             const thumb = document.createElement('div');
             thumb.className = 'video-thumb clip-thumb';
             if (clip.miniatura) {
-                thumb.style.backgroundImage = 'url("' + KICK_IMG_URL + encodeURIComponent(clip.miniatura) + '")';
+                // clips.kick.com sirve la miniatura en abierto; el proxy ?img=
+                // de la función no la admite y devolvía JSON, dejando el hueco vacío.
+                thumb.style.backgroundImage = 'url("' + clip.miniatura.replace(/"/g, '%22') + '")';
             }
 
             const enlace = document.createElement('a');

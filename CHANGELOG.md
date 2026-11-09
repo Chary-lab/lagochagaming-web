@@ -3,6 +3,42 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.96.0] - 2026-11-08
+
+### Combate: clips acumulables y escudos
+
+- La **Donación** ya no reinicia los clips a 5: suma 5 con un máximo de 12. Si el cargador está lleno, da **+10 GP**.
+- Los **jefes** activan un **escudo anti-clips** de 2,6 s cada 8 s (más frecuente en furia): los clips se rompen contra el anillo cian y no hacen daño, pero el pisotón sigue funcionando.
+- Algunos **haters** llevan un escudo de una carga que absorbe el primer clip. El pisotón los sigue eliminando de un golpe.
+- Avisos flotantes para `CLIP BLOQUEADO`, `ESCUDO ROTO` y clips al máximo; el HUD mantiene el contador de clips.
+- Feed social: el feed de **Instagram** vuelve a actualizarse solo. Instagram bloquea el scraping JSON (429/403 desde servidores) y caduca la firma de sus URLs de imagen, así que el cron `instagram-feed-scrape` scrapea el embed de perfil desde la propia base de datos con `pg_net` (`instagram_feed_tick`) y reescribe el snapshot de `instagram_feed` cada 20 minutos; si el embed falla, re-firma las URLs con `/p/<shortcode>/media/`. Sin Edge Function nueva, sin API de pago y sin tokens. Las miniaturas de **clips de Kick** también estaban rotas porque `kick-clips?img=` no admite imágenes y devolvía JSON; ahora se usan directo desde `clips.kick.com`.
+
+## [1.95.0] - 2026-11-08
+
+### GochitaRunner: campaña de cinco zonas y ajustes
+
+- **Cinco niveles** dentro de un PC gaming: El Setup, Raid City, La Purga, Overclock y El Núcleo, con desbloqueo progresivo y ranking por nivel.
+- **Un jefe en cada nivel**: El Técnico (cables), Raid Leader (trío de ataques), Hater Final (burbujas), La Turbina (viento) y El Núcleo (ondas). La meta de GO LIVE sigue bloqueada hasta derrotarlo y cada jefe suelta un bonus de GP.
+- Los jefes ya no esperan quietos: persiguen en horizontal y vertical, planean, hacen **embestidas telegrafiadas** con un `!` y, al bajar de media vida, entran en **furia** con ataques más rápidos y proyectiles extra.
+- **GochiPoints (GP)** sustituye a Kicks en HUD, avisos, récords y ranking. La moneda interna y las RPC no cambian.
+- **La destrucción acelera** con el progreso del mapa y tiene velocidad base distinta en La Purga, Overclock y El Núcleo. Se detiene antes de la arena del jefe y no vuelve a avanzar durante el combate.
+- **Fondo de PC gaming**: escritorio y monitor en El Setup; placas, cables, bahías, ventiladores y tiras RGB en el resto. Suelos de PCB, plataformas de RAM/GPU y pines de CPU como pinchos.
+- **Nitidez 2x**: el canvas se dibuja a 960×540 y se reduce a 480×270; se elimina el desenfoque de los paneles y se añade una animación corta de entrada.
+- **Ajustes en pausa**: volumen de 0 a 100, silencio y movimiento reducido (respeta `prefers-reduced-motion`). Se guardan en local.
+- **Accesibilidad**: `x-trap` en el ranking, botón **Menú** dentro del ranking, pausa táctil y foco visible.
+- **Límites del servidor** actualizados para los niveles 4 y 5 (`max_haters` 9 y 12) para que sus partidas no se rechacen.
+
+## [1.94.0] - 2026-11-08
+
+### Campaña: checkpoints y jefe final
+
+- **Checkpoints** en los tres niveles: al pasar la bandera se guarda el punto y, si te tumban, reapareces ahí en vez de volver al inicio. En **La Purga** la purga se reinicia y el checkpoint se conserva.
+- **Hater Final** en La Purga: jefe volador con 5 puntos de vida, burbujas dirigidas y barra de vida. Se puede dañar con clips o pisándolo desde las plataformas de la arena.
+- La purga se detiene mientras el jefe está activo y la meta de **GO LIVE** queda bloqueada hasta derrotarlo. Al caer suelta **+25 Kicks**.
+- **Pausa táctil** en móvil durante la partida.
+- El diálogo de ranking atrapa el foco con `x-trap` y lo devuelve al cerrarse.
+- Arreglos: `game.js` se cachea con la versión correcta (antes `1.92.1`), la ayuda ya no promete el atajo `1`-`3` que no existía y el comentario de cabecera refleja el estado real.
+
 ## [1.93.0] - 2026-11-08
 
 ### GochitaRunner: minijuego de plataformas en /game
