@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.102.1] - 2026-11-09
+
+### Checkpoints seguros y besos que ignoran escudos
+
+- Corregidos los dos checkpoints de **Overclock**: pasan de los fosos de las columnas 52 y 108 a suelo firme en 56 y 112.
+- Los **besos del labial** ignoran el escudo del jefe y el de los haters; el escudo no se rompe ni se consume y sigue bloqueando los clips normales.
+- Aviso `BESO IGNORA ESCUDO` y partículas rosas al atravesar un escudo.
+- Pruebas nuevas: checkpoints con suelo debajo, respawn seguro, clip normal bloqueado, beso que daña al jefe y beso que elimina a un hater con escudo.
+
 ## [1.102.0] - 2026-11-09
 
 ### Accesorios con habilidad, IA de haters y jefes ambientales

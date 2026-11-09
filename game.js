@@ -568,8 +568,8 @@
             [141, 13], [142, 13], [143, 13]
         ]);
 
-        n.poner(52, 14, 'C');
-        n.poner(108, 14, 'C');
+        n.poner(56, 14, 'C');
+        n.poner(112, 14, 'C');
 
         n.poner(3, 14, 'P');
         n.poner(157, 13, 'G');
@@ -2930,6 +2930,7 @@
     function actualizarClips(dt, nivel) {
         for (let i = estado.clipsActivos.length - 1; i >= 0; i--) {
             const clip = estado.clipsActivos[i];
+            const esBeso = clip.tipo === 'beso';
             clip.vida -= dt;
             clip.x += clip.vx * dt;
             let quitar = clip.vida <= 0;
@@ -2939,11 +2940,15 @@
             if (!quitar && nivel.jefe && nivel.jefe.vivo && nivel.jefe.activado) {
                 const b = nivel.jefe;
                 if (clip.x > b.x && clip.x < b.x + b.ancho && clip.y > b.y && clip.y < b.y + b.alto) {
-                    if (b.escudo > 0) {
+                    if (b.escudo > 0 && !esBeso) {
                         generarChispas(5, clip.x, clip.y, '#67e8f9');
                         avisoFlotante('CLIP BLOQUEADO', clip.x, clip.y - 8);
                         sfx('escudo');
                     } else {
+                        if (b.escudo > 0 && esBeso) {
+                            generarChispas(8, clip.x, clip.y, '#ff4fa3');
+                            avisoFlotante('BESO IGNORA ESCUDO', clip.x, clip.y - 8);
+                        }
                         golpearJefe(b, estado.jugador, true);
                     }
                     quitar = true;
@@ -2953,12 +2958,16 @@
                 for (const h of nivel.haters) {
                     if (!h.vivo) continue;
                     if (clip.x > h.x && clip.x < h.x + h.ancho && clip.y > h.y && clip.y < h.y + h.alto) {
-                        if (h.escudo) {
+                        if (h.escudo && !esBeso) {
                             h.escudo = false;
                             generarChispas(6, clip.x, clip.y, '#67e8f9');
                             avisoFlotante('ESCUDO ROTO', clip.x, clip.y - 8);
                             sfx('escudo');
                         } else {
+                            if (h.escudo && esBeso) {
+                                generarChispas(6, clip.x, clip.y, '#ff4fa3');
+                                avisoFlotante('BESO IGNORA ESCUDO', clip.x, clip.y - 14);
+                            }
                             matarHater(h, false);
                         }
                         quitar = true;
