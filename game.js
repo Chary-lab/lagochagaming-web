@@ -1,5 +1,5 @@
 /* GochitaRunner — motor del minijuego.
-   Campaña de cinco niveles dentro de un PC gaming, jefes y ranking. */
+   Campaña de cinco niveles dentro de un PC gaming, jefes, medallas, logros y ranking. */
 (function () {
     'use strict';
 
@@ -38,6 +38,50 @@
 
     const CLAVE_GUARDADO = 'lg_game_v1';
     const NOMBRE_NIVEL = 'El Setup';
+
+    const OBJETIVOS = [
+        { s: 150, a: 240, b: 330 },
+        { s: 180, a: 300, b: 420 },
+        { s: 210, a: 330, b: 450 },
+        { s: 240, a: 390, b: 540 },
+        { s: 270, a: 420, b: 600 }
+    ];
+
+    const LOGROS = [
+        { id: 'primer_jefe', nombre: 'Jefe de mesa', desc: 'Derrota a El Técnico.' },
+        { id: 'sin_dano', nombre: 'Intacta', desc: 'Completa un nivel sin perder vidas.' },
+        { id: 'todos_gp', nombre: 'Coleccionista', desc: 'Recoge el 90% del GP de un nivel.' },
+        { id: 'cargador', nombre: 'Cargador lleno', desc: 'Dispara 12 clips en un nivel.' },
+        { id: 'pisot', nombre: 'Pisotón', desc: 'Elimina 5 haters saltándoles encima.' },
+        { id: 'purga', nombre: 'Sobrevive a la purga', desc: 'Completa La Purga.' },
+        { id: 'nucleo', nombre: 'Núcleo roto', desc: 'Derrota a El Núcleo.' },
+        { id: 'campana', nombre: 'Directo completo', desc: 'Completa los 5 niveles.' },
+        { id: 'velocista', nombre: 'Velocista', desc: 'Completa un nivel con tiempo de medalla A o mejor.' },
+        { id: 'sin_escudo', nombre: 'Sin red', desc: 'Completa un nivel sin recoger regalitos.' },
+        { id: 'cazajefes', nombre: 'Cazajefes', desc: 'Completa el Boss Rush.' },
+        { id: 'reto', nombre: 'Rutina diaria', desc: 'Completa el reto diario.' }
+    ];
+
+    const SKINS = [
+        {
+            id: 'gochita', nombre: 'Gochita', color: '#0f3b40',
+            colores: { pelo: '#171021', piel: '#ffd9c7', top: '#0f3b40', topClaro: '#1d6d70', rosa: '#ff4fa3', zapato: '#ff5fae' }
+        },
+        {
+            id: 'neon', nombre: 'Neón', color: '#22d3ee',
+            colores: { pelo: '#0f172a', piel: '#d8fbff', top: '#0e7490', topClaro: '#22d3ee', rosa: '#f0abfc', zapato: '#67e8f9' }
+        },
+        {
+            id: 'purga', nombre: 'Purga', color: '#ef4444',
+            colores: { pelo: '#1a0b12', piel: '#ffd0c4', top: '#7f1d1d', topClaro: '#ef4444', rosa: '#f97316', zapato: '#fca5a5' }
+        },
+        {
+            id: 'oro', nombre: 'Oro', color: '#facc15',
+            colores: { pelo: '#1c1917', piel: '#ffe8c2', top: '#78350f', topClaro: '#f59e0b', rosa: '#fde047', zapato: '#fbbf24' }
+        }
+    ];
+
+    const MAX_GP_NIVEL = {};
 
     const SOLIDOS = new Set(['#', '=']);
 
@@ -88,7 +132,24 @@
         checkpoint: null,
         avisoJefe: false,
         volumen: VOLUMEN_INICIAL,
-        reducirMovimiento: false
+        reducirMovimiento: false,
+        skin: 'gochita',
+        medallas: [],
+        medallasConseguidas: 0,
+        logros: {},
+        medallaActual: '',
+        danoRecibidoNivel: 0,
+        clipsDisparados: 0,
+        hatersPisados: 0,
+        escudosRecogidos: 0,
+        modo: 'normal',
+        rushJefe: 0,
+        rushTotal: 0,
+        rushCompletado: false,
+        rushRecord: '',
+        retoFecha: '',
+        retoNivel: 0,
+        retoHecho: false
     };
 
     // === NIVEL 1: EL SETUP ===
@@ -853,7 +914,11 @@
         estado.gp += 5;
         generarChispas(10, h.x + h.ancho / 2, h.y + h.alto / 2, '#ff4fa3');
         avisoFlotante('+5 GP', h.x + h.ancho / 2, h.y - 2);
-        if (porSalto) sfx('golpe');
+        if (porSalto) {
+            estado.hatersPisados += 1;
+            sfx('golpe');
+            if (estado.hatersPisados >= 5) desbloquearLogro('pisot');
+        }
         sincronizarUi();
     }
 
@@ -861,6 +926,7 @@
         if (p.recogido) return;
         p.recogido = true;
         if (p.tipo === 'regalo') {
+            estado.escudosRecogidos += 1;
             if (estado.escudo >= ESCUDO_MAX) {
                 estado.gp += 10;
                 avisoFlotante('+10 GP', p.x, p.y - 10);
@@ -902,6 +968,8 @@
             vy: 0,
             vida: 1.1
         });
+        estado.clipsDisparados += 1;
+        if (estado.clipsDisparados >= 12) desbloquearLogro('cargador');
         sfx('disparo');
         sincronizarUi();
     }
@@ -1106,6 +1174,176 @@
         } catch (e) { /* sin almacenamiento */ }
     }
 
+    function leerDatos() {
+        try { return JSON.parse(localStorage.getItem(CLAVE_GUARDADO) || '{}'); } catch (e) { return {}; }
+    }
+
+    function guardarDatos(datos) {
+        try {
+            localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(datos));
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function maxGpNivel(numero) {
+        if (MAX_GP_NIVEL[numero]) return MAX_GP_NIVEL[numero];
+        const nivel = parsearNivel(NIVELES[numero - 1].crear());
+        MAX_GP_NIVEL[numero] = nivel.monedas.length + nivel.haters.length * 5 + (nivel.jefe ? nivel.jefe.bonus : 0);
+        return MAX_GP_NIVEL[numero];
+    }
+
+    function fechaHoy() {
+        const ahora = new Date();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        return ahora.getFullYear() + '-' + mes + '-' + dia;
+    }
+
+    function retoDelDia() {
+        const fecha = fechaHoy();
+        const semilla = fecha.split('').reduce((total, letra) => total + letra.charCodeAt(0), 0);
+        const nivel = (semilla % NIVELES.length) + 1;
+        const datos = leerDatos();
+        const guardado = datos.reto || {};
+        return {
+            fecha: fecha,
+            nivel: nivel,
+            nombre: NIVELES[nivel - 1].nombre,
+            hecho: guardado.fecha === fecha && !!guardado.hecho
+        };
+    }
+
+    function leerRecordRush() {
+        const record = leerDatos().rush;
+        return record && record.mejorTiempo ? record : null;
+    }
+
+    function textoRecordRush() {
+        const record = leerRecordRush();
+        return record ? 'Mejor Boss Rush: ' + formatearTiempo(record.mejorTiempo) : 'Boss Rush: aún sin marca.';
+    }
+
+    function guardarRecordRush() {
+        const datos = leerDatos();
+        const anterior = datos.rush;
+        if (!anterior || estado.tiempo < anterior.mejorTiempo) {
+            datos.rush = { mejorTiempo: estado.tiempo, fecha: fechaHoy() };
+            guardarDatos(datos);
+            estado.rushRecord = textoRecordRush();
+        }
+    }
+
+    function marcarRetoCompletado() {
+        const datos = leerDatos();
+        datos.reto = {
+            fecha: estado.retoFecha || fechaHoy(),
+            nivel: estado.retoNivel,
+            hecho: true,
+            tiempo: estado.tiempo
+        };
+        guardarDatos(datos);
+        estado.retoHecho = true;
+        actualizarProgreso();
+    }
+
+    function calcularMedalla(numero, record) {
+        if (!record || record.version !== 2) return '';
+        const maximo = maxGpNivel(numero);
+        if (!maximo) return '';
+        const porcentaje = Number(record.mejorGp) / maximo;
+        const objetivo = OBJETIVOS[numero - 1] || OBJETIVOS[0];
+        if (porcentaje >= 0.82 && record.mejorTiempo <= objetivo.s) return 'S';
+        if (porcentaje >= 0.65 && record.mejorTiempo <= objetivo.a) return 'A';
+        if (porcentaje >= 0.45 && record.mejorTiempo <= objetivo.b) return 'B';
+        return 'C';
+    }
+
+    function medallaNivel(numero, record) {
+        return calcularMedalla(numero, record === undefined ? leerRecord(numero) : record);
+    }
+
+    function contarMedallas() {
+        return estado.medallas.filter(Boolean).length;
+    }
+
+    function tieneLogro(id) {
+        return !!(estado.logros && estado.logros[id]);
+    }
+
+    function skinDesbloqueada(id) {
+        if (id === 'gochita') return true;
+        if (id === 'neon') return tieneLogro('primer_jefe') || estado.nivelDesbloqueado >= 2;
+        if (id === 'purga') return tieneLogro('purga');
+        if (id === 'oro') return tieneLogro('campana') || contarMedallas() >= 5;
+        return false;
+    }
+
+    function actualizarProgreso() {
+        const datos = leerDatos();
+        const registros = datos.niveles || {};
+        estado.logros = datos.logros && typeof datos.logros === 'object' ? datos.logros : {};
+        estado.medallas = NIVELES.map((_, indice) => {
+            const numero = indice + 1;
+            return calcularMedalla(numero, registros[numero] || (numero === 1 ? datos.nivel1 : null));
+        });
+        estado.medallasConseguidas = contarMedallas();
+        const reto = retoDelDia();
+        estado.retoFecha = reto.fecha;
+        estado.retoNivel = reto.nivel;
+        estado.retoHecho = reto.hecho;
+        estado.rushRecord = textoRecordRush();
+        const guardada = SKINS.find((skin) => skin.id === datos.skin);
+        estado.skin = guardada && skinDesbloqueada(guardada.id) ? guardada.id : 'gochita';
+    }
+
+    function desbloquearLogro(id) {
+        const definicion = LOGROS.find((logro) => logro.id === id);
+        if (!definicion || tieneLogro(id)) return false;
+        const datos = leerDatos();
+        datos.logros = datos.logros || {};
+        datos.logros[id] = true;
+        guardarDatos(datos);
+        estado.logros = datos.logros;
+        actualizarProgreso();
+        const j = estado.jugador;
+        if (j && (estado.fase === 'jugando' || estado.fase === 'completo')) {
+            avisoFlotante('LOGRO: ' + definicion.nombre, j.x + j.ancho / 2, j.y - 14);
+        }
+        sfx('meta');
+        sincronizarUi();
+        return true;
+    }
+
+    function elegirSkin(id) {
+        if (!skinDesbloqueada(id)) return;
+        const datos = leerDatos();
+        datos.skin = id;
+        guardarDatos(datos);
+        estado.skin = id;
+        sfx('poder');
+        sincronizarUi();
+    }
+
+    function mostrarProgreso() {
+        const store = window.Alpine && typeof window.Alpine.store === 'function'
+            ? window.Alpine.store('juego')
+            : null;
+        if (!store) return;
+        actualizarProgreso();
+        store.rankingAbierto = false;
+        store.progresoAbierto = true;
+        sincronizarUi();
+    }
+
+    function ocultarProgreso() {
+        const store = window.Alpine && typeof window.Alpine.store === 'function'
+            ? window.Alpine.store('juego')
+            : null;
+        if (store) store.progresoAbierto = false;
+    }
+
     function desbloquearSiguiente() {
         if (estado.nivelActual >= NIVELES.length) return;
         const siguiente = estado.nivelActual + 1;
@@ -1115,7 +1353,9 @@
     }
 
     function cargarNivel(nivelNumero, mantenerCheckpoint) {
-        const maximo = Math.max(1, Math.min(NIVELES.length, estado.nivelDesbloqueado || 1));
+        const maximo = (estado.modo === 'rush' || estado.modo === 'reto')
+            ? NIVELES.length
+            : Math.max(1, Math.min(NIVELES.length, estado.nivelDesbloqueado || 1));
         const numero = limitar(Math.round(nivelNumero || maximo), 1, maximo);
         const definicion = NIVELES[numero - 1];
         estado.nivelActual = numero;
@@ -1151,7 +1391,145 @@
         }
     }
 
+    function sueloDeArena(nivel, x, jefe) {
+        const tx = limitar(Math.floor(x / TILE), 0, nivel.ancho - 1);
+        const desde = jefe ? Math.max(2, Math.floor(jefe.y / TILE)) : 2;
+        for (let ty = desde; ty < nivel.alto; ty++) {
+            if (esSolido(nivel, tx, ty)) return ty * TILE - 14;
+        }
+        for (let ty = 2; ty < nivel.alto; ty++) {
+            if (esSolido(nivel, tx, ty)) return ty * TILE - 14;
+        }
+        return Math.max(0, (nivel.alto - 2) * TILE);
+    }
+
+    function cargarCombateJefe(numero, opciones) {
+        const cfg = opciones || {};
+        estado.modo = cfg.modo || 'rush';
+        limpiarEntrada();
+        cargarNivel(numero);
+        estado.modo = cfg.modo || 'rush';
+        estado.rushJefe = cfg.jefe || numero;
+        estado.rushTotal = cfg.total || NIVELES.length;
+        estado.rushCompletado = false;
+        estado.checkpoint = null;
+        estado.runId = null;
+        estado.runNivel = 0;
+        estado.runEnviado = false;
+        estado.nivelDatos.meta = null;
+        estado.nivelDatos.purga = null;
+        estado.purga = null;
+        for (const hater of estado.nivelDatos.haters) hater.vivo = false;
+        for (const moneda of estado.nivelDatos.monedas) moneda.recogida = true;
+        for (const powerup of estado.nivelDatos.powerups) powerup.recogido = true;
+        const jefe = estado.nivelDatos.jefe;
+        if (jefe) {
+            jefe.hp = jefe.hpMax;
+            jefe.vivo = true;
+            jefe.activado = false;
+            jefe.golpe = 0;
+            jefe.escudo = false;
+            jefe.escudoT = 0;
+            jefe.escudoEspera = 2.5;
+        }
+        const x = jefe ? Math.max(TILE * 2, jefe.arenaInicio - 72) : estado.spawn.x;
+        const y = sueloDeArena(estado.nivelDatos, x, jefe);
+        estado.spawn = { x: x, y: y };
+        estado.jugador = crearJugador(estado.spawn);
+        estado.camara.x = limitar(x - VISTA_ANCHO / 2, 0, Math.max(0, estado.nivelDatos.ancho * TILE - VISTA_ANCHO));
+        estado.camara.y = limitar(y - VISTA_ALTO / 2, 0, Math.max(0, estado.nivelDatos.alto * TILE - VISTA_ALTO));
+        estado.vidas = cfg.vidas != null ? cfg.vidas : VIDAS_INICIALES;
+        estado.clips = cfg.clips != null ? cfg.clips : MAX_CLIPS;
+        estado.escudo = 0;
+        estado.grande = false;
+        estado.tiempo = cfg.tiempo != null ? cfg.tiempo : 0;
+        estado.invulnerable = 1.1;
+        estado.parpadeo = 1.2;
+        estado.gpNivel = estado.gp;
+        estado.hatersNivel = estado.hatersMuertos;
+        const tienda = window.Alpine && typeof window.Alpine.store === 'function'
+            ? window.Alpine.store('juego')
+            : null;
+        if (tienda) {
+            tienda.progresoAbierto = false;
+            tienda.rankingAbierto = false;
+        }
+        fijarFase('jugando');
+        sincronizarUi({ rankingMensaje: '', rankingError: '', medallaActual: '' });
+        const aviso = document.getElementById('game-aviso');
+        if (aviso) {
+            aviso.textContent = cfg.mensaje || 'Jefe ' + estado.rushJefe + ' de ' + estado.rushTotal + '. ¡A por él!';
+        }
+    }
+
+    function iniciarBossRush() {
+        estado.gp = 0;
+        estado.vidas = VIDAS_INICIALES;
+        estado.tiempo = 0;
+        estado.hatersMuertos = 0;
+        estado.invulnerable = 0;
+        estado.rushCompletado = false;
+        estado.medallaActual = '';
+        estado.danoRecibidoNivel = 0;
+        estado.clipsDisparados = 0;
+        estado.hatersPisados = 0;
+        estado.escudosRecogidos = 0;
+        cargarCombateJefe(1, {
+            modo: 'rush',
+            jefe: 1,
+            total: NIVELES.length,
+            vidas: VIDAS_INICIALES,
+            clips: MAX_CLIPS,
+            tiempo: 0,
+            mensaje: 'Boss Rush: 5 jefes, 3 vidas y 12 clips por combate.'
+        });
+    }
+
+    function iniciarRetoDiario() {
+        const reto = retoDelDia();
+        estado.modo = 'reto';
+        estado.retoFecha = reto.fecha;
+        estado.retoNivel = reto.nivel;
+        estado.retoHecho = reto.hecho;
+        estado.gp = 0;
+        estado.tiempo = 0;
+        estado.hatersMuertos = 0;
+        estado.invulnerable = 0;
+        estado.medallaActual = '';
+        estado.danoRecibidoNivel = 0;
+        estado.clipsDisparados = 0;
+        estado.hatersPisados = 0;
+        estado.escudosRecogidos = 0;
+        cargarCombateJefe(reto.nivel, {
+            modo: 'reto',
+            jefe: 1,
+            total: 1,
+            vidas: 1,
+            clips: MAX_CLIPS,
+            tiempo: 0,
+            mensaje: 'Reto diario: ' + reto.nombre + '. Un jefe, una vida.'
+        });
+    }
+
+    function siguienteJefeRush() {
+        if (estado.modo !== 'rush' || estado.rushCompletado) return;
+        const siguiente = estado.rushJefe + 1;
+        if (siguiente > estado.rushTotal) return;
+        cargarCombateJefe(siguiente, {
+            modo: 'rush',
+            jefe: siguiente,
+            total: estado.rushTotal,
+            vidas: estado.vidas,
+            clips: MAX_CLIPS,
+            tiempo: estado.tiempo
+        });
+    }
+
     function empezarNivel(nivelNumero) {
+        estado.modo = 'normal';
+        estado.rushJefe = 0;
+        estado.rushTotal = 0;
+        estado.rushCompletado = false;
         cargarNivel(nivelNumero);
         estado.tiempo = 0;
         estado.invulnerable = 0;
@@ -1161,6 +1539,11 @@
         estado.enSueloAnterior = false;
         estado.gpNivel = estado.gp;
         estado.hatersNivel = estado.hatersMuertos;
+        estado.medallaActual = '';
+        estado.danoRecibidoNivel = 0;
+        estado.clipsDisparados = 0;
+        estado.hatersPisados = 0;
+        estado.escudosRecogidos = 0;
         fijarFase('jugando');
         sincronizarUi({ rankingMensaje: '', rankingError: '' });
         iniciarRun(nivelNumero);
@@ -1179,10 +1562,26 @@
     }
 
     function reiniciarPartida() {
+        if (estado.modo === 'rush') {
+            iniciarBossRush();
+            return;
+        }
+        if (estado.modo === 'reto') {
+            iniciarRetoDiario();
+            return;
+        }
         iniciarPartida(estado.nivelActual);
     }
 
     function siguienteNivelJuego() {
+        if (estado.modo === 'rush') {
+            siguienteJefeRush();
+            return;
+        }
+        if (estado.modo === 'reto') {
+            salirAlMenu();
+            return;
+        }
         if (estado.nivelActual >= NIVELES.length) return;
         if (estado.nivelActual + 1 > estado.nivelDesbloqueado) return;
         empezarNivel(estado.nivelActual + 1);
@@ -1256,6 +1655,10 @@
 
     function salirAlMenu() {
         limpiarEntrada();
+        estado.modo = 'normal';
+        estado.rushJefe = 0;
+        estado.rushTotal = 0;
+        estado.rushCompletado = false;
         estado.gp = 0;
         estado.gpNivel = 0;
         estado.hatersMuertos = 0;
@@ -1264,6 +1667,18 @@
         estado.tiempo = 0;
         estado.checkpoint = null;
         estado.invulnerable = 0;
+        estado.medallaActual = '';
+        estado.danoRecibidoNivel = 0;
+        estado.clipsDisparados = 0;
+        estado.hatersPisados = 0;
+        estado.escudosRecogidos = 0;
+        const tienda = window.Alpine && typeof window.Alpine.store === 'function'
+            ? window.Alpine.store('juego')
+            : null;
+        if (tienda) {
+            tienda.progresoAbierto = false;
+            tienda.rankingAbierto = false;
+        }
         cargarNivel(estado.nivelActual);
         fijarFase('inicio');
         sincronizarUi({ rankingMensaje: '' });
@@ -1280,7 +1695,9 @@
                 inicio: 'GochitaRunner listo. Pulsa Jugar.',
                 jugando: 'Partida en curso.',
                 pausa: 'Juego en pausa.',
-                completo: 'Nivel completado.',
+                completo: estado.modo === 'rush'
+                    ? (estado.rushCompletado ? 'Boss Rush completado.' : 'Jefe superado.')
+                    : (estado.modo === 'reto' ? 'Reto diario completado.' : 'Nivel completado.'),
                 gameover: 'Fin de la partida.'
             };
             aviso.textContent = textos[fase] || '';
@@ -1304,15 +1721,44 @@
         store.nivel = estado.nivelActual;
         store.nivelActual = estado.nivelActual;
         store.nivelDesbloqueado = estado.nivelDesbloqueado;
-        store.nivelNombre = estado.nivelDatos ? estado.nivelDatos.nombre : NIVELES[estado.nivelActual - 1].nombre;
+        store.nivelNombre = estado.modo === 'rush'
+            ? 'Boss Rush'
+            : (estado.nivelDatos ? estado.nivelDatos.nombre : NIVELES[estado.nivelActual - 1].nombre);
         store.totalNiveles = NIVELES.length;
-        store.haySiguiente = estado.nivelActual < NIVELES.length;
+        store.haySiguiente = estado.modo === 'rush'
+            ? !estado.rushCompletado && estado.rushJefe < estado.rushTotal
+            : (estado.modo === 'normal' && estado.nivelActual < NIVELES.length);
         store.rankingSesion = !!tokenComunidad();
         store.rankingApodo = apodoComunidad();
         store.volumen = Math.round(estado.volumen * 100);
         store.sonido = estado.sonido;
         store.reducirMovimiento = estado.reducirMovimiento;
         store.escala = ESCALA_RENDER;
+        store.modo = estado.modo;
+        store.rushJefe = estado.rushJefe;
+        store.rushTotal = estado.rushTotal;
+        store.rushCompletado = estado.rushCompletado;
+        store.rushRecord = estado.rushRecord;
+        store.retoFecha = estado.retoFecha;
+        store.retoNivel = estado.retoNivel;
+        store.retoNombre = estado.retoNivel ? NIVELES[estado.retoNivel - 1].nombre : '';
+        store.retoHecho = estado.retoHecho;
+        store.medallas = estado.medallas.slice();
+        store.medallasConseguidas = estado.medallasConseguidas;
+        store.medallaActual = estado.medallaActual;
+        store.skin = estado.skin;
+        store.nombresNiveles = NIVELES.map((nivel) => nivel.nombre);
+        store.logrosDesbloqueados = LOGROS.filter((logro) => tieneLogro(logro.id)).length;
+        if (store.progresoAbierto || !store.logros.length) {
+            store.logros = LOGROS.map((logro) => Object.assign({}, logro, { hecho: tieneLogro(logro.id) }));
+            store.skins = SKINS.map((skin) => ({
+                id: skin.id,
+                nombre: skin.nombre,
+                color: skin.color,
+                bloqueada: !skinDesbloqueada(skin.id),
+                activa: estado.skin === skin.id
+            }));
+        }
         if (extra) Object.assign(store, extra);
     }
 
@@ -1336,6 +1782,7 @@
             return;
         }
         estado.vidas -= 1;
+        estado.danoRecibidoNivel += 1;
         sfx('dano');
         if (estado.vidas <= 0) {
             estado.vidas = 0;
@@ -1354,12 +1801,22 @@
 
     function completarNivel() {
         if (estado.fase !== 'jugando') return;
-        guardarRecord(estado.nivelActual);
+        const numero = estado.nivelActual;
+        const gpNivel = Math.max(0, estado.gp - estado.gpNivel);
+        const maximo = maxGpNivel(numero);
+        guardarRecord(numero);
+        estado.medallaActual = estado.medallas[numero - 1] || '';
+        if (estado.danoRecibidoNivel === 0) desbloquearLogro('sin_dano');
+        if (maximo && gpNivel >= maximo * 0.9) desbloquearLogro('todos_gp');
+        if (numero === 3) desbloquearLogro('purga');
+        if (numero === 5) desbloquearLogro('campana');
+        if (estado.tiempo <= (OBJETIVOS[numero - 1] || OBJETIVOS[0]).a) desbloquearLogro('velocista');
+        if (estado.escudosRecogidos === 0) desbloquearLogro('sin_escudo');
         desbloquearSiguiente();
         enviarRun();
         sfx('meta');
-        sincronizarUi({ record: textoRecord(estado.nivelActual) });
         fijarFase('completo');
+        sincronizarUi({ record: textoRecord(numero), medallaActual: estado.medallaActual });
     }
 
     function tokenComunidad() {
@@ -1462,6 +1919,7 @@
             ? window.Alpine.store('juego')
             : null;
         if (!store) return;
+        store.progresoAbierto = false;
         store.rankingAbierto = true;
         store.rankingTab = tab || store.rankingTab || 'general';
         cargarRanking(store.rankingTab);
@@ -1505,26 +1963,33 @@
         const numero = nivelNumero || estado.nivelActual;
         const record = leerRecord(numero);
         if (!record) return 'Nivel ' + numero + ': aún no hay marca guardada.';
-        return 'Nivel ' + numero + ' · mejor: ' + formatearTiempo(record.mejorTiempo) + ' · ' + record.mejorGp + ' GP';
+        const medalla = medallaNivel(numero, record);
+        return 'Nivel ' + numero + (medalla ? ' · medalla ' + medalla : '') +
+            ' · mejor: ' + formatearTiempo(record.mejorTiempo) + ' · ' + record.mejorGp + ' GP';
     }
 
     function guardarRecord(nivelNumero) {
         const numero = nivelNumero || estado.nivelActual;
+        const gpNivel = Math.max(0, estado.gp - estado.gpNivel);
+        const hatersNivel = Math.max(0, estado.hatersMuertos - estado.hatersNivel);
         const anterior = leerRecord(numero);
-        const mejora = !anterior ||
-            estado.gp > anterior.mejorGp ||
-            (estado.gp === anterior.mejorGp && estado.tiempo < anterior.mejorTiempo);
+        const comparable = anterior && anterior.version === 2;
+        const mejora = !comparable ||
+            gpNivel > anterior.mejorGp ||
+            (gpNivel === anterior.mejorGp && estado.tiempo < anterior.mejorTiempo);
         if (!mejora) return;
         try {
             const datos = JSON.parse(localStorage.getItem(CLAVE_GUARDADO) || '{}');
             datos.niveles = datos.niveles || {};
             datos.niveles[numero] = {
+                version: 2,
                 mejorTiempo: estado.tiempo,
-                mejorGp: estado.gp,
-                haters: estado.hatersMuertos,
+                mejorGp: gpNivel,
+                haters: hatersNivel,
                 actualizado: new Date().toISOString()
             };
             localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(datos));
+            actualizarProgreso();
         } catch (e) {
             // Sin almacenamiento: la partida sigue, solo no se conserva la marca.
         }
@@ -1708,6 +2173,43 @@
         generarChispas(18, cx, cy, '#ff4fa3');
         avisoFlotante('¡' + b.nombre + ' DERROTADO! +' + b.bonus + ' GP', cx, b.y - 10);
         sfx('meta');
+        if (estado.nivelActual === 1) desbloquearLogro('primer_jefe');
+        if (estado.nivelActual === 5) desbloquearLogro('nucleo');
+        if (estado.modo === 'rush') {
+            estado.rushCompletado = estado.rushJefe >= estado.rushTotal;
+            if (estado.rushCompletado) {
+                guardarRecordRush();
+                desbloquearLogro('cazajefes');
+            }
+            estado.medallaActual = '';
+            fijarFase('completo');
+            sincronizarUi({
+                record: textoRecordRush(),
+                rankingMensaje: '',
+                medallaActual: ''
+            });
+            const avisoRush = document.getElementById('game-aviso');
+            if (avisoRush) {
+                avisoRush.textContent = estado.rushCompletado
+                    ? 'Boss Rush completado en ' + formatearTiempo(estado.tiempo) + '.'
+                    : 'Jefe ' + estado.rushJefe + ' de ' + estado.rushTotal + ' superado.';
+            }
+            return;
+        }
+        if (estado.modo === 'reto') {
+            marcarRetoCompletado();
+            desbloquearLogro('reto');
+            estado.medallaActual = '';
+            fijarFase('completo');
+            sincronizarUi({
+                record: 'Reto diario completado · ' + formatearTiempo(estado.tiempo),
+                rankingMensaje: '',
+                medallaActual: ''
+            });
+            const avisoReto = document.getElementById('game-aviso');
+            if (avisoReto) avisoReto.textContent = 'Reto diario completado.';
+            return;
+        }
         sincronizarUi();
     }
 
@@ -1779,7 +2281,8 @@
         }
 
         const minX = b.arenaInicio + 10;
-        const maxX = Math.max(minX, nivel.meta.x - b.ancho - 20);
+        const limiteDerecho = nivel.meta ? nivel.meta.x - b.ancho - 20 : nivel.ancho * TILE - b.ancho - 20;
+        const maxX = Math.max(minX, limiteDerecho);
         const minY = 4 * TILE;
         const maxY = b.baseY;
         const centro = (minX + maxX) / 2;
@@ -3103,12 +3606,13 @@
         const escala = estado.grande ? ESCALA_GRANDE : 1;
         const respiracion = aire ? 0 : Math.sin(estado.anim * 2.4) * 0.5;
 
-        const colorPelo = '#171021';
-        const colorPiel = '#ffd9c7';
-        const colorTop = '#0f3b40';
-        const colorTopClaro = '#1d6d70';
-        const colorRosa = '#ff4fa3';
-        const colorZapato = '#ff5fae';
+        const skin = SKINS.find((item) => item.id === estado.skin) || SKINS[0];
+        const colorPelo = skin.colores.pelo;
+        const colorPiel = skin.colores.piel;
+        const colorTop = skin.colores.top;
+        const colorTopClaro = skin.colores.topClaro;
+        const colorRosa = skin.colores.rosa;
+        const colorZapato = skin.colores.zapato;
 
         c.fillStyle = 'rgba(0, 0, 0, .35)';
         c.beginPath();
@@ -3269,7 +3773,12 @@
         c.textAlign = 'center';
         c.fillStyle = '#cbd5e1';
         const nombreNivel = estado.nivelDatos ? estado.nivelDatos.nombre : 'El Setup';
-        c.fillText('NIVEL ' + estado.nivelActual + '/' + NIVELES.length + ' · ' + nombreNivel.toUpperCase(), VISTA_ANCHO / 2, 15);
+        const etiquetaNivel = estado.modo === 'rush'
+            ? 'JEFE ' + estado.rushJefe + '/' + estado.rushTotal
+            : (estado.modo === 'reto'
+                ? 'RETO DIARIO'
+                : 'NIVEL ' + estado.nivelActual + '/' + NIVELES.length + ' · ' + nombreNivel.toUpperCase());
+        c.fillText(etiquetaNivel, VISTA_ANCHO / 2, 15);
 
         c.textAlign = 'right';
         c.fillStyle = '#5eead4';
@@ -3426,6 +3935,11 @@
 
         if (evento.code === 'Escape' && window.Alpine && typeof window.Alpine.store === 'function') {
             const tienda = window.Alpine.store('juego');
+            if (tienda && tienda.progresoAbierto) {
+                ocultarProgreso();
+                evento.preventDefault();
+                return;
+            }
             if (tienda && tienda.rankingAbierto) {
                 ocultarRanking();
                 evento.preventDefault();
@@ -3510,6 +4024,8 @@
         reanudar: reanudarPartida,
         reiniciar: reiniciarPartida,
         salir: salirAlMenu,
+        iniciarBossRush,
+        iniciarRetoDiario,
         fijarVolumen,
         alternarMovimientoReducido,
         estado: () => ({
@@ -3524,6 +4040,12 @@
             escudoMax: ESCUDO_MAX,
             nivel: estado.nivelActual,
             nivelNombre: estado.nivelDatos ? estado.nivelDatos.nombre : 'El Setup',
+            modo: estado.modo,
+            rushJefe: estado.rushJefe,
+            rushTotal: estado.rushTotal,
+            rushCompletado: estado.rushCompletado,
+            retoNivel: estado.retoNivel,
+            retoHecho: estado.retoHecho,
             enemigos: estado.nivelDatos ? estado.nivelDatos.haters.filter((h) => h.vivo).length : 0,
             purga: estado.purga ? Math.round(estado.purga.x) : null,
             sonido: estado.sonido,
@@ -3557,6 +4079,24 @@
             escudo: 0,
             escudoMax: ESCUDO_MAX,
             record: '',
+            medallaActual: '',
+            medallas: [],
+            medallasConseguidas: 0,
+            nombresNiveles: NIVELES.map((nivel) => nivel.nombre),
+            logros: [],
+            logrosDesbloqueados: 0,
+            skins: [],
+            skin: 'gochita',
+            modo: 'normal',
+            rushJefe: 0,
+            rushTotal: 0,
+            rushCompletado: false,
+            rushRecord: '',
+            retoFecha: '',
+            retoNivel: 0,
+            retoNombre: '',
+            retoHecho: false,
+            progresoAbierto: false,
             rankingAbierto: false,
             rankingTab: 'general',
             rankingFilas: [],
@@ -3581,6 +4121,11 @@
             abrirRanking(tab) { mostrarRanking(tab); },
             cerrarRanking() { ocultarRanking(); },
             cambiarRanking(tab) { cambiarTabRanking(tab); },
+            abrirProgreso() { mostrarProgreso(); },
+            cerrarProgreso() { ocultarProgreso(); },
+            seleccionarSkin(id) { elegirSkin(id); },
+            iniciarBossRush() { iniciarBossRush(); },
+            iniciarRetoDiario() { iniciarRetoDiario(); },
             formatearTiempo(valor) { return formatearTiempo(valor); }
         });
         sincronizarUi({ record: textoRecord(1) });
@@ -3589,6 +4134,7 @@
     function iniciar() {
         leerSonido();
         estado.nivelDesbloqueado = leerNivelDesbloqueado();
+        actualizarProgreso();
         actualizarBotonSonido();
         const botonSonido = document.getElementById('game-sonido');
         if (botonSonido) botonSonido.addEventListener('click', alternarSonido);

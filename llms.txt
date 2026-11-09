@@ -8,7 +8,7 @@
 - [Galería](https://lagochagaming.com/galeria): fotos de la comunidad y likes.
 - [Sorteo](https://lagochagaming.com/sorteo): sorteos en vivo y modo manual.
 - [GochiWatch](https://lagochagaming.com/cine): cine sincronizado con la streamer.
-- [GochitaRunner](https://lagochagaming.com/game): minijuego de plataformas de cinco zonas de un PC gaming, con GochiPoints (GP), haters, jefes, clips y ranking de comunidad.
+- [GochitaRunner](https://lagochagaming.com/game): minijuego de plataformas de cinco zonas de un PC gaming, con GochiPoints (GP), haters, jefes, clips, medallas, logros, skins, Boss Rush, reto diario y ranking de comunidad.
 
 ## Redes
 - Kick: https://kick.com/lagochagaming

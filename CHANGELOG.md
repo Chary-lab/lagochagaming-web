@@ -3,6 +3,28 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.98.0] - 2026-11-09
+
+### Retos: Boss Rush y reto diario
+
+- Nuevo **Boss Rush**: los cinco jefes seguidos, 3 vidas, 12 clips por combate y tiempo total. Se elige desde **Progreso**, guarda la mejor marca local y entrega el logro **Cazajefes** al completarlo.
+- Nuevo **reto diario**: un jefe rotativo según la fecha, una sola vida y 12 clips. Al superarlo se marca el día, se guarda el tiempo y se desbloquea el logro **Rutina diaria**.
+- Los combates de jefe usan arena cerrada, sin purga ni meta: la única salida es derrotarlo. Los jefes conservan su daño al reaparecer en Boss Rush.
+- La pantalla de nivel completado distingue campaña, Boss Rush y reto diario, y el HUD muestra `JEFE X/5` o `RETO DIARIO`.
+- **12 logros** locales en total. El panel Progreso incorpora tarjetas de retos con la mejor marca y el estado del reto del día.
+- La campaña normal no cambia: los retos son modos aparte y no envían partidas al ranking.
+
+## [1.97.0] - 2026-11-09
+
+### Progreso: medallas, logros y skins
+
+- Cada nivel entrega una **medalla S/A/B/C** según el GP conseguido (hasta el 82 % del máximo para S) y el tiempo. La medalla se guarda en local, aparece en el selector de niveles y en la pantalla de nivel completado.
+- **10 logros** locales: primer jefe, campaña completa, La Purga, Núcleo, sin perder vidas, 90 % del GP, 5 pisotones, 12 clips, sin escudos y terminar en tiempo S.
+- **4 skins de Gochita**: Gochita, Neón (primer jefe o nivel 2), Purga (completar La Purga o 3 medallas) y Oro (campaña completa o 5 medallas). Se eligen desde el nuevo panel **Progreso**.
+- Nuevo botón **Progreso** en el menú y modal accesible con resumen de medallas, logros y skins, cierre con Escape y `x-trap`.
+- El récord local guarda ahora **GP y haters por nivel** en un formato v2; las marcas antiguas se siguen leyendo. Se corrige que el récord comparara el GP total de la partida.
+- El panel de inicio muestra la medalla de cada nivel y explica cómo conseguir logros y skins.
+
 ## [1.96.3] - 2026-11-09
 
 ### Equilibrio y legibilidad del escudo

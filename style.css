@@ -8115,10 +8115,10 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 }
 
 .game-panel {
-    width: min(100%, 460px);
+    width: min(100%, 520px);
     max-height: 100%;
     overflow-y: auto;
-    padding: 22px 24px;
+    padding: 16px 22px;
     border: 1px solid var(--border-color);
     border-radius: 16px;
     background: #0d1628;
@@ -8213,9 +8213,9 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 
 .game-controles {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
-    margin: 16px 0 0;
+    margin: 10px 0 0;
     padding: 0;
     list-style: none;
 }
@@ -8470,7 +8470,7 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .game-ranking {
     position: fixed;
     inset: 0;
-    z-index: 120;
+    z-index: 1100;
     display: grid;
     place-items: center;
     padding: 16px;
@@ -8746,4 +8746,333 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .game-ranking-menu:focus-visible {
     outline: 2px solid #5eead4;
     outline-offset: 2px;
+}
+
+.game-reto:focus-visible {
+    outline: 2px solid #5eead4;
+    outline-offset: 2px;
+}
+
+/* Medallas, logros y skins de GochitaRunner */
+.game-medalla {
+    font-style: normal;
+}
+
+.game-nivel-medalla {
+    min-width: 20px;
+    padding: 1px 4px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.7);
+    font-size: 0.62rem;
+    line-height: 1.3;
+    font-weight: 700;
+}
+
+.game-medalla--s {
+    color: #fde047;
+    background: rgba(250, 204, 21, 0.14);
+    border: 1px solid rgba(250, 204, 21, 0.5);
+}
+
+.game-medalla--a {
+    color: #5eead4;
+    background: rgba(94, 234, 212, 0.12);
+    border: 1px solid rgba(94, 234, 212, 0.45);
+}
+
+.game-medalla--b {
+    color: #93c5fd;
+    background: rgba(147, 197, 253, 0.12);
+    border: 1px solid rgba(147, 197, 253, 0.4);
+}
+
+.game-medalla--c {
+    color: #cbd5e1;
+    background: rgba(203, 213, 225, 0.1);
+    border: 1px solid rgba(203, 213, 225, 0.3);
+}
+
+.game-medalla--vacia {
+    color: #64748b;
+    background: rgba(100, 116, 139, 0.1);
+    border: 1px solid rgba(100, 116, 139, 0.25);
+}
+
+.game-medalla-final {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px auto 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+}
+
+.game-medalla-final span {
+    color: #94a3b8;
+}
+
+.game-medalla-final strong {
+    font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
+    font-size: 1rem;
+}
+
+.game-progreso {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(3, 8, 18, 0.92);
+}
+
+.game-progreso-caja {
+    width: min(100%, 680px);
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    padding: 18px 20px;
+    border: 1px solid rgba(94, 234, 212, 0.28);
+    border-radius: 18px;
+    background: #0f172a;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+    text-align: left;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+.game-progreso-resumen {
+    margin: 2px 0 12px;
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.game-progreso-resumen strong {
+    color: #5eead4;
+}
+
+.game-retos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.game-reto {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid rgba(94, 234, 212, 0.28);
+    border-radius: 10px;
+    background: rgba(3, 8, 18, 0.5);
+    color: #e2e8f0;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.game-reto:hover {
+    border-color: #5eead4;
+    background: rgba(94, 234, 212, 0.08);
+}
+
+.game-reto-etiqueta {
+    color: #ff8fc4;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.game-reto strong {
+    color: #f8fafc;
+    font-size: 0.86rem;
+}
+
+.game-reto small {
+    color: #94a3b8;
+    font-size: 0.7rem;
+}
+
+.game-progreso-niveles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.game-progreso-nivel {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 8px;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid rgba(94, 234, 212, 0.16);
+    border-radius: 10px;
+    background: rgba(3, 8, 18, 0.45);
+}
+
+.game-progreso-nivel b {
+    color: #e2e8f0;
+    font-size: 0.72rem;
+}
+
+.game-progreso-nivel span {
+    grid-column: 1;
+    color: #94a3b8;
+    font-size: 0.7rem;
+}
+
+.game-progreso-nivel .game-medalla {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.game-progreso-subtitulo {
+    margin: 16px 0 8px;
+    color: #e2e8f0;
+    font-size: 0.86rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.game-logros-lista {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.game-logro {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 8px;
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 9px;
+    background: rgba(3, 8, 18, 0.35);
+    opacity: 0.6;
+}
+
+.game-logro--hecho {
+    border-color: rgba(94, 234, 212, 0.35);
+    background: rgba(94, 234, 212, 0.06);
+    opacity: 1;
+}
+
+.game-logro-marca {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(100, 116, 139, 0.2);
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.game-logro--hecho .game-logro-marca {
+    background: rgba(94, 234, 212, 0.2);
+    color: #5eead4;
+}
+
+.game-logro b {
+    display: block;
+    color: #e2e8f0;
+    font-size: 0.74rem;
+}
+
+.game-logro small {
+    display: block;
+    margin-top: 2px;
+    color: #94a3b8;
+    font-size: 0.68rem;
+    line-height: 1.35;
+}
+
+.game-skins {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.game-skin {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    padding: 10px 6px;
+    border: 1px solid rgba(94, 234, 212, 0.2);
+    border-radius: 10px;
+    background: rgba(3, 8, 18, 0.45);
+    color: #cbd5e1;
+    font: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+}
+
+.game-skin:hover:not(:disabled) {
+    border-color: rgba(94, 234, 212, 0.5);
+}
+
+.game-skin:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.game-skin--activa {
+    border-color: #ff4fa3;
+    background: rgba(255, 79, 163, 0.12);
+    color: #fff;
+}
+
+.game-skin-color {
+    width: 26px;
+    height: 26px;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+}
+
+.game-skin small {
+    color: #94a3b8;
+    font-size: 0.66rem;
+}
+
+.game-skin:focus-visible,
+.game-ranking-cerrar:focus-visible {
+    outline: 2px solid #5eead4;
+    outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+    .game-progreso {
+        padding: 10px;
+    }
+
+    .game-progreso-caja {
+        max-height: calc(100vh - 20px);
+        padding: 14px;
+        border-radius: 14px;
+    }
+
+    .game-logros-lista {
+        grid-template-columns: 1fr;
+    }
+
+    .game-retos {
+        grid-template-columns: 1fr;
+    }
+
+    .game-skins {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }

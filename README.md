@@ -13,9 +13,10 @@ Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin b
 
 ## GochitaRunner
 
-- Canvas 2D a 480×270 con escalado pixelado, paso fijo de 1/60 y cámara lateral. El estado vive en `game.js`; la UI (paneles, selector de nivel y ranking) usa Alpine.
+- Canvas 2D con render interno de 960×540 (2x sobre 480×270 lógicos), paso fijo de 1/60 y cámara lateral. El estado vive en `game.js`; la UI (paneles, selector de nivel, ranking y progreso) usa Alpine.
 - Controles: flechas o A/D para mover, Shift/X para correr, Espacio/Z/W/↑ para saltar, J/K para disparar clips, P/Esc para pausar y R para reiniciar. En móvil aparecen controles táctiles.
-- Niveles: El Setup, Raid City (túneles de raid y haters voladores) y La Purga (el escenario se borra detrás de ti). Se desbloquean en orden: para jugar el siguiente hay que completar el anterior.
+- Niveles: El Setup, Raid City (túneles de raid y haters voladores), La Purga (el escenario se borra detrás de ti), Overclock (viento y pinchos) y El Núcleo (oleadas y jefe de dos fases). Cada uno termina con un jefe y se desbloquea al completar el anterior.
+- Progreso local: medallas S/A/B/C por GP y tiempo, 12 logros, 4 skins de Gochita, Boss Rush y reto diario. Se guarda en `lg_game_v1` y se consulta desde el panel Progreso.
 - Ranking: `game_iniciar_partida` abre una partida, `game_enviar_partida` valida y guarda la mejor marca por nivel, y `game_ranking_general` / `game_ranking_nivel` leen el top 50. Requiere sesión de comunidad (`comunidad_session_token`); los invitados juegan solo en local.
 - Puntos del juego: GochiPoints (GP), Haters y bonus por tiempo. No se mezclan con los puntos de comunidad.
 
