@@ -8288,23 +8288,33 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     display: none;
     align-items: flex-end;
     justify-content: space-between;
-    padding: 10px 12px;
+    padding: 10px 12px calc(14px + env(safe-area-inset-bottom));
     pointer-events: none;
 }
 
 .game-tactil-grupo {
     display: flex;
-    gap: 10px;
     align-items: flex-end;
 }
 
+.game-tactil-grupo--movimiento {
+    gap: 20px;
+}
+
+.game-tactil-grupo--acciones {
+    position: relative;
+    display: block;
+    width: 152px;
+    height: 134px;
+}
+
 .game-tactil-btn {
-    width: 56px;
-    height: 56px;
-    border: 1px solid rgba(94, 234, 212, .4);
+    width: 64px;
+    height: 64px;
+    border: 1px solid rgba(94, 234, 212, .28);
     border-radius: 50%;
-    background: rgba(15, 23, 42, .72);
-    color: #e2e8f0;
+    background: rgba(7, 16, 30, .38);
+    color: #e6fffb;
     font-family: inherit;
     font-size: 1.05rem;
     font-weight: 700;
@@ -8315,31 +8325,45 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     -webkit-tap-highlight-color: transparent;
 }
 
+.game-tactil-grupo--acciones .game-tactil-btn {
+    position: absolute;
+}
+
 .game-tactil-btn--salto {
-    width: 68px;
-    height: 68px;
-    border-color: rgba(255, 79, 163, .55);
-    background: rgba(255, 79, 163, .2);
+    right: 0;
+    bottom: 0;
+    width: 78px;
+    height: 78px;
+    border-color: rgba(255, 79, 163, .5);
+    background: rgba(255, 79, 163, .16);
     color: #ffe3f1;
-    font-size: .72rem;
+    font-size: .68rem;
     letter-spacing: .06em;
 }
 
 .game-tactil-btn--clip {
-    border-color: rgba(255, 79, 163, .45);
-    background: rgba(255, 79, 163, .14);
+    left: 0;
+    bottom: 0;
+    width: 60px;
+    height: 60px;
+    border-color: rgba(255, 79, 163, .38);
+    background: rgba(255, 79, 163, .1);
     color: #ffe3f1;
     font-size: .62rem;
     letter-spacing: .06em;
 }
 
 .game-tactil-btn--ancho {
-    width: auto;
-    height: 44px;
-    padding: 0 14px;
-    border-radius: 999px;
-    font-size: .65rem;
-    letter-spacing: .06em;
+    left: 4px;
+    bottom: 72px;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border-radius: 50%;
+    border-color: rgba(94, 234, 212, .24);
+    color: #bffcf3;
+    font-size: .56rem;
+    letter-spacing: .05em;
 }
 
 .game-tactil-btn--activo {
@@ -8347,9 +8371,88 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     transform: scale(.94);
 }
 
+.game-pausa {
+    position: absolute;
+    top: 64px;
+    right: 12px;
+    z-index: 4;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgba(94, 234, 212, .28);
+    border-radius: 50%;
+    background: rgba(7, 16, 30, .48);
+    color: #e6fffb;
+    font-family: inherit;
+    font-size: .95rem;
+    font-weight: 700;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.game-pausa:active {
+    background: rgba(94, 234, 212, .28);
+    transform: scale(.94);
+}
+
+html.lg-game-full #lg-game-exit {
+    left: calc(10px + env(safe-area-inset-left));
+    right: auto;
+}
+
+html.lg-game-full .game-escenario .game-tactil {
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+html.lg-game-full .game-pausa {
+    top: calc(64px + env(safe-area-inset-top));
+    right: calc(12px + env(safe-area-inset-right));
+}
+
 @media (hover: none) and (pointer: coarse) {
     .game-tactil {
         display: flex;
+    }
+
+    .game-pausa {
+        display: flex;
+    }
+}
+
+html.lg-page-game .game-pausa {
+    display: flex;
+}
+
+@media (max-width: 420px) {
+    html.lg-page-game .game-escenario .game-tactil-grupo--movimiento {
+        gap: 20px;
+    }
+
+    html.lg-page-game .game-escenario .game-tactil-btn {
+        width: 64px;
+        height: 64px;
+    }
+
+    html.lg-page-game .game-escenario .game-tactil-btn--salto {
+        width: 78px;
+        height: 78px;
+    }
+
+    html.lg-page-game .game-escenario .game-tactil-btn--clip {
+        width: 60px;
+        height: 60px;
+    }
+
+    html.lg-page-game .game-escenario .game-tactil-btn--ancho {
+        width: 52px;
+        height: 52px;
+        padding: 0;
     }
 }
 
@@ -8753,6 +8856,8 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .game-sonido:focus-visible,
 .game-ranking-tab:focus-visible,
 .game-ajuste-btn:focus-visible,
+.game-tactil-btn:focus-visible,
+.game-pausa:focus-visible,
 .game-ranking-menu:focus-visible {
     outline: 2px solid #5eead4;
     outline-offset: 2px;

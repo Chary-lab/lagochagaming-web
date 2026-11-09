@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.1.0] - 2026-11-09
+
+### Controles táctiles cómodos
+
+- **Pausa** sale del grupo de movimiento y sube a la esquina superior derecha, con 44 px, para no pulsarla al mover el pulgar.
+- Flechas de movimiento de 64 px con 20 px de separación.
+- `CLIP` de 60 px, `CORRER` de 52 px y `SALTAR` de 78 px, reorganizados para que no se solapen.
+- Pantalla completa pasa a la esquina superior izquierda para dejar libre la pausa.
+- Controles más transparentes, sin brillos fuertes, con separación mínima de 12 px y respeto por el área segura inferior.
+- Cambio solo web: la app 2.0 lo recibe al abrir el juego, sin APK nueva.
+
 ## [2.0.0] - 2026-11-09
 
 ### LaGocha App 2.0
