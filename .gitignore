@@ -32,8 +32,7 @@ supabase/
 !scripts/*
 # Ignorar documentación
 *.md
-# El mapa del proyecto y el changelog se versionan
-!AGENTS.md
+# Changelog y llms.txt se versionan
 !CHANGELOG.md
 !llms.txt
 # Clave IndexNow: debe servirse pública en la raíz
