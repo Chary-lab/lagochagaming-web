@@ -8,10 +8,12 @@
   else if (/galeria(\.html)?$/i.test(path)) page = 'galeria';
   else if (/cine(\.html)?$/i.test(path)) page = 'cine';
   else if (/sorteo(\.html)?$/i.test(path)) page = 'sorteo';
+  else if (/game(\.html)?$/i.test(path)) page = 'game';
 
   var html = document.documentElement;
   var body = document.body;
   html.classList.add('lg-app');
+  html.classList.add('lg-page-' + page);
   body.classList.add('lg-page-' + page);
 
   var vp = document.querySelector('meta[name="viewport"]');
@@ -89,6 +91,9 @@
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M6.1 8.5A7.5 7.5 0 0 1 19.4 12M4.6 12a7.5 7.5 0 0 0 13.3 3.5"/></svg>',
     external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M20 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/></svg>',
     bulb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.4 10.9c.5.4.9 1 .9 1.6v.5h5v-.5c0-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>',
+    gamepad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.4 7h9.2a4.7 4.7 0 0 1 4.6 3.7l.8 4.2a3 3 0 0 1-5.2 2.5l-1.2-1.4H8.4l-1.2 1.4a3 3 0 0 1-5.2-2.5l.8-4.2A4.7 4.7 0 0 1 7.4 7Z"/><path d="M7.5 11v3M6 12.5h3M16 11.5h.01M18.5 14h.01"/></svg>',
+    expand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5"/><path d="m3 3 5 5M21 3l-5 5M3 21l5-5M21 21l-5-5"/></svg>',
+    contract: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M21 15h-6v6"/><path d="m3 9 6-6M21 9l-6-6M3 15l6 6M21 15l-6 6"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></svg>'
   };
 
@@ -108,6 +113,42 @@
 
   function haptic() {
     if (settings.haptics) native('vibrate', 8);
+  }
+
+  /* ---------- GochitaRunner: pantalla completa y botA3n atrA!s ---------- */
+  var gameFull = false;
+
+  function gameStore() {
+    try {
+      return window.Alpine && typeof window.Alpine.store === 'function' ? window.Alpine.store('juego') : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setGameFull(enabled) {
+    gameFull = !!enabled;
+    html.classList.toggle('lg-game-full', gameFull);
+    body.classList.toggle('lg-game-full', gameFull);
+    var btn = document.getElementById('lg-game-full');
+    if (btn) {
+      btn.setAttribute('aria-pressed', gameFull ? 'true' : 'false');
+      btn.setAttribute('aria-label', gameFull ? 'Salir de pantalla completa' : 'Pantalla completa');
+      btn.innerHTML = icon(gameFull ? 'contract' : 'expand');
+    }
+    native('setGameMode', gameFull);
+    native('keepAwake', gameFull || page === 'game');
+    if (gameFull) {
+      try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); } catch (e) {}
+      window.scrollTo(0, 0);
+    } else {
+      try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
+    }
+    haptic();
+  }
+
+  function toggleGameFull() {
+    setGameFull(!gameFull);
   }
 
   /* ---------- Acceso de administración: oculto salvo sesión admin ---------- */
@@ -168,11 +209,16 @@
           '<span class="lg-points-texto"><b id="lg-points-hoy">0</b><span class="lg-points-sep">/</span><span id="lg-points-tope">60</span></span>' +
         '</button>' +
         '<a class="lg-kick-chip" id="lg-kick-chip" href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer"><i></i>KICK</a>' +
+        '<button class="lg-top-btn lg-top-game" id="lg-game-full" type="button" aria-label="Pantalla completa" aria-pressed="false">' + icon('expand') + '</button>' +
         '<button class="lg-top-btn" id="lg-open-settings" type="button" aria-label="Abrir ajustes">' + icon('settings') + '</button>' +
         '<button class="lg-top-btn" id="lg-open-profile" type="button" aria-label="Abrir mi cuenta">' + icon('user') + '</button>' +
       '</div>' +
       '<div id="lg-scroll-progress"></div>' +
     '</header>'
+  );
+
+  body.insertAdjacentHTML('beforeend',
+    '<button id="lg-game-exit" class="lg-game-exit" type="button" aria-label="Salir de pantalla completa">' + icon('contract') + '</button>'
   );
 
   var NAV = [
@@ -181,7 +227,8 @@
     { id: 'comunidad', label: 'Comunidad', icon: 'users', href: 'comunidad.html' },
     { id: 'galeria', label: 'Galería', icon: 'image', href: 'galeria.html' },
     { id: 'cine', label: 'Cine', icon: 'film', href: 'cine.html' },
-    { id: 'sorteo', label: 'Sorteo', icon: 'gift', href: 'sorteo.html' }
+    { id: 'sorteo', label: 'Sorteo', icon: 'gift', href: 'sorteo.html' },
+    { id: 'game', label: 'Juego', icon: 'gamepad', href: 'game.html' }
   ];
 
   var navHtml = '<nav id="lg-bottomnav" aria-label="Navegación principal">';
@@ -232,7 +279,7 @@
             '<button type="button" class="lg-action-btn" data-action="sugerencias">' + icon('bulb') + 'Sugerencias<small>Enviar una idea</small></button>' +
             '<button type="button" class="lg-action-btn" id="lg-admin-row" data-action="admin" hidden>' + icon('lock') + 'Acceso de administración<small>Solo creadores</small></button>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v1.18 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v2.0 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -444,7 +491,7 @@
       chatFab.setAttribute('aria-expanded', 'false');
       chatFab.innerHTML = icon('chat') + '<i></i><span>' + (page === 'cine' ? 'Chat de la sala' : 'Chat en vivo') + '</span>';
     }
-    native('setPullRefresh', true);
+    native('setPullRefresh', page !== 'game');
   }
 
   function openOverlay(el) {
@@ -1116,7 +1163,7 @@
   }
 
   function applyKeepAwake() {
-    var active = !!settings.keepAwake && (page === 'home' || page === 'cine');
+    var active = !!settings.keepAwake && (page === 'home' || page === 'cine' || page === 'game');
     native('keepAwake', active);
     if (chatFab) chatFab.classList.toggle('lg-show', !settings.dataSaver);
   }
@@ -1205,6 +1252,7 @@
       window.scrollTo({ top: 0, behavior: settings.motion ? 'auto' : 'smooth' });
       return;
     }
+    if (page === 'game' && gameFull) setGameFull(false);
     showNavLoading(direction || navDirection(id));
     location.href = id === 'inicio' ? './' : id === 'muro' ? './#muro' : item.href;
   }
@@ -1263,6 +1311,17 @@
     }
     if (closeLightbox()) return true;
     if (closeMediaModal()) return true;
+    if (page === 'game') {
+      var juego = gameStore();
+      if (juego && juego.ajustesAbierto) { juego.cerrarAjustes(); return true; }
+      if (juego && juego.progresoAbierto) { juego.cerrarProgreso(); return true; }
+      if (juego && juego.rankingAbierto) { juego.cerrarRanking(); return true; }
+      if (gameFull) { setGameFull(false); return true; }
+      if (juego && juego.fase === 'jugando' && window.GochitaRunner && typeof window.GochitaRunner.pausar === 'function') {
+        window.GochitaRunner.pausar();
+        return true;
+      }
+    }
     if (page === 'home' && body.classList.contains('lg-tab-muro')) {
       setHomeTab('home');
       return true;
@@ -1270,7 +1329,20 @@
     return false;
   };
 
+  var gameExit = document.getElementById('lg-game-exit');
+  if (gameExit) {
+    gameExit.addEventListener('click', function () { setGameFull(false); });
+  }
+  window.addEventListener('pagehide', function () {
+    if (gameFull) native('setGameMode', false);
+    native('keepAwake', false);
+  });
+
   topbar.addEventListener('click', function (event) {
+    if (event.target.closest('#lg-game-full')) {
+      toggleGameFull();
+      return;
+    }
     if (event.target.closest('#lg-open-settings')) {
       openSettings();
       return;
@@ -1304,6 +1376,7 @@
 
   function swipeBlocked(target) {
     if (!target || !target.closest) return true;
+    if (page === 'game') return true;
     if (body.classList.contains('lg-sheet-open')) return true;
     if (target.closest('input, textarea, select, [contenteditable="true"], iframe, video, audio, .lg-sheet, #lightbox, #media-modal, .chat-sidebar, [data-no-swipe]')) return true;
     return isHorizontalScroller(target);
@@ -1470,6 +1543,7 @@
     updateNav();
   }
 
+  if (page === 'game') native('setPullRefresh', false);
   applyAll();
   updateOnline();
   onScroll();
@@ -1569,9 +1643,100 @@
     pintarAvisoVersion(info);
   }
 
+  var AVISO_NUEVA_APP = 'lg_aviso_nueva_app';
+  var URL_NUEVA_APP = 'https://lagochagaming.com/app/LaGochaGaming.apk';
+
+  function versionPrincipal(version) {
+    return parseInt(String(version || '0').split('.')[0], 10) || 0;
+  }
+
+  function copiarEnlaceNuevaApp() {
+    var texto = URL_NUEVA_APP;
+    function listo() { native('toast', 'Enlace copiado. Abrelo en tu navegador.'); }
+    function fallo() { native('toast', 'Abre lagochagaming.com en tu navegador.'); }
+    function copiaAntigua() {
+      try {
+        var area = document.createElement('textarea');
+        area.value = texto;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        var ok = document.execCommand('copy');
+        area.remove();
+        ok ? listo() : fallo();
+      } catch (e) {
+        fallo();
+      }
+    }
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(texto).then(listo).catch(copiaAntigua);
+      return;
+    }
+    copiaAntigua();
+  }
+
+  function pintarAvisoNuevaApp() {
+    if (document.getElementById('lg-update-bar')) return;
+    var ultimo = 0;
+    try { ultimo = Number(localStorage.getItem(AVISO_NUEVA_APP)) || 0; } catch (e) {}
+    if (Date.now() - ultimo < 86400000) return;
+
+    var barra = document.createElement('div');
+    barra.id = 'lg-update-bar';
+    barra.className = 'lg-update-bar lg-update-bar--nueva';
+    barra.setAttribute('role', 'status');
+
+    var icono = document.createElement('span');
+    icono.className = 'lg-update-icono';
+    icono.setAttribute('aria-hidden', 'true');
+    icono.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>';
+    barra.appendChild(icono);
+
+    var texto = document.createElement('span');
+    texto.className = 'lg-update-texto';
+    var titulo = document.createElement('strong');
+    titulo.textContent = 'Nueva app disponible';
+    var sub = document.createElement('small');
+    sub.textContent = 'Desinstala e instala de nuevo';
+    texto.appendChild(titulo);
+    texto.appendChild(sub);
+    barra.appendChild(texto);
+
+    var boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = 'lg-update-btn';
+    boton.textContent = 'Copiar';
+    boton.addEventListener('click', function () {
+      haptic();
+      copiarEnlaceNuevaApp();
+    });
+    barra.appendChild(boton);
+
+    var cerrar = document.createElement('button');
+    cerrar.type = 'button';
+    cerrar.className = 'lg-update-x';
+    cerrar.setAttribute('aria-label', 'Ocultar aviso');
+    cerrar.textContent = '\u2715';
+    cerrar.addEventListener('click', function () {
+      try { localStorage.setItem(AVISO_NUEVA_APP, String(Date.now())); } catch (e) {}
+      barra.remove();
+    });
+    barra.appendChild(cerrar);
+
+    document.body.appendChild(barra);
+  }
+
   function avisarVersionNueva() {
     var api = window.LaGochaNative;
     if (!api || typeof api.getVersion !== 'function' || typeof api.checkUpdates !== 'function') return;
+    var instalada = native('getVersion');
+    if (!instalada) return;
+    if (versionPrincipal(instalada) < 2) {
+      pintarAvisoNuevaApp();
+      return;
+    }
     var ahora = Date.now();
     var cache = null;
     try { cache = JSON.parse(localStorage.getItem(UPDATE_CACHE) || 'null'); } catch (e) {}
@@ -1579,7 +1744,7 @@
       revisarVersionRemota(cache.info);
       return;
     }
-    fetch('/app/version.json?t=' + ahora, { cache: 'no-store' })
+    fetch('/app/update.json?t=' + ahora, { cache: 'no-store' })
       .then(function (res) { return res.ok ? res.json() : null; })
       .then(function (info) {
         if (!info) return;

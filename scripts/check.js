@@ -201,7 +201,7 @@ if (existe('mobile/mobile.js') && /\.rpc\s*\(/.test(leer('mobile/mobile.js'))) {
 }
 
 // BOM: un archivo publicado con BOM (EF BB BF) rompe parsers estrictos. Pasó con
-// app/version.json: JSON.parse fallaba y el actualizador de la app no lo leía.
+// el manifiesto de la app: JSON.parse fallaba y el actualizador no lo leía.
 const EXT_TEXTO = new Set(['.html', '.js', '.css', '.json', '.xml', '.txt', '.webmanifest', '.svg']);
 const IGNORADOS = new Set(['.git', 'node_modules', 'supabase', 'scripts', '.playwright-cli', '.playwright-mcp', '.tmp-navegador', '.opencode']);
 function archivosPublicados(dir, salida = []) {
@@ -492,24 +492,26 @@ for (const archivo of ['main.js', 'mobile/mobile.js'].concat(PAGES, ['404.html']
     }
 }
 
-// Manifiesto de la app: debe ser JSON válido (el BOM lo rompía) y llevar los
-// campos que el actualizador verifica antes de instalar.
-if (existe('app/version.json')) {
+// Manifiesto de la app: debe existir, ser JSON válido (el BOM lo rompía) y
+// llevar los campos que el actualizador verifica antes de instalar.
+if (!existe('app/update.json')) {
+    error('app/update.json: falta el manifiesto de la app');
+} else {
     let manifiesto = null;
     try {
-        manifiesto = JSON.parse(leer('app/version.json'));
+        manifiesto = JSON.parse(leer('app/update.json'));
     } catch (e) {
-        error('app/version.json: no es JSON válido (' + e.message + ')');
+        error('app/update.json: no es JSON válido (' + e.message + ')');
     }
     if (manifiesto) {
         for (const clave of ['versionCode', 'versionName', 'apkUrl', 'sha256', 'size']) {
-            if (manifiesto[clave] === undefined) error('app/version.json: falta ' + clave);
+            if (manifiesto[clave] === undefined) error('app/update.json: falta ' + clave);
         }
         if (manifiesto.sha256 && !/^[a-f0-9]{64}$/.test(manifiesto.sha256)) {
-            error('app/version.json: sha256 debe ser 64 hex en min?sculas');
+            error('app/update.json: sha256 debe ser 64 hex en minúsculas');
         }
         if (typeof manifiesto.size !== 'number' || manifiesto.size <= 0) {
-            error('app/version.json: size debe ser un n?mero positivo');
+            error('app/update.json: size debe ser un número positivo');
         }
     }
 }

@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.0.0] - 2026-11-09
+
+### LaGocha App 2.0
+
+- **Juego** es la séptima pestaña de la barra inferior de la app, con icono de mando.
+- En la app, GochitaRunner oculta la cabecera y la ayuda de teclado, fuerza los controles táctiles y desactiva el swipe, el pull-to-refresh y el botón flotante del chat.
+- Botón de **pantalla completa** en la barra superior: fuerza horizontal, oculta las barras del sistema, mantiene la pantalla encendida y deja un botón flotante para salir.
+- El botón atrás de Android cierra primero ajustes, progreso, ranking, pantalla completa o pausa; después vuelve al menú anterior.
+- Los modales del juego suben por encima de la barra superior e inferior de la app.
+- APK 2.0 (`versionCode` 23) firmada y publicada, con actualizador propio en `app/update.json`.
+- Aviso dentro de la app para quienes ya la tienen instalada: desinstalar e instalar la nueva desde la web.
+- `scripts/check.js` valida `app/update.json`; se retira el manifiesto antiguo `app/version.json`.
+
 ## [1.102.1] - 2026-11-09
 
 ### Checkpoints seguros y besos que ignoran escudos

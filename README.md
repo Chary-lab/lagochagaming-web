@@ -76,12 +76,12 @@ node --check main.js
 
 El APK se distribuye desde este repo:
 
-- `app/LaGochaGaming.apk` - último APK firmado (versión actual: 1.18, versionCode 21).
-- `app/version.json` — manifiesto del actualizador (`versionCode`, `versionName`, `sha256`, `size`, `notes`).
+- `app/LaGochaGaming.apk` — APK firmado actual (versión 2.0, versionCode 23).
+- `app/update.json` — manifiesto del actualizador (`versionCode`, `versionName`, `sha256`, `size`, `notes`).
 - `mobile/mobile.css` y `mobile/mobile.js` — interfaz móvil que la app descarga por encima del APK (caché de 6 h, válida 7 días).
 
 Desde la 1.10 la app usa el mismo iframe de `player.kick.com` que la web;
-`mobile/mobile.js` añade la hoja del chat y los ajustes móviles sobre la página.
+`mobile/mobile.js` añade la hoja del chat y los ajustes móviles sobre la página. GochitaRunner tiene pestaña propia, controles táctiles forzados y modo pantalla completa horizontal con `setGameMode`.
 El reproductor nativo ExoPlayer se retiró y no debe volver sin autorización.
 El aviso “Visit KICK for HD quality” vive dentro del iframe y no se puede quitar.
 
@@ -109,8 +109,8 @@ entera cuando el usuario vuelve a abrir la app después de actualizar.
 - GitHub Pages ignora `_headers`; no asumir CSP/HSTS activos en producción.
 - `.nojekyll` versionado: sin él Pages intenta construir con Jekyll y el build falla.
 - En cada release, subir el query de caché `?v=X.Y.Z` de `style.css` y `main.js` en los 6 HTML.
-- Release con APK: compilar y firmar en `D:\Apk Gocha`, copiar el APK a `app/LaGochaGaming.apk`, actualizar `app/version.json` (código, nombre, SHA-256 y tamaño), el enlace `app-descarga?v=X.Y&o=web` de `main.js` y `VERSION`/`CHANGELOG.md`. Verificar en vivo antes de darlo por publicado.
-- La keystore no se versiona. El certificado SHA-256 debe ser siempre `41a6cdc746de8560425aa04b9bcdc3cb5e81f670644e846f284977ce721b4b21`; si cambia, hay que desinstalar la app antes de instalar.
+- Release con APK: compilar y firmar en `D:\Apk Gocha`, copiar el APK a `app/LaGochaGaming.apk`, copiar `dist/update/update.json` a `app/update.json` (código, nombre, SHA-256 y tamaño), actualizar el enlace `app-descarga?v=X.Y&o=web` de `main.js` y `VERSION`/`CHANGELOG.md`. Verificar en vivo antes de darlo por publicado.
+- La keystore no se versiona; la copia de trabajo vive en `D:\Apk Gocha\firma`. El certificado SHA-256 actual es `afa219f4e4a80db4f949e5e2607f046cf74286ea34c07faec40c5a8550be33e9`.
 
 ## Reglas para agentes
 
