@@ -30,7 +30,7 @@
     <meta name="twitter:image:alt" content="La Gocha Gaming, streamer de Kick">
 
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=1.99.0">
+    <link rel="stylesheet" href="style.css?v=1.102.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -81,59 +81,87 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             <header class="game-cabecera">
                 <span class="game-etiqueta">MINIJUEGO DE LA COMUNIDAD</span>
                 <h1 class="game-titulo" id="game-titulo">GochitaRunner</h1>
-                <p class="game-intro">Recorre el interior de un PC gaming, junta GochiPoints (GP), esquiva a los haters y derrota a los jefes. Llega al cartel de GO LIVE sin quedarte sin vidas.</p>
+                <p class="game-intro">Corre por el PC, junta GochiPoints (GP) y llega al GO LIVE. Cinco zonas, cinco jefes.</p>
             </header>
 
             <div class="game-escenario" id="game-escenario">
                 <canvas id="game-canvas" class="game-lienzo" width="960" height="540" :aria-label="'Juego GochitaRunner: nivel ' + $store.juego.nivelNombre"></canvas>
 
                 <div class="game-overlay" x-cloak :hidden="$store.juego.fase === 'jugando'">
-                    <div class="game-panel" :hidden="$store.juego.fase !== 'inicio'">
-                        <span class="game-panel-etiqueta" x-text="'NIVEL ' + $store.juego.nivelActual + '/' + $store.juego.totalNiveles + ' · ' + $store.juego.nivelNombre.toUpperCase()"></span>
-                        <h2 class="game-panel-titulo">¿Lista para el directo?</h2>
-                        <p class="game-panel-texto">Junta <strong>GochiPoints (GP)</strong>, esquiva a los <strong>haters</strong> y llega a <strong>GO LIVE</strong>. El <strong>Regalito</strong> da un escudo de 3 golpes y la <strong>Donación</strong> suma 5 clips (máximo 12). Cada zona termina con un <strong>jefe</strong>; desde La Purga, el escenario se borra detrás de ti.</p>
-                        <p class="game-panel-texto">Gana medallas <strong>S/A/B/C</strong> y encuentra <strong>logros, skins, misiones semanales, Boss Rush y el reto diario</strong> en Progreso.</p>
-                        <p class="game-record" x-text="$store.juego.record"></p>
-                        <p class="game-nivel-aviso" x-text="$store.juego.campanaCompletada ? 'Campaña completada. Nueva partida empieza en El Setup; medallas, logros y sellos se conservan.' : ('Progreso: ' + $store.juego.nivelDesbloqueado + ' de ' + $store.juego.totalNiveles + ' desbloqueados. Los niveles se abren al completar el anterior.')"></p>
-                        <div class="game-niveles" role="list" aria-label="Progreso de niveles">
-                            <div class="game-nivel" role="listitem" :class="{ 'game-nivel--activo': $store.juego.nivelActual === 1, 'game-nivel--hecho': $store.juego.nivelDesbloqueado > 1, 'game-nivel--bloqueado': $store.juego.nivelDesbloqueado < 1 }" :aria-current="$store.juego.nivelActual === 1 ? 'step' : null">
-                                <span class="game-nivel-num" x-text="$store.juego.nivelDesbloqueado > 1 ? '1 ✓' : '1'"></span>
-                                <span>El Setup</span>
-                                <span class="game-nivel-medalla" :class="'game-medalla--' + ($store.juego.medallas[0] || 'vacia').toLowerCase()" x-text="$store.juego.medallas[0] || '—'"></span>
-                            </div>
-                            <div class="game-nivel" role="listitem" :class="{ 'game-nivel--activo': $store.juego.nivelActual === 2, 'game-nivel--hecho': $store.juego.nivelDesbloqueado > 2, 'game-nivel--bloqueado': $store.juego.nivelDesbloqueado < 2 }" :aria-current="$store.juego.nivelActual === 2 ? 'step' : null">
-                                <span class="game-nivel-num" x-text="$store.juego.nivelDesbloqueado < 2 ? '🔒' : ($store.juego.nivelDesbloqueado > 2 ? '2 ✓' : '2')"></span>
-                                <span>Raid City</span>
-                                <span class="game-nivel-medalla" :class="'game-medalla--' + ($store.juego.medallas[1] || 'vacia').toLowerCase()" x-text="$store.juego.medallas[1] || '—'"></span>
-                            </div>
-                            <div class="game-nivel" role="listitem" :class="{ 'game-nivel--activo': $store.juego.nivelActual === 3, 'game-nivel--hecho': $store.juego.nivelDesbloqueado > 3, 'game-nivel--bloqueado': $store.juego.nivelDesbloqueado < 3 }" :aria-current="$store.juego.nivelActual === 3 ? 'step' : null">
-                                <span class="game-nivel-num" x-text="$store.juego.nivelDesbloqueado < 3 ? '🔒' : ($store.juego.nivelDesbloqueado > 3 ? '3 ✓' : '3')"></span>
-                                <span>La Purga</span>
-                                <span class="game-nivel-medalla" :class="'game-medalla--' + ($store.juego.medallas[2] || 'vacia').toLowerCase()" x-text="$store.juego.medallas[2] || '—'"></span>
-                            </div>
-                            <div class="game-nivel" role="listitem" :class="{ 'game-nivel--activo': $store.juego.nivelActual === 4, 'game-nivel--hecho': $store.juego.nivelDesbloqueado > 4, 'game-nivel--bloqueado': $store.juego.nivelDesbloqueado < 4 }" :aria-current="$store.juego.nivelActual === 4 ? 'step' : null">
-                                <span class="game-nivel-num" x-text="$store.juego.nivelDesbloqueado < 4 ? '🔒' : ($store.juego.nivelDesbloqueado > 4 ? '4 ✓' : '4')"></span>
-                                <span>Overclock</span>
-                                <span class="game-nivel-medalla" :class="'game-medalla--' + ($store.juego.medallas[3] || 'vacia').toLowerCase()" x-text="$store.juego.medallas[3] || '—'"></span>
-                            </div>
-                            <div class="game-nivel" role="listitem" :class="{ 'game-nivel--activo': $store.juego.nivelActual === 5, 'game-nivel--hecho': $store.juego.campanaCompletada, 'game-nivel--bloqueado': $store.juego.nivelDesbloqueado < 5 }" :aria-current="$store.juego.nivelActual === 5 ? 'step' : null">
-                                <span class="game-nivel-num" x-text="$store.juego.nivelDesbloqueado < 5 ? '🔒' : ($store.juego.campanaCompletada ? '5 ✓' : '5')"></span>
-                                <span>El Núcleo</span>
-                                <span class="game-nivel-medalla" :class="'game-medalla--' + ($store.juego.medallas[4] || 'vacia').toLowerCase()" x-text="$store.juego.medallas[4] || '—'"></span>
-                            </div>
+                    <div class="game-panel game-panel--inicio" :hidden="$store.juego.fase !== 'inicio'">
+                        <div class="game-inicio-cabecera">
+                            <span class="game-panel-etiqueta">GOCHITA RUNNER · CAMPAÑA</span>
+                            <h2 class="game-panel-titulo">El directo empieza aquí</h2>
+                            <p class="game-panel-texto">Corre por el PC, junta GP y llega al GO LIVE.</p>
                         </div>
-                        <div class="game-panel-acciones">
-                            <button type="button" class="game-btn game-btn--primario" @click="$store.juego.iniciar()" x-text="$store.juego.campanaCompletada && $store.juego.nivelActual >= $store.juego.totalNiveles ? 'Nueva partida' : 'Jugar'">Jugar</button>
-                            <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.abrirRanking('general')">Ranking</button>
-                            <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.abrirProgreso()">Progreso</button>
+
+                        <div class="game-inicio-chips">
+                            <span class="game-chip">NIVEL <b x-text="$store.juego.nivelActual + '/' + $store.juego.totalNiveles"></b> · <span x-text="$store.juego.nivelNombre"></span></span>
+                            <span class="game-chip game-chip--moneda">GC <b x-text="$store.juego.monedas"></b></span>
+                            <span class="game-chip">SELLOS <b x-text="$store.juego.sellos"></b></span>
+                            <span class="game-chip" :class="$store.juego.cuenta ? 'game-chip--cuenta' : 'game-chip--invitado'" x-text="$store.juego.cuenta ? '@' + $store.juego.cuenta : 'INVITADO'"></span>
                         </div>
-                        <ul class="game-controles">
-                            <li><span>Mover</span><b>← → · A D</b></li>
-                            <li><span>Saltar</span><b>Espacio · W · ↑</b></li>
-                            <li><span>Correr</span><b>Shift · X</b></li>
-                            <li><span>Disparar</span><b>J · K</b></li>
-                            <li><span>Pausa</span><b>P · Esc</b></li>
-                        </ul>
+
+                        <p class="game-menu-cuenta" :class="{ 'game-menu-cuenta--invitado': !$store.juego.cuenta }">
+                            <template x-if="!$store.juego.cuenta">
+                                <span>Invitado: el progreso no se guarda. <a href="comunidad">Entrar para guardar</a></span>
+                            </template>
+                            <template x-if="$store.juego.cuenta">
+                                <span x-text="'@' + $store.juego.cuenta + ' · ' + $store.juego.nubeMensaje"></span>
+                            </template>
+                        </p>
+
+                        <button type="button" class="game-menu-play" @click="$store.juego.iniciar()">
+                            <span class="game-menu-play-kicker" x-text="$store.juego.campanaCompletada ? 'VOLVER A JUGAR' : ($store.juego.nivelDesbloqueado > 1 ? 'CONTINUAR CAMPAÑA' : 'EMPEZAR CAMPAÑA')"></span>
+                            <strong x-text="$store.juego.campanaCompletada ? 'El Setup' : $store.juego.nivelNombre"></strong>
+                            <span class="game-menu-play-meta" x-text="$store.juego.campanaCompletada ? 'Campaña completada · empieza de nuevo' : ('Nivel ' + $store.juego.nivelActual + ' de ' + $store.juego.totalNiveles)"></span>
+                            <span class="game-menu-play-flecha" aria-hidden="true">→</span>
+                        </button>
+
+                        <div class="game-menu-secundario-fila">
+                            <button type="button" class="game-btn game-btn--secundario" :hidden="$store.juego.campanaCompletada || $store.juego.nivelDesbloqueado < 2" @click="$store.juego.nuevaCampana()">Nueva partida</button>
+                            <button type="button" class="game-enlace" @click="$store.juego.iniciarTutorial()" x-text="$store.juego.tutorialHecho ? 'Repetir tutorial' : 'Tutorial rápido · 30 s'"></button>
+                        </div>
+
+                        <div class="game-menu-lista" role="list" aria-label="Menú del juego">
+                            <button type="button" class="game-menu-item" role="listitem" @click="$store.juego.abrirAjustes()">
+                                <span class="game-menu-icon" aria-hidden="true">AJ</span>
+                                <span><b>Ajustes</b><small>Gráficos y sonido</small></span>
+                            </button>
+                            <button type="button" class="game-menu-item" role="listitem" @click="$store.juego.alternarSonido()">
+                                <span class="game-menu-icon" aria-hidden="true">SN</span>
+                                <span><b>Sonido</b><small x-text="$store.juego.sonido ? 'ON · ' + $store.juego.volumen + '%' : 'OFF'"></small></span>
+                            </button>
+                            <button type="button" class="game-menu-item" role="listitem" @click="$store.juego.abrirRanking('general')">
+                                <span class="game-menu-icon" aria-hidden="true">RK</span>
+                                <span><b>Ranking</b><small>Mejores marcas</small></span>
+                            </button>
+                            <button type="button" class="game-menu-item" role="listitem" @click="$store.juego.abrirProgreso('retos')">
+                                <span class="game-menu-icon" aria-hidden="true">RT</span>
+                                <span><b>Retos</b><small x-text="$store.juego.misiones.filter(m => !m.hecha).length + ' pendientes'"></small></span>
+                            </button>
+                            <button type="button" class="game-menu-item" role="listitem" @click="$store.juego.abrirProgreso('medallas')">
+                                <span class="game-menu-icon" aria-hidden="true">MD</span>
+                                <span><b>Medallas</b><small x-text="$store.juego.medallasConseguidas + '/5 · ' + $store.juego.logrosDesbloqueados + '/14 logros'"></small></span>
+                            </button>
+                            <button type="button" class="game-menu-item" role="listitem" @click="$store.juego.abrirProgreso('tienda')">
+                                <span class="game-menu-icon" aria-hidden="true">TI</span>
+                                <span><b>Tienda</b><small>Accesorios con GC</small></span>
+                            </button>
+                        </div>
+
+                        <div class="game-ruta" role="list" aria-label="Ruta de la campaña">
+                            <template x-for="(nombre, i) in $store.juego.nombresNiveles" :key="nombre">
+                                <div class="game-ruta-parada" role="listitem"
+                                     :class="{ 'game-ruta-parada--activa': $store.juego.nivelActual === i + 1, 'game-ruta-parada--hecha': $store.juego.nivelDesbloqueado > i + 1 || (i === 4 && $store.juego.campanaCompletada), 'game-ruta-parada--bloqueada': $store.juego.nivelDesbloqueado < i + 1 }">
+                                    <span class="game-ruta-num" x-text="$store.juego.nivelDesbloqueado < i + 1 ? '·' : (i + 1)"></span>
+                                    <span class="game-ruta-nombre" x-text="nombre"></span>
+                                    <span class="game-ruta-medalla" :class="'game-medalla--' + ($store.juego.medallas[i] || 'vacia').toLowerCase()" x-text="$store.juego.medallas[i] || '—'"></span>
+                                </div>
+                            </template>
+                        </div>
+
+                        <p class="game-inicio-record" x-text="$store.juego.record"></p>
                     </div>
 
                     <div class="game-panel" :hidden="$store.juego.fase !== 'pausa'">
@@ -147,7 +175,10 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                             </label>
                             <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarSonido()" :aria-pressed="$store.juego.sonido" x-text="$store.juego.sonido ? 'Sonido: ON' : 'Sonido: OFF'"></button>
                             <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarMovimiento()" :aria-pressed="$store.juego.reducirMovimiento" x-text="$store.juego.reducirMovimiento ? 'Movimiento reducido: ON' : 'Movimiento reducido: OFF'"></button>
+                            <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarEfectos()" :aria-pressed="$store.juego.efectos" x-text="$store.juego.efectos ? 'Efectos: ON' : 'Efectos: OFF'"></button>
+                            <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarNitidez()" :aria-pressed="$store.juego.nitidez" x-text="$store.juego.nitidez ? 'Nitidez: ON' : 'Nitidez: OFF'"></button>
                         </div>
+                        <p class="game-progreso-nota">Sonido, movimiento, efectos y nitidez se aplican al instante. La nitidez usa render 2x.</p>
                         <div class="game-panel-acciones">
                             <button type="button" class="game-btn game-btn--primario" @click="$store.juego.reanudar()">Seguir</button>
                             <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.reiniciar()">Reiniciar</button>
@@ -156,8 +187,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     </div>
 
                     <div class="game-panel" :hidden="$store.juego.fase !== 'completo'">
-                        <span class="game-panel-etiqueta" x-text="$store.juego.modo === 'rush' ? ('BOSS RUSH · JEFE ' + $store.juego.rushJefe + '/' + $store.juego.rushTotal + ' SUPERADO') : ($store.juego.modo === 'reto' ? 'RETO DIARIO SUPERADO' : ($store.juego.modo === 'mision' ? ('MISIÓN · ' + $store.juego.misionNombre.toUpperCase()) : ('NIVEL ' + $store.juego.nivelActual + '/' + $store.juego.totalNiveles + ' COMPLETADO')))"></span>
-                        <h2 class="game-panel-titulo" x-text="$store.juego.modo === 'rush' ? ($store.juego.rushCompletado ? '¡Boss Rush completado!' : '¡Jefe superado!') : ($store.juego.modo === 'reto' ? '¡Reto diario completado!' : ($store.juego.modo === 'mision' ? ($store.juego.misionResultado === 'completada' ? '¡Misión superada!' : 'Objetivo pendiente') : ($store.juego.haySiguiente ? '¡Nivel superado!' : '¡Directo terminado!')))">Nivel completado</h2>
+                        <span class="game-panel-etiqueta" x-text="$store.juego.modo === 'rush' ? ('BOSS RUSH · JEFE ' + $store.juego.rushJefe + '/' + $store.juego.rushTotal + ' SUPERADO') : ($store.juego.modo === 'reto' ? 'RETO DIARIO SUPERADO' : ($store.juego.modo === 'mision' ? ('MISIÓN · ' + $store.juego.misionNombre.toUpperCase()) : ($store.juego.modo === 'tutorial' ? 'TUTORIAL COMPLETADO' : ('NIVEL ' + $store.juego.nivelActual + '/' + $store.juego.totalNiveles + ' COMPLETADO'))))"></span>
+                        <h2 class="game-panel-titulo" x-text="$store.juego.modo === 'rush' ? ($store.juego.rushCompletado ? '¡Boss Rush completado!' : '¡Jefe superado!') : ($store.juego.modo === 'reto' ? '¡Reto diario completado!' : ($store.juego.modo === 'mision' ? ($store.juego.misionResultado === 'completada' ? '¡Misión superada!' : 'Objetivo pendiente') : ($store.juego.modo === 'tutorial' ? '¡Tutorial completado!' : ($store.juego.haySiguiente ? '¡Nivel superado!' : '¡Directo terminado!'))))">Nivel completado</h2>
                         <p class="game-panel-texto"><strong x-text="$store.juego.haters"></strong> haters · <strong x-text="$store.juego.gp"></strong> GP · <strong x-text="$store.juego.formatearTiempo($store.juego.tiempo)"></strong></p>
                         <p class="game-panel-texto" :hidden="$store.juego.modo !== 'mision'" x-text="$store.juego.misionDesc"></p>
                         <p class="game-record" x-text="$store.juego.record"></p>
@@ -169,7 +200,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         <div class="game-panel-acciones">
                             <button type="button" class="game-btn game-btn--primario" :hidden="!$store.juego.haySiguiente" @click="$store.juego.siguienteNivel()" x-text="$store.juego.modo === 'rush' ? 'Siguiente jefe' : 'Siguiente nivel'">Siguiente nivel</button>
                             <button type="button" class="game-btn game-btn--primario" :hidden="$store.juego.modo !== 'normal' || !$store.juego.campanaCompletada || $store.juego.nivelActual < $store.juego.totalNiveles" @click="$store.juego.nuevaCampana()">Nueva partida</button>
-                            <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.reiniciar()" x-text="$store.juego.modo === 'rush' ? 'Reiniciar Rush' : ($store.juego.modo === 'reto' ? 'Repetir reto' : ($store.juego.modo === 'mision' ? 'Repetir misión' : 'Repetir nivel'))">Repetir nivel</button>
+                            <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.reiniciar()" x-text="$store.juego.modo === 'rush' ? 'Reiniciar Rush' : ($store.juego.modo === 'reto' ? 'Repetir reto' : ($store.juego.modo === 'mision' ? 'Repetir misión' : ($store.juego.modo === 'tutorial' ? 'Repetir tutorial' : 'Repetir nivel')))">Repetir nivel</button>
                             <button type="button" class="game-btn game-btn--secundario" :hidden="$store.juego.modo !== 'normal'" @click="$store.juego.abrirRanking('general')">Ver ranking</button>
                             <button type="button" class="game-btn game-btn--secundario" @click="$store.juego.salir()">Salir al menú</button>
                         </div>
@@ -177,7 +208,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
                     <div class="game-panel" :hidden="$store.juego.fase !== 'gameover'">
                         <span class="game-panel-etiqueta">FIN DE LA PARTIDA</span>
-                        <h2 class="game-panel-titulo" x-text="$store.juego.modo === 'rush' ? 'Boss Rush terminado' : ($store.juego.modo === 'reto' ? 'Reto diario fallido' : ($store.juego.modo === 'mision' ? 'Misión fallida' : 'Te tumbaron los haters'))">Te tumbaron los haters</h2>
+                        <h2 class="game-panel-titulo" x-text="$store.juego.modo === 'rush' ? 'Boss Rush terminado' : ($store.juego.modo === 'reto' ? 'Reto diario fallido' : ($store.juego.modo === 'mision' ? 'Misión fallida' : ($store.juego.modo === 'tutorial' ? 'Tutorial fallido' : 'Te tumbaron los haters')))">Te tumbaron los haters</h2>
                         <p class="game-panel-texto">Te quedaste sin vidas con <strong x-text="$store.juego.gp"></strong> GP. <span x-text="$store.juego.modo === 'mision' ? 'Puedes reintentar la misión.' : 'El chat no perdona.'"></span></p>
                         <div class="game-panel-acciones">
                             <button type="button" class="game-btn game-btn--primario" @click="$store.juego.reiniciar()">Reintentar</button>
@@ -251,76 +282,141 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                                 <h2 id="game-progreso-titulo" class="game-ranking-titulo">Progreso de Gochita</h2>
                             </div>
                             <div class="game-ranking-acciones">
+                                <button type="button" class="game-ranking-menu" @click="$store.juego.cerrarProgreso(); $store.juego.salir()">Menú</button>
                                 <button type="button" class="game-ranking-cerrar" @click="$store.juego.cerrarProgreso()" aria-label="Cerrar progreso">✕</button>
                             </div>
                         </header>
 
+                        <div class="game-progreso-tabs" role="tablist" aria-label="Secciones de progreso">
+                            <button type="button" class="game-progreso-tab" role="tab" :aria-selected="$store.juego.progresoTab === 'medallas'" :class="{ 'game-progreso-tab--activa': $store.juego.progresoTab === 'medallas' }" @click="$store.juego.progresoTab = 'medallas'">Medallas</button>
+                            <button type="button" class="game-progreso-tab" role="tab" :aria-selected="$store.juego.progresoTab === 'retos'" :class="{ 'game-progreso-tab--activa': $store.juego.progresoTab === 'retos' }" @click="$store.juego.progresoTab = 'retos'">Retos</button>
+                            <button type="button" class="game-progreso-tab" role="tab" :aria-selected="$store.juego.progresoTab === 'tienda'" :class="{ 'game-progreso-tab--activa': $store.juego.progresoTab === 'tienda' }" @click="$store.juego.progresoTab = 'tienda'">Tienda</button>
+                        </div>
+
                         <p class="game-progreso-resumen">
                             <strong x-text="$store.juego.medallasConseguidas"></strong> medallas ·
                             <strong x-text="$store.juego.logrosDesbloqueados"></strong>/<span x-text="$store.juego.logros.length"></span> logros ·
-                            <strong x-text="$store.juego.sellos"></strong> <span x-text="$store.juego.sellos === 1 ? 'sello' : 'sellos'"></span>
+                            <strong x-text="$store.juego.sellos"></strong> <span x-text="$store.juego.sellos === 1 ? 'sello' : 'sellos'"></span> ·
+                            <span class="game-progreso-gc">GC <b x-text="$store.juego.monedas"></b></span>
                         </p>
 
-                        <h3 class="game-progreso-subtitulo">Misiones semanales</h3>
-                        <p class="game-progreso-nota">Tres misiones nuevas cada semana. Cada una da un sello; con 3 sellos se desbloquea la skin Circuito.</p>
-                        <div class="game-misiones">
-                            <template x-for="mision in $store.juego.misiones" :key="mision.id">
-                                <article class="game-mision" :class="{ 'game-mision--hecha': mision.hecha }">
-                                    <span class="game-mision-etiqueta" x-text="mision.hecha ? 'COMPLETADA' : 'MISIÓN SEMANAL'"></span>
-                                    <strong x-text="mision.nombre + ' · ' + mision.nivelNombre"></strong>
-                                    <small x-text="mision.desc"></small>
-                                    <span class="game-mision-recompensa" x-text="mision.hecha ? 'Sello conseguido' : mision.recompensa"></span>
-                                    <button type="button" class="game-mision-btn" :disabled="mision.hecha" @click="$store.juego.jugarMision(mision.id)" x-text="mision.hecha ? 'Completada' : 'Jugar misión'"></button>
-                                </article>
-                            </template>
+                        <div :hidden="$store.juego.progresoTab !== 'medallas'">
+                            <div class="game-progreso-niveles">
+                                <template x-for="(medalla, indice) in $store.juego.medallas" :key="indice">
+                                    <div class="game-progreso-nivel">
+                                        <b x-text="'Nivel ' + (indice + 1)"></b>
+                                        <span x-text="$store.juego.nombresNiveles[indice]"></span>
+                                        <em class="game-medalla" :class="'game-medalla--' + (medalla || 'vacia').toLowerCase()" x-text="medalla || '—'"></em>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <h3 class="game-progreso-subtitulo">Logros</h3>
+                            <ul class="game-logros-lista">
+                                <template x-for="logro in $store.juego.logros" :key="logro.id">
+                                    <li class="game-logro" :class="{ 'game-logro--hecho': logro.hecho }">
+                                        <span class="game-logro-marca" aria-hidden="true" x-text="logro.hecho ? '✓' : '·'"></span>
+                                        <span><b x-text="logro.nombre"></b><small x-text="logro.desc"></small></span>
+                                    </li>
+                                </template>
+                            </ul>
                         </div>
 
-                        <h3 class="game-progreso-subtitulo">Retos</h3>
-                        <div class="game-retos">
-                            <button type="button" class="game-reto" @click="$store.juego.iniciarBossRush()">
-                                <span class="game-reto-etiqueta">BOSS RUSH</span>
-                                <strong>Los 5 jefes</strong>
-                                <small x-text="$store.juego.rushRecord || '3 vidas · 12 clips por jefe'"></small>
-                            </button>
-                            <button type="button" class="game-reto" @click="$store.juego.iniciarRetoDiario()">
-                                <span class="game-reto-etiqueta">RETO DIARIO</span>
-                                <strong x-text="$store.juego.retoNombre || 'Un jefe'"></strong>
-                                <small x-text="$store.juego.retoHecho ? 'Completado hoy' : 'Una vida · 12 clips'"></small>
-                            </button>
-                        </div>
+                        <div :hidden="$store.juego.progresoTab !== 'retos'">
+                            <h3 class="game-progreso-subtitulo">Misiones semanales</h3>
+                            <p class="game-progreso-nota">Tres misiones nuevas cada semana. Cada una da un sello; con 3 sellos se desbloquea la skin Circuito.</p>
+                            <div class="game-misiones">
+                                <template x-for="mision in $store.juego.misiones" :key="mision.id">
+                                    <article class="game-mision" :class="{ 'game-mision--hecha': mision.hecha }">
+                                        <span class="game-mision-etiqueta" x-text="mision.hecha ? 'COMPLETADA' : 'MISIÓN SEMANAL'"></span>
+                                        <strong x-text="mision.nombre + ' · ' + mision.nivelNombre"></strong>
+                                        <small x-text="mision.desc"></small>
+                                        <span class="game-mision-recompensa" x-text="mision.hecha ? 'Sello conseguido' : mision.recompensa"></span>
+                                        <button type="button" class="game-mision-btn" :disabled="mision.hecha" @click="$store.juego.jugarMision(mision.id)" x-text="mision.hecha ? 'Completada' : 'Jugar misión'"></button>
+                                    </article>
+                                </template>
+                            </div>
 
-                        <div class="game-progreso-niveles">
-                            <template x-for="(medalla, indice) in $store.juego.medallas" :key="indice">
-                                <div class="game-progreso-nivel">
-                                    <b x-text="'Nivel ' + (indice + 1)"></b>
-                                    <span x-text="$store.juego.nombresNiveles[indice]"></span>
-                                    <em class="game-medalla" :class="'game-medalla--' + (medalla || 'vacia').toLowerCase()" x-text="medalla || '—'"></em>
-                                </div>
-                            </template>
-                        </div>
-
-                        <h3 class="game-progreso-subtitulo">Logros</h3>
-                        <ul class="game-logros-lista">
-                            <template x-for="logro in $store.juego.logros" :key="logro.id">
-                                <li class="game-logro" :class="{ 'game-logro--hecho': logro.hecho }">
-                                    <span class="game-logro-marca" aria-hidden="true" x-text="logro.hecho ? '✓' : '·'"></span>
-                                    <span><b x-text="logro.nombre"></b><small x-text="logro.desc"></small></span>
-                                </li>
-                            </template>
-                        </ul>
-
-                        <h3 class="game-progreso-subtitulo">Skins</h3>
-                        <div class="game-skins" role="group" aria-label="Skins de Gochita">
-                            <template x-for="skin in $store.juego.skins" :key="skin.id">
-                                <button type="button" class="game-skin" :class="{ 'game-skin--activa': skin.activa }" :disabled="skin.bloqueada" :aria-pressed="skin.activa" @click="$store.juego.seleccionarSkin(skin.id)">
-                                    <span class="game-skin-color" :style="'background:' + skin.color" aria-hidden="true"></span>
-                                    <b x-text="skin.nombre"></b>
-                                    <small x-text="skin.bloqueada ? 'Bloqueada' : (skin.activa ? 'Equipada' : 'Elegir')"></small>
+                            <h3 class="game-progreso-subtitulo">Retos</h3>
+                            <div class="game-retos">
+                                <button type="button" class="game-reto" @click="$store.juego.iniciarBossRush()">
+                                    <span class="game-reto-etiqueta">BOSS RUSH</span>
+                                    <strong>Los 5 jefes</strong>
+                                    <small x-text="$store.juego.rushRecord || '3 vidas · 12 clips por jefe'"></small>
                                 </button>
-                            </template>
+                                <button type="button" class="game-reto" @click="$store.juego.iniciarRetoDiario()">
+                                    <span class="game-reto-etiqueta">RETO DIARIO</span>
+                                    <strong x-text="$store.juego.retoNombre || 'Un jefe'"></strong>
+                                    <small x-text="$store.juego.retoHecho ? 'Completado hoy' : 'Una vida · 12 clips'"></small>
+                                </button>
+                                <button type="button" class="game-reto" @click="$store.juego.iniciarTutorial()">
+                                    <span class="game-reto-etiqueta">TUTORIAL</span>
+                                    <strong>Aprende en 30 s</strong>
+                                    <small x-text="$store.juego.tutorialHecho ? 'Completado' : 'Moverse, saltar, disparar'"></small>
+                                </button>
+                            </div>
                         </div>
 
-                        <p class="game-ranking-pie">Las medallas usan tu mejor GP y tiempo por nivel. Las skins se desbloquean con logros y sellos de misión.</p>
+                        <div :hidden="$store.juego.progresoTab !== 'tienda'">
+                            <h3 class="game-progreso-subtitulo">Tienda de accesorios</h3>
+                            <p class="game-progreso-nota">Gana GC al superar niveles, misiones y jefes. Compra accesorios y equípalos para personalizar a Gochita.</p>
+                            <p class="game-tienda-mensaje" x-text="$store.juego.tiendaMensaje" aria-live="polite"></p>
+                            <div class="game-tienda">
+                                <template x-for="item in $store.juego.tienda" :key="item.id">
+                                    <article class="game-tienda-item" :class="{ 'game-tienda-item--activo': item.activo }">
+                                        <span class="game-tienda-icono" :style="'border-color:' + item.color" aria-hidden="true" x-text="item.icono"></span>
+                                        <div class="game-tienda-info">
+                                            <strong x-text="item.nombre"></strong>
+                                            <small x-text="item.desc"></small>
+                                        </div>
+                                        <button type="button" class="game-tienda-btn" :disabled="!item.comprado && !item.puede" @click="$store.juego.usarAccesorio(item)" x-text="item.activo ? 'Quitar' : (item.comprado ? 'Equipar' : item.precio + ' GC')"></button>
+                                    </article>
+                                </template>
+                            </div>
+
+                            <h3 class="game-progreso-subtitulo">Skins</h3>
+                            <p class="game-progreso-nota">Cambian ropa, zapatos y el color de los accesorios. La cara y las manos no cambian.</p>
+                            <div class="game-skins" role="group" aria-label="Skins de Gochita">
+                                <template x-for="skin in $store.juego.skins" :key="skin.id">
+                                    <button type="button" class="game-skin" :class="{ 'game-skin--activa': skin.activa }" :disabled="skin.bloqueada" :aria-pressed="skin.activa" @click="$store.juego.seleccionarSkin(skin.id)">
+                                        <span class="game-skin-muneco" aria-hidden="true">
+                                            <span class="game-skin-pelo" :style="'background:' + skin.pelo"></span>
+                                            <span class="game-skin-cara" :style="'background:' + skin.piel"></span>
+                                            <span class="game-skin-ropa" :style="'background:' + skin.ropa"></span>
+                                            <span class="game-skin-zapato" :style="'background:' + skin.zapato"></span>
+                                        </span>
+                                        <b x-text="skin.nombre"></b>
+                                        <small x-text="skin.bloqueada ? skin.requisito : (skin.activa ? 'Equipada' : 'Elegir')"></small>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <p class="game-ranking-pie">Las medallas usan tu mejor GP y tiempo por nivel. Con cuenta, accesorios y skins se guardan en la nube; como invitado, no se guardan.</p>
+                    </div>
+                </div>
+
+                <div class="game-ajustes-modal" x-cloak :hidden="!$store.juego.ajustesAbierto" role="dialog" aria-modal="true" aria-labelledby="game-ajustes-titulo">
+                    <div class="game-ajustes-caja" x-trap.noscroll="$store.juego.ajustesAbierto">
+                        <header class="game-ranking-cabecera">
+                            <div>
+                                <span class="game-panel-etiqueta">AJUSTES</span>
+                                <h2 id="game-ajustes-titulo" class="game-ranking-titulo">Gráficos y sonido</h2>
+                            </div>
+                            <div class="game-ranking-acciones">
+                                <button type="button" class="game-ranking-menu" @click="$store.juego.cerrarAjustes(); $store.juego.salir()">Menú</button>
+                                <button type="button" class="game-ranking-cerrar" @click="$store.juego.cerrarAjustes()" aria-label="Cerrar ajustes">✕</button>
+                            </div>
+                        </header>
+                        <label class="game-ajuste game-ajuste--modal">
+                            <span>Volumen <b x-text="$store.juego.volumen + '%'"></b></span>
+                            <input type="range" min="0" max="100" step="5" :value="$store.juego.volumen" @input="$store.juego.fijarVolumen($event.target.value / 100)" aria-label="Volumen del juego">
+                        </label>
+                        <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarSonido()" :aria-pressed="$store.juego.sonido" x-text="$store.juego.sonido ? 'Sonido: ON' : 'Sonido: OFF'"></button>
+                        <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarMovimiento()" :aria-pressed="$store.juego.reducirMovimiento" x-text="$store.juego.reducirMovimiento ? 'Movimiento reducido: ON' : 'Movimiento reducido: OFF'"></button>
+                        <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarEfectos()" :aria-pressed="$store.juego.efectos" x-text="$store.juego.efectos ? 'Efectos: ON' : 'Efectos: OFF'"></button>
+                        <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarNitidez()" :aria-pressed="$store.juego.nitidez" x-text="$store.juego.nitidez ? 'Nitidez: ON' : 'Nitidez: OFF'"></button>
+                        <p class="game-progreso-nota">La nitidez usa render 2x. Desactívala si notas tirones en un equipo lento.</p>
                     </div>
                 </div>
 
@@ -338,7 +434,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 </div>
             </div>
 
-            <p class="game-ayuda">Atajos: <kbd>J</kbd> dispara, <kbd>M</kbd> silencia, <kbd>P</kbd> o <kbd>Esc</kbd> pausa y <kbd>R</kbd> reinicia. Los <strong>GochiPoints (GP)</strong> son la moneda. <button type="button" class="game-sonido" id="game-sonido" aria-pressed="true">Sonido: ON</button></p>
+            <p class="game-ayuda"><kbd>J</kbd>/<kbd>K</kbd> dispara · <kbd>Shift</kbd> corre · <kbd>P</kbd>/<kbd>Esc</kbd> pausa · <kbd>R</kbd> reinicia · <strong>GP</strong> puntos · <strong>GC</strong> tienda. <button type="button" class="game-sonido" id="game-sonido" aria-pressed="true">Sonido: ON</button></p>
             <p class="visually-hidden" aria-live="polite" id="game-aviso"></p>
         </section>
     </main>
@@ -377,8 +473,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-<script src="main.js?v=1.99.0" defer></script>
-<script src="game.js?v=1.99.0" defer></script>
+<script src="main.js?v=1.102.0" defer></script>
+<script src="game.js?v=1.102.0" defer></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
 </body>

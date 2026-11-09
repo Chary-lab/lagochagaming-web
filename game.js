@@ -64,28 +64,64 @@
         { id: 'semana_perfecta', nombre: 'Semana perfecta', desc: 'Completa las 3 misiones de una semana.' }
     ];
 
+    const PIEL_GOCHITA = '#ffd9c7';
+
     const SKINS = [
         {
             id: 'gochita', nombre: 'Gochita', color: '#0f3b40',
-            colores: { pelo: '#171021', piel: '#ffd9c7', top: '#0f3b40', topClaro: '#1d6d70', rosa: '#ff4fa3', zapato: '#ff5fae' }
+            colores: { pelo: '#171021', top: '#0f3b40', topClaro: '#1d6d70', rosa: '#ff4fa3', zapato: '#ff5fae' }
         },
         {
             id: 'neon', nombre: 'Neón', color: '#22d3ee',
-            colores: { pelo: '#0f172a', piel: '#d8fbff', top: '#0e7490', topClaro: '#22d3ee', rosa: '#f0abfc', zapato: '#67e8f9' }
+            colores: { pelo: '#0f172a', top: '#0e7490', topClaro: '#22d3ee', rosa: '#f0abfc', zapato: '#67e8f9' }
         },
         {
             id: 'purga', nombre: 'Purga', color: '#ef4444',
-            colores: { pelo: '#1a0b12', piel: '#ffd0c4', top: '#7f1d1d', topClaro: '#ef4444', rosa: '#f97316', zapato: '#fca5a5' }
+            colores: { pelo: '#1a0b12', top: '#7f1d1d', topClaro: '#ef4444', rosa: '#f97316', zapato: '#fca5a5' }
         },
         {
             id: 'oro', nombre: 'Oro', color: '#facc15',
-            colores: { pelo: '#1c1917', piel: '#ffe8c2', top: '#78350f', topClaro: '#f59e0b', rosa: '#fde047', zapato: '#fbbf24' }
+            colores: { pelo: '#1c1917', top: '#78350f', topClaro: '#f59e0b', rosa: '#fde047', zapato: '#fbbf24' }
         },
         {
             id: 'circuito', nombre: 'Circuito', color: '#a3e635',
-            colores: { pelo: '#0f1a24', piel: '#d9f99d', top: '#365314', topClaro: '#a3e635', rosa: '#22d3ee', zapato: '#84cc16' }
+            colores: { pelo: '#0f1a24', top: '#365314', topClaro: '#a3e635', rosa: '#22d3ee', zapato: '#84cc16' }
         }
     ];
+
+    const REQUISITOS_SKIN = {
+        gochita: 'Disponible',
+        neon: 'Vence al primer jefe',
+        purga: 'Completa La Purga',
+        oro: 'Campaña o 5 medallas',
+        circuito: '3 sellos semanales'
+    };
+
+    const ACCESORIOS = [
+        { id: 'auriculares', nombre: 'Auriculares neón', desc: 'Radar: marca haters y burbujas cercanas.', precio: 35, color: '#22d3ee', icono: '🎧' },
+        { id: 'movil', nombre: 'Móvil de directo', desc: 'En movimiento: +1 clip cada 5 s (máx. 12).', precio: 40, color: '#f0abfc', icono: '📱' },
+        { id: 'ropa', nombre: 'Hoodie Raid', desc: 'En movimiento: +1 escudo cada 5 s (máx. 3).', precio: 55, color: '#ff4fa3', icono: '👕' },
+        { id: 'zapatillas', nombre: 'Zapatillas turbo', desc: 'En movimiento: +10 % de velocidad.', precio: 45, color: '#5eead4', icono: '👟' },
+        { id: 'labial', nombre: 'Labial fuego', desc: 'Disparos más lentos que lanzan besos.', precio: 30, color: '#fb7185', icono: '💄' },
+        { id: 'espejo', nombre: 'Espejo de mano', desc: 'Bloquea burbujas si miras al hater.', precio: 60, color: '#fde047', icono: '🪞' }
+    ];
+
+    const HABILIDADES_JEFE = {
+        tecnico: { tipo: 'cortocircuito', nombre: 'CORTOCIRCUITO', aviso: 1.0, recarga: 9.0 },
+        raid: { tipo: 'oscuridad', nombre: 'RAID NOCTURNO', aviso: 1.1, recarga: 11.0 },
+        hater: { tipo: 'apagon', nombre: 'APAGÓN DE PURGA', aviso: 1.15, recarga: 10.0 },
+        turbina: { tipo: 'sobrecarga', nombre: 'SOBRECARGA', aviso: 1.0, recarga: 9.5 },
+        nucleo: { tipo: 'colapso', nombre: 'COLAPSO', aviso: 1.25, recarga: 12.0 }
+    };
+
+    const TUTORIAL_PASOS = [
+        { x: 0, texto: 'Muévete con A / D o ← →' },
+        { x: 180, texto: 'Salta con ESPACIO o W' },
+        { x: 360, texto: 'Lanza clips con J o K' },
+        { x: 560, texto: 'Pisa a los haters para ganar GP' },
+        { x: 760, texto: 'Llega al cartel GO LIVE' }
+    ];
+
 
     const MAX_GP_NIVEL = {};
 
@@ -160,8 +196,36 @@
         misiones: [],
         sellos: 0,
         misionActiva: null,
-        misionResultado: ''
+        misionResultado: '',
+        monedas: 0,
+        accesorios: {},
+        accesorio: '',
+        tutorialHecho: false,
+        tutorialPaso: 0,
+        hudEntrada: 0,
+        gpPulso: 0,
+        efectos: true,
+        nitidez: true,
+        cuenta: '',
+        nubeEstado: 'invitado',
+        nubeMensaje: '',
+        movilT: 0,
+        ropaT: 0,
+        zapatillasRampa: 0,
+        espejoT: 0,
+        espejoFlash: 0,
+        oscuridad: 0,
+        vientoT: 0,
+        vientoDir: 0,
+        huecos: [],
+        habAviso: '',
+        habAvisoT: 0
     };
+
+    let datosInvitado = {};
+    let temporizadorNube = null;
+    let tokenNubeActual = '';
+    let cargandoNube = false;
 
     // === NIVEL 1: EL SETUP ===
 
@@ -618,6 +682,27 @@
         { nombre: 'El Núcleo', crear: crearNivel5 }
     ];
 
+    function crearTutorial() {
+        const n = nuevoNivel(64);
+        n.rect(0, 15, 64, 2, '#');
+        n.rect(14, 12, 4, 1, '=');
+        n.rect(27, 11, 4, 1, '=');
+        filaMonedas(n, [[7, 14], [8, 14], [9, 14], [17, 11], [18, 11], [19, 11], [30, 10], [31, 10]]);
+        n.poner(38, 14, 'H');
+        n.poner(49, 14, 'H');
+        n.poner(3, 14, 'P');
+        n.poner(60, 13, 'G');
+        n.poner(60, 14, 'G');
+        return {
+            nombre: 'Tutorial',
+            ancho: n.ancho,
+            alto: n.alto,
+            mapa: n.mapa.map((fila) => fila.join('')),
+            tema: 'setup',
+            tutorial: true
+        };
+    }
+
     function parsearNivel(datos) {
         const monedas = [];
         const powerups = [];
@@ -660,9 +745,22 @@
                 escudo: 0,
                 escudoAviso: 0,
                 escudoEspera: 4.5,
-                escudoT: 4.5
+                escudoT: 4.5,
+                habilidad: Object.assign({}, HABILIDADES_JEFE[j.tipo || 'hater'] || HABILIDADES_JEFE.hater, {
+                    t: 5.5 + Math.random() * 2,
+                    avisoT: 0
+                })
             };
         }
+
+        const dificultad = datos.dificultad || ({ setup: 1, raid: 2, purga: 3, overclock: 4, nucleo: 5 }[datos.tema] || 1);
+        const tiposSuelo = [
+            ['basico', 'basico', 'sniper'],
+            ['basico', 'sniper', 'cargador', 'basico'],
+            ['cargador', 'sniper', 'glitch', 'cargador'],
+            ['cargador', 'glitch', 'sniper', 'cargador'],
+            ['glitch', 'cargador', 'sniper', 'glitch']
+        ][Math.max(0, Math.min(4, dificultad - 1))] || ['basico'];
 
         for (let y = 0; y < datos.alto; y++) {
             for (let x = 0; x < datos.ancho; x++) {
@@ -708,11 +806,17 @@
                         tiro: INTERVALO_TIRO * (0.5 + Math.random()),
                         texto: '',
                         volador,
+                        tipo: volador ? (dificultad >= 4 ? 'volador_sniper' : 'volador') : tiposSuelo[haters.length % tiposSuelo.length],
                         escudo: haters.length % 4 === 2,
                         baseX: x * TILE + 2,
                         baseY: y * TILE + 2,
                         fase: Math.random() * Math.PI * 2,
-                        amplitud: 22 + Math.random() * 10
+                        amplitud: 22 + Math.random() * 10,
+                        iaEstado: 'patrulla',
+                        iaT: 1.2 + Math.random() * 1.8,
+                        dashT: 0,
+                        dashDir: -1,
+                        blinkT: 2.4 + Math.random() * 1.6
                     });
                 } else if (ch >= '1' && ch <= '4') {
                     tuneles.push({ x, y, id: ch, destino: null });
@@ -849,10 +953,14 @@
             estado.volumen = typeof datos.volumen === 'number' ? limitar(datos.volumen, 0, 1) : VOLUMEN_INICIAL;
             const prefiere = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
             estado.reducirMovimiento = typeof datos.reducirMovimiento === 'boolean' ? datos.reducirMovimiento : prefiere;
+            estado.efectos = datos.efectos !== false;
+            estado.nitidez = datos.nitidez !== false;
         } catch (e) {
             estado.sonido = true;
             estado.volumen = VOLUMEN_INICIAL;
             estado.reducirMovimiento = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            estado.efectos = true;
+            estado.nitidez = true;
         }
     }
 
@@ -862,6 +970,8 @@
             datos.sonido = estado.sonido;
             datos.volumen = estado.volumen;
             datos.reducirMovimiento = estado.reducirMovimiento;
+            datos.efectos = estado.efectos;
+            datos.nitidez = estado.nitidez;
             localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(datos));
         } catch (e) { /* sin almacenamiento */ }
     }
@@ -897,6 +1007,24 @@
         sincronizarUi();
     }
 
+    function aplicarNitidez() {
+        const lienzo = document.getElementById('game-canvas');
+        if (lienzo) lienzo.style.imageRendering = estado.nitidez ? 'auto' : 'pixelated';
+    }
+
+    function alternarNitidez() {
+        estado.nitidez = !estado.nitidez;
+        guardarSonido();
+        aplicarNitidez();
+        sincronizarUi();
+    }
+
+    function alternarEfectos() {
+        estado.efectos = !estado.efectos;
+        guardarSonido();
+        sincronizarUi();
+    }
+
     function avisoFlotante(texto, x, y) {
         estado.avisos.push({ texto, x, y, vida: 1.1, vidaMax: 1.1 });
     }
@@ -923,6 +1051,7 @@
         h.vivo = false;
         estado.hatersMuertos += 1;
         estado.gp += 5;
+        estado.gpPulso = 0.5;
         generarChispas(10, h.x + h.ancho / 2, h.y + h.alto / 2, '#ff4fa3');
         avisoFlotante('+5 GP', h.x + h.ancho / 2, h.y - 2);
         if (porSalto) {
@@ -940,6 +1069,7 @@
             estado.escudosRecogidos += 1;
             if (estado.escudo >= ESCUDO_MAX) {
                 estado.gp += 10;
+                estado.gpPulso = 0.5;
                 avisoFlotante('+10 GP', p.x, p.y - 10);
                 generarChispas(10, p.x, p.y, '#ffd166');
             } else {
@@ -952,6 +1082,7 @@
             const hueco = MAX_CLIPS - estado.clips;
             if (hueco <= 0) {
                 estado.gp += 10;
+                estado.gpPulso = 0.5;
                 avisoFlotante('CLIPS AL MÁXIMO · +10 GP', p.x, p.y - 10);
                 generarChispas(10, p.x, p.y, '#ffd166');
             } else {
@@ -970,14 +1101,16 @@
         const j = estado.jugador;
         if (!j) return;
         estado.clips -= 1;
-        estado.disparoEnfriamiento = 0.22;
+        const esBeso = estado.accesorio === 'labial';
+        estado.disparoEnfriamiento = esBeso ? 0.4 : 0.22;
         estado.disparoAnim = 0.12;
         estado.clipsActivos.push({
             x: j.x + j.ancho / 2 + estado.mirando * 7,
             y: j.y + 6,
             vx: estado.mirando * VEL_CLIP,
             vy: 0,
-            vida: 1.1
+            vida: 1.1,
+            tipo: esBeso ? 'beso' : 'clip'
         });
         estado.clipsDisparados += 1;
         if (estado.clipsDisparados >= 12) desbloquearLogro('cargador');
@@ -987,23 +1120,66 @@
 
     const TEXTOS_HATER = ['LOL', 'noob', 'ratio', 'gg ez', 'cringe', 'bot', 'mal'];
 
-    function lanzarBurbuja(h, j) {
+    function lanzarBurbuja(h, j, opciones) {
         if (!j) return;
-        const dx = (j.x + j.ancho / 2) - (h.x + h.ancho / 2);
-        const texto = TEXTOS_HATER[Math.floor(Math.random() * TEXTOS_HATER.length)];
+        if (estado.burbujas.length >= 9) return;
+        const extra = opciones || {};
+        const objetivoX = j.x + j.ancho / 2 + (extra.predict ? j.vx * 0.45 : 0);
+        const objetivoY = j.y + j.alto / 2 + (extra.predict ? j.vy * 0.25 : 0);
+        const dx = objetivoX - (h.x + h.ancho / 2);
+        const dy = objetivoY - (h.y + h.alto / 2);
+        const texto = extra.texto || TEXTOS_HATER[Math.floor(Math.random() * TEXTOS_HATER.length)];
+        let vx;
+        let vy;
+        if (extra.predict) {
+            vx = limitar(dx * 1.45, -190, 190);
+            vy = limitar(-110 + dy * 0.55, -175, 60);
+        } else if (h.volador) {
+            vx = limitar(dx * 0.55, -150, 150);
+            vy = -100;
+        } else {
+            vx = Math.sign(dx || 1) * 105;
+            vy = -135;
+        }
         estado.burbujas.push({
             x: h.x + h.ancho / 2,
             y: h.y + 2,
-            vx: h.volador ? limitar(dx * 0.55, -150, 150) : Math.sign(dx || 1) * 105,
-            vy: h.volador ? -100 : -135,
+            vx,
+            vy,
             vida: 3.4,
-            texto
+            texto,
+            tipo: extra.tipo || 'burbuja'
         });
         sfx('burbuja');
     }
 
+    function teletransportarHater(nivel, h, j) {
+        const dir = Math.sign((j.x + j.ancho / 2) - (h.x + h.ancho / 2)) || 1;
+        const objetivoX = j.x + j.ancho / 2 + dir * (46 + Math.random() * 24);
+        const tx = Math.floor(objetivoX / TILE);
+        if (tx < 1 || tx >= nivel.ancho - 1) return false;
+        let ty = Math.floor(h.y / TILE);
+        while (ty < nivel.alto - 2 && !esSolido(nivel, tx, ty + 1)) ty++;
+        if (!esSolido(nivel, tx, ty + 1)) return false;
+        if (esSolido(nivel, tx, ty) || esSolido(nivel, tx, ty - 1)) return false;
+        generarChispas(8, h.x + h.ancho / 2, h.y + h.alto / 2, '#c4b5fd');
+        h.x = tx * TILE + 2;
+        h.y = (ty + 1) * TILE - h.alto;
+        h.baseX = h.x;
+        h.baseY = h.y;
+        h.dir = -dir;
+        h.vy = 0;
+        generarChispas(8, h.x + h.ancho / 2, h.y + h.alto / 2, '#a78bfa');
+        avisoFlotante('GLITCH', h.x + h.ancho / 2, h.y - 8);
+        sfx('burbuja');
+        return true;
+    }
+
     function actualizarHater(h, dt, nivel, j) {
         if (!h.vivo) return;
+        if (!h.iaEstado) h.iaEstado = 'patrulla';
+        if (h.iaT === undefined) h.iaT = 1.5;
+        if (h.blinkT === undefined) h.blinkT = 3.2;
 
         if (h.volador) {
             h.x = h.baseX + Math.sin(estado.anim * 0.9 + h.fase) * h.amplitud;
@@ -1013,21 +1189,71 @@
             h.dir = dx >= 0 ? 1 : -1;
             if (h.aviso > 0) {
                 h.aviso -= dt;
-                if (h.aviso <= 0) lanzarBurbuja(h, j);
+                if (h.aviso <= 0) lanzarBurbuja(h, j, { predict: h.tipo === 'volador_sniper' });
                 return;
             }
             h.tiro -= dt;
             if (h.tiro > 0) return;
-            if (Math.abs(dx) < 230 && Math.abs(dy) < 170) {
-                h.aviso = 0.38;
+            if (Math.abs(dx) < (h.tipo === 'volador_sniper' ? 270 : 230) && Math.abs(dy) < 170) {
+                h.aviso = h.tipo === 'volador_sniper' ? 0.55 : 0.38;
                 h.tiro = INTERVALO_TIRO * (0.8 + Math.random() * 0.8);
             }
             return;
         }
 
         h.vy = Math.min(h.vy + GRAVEDAD * dt, CAIDA_MAX);
-        h.vx = h.dir * VEL_HATER;
+        const dx = (j.x + j.ancho / 2) - (h.x + h.ancho / 2);
+        const dy = (j.y + j.alto / 2) - (h.y + h.alto / 2);
+        h.iaT -= dt;
+        h.blinkT -= dt;
 
+        if (h.iaEstado === 'carga' && h.dashT > 0) {
+            h.dashT -= dt;
+            h.vx = h.dashDir * 215;
+            const xAntesCarga = h.x;
+            moverHorizontal(h, h.vx * dt, nivel);
+            if (Math.abs(h.x - xAntesCarga) < 0.01) h.dashT = 0;
+            moverVertical(h, h.vy * dt, nivel);
+            if (h.dashT <= 0) {
+                h.iaEstado = 'patrulla';
+                h.iaT = 1.8;
+                h.vx = 0;
+            }
+            return;
+        }
+
+        if (h.iaEstado === 'alerta' && h.aviso > 0) {
+            h.aviso -= dt;
+            h.dir = dx > 0 ? 1 : -1;
+            if (h.aviso <= 0) {
+                if (h.tipo === 'cargador') {
+                    h.iaEstado = 'carga';
+                    h.dashT = 0.36;
+                    h.dashDir = Math.sign(dx) || h.dir;
+                    avisoFlotante('DASH', h.x + h.ancho / 2, h.y - 8);
+                } else {
+                    lanzarBurbuja(h, j, { predict: h.tipo === 'sniper' });
+                    h.iaEstado = 'patrulla';
+                }
+            }
+            return;
+        }
+
+        if (h.tipo === 'glitch' && h.iaT <= 0 && Math.abs(dx) < 230 && Math.abs(dy) < 90) {
+            if (teletransportarHater(nivel, h, j)) h.iaT = 3.6;
+            else h.iaT = 0.8;
+            return;
+        }
+
+        if (h.tipo === 'cargador' && h.iaT <= 0 && Math.abs(dx) < 150 && Math.abs(dy) < 56) {
+            h.iaEstado = 'alerta';
+            h.aviso = 0.55;
+            h.dir = dx > 0 ? 1 : -1;
+            h.iaT = 2.4;
+            return;
+        }
+
+        h.vx = h.dir * VEL_HATER;
         const xAntes = h.x;
         moverHorizontal(h, h.vx * dt, nivel);
         if (Math.abs(h.x - xAntes) < 0.01) {
@@ -1054,12 +1280,12 @@
 
         h.tiro -= dt;
         if (h.tiro > 0) return;
-        const dx = (j.x + j.ancho / 2) - (h.x + h.ancho / 2);
-        const dy = (j.y + j.alto / 2) - (h.y + h.alto / 2);
-        if (Math.abs(dx) < 175 && Math.abs(dy) < 70) {
-            h.aviso = 0.38;
+        const rango = h.tipo === 'sniper' ? 235 : 175;
+        if (Math.abs(dx) < rango && Math.abs(dy) < (h.tipo === 'sniper' ? 95 : 70)) {
+            h.iaEstado = 'alerta';
+            h.aviso = h.tipo === 'sniper' ? 0.7 : 0.38;
             h.dir = dx > 0 ? 1 : -1;
-            h.tiro = INTERVALO_TIRO + Math.random() * 1.2;
+            h.tiro = (h.tipo === 'sniper' ? INTERVALO_TIRO + 1.1 : INTERVALO_TIRO) + Math.random() * 1.2;
         }
     }
 
@@ -1161,7 +1387,7 @@
 
     function leerNivelDesbloqueado() {
         try {
-            const datos = JSON.parse(localStorage.getItem(CLAVE_GUARDADO) || '{}');
+            const datos = leerDatos();
             let maximo = Number(datos.desbloqueado) || 1;
             const claves = Object.keys(datos.niveles || {})
                 .map(Number)
@@ -1178,24 +1404,235 @@
     }
 
     function guardarNivelDesbloqueado(numero) {
-        try {
-            const datos = JSON.parse(localStorage.getItem(CLAVE_GUARDADO) || '{}');
-            datos.desbloqueado = limitar(Math.round(numero), 1, NIVELES.length);
-            localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(datos));
-        } catch (e) { /* sin almacenamiento */ }
+        const datos = leerDatos();
+        datos.desbloqueado = limitar(Math.round(numero), 1, NIVELES.length);
+        guardarDatos(datos);
     }
 
-    function leerDatos() {
+    function leerDatosCrudo() {
         try { return JSON.parse(localStorage.getItem(CLAVE_GUARDADO) || '{}'); } catch (e) { return {}; }
     }
 
-    function guardarDatos(datos) {
+    function guardarDatosCrudo(datos) {
         try {
             localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(datos));
             return true;
         } catch (e) {
             return false;
         }
+    }
+
+    function cuentaActiva() {
+        return !!tokenComunidad();
+    }
+
+    function leerDatos() {
+        if (!cuentaActiva()) return datosInvitado;
+        return leerDatosCrudo();
+    }
+
+    function guardarDatos(datos) {
+        if (!datos || typeof datos !== 'object') return false;
+        if (!cuentaActiva()) {
+            datosInvitado = datos;
+            return true;
+        }
+        const guardado = guardarDatosCrudo(datos);
+        if (guardado) programarSincronizacion();
+        return guardado;
+    }
+
+    function limpiarProgresoLocal() {
+        const crudo = leerDatosCrudo();
+        const ajustes = {};
+        ['sonido', 'volumen', 'reducirMovimiento', 'efectos', 'nitidez'].forEach((clave) => {
+            if (Object.prototype.hasOwnProperty.call(crudo, clave)) ajustes[clave] = crudo[clave];
+        });
+        guardarDatosCrudo(ajustes);
+        datosInvitado = {};
+        tokenNubeActual = '';
+    }
+
+    function fusionarProgreso(local, remoto) {
+        const a = local && typeof local === 'object' ? local : {};
+        const b = remoto && typeof remoto === 'object' ? remoto : {};
+        const salida = Object.assign({}, a, b);
+        salida.version = 2;
+        salida.desbloqueado = Math.max(Number(a.desbloqueado) || 1, Number(b.desbloqueado) || 1);
+        salida.campanaCompletada = !!(a.campanaCompletada || b.campanaCompletada);
+        salida.tutorialHecho = !!(a.tutorialHecho || b.tutorialHecho);
+        salida.sellos = Math.max(Number(a.sellos) || 0, Number(b.sellos) || 0);
+        salida.monedas = Number.isFinite(Number(b.monedas)) ? Number(b.monedas) : (Number(a.monedas) || 0);
+        salida.skin = b.skin || a.skin || 'gochita';
+        salida.accesorio = Object.prototype.hasOwnProperty.call(b, 'accesorio')
+            ? b.accesorio
+            : (a.accesorio || '');
+
+        const niveles = {};
+        const claves = new Set([
+            ...Object.keys(a.niveles || {}),
+            ...Object.keys(b.niveles || {})
+        ]);
+        claves.forEach((clave) => {
+            const x = (a.niveles || {})[clave];
+            const y = (b.niveles || {})[clave];
+            if (!x) { niveles[clave] = y; return; }
+            if (!y) { niveles[clave] = x; return; }
+            const gpX = Number(x.mejorGp) || 0;
+            const gpY = Number(y.mejorGp) || 0;
+            if (gpY > gpX) niveles[clave] = y;
+            else if (gpY < gpX) niveles[clave] = x;
+            else niveles[clave] = (Number(y.mejorTiempo) || 9999) <= (Number(x.mejorTiempo) || 9999) ? y : x;
+        });
+        salida.niveles = niveles;
+        salida.logros = Object.assign({}, a.logros || {}, b.logros || {});
+        salida.accesorios = Object.assign({}, a.accesorios || {}, b.accesorios || {});
+        salida.recompensas = Object.assign({}, a.recompensas || {}, b.recompensas || {});
+
+        if (a.misiones && b.misiones && a.misiones.semana === b.misiones.semana) {
+            salida.misiones = {
+                semana: a.misiones.semana,
+                completadas: Object.assign({}, a.misiones.completadas || {}, b.misiones.completadas || {})
+            };
+        } else {
+            salida.misiones = b.misiones || a.misiones || { semana: '', completadas: {} };
+        }
+
+        const rushA = Number(a.rush && a.rush.mejorTiempo);
+        const rushB = Number(b.rush && b.rush.mejorTiempo);
+        if (Number.isFinite(rushA) || Number.isFinite(rushB)) {
+            salida.rush = Number.isFinite(rushB) && (!Number.isFinite(rushA) || rushB <= rushA) ? b.rush : a.rush;
+        }
+
+        if (a.reto && b.reto && a.reto.fecha === b.reto.fecha) {
+            salida.reto = Object.assign({}, a.reto, b.reto, {
+                hecho: !!(a.reto.hecho || b.reto.hecho),
+                tiempo: Math.min(Number(a.reto.tiempo) || 3600, Number(b.reto.tiempo) || 3600)
+            });
+        } else {
+            salida.reto = b.reto || a.reto;
+        }
+
+        return salida;
+    }
+
+    async function guardarProgresoNube(datos) {
+        const token = tokenComunidad();
+        if (!token || typeof window.rpcRaw !== 'function') return false;
+        estado.nubeEstado = 'guardando';
+        sincronizarUi();
+        try {
+            const res = await window.rpcRaw('game_guardar_progreso', { p_token: token, p_datos: datos });
+            if (!res || res.error || !res.data || !res.data.ok) throw new Error('nube');
+            estado.nubeEstado = 'sincronizado';
+            estado.nubeMensaje = 'Progreso sincronizado.';
+            sincronizarUi();
+            return true;
+        } catch (e) {
+            estado.nubeEstado = 'sin_conexion';
+            estado.nubeMensaje = 'Sin conexión: guardado en este dispositivo.';
+            sincronizarUi();
+            return false;
+        }
+    }
+
+    async function sincronizarProgresoNube(inicial) {
+        const token = tokenComunidad();
+        if (!token) {
+            estado.cuenta = '';
+            estado.nubeEstado = 'invitado';
+            estado.nubeMensaje = 'Invitado: el progreso no se guarda.';
+            sincronizarUi();
+            return;
+        }
+        if (typeof window.rpcRaw !== 'function') {
+            estado.cuenta = apodoComunidad();
+            estado.nubeEstado = 'sin_conexion';
+            estado.nubeMensaje = 'Sin conexión: guardado en este dispositivo.';
+            sincronizarUi();
+            return;
+        }
+        if (cargandoNube) return;
+        cargandoNube = true;
+        estado.cuenta = apodoComunidad();
+        estado.nubeEstado = inicial ? 'cargando' : 'sincronizando';
+        sincronizarUi();
+        try {
+            const local = leerDatosCrudo();
+            const res = await window.rpcRaw('game_cargar_progreso', { p_token: token });
+            if (!res || res.error || !res.data || !res.data.ok) throw new Error('nube');
+            if (token !== tokenComunidad()) return;
+            const remoto = res.data.datos && typeof res.data.datos === 'object' ? res.data.datos : {};
+            const fusion = fusionarProgreso(local, remoto);
+            guardarDatosCrudo(fusion);
+            estado.cuenta = apodoComunidad();
+            estado.nubeEstado = 'sincronizado';
+            estado.nubeMensaje = 'Progreso sincronizado.';
+            actualizarProgreso();
+            estado.nivelDesbloqueado = leerNivelDesbloqueado();
+            if (estado.fase === 'inicio') {
+                estado.nivelActual = nivelDeInicio();
+                cargarNivel(estado.nivelActual);
+            }
+            sincronizarUi({ record: textoRecord(estado.nivelActual), medallaActual: estado.medallaActual });
+            if (JSON.stringify(fusion) !== JSON.stringify(remoto)) {
+                await guardarProgresoNube(fusion);
+            }
+        } catch (e) {
+            estado.nubeEstado = 'sin_conexion';
+            estado.nubeMensaje = 'Sin conexión: guardado en este dispositivo.';
+            sincronizarUi();
+        } finally {
+            cargandoNube = false;
+        }
+    }
+
+    function programarSincronizacion() {
+        if (!cuentaActiva()) return;
+        if (typeof setTimeout !== 'function') return;
+        if (temporizadorNube) clearTimeout(temporizadorNube);
+        temporizadorNube = setTimeout(() => {
+            temporizadorNube = null;
+            if (cargandoNube) {
+                programarSincronizacion();
+                return;
+            }
+            guardarProgresoNube(leerDatosCrudo());
+        }, 900);
+    }
+
+    function alCambiarSesionJuego() {
+        const token = tokenComunidad();
+        if (token) {
+            if (token === tokenNubeActual && estado.nubeEstado !== 'invitado') {
+                estado.cuenta = apodoComunidad();
+                sincronizarUi();
+                return;
+            }
+            if (tokenNubeActual && token !== tokenNubeActual) limpiarProgresoLocal();
+            tokenNubeActual = token;
+            datosInvitado = {};
+            estado.cuenta = apodoComunidad();
+            sincronizarProgresoNube(true);
+            return;
+        }
+        tokenNubeActual = '';
+        datosInvitado = {};
+        limpiarProgresoLocal();
+        estado.cuenta = '';
+        estado.nubeEstado = 'invitado';
+        estado.nubeMensaje = 'Invitado: el progreso no se guarda.';
+        estado.nivelDesbloqueado = 1;
+        estado.monedas = 0;
+        estado.sellos = 0;
+        estado.campanaCompletada = false;
+        estado.nivelDesbloqueado = 1;
+        estado.nivelActual = 1;
+        actualizarProgreso();
+        salirAlMenu();
+        estado.nivelDesbloqueado = 1;
+        estado.nivelActual = 1;
+        sincronizarUi({ nivelDesbloqueado: 1, nivelActual: 1, cuenta: '', nubeEstado: 'invitado' });
     }
 
     function maxGpNivel(numero) {
@@ -1325,6 +1762,7 @@
         datos.misiones.completadas[mision.id] = true;
         datos.sellos = (Number(datos.sellos) || 0) + 1;
         guardarDatos(datos);
+        reclamarMonedas('mision-' + mision.id, 15);
         estado.sellos = datos.sellos;
         const totalSemana = Object.keys(datos.misiones.completadas).length;
         if (totalSemana >= 3) desbloquearLogro('semana_perfecta');
@@ -1344,8 +1782,8 @@
     }
 
     function nivelDeInicio() {
-        if (estado.campanaCompletada && estado.nivelActual >= NIVELES.length) return 1;
-        return estado.nivelActual || estado.nivelDesbloqueado || 1;
+        if (estado.campanaCompletada) return 1;
+        return estado.nivelDesbloqueado || estado.nivelActual || 1;
     }
 
     function calcularMedalla(numero, record) {
@@ -1404,6 +1842,10 @@
         estado.rushRecord = textoRecordRush();
         const guardada = SKINS.find((skin) => skin.id === datos.skin);
         estado.skin = guardada && skinDesbloqueada(guardada.id) ? guardada.id : 'gochita';
+        estado.monedas = Math.max(0, Math.floor(Number(datos.monedas) || 0));
+        estado.tutorialHecho = !!datos.tutorialHecho;
+        estado.accesorios = datos.accesorios && typeof datos.accesorios === 'object' ? datos.accesorios : {};
+        estado.accesorio = estado.accesorios[datos.accesorio] ? datos.accesorio : '';
     }
 
     function desbloquearLogro(id) {
@@ -1413,6 +1855,7 @@
         datos.logros = datos.logros || {};
         datos.logros[id] = true;
         guardarDatos(datos);
+        reclamarMonedas('logro-' + id, 10);
         estado.logros = datos.logros;
         actualizarProgreso();
         const j = estado.jugador;
@@ -1434,14 +1877,69 @@
         sincronizarUi();
     }
 
-    function mostrarProgreso() {
+    function reclamarMonedas(clave, cantidad) {
+        const datos = leerDatos();
+        datos.recompensas = datos.recompensas && typeof datos.recompensas === 'object' ? datos.recompensas : {};
+        if (datos.recompensas[clave]) return 0;
+        datos.recompensas[clave] = true;
+        datos.monedas = Math.max(0, Math.floor(Number(datos.monedas) || 0)) + cantidad;
+        guardarDatos(datos);
+        estado.monedas = datos.monedas;
+        return cantidad;
+    }
+
+    function comprarAccesorio(id) {
+        const item = ACCESORIOS.find((accesorio) => accesorio.id === id);
+        if (!item) return;
+        const datos = leerDatos();
+        datos.accesorios = datos.accesorios && typeof datos.accesorios === 'object' ? datos.accesorios : {};
+        if (datos.accesorios[id]) {
+            equiparAccesorio(id);
+            return;
+        }
+        const saldo = Math.max(0, Math.floor(Number(datos.monedas) || 0));
+        const store = window.Alpine && typeof window.Alpine.store === 'function' ? window.Alpine.store('juego') : null;
+        if (saldo < item.precio) {
+            if (store) store.tiendaMensaje = 'Te faltan ' + (item.precio - saldo) + ' GC';
+            sfx('dano');
+            sincronizarUi();
+            return;
+        }
+        datos.monedas = saldo - item.precio;
+        datos.accesorios[id] = true;
+        datos.accesorio = id;
+        guardarDatos(datos);
+        estado.monedas = datos.monedas;
+        estado.accesorios = datos.accesorios;
+        estado.accesorio = id;
+        if (store) store.tiendaMensaje = item.nombre + ' equipado';
+        sfx('poder');
+        sincronizarUi();
+    }
+
+    function equiparAccesorio(id) {
+        const datos = leerDatos();
+        datos.accesorios = datos.accesorios && typeof datos.accesorios === 'object' ? datos.accesorios : {};
+        if (id && !datos.accesorios[id]) return;
+        datos.accesorio = id === estado.accesorio ? '' : id;
+        guardarDatos(datos);
+        estado.accesorio = datos.accesorio;
+        estado.accesorios = datos.accesorios;
+        sfx('poder');
+        sincronizarUi();
+    }
+
+    function mostrarProgreso(tab) {
         const store = window.Alpine && typeof window.Alpine.store === 'function'
             ? window.Alpine.store('juego')
             : null;
         if (!store) return;
         actualizarProgreso();
         store.rankingAbierto = false;
+        store.ajustesAbierto = false;
         store.progresoAbierto = true;
+        store.progresoTab = tab || store.progresoTab || 'medallas';
+        store.tiendaMensaje = '';
         sincronizarUi();
     }
 
@@ -1450,6 +1948,24 @@
             ? window.Alpine.store('juego')
             : null;
         if (store) store.progresoAbierto = false;
+    }
+
+    function mostrarAjustes() {
+        const store = window.Alpine && typeof window.Alpine.store === 'function'
+            ? window.Alpine.store('juego')
+            : null;
+        if (!store) return;
+        store.progresoAbierto = false;
+        store.rankingAbierto = false;
+        store.ajustesAbierto = true;
+        sincronizarUi();
+    }
+
+    function ocultarAjustes() {
+        const store = window.Alpine && typeof window.Alpine.store === 'function'
+            ? window.Alpine.store('juego')
+            : null;
+        if (store) store.ajustesAbierto = false;
     }
 
     function desbloquearSiguiente() {
@@ -1486,6 +2002,19 @@
         estado.squash = 0;
         estado.tunelBloqueado = false;
         estado.avisoJefe = false;
+        estado.hudEntrada = 0;
+        estado.gpPulso = 0;
+        estado.movilT = 0;
+        estado.ropaT = 0;
+        estado.zapatillasRampa = 0;
+        estado.espejoT = 0;
+        estado.espejoFlash = 0;
+        estado.oscuridad = 0;
+        estado.vientoT = 0;
+        estado.vientoDir = 0;
+        estado.huecos.length = 0;
+        estado.habAviso = '';
+        estado.habAvisoT = 0;
         estado.purga = null;
         if (estado.nivelDatos.purga) {
             estado.purga = {
@@ -1561,6 +2090,7 @@
         if (tienda) {
             tienda.progresoAbierto = false;
             tienda.rankingAbierto = false;
+            tienda.ajustesAbierto = false;
         }
         fijarFase('jugando');
         sincronizarUi({ rankingMensaje: '', rankingError: '', medallaActual: '' });
@@ -1653,6 +2183,7 @@
         if (tienda) {
             tienda.progresoAbierto = false;
             tienda.rankingAbierto = false;
+            tienda.ajustesAbierto = false;
         }
         fijarFase('jugando');
         sincronizarUi({ rankingMensaje: '', rankingError: '', medallaActual: '', record: '' });
@@ -1692,6 +2223,94 @@
                 ? 'Misión completada. ' + mision.recompensa + '.'
                 : 'Nivel terminado, pero el objetivo no se cumplió.';
         }
+    }
+
+    function cargarTutorial() {
+        estado.modo = 'tutorial';
+        estado.nivelActual = 0;
+        estado.nivelDatos = parsearNivel(crearTutorial());
+        estado.checkpoint = null;
+        estado.spawn = estado.nivelDatos.spawn;
+        estado.jugador = crearJugador(estado.spawn);
+        estado.camara.x = 0;
+        estado.camara.y = 0;
+        estado.particulas.length = 0;
+        estado.avisos.length = 0;
+        estado.clipsActivos.length = 0;
+        estado.burbujas.length = 0;
+        estado.clips = MAX_CLIPS;
+        estado.escudo = 0;
+        estado.grande = false;
+        estado.purga = null;
+        estado.tunelBloqueado = 0;
+        estado.disparoEnfriamiento = 0;
+        estado.disparoAnim = 0;
+        estado.tutorialPaso = 0;
+        estado.hudEntrada = 0;
+        estado.gpPulso = 0;
+        estado.avisoJefe = false;
+        estado.squash = 0;
+        estado.invulnerable = 0;
+        const store = window.Alpine && typeof window.Alpine.store === 'function'
+            ? window.Alpine.store('juego')
+            : null;
+        if (store) {
+            store.progresoAbierto = false;
+            store.rankingAbierto = false;
+            store.ajustesAbierto = false;
+        }
+    }
+
+    function iniciarTutorial() {
+        const store = window.Alpine && typeof window.Alpine.store === 'function'
+            ? window.Alpine.store('juego')
+            : null;
+        if (store) {
+            store.progresoAbierto = false;
+            store.rankingAbierto = false;
+            store.ajustesAbierto = false;
+        }
+        estado.gp = 0;
+        estado.gpNivel = 0;
+        estado.hatersMuertos = 0;
+        estado.hatersNivel = 0;
+        estado.vidas = VIDAS_INICIALES;
+        estado.tiempo = 0;
+        estado.invulnerable = 0;
+        estado.medallaActual = '';
+        estado.danoRecibidoNivel = 0;
+        estado.clipsDisparados = 0;
+        estado.hatersPisados = 0;
+        estado.escudosRecogidos = 0;
+        estado.runId = null;
+        estado.runNivel = 0;
+        estado.runEnviado = false;
+        limpiarEntrada();
+        cargarTutorial();
+        fijarFase('jugando');
+        sincronizarUi({ rankingMensaje: '', rankingError: '', medallaActual: '', record: '' });
+        const aviso = document.getElementById('game-aviso');
+        if (aviso) aviso.textContent = 'Tutorial: aprende a moverte, saltar, disparar y llegar al GO LIVE.';
+    }
+
+    function finalizarTutorial() {
+        const nueva = !estado.tutorialHecho;
+        const datos = leerDatos();
+        datos.tutorialHecho = true;
+        guardarDatos(datos);
+        estado.tutorialHecho = true;
+        if (nueva) reclamarMonedas('tutorial', 10);
+        estado.medallaActual = '';
+        sfx('meta');
+        fijarFase('completo');
+        sincronizarUi({
+            record: nueva ? 'Tutorial completado · +10 GC' : 'Tutorial completado · vuelve cuando quieras',
+            rankingMensaje: '',
+            medallaActual: '',
+            haySiguiente: false
+        });
+        const aviso = document.getElementById('game-aviso');
+        if (aviso) aviso.textContent = 'Tutorial completado. Ya puedes empezar la campaña.';
     }
 
     function siguienteJefeRush() {
@@ -1747,6 +2366,10 @@
     }
 
     function reiniciarPartida() {
+        if (estado.modo === 'tutorial') {
+            iniciarTutorial();
+            return;
+        }
         if (estado.modo === 'rush') {
             iniciarBossRush();
             return;
@@ -1763,6 +2386,10 @@
     }
 
     function siguienteNivelJuego() {
+        if (estado.modo === 'tutorial') {
+            iniciarPartida(1);
+            return;
+        }
         if (estado.modo === 'rush') {
             siguienteJefeRush();
             return;
@@ -1873,6 +2500,7 @@
         if (tienda) {
             tienda.progresoAbierto = false;
             tienda.rankingAbierto = false;
+            tienda.ajustesAbierto = false;
         }
         cargarNivel(estado.nivelActual);
         fijarFase('inicio');
@@ -1899,6 +2527,10 @@
                             : 'Nivel completado.')),
                 gameover: estado.modo === 'mision' ? 'Misión fallida.' : 'Fin de la partida.'
             };
+            if (estado.modo === 'tutorial') {
+                textos.completo = 'Tutorial completado.';
+                textos.gameover = 'Tutorial fallido.';
+            }
             aviso.textContent = textos[fase] || '';
         }
     }
@@ -1922,7 +2554,9 @@
         store.nivelDesbloqueado = estado.nivelDesbloqueado;
         store.nivelNombre = estado.modo === 'rush'
             ? 'Boss Rush'
-            : (estado.nivelDatos ? estado.nivelDatos.nombre : NIVELES[estado.nivelActual - 1].nombre);
+            : (estado.modo === 'tutorial'
+                ? 'Tutorial'
+                : (estado.nivelDatos ? estado.nivelDatos.nombre : NIVELES[estado.nivelActual - 1].nombre));
         store.totalNiveles = NIVELES.length;
         store.haySiguiente = estado.modo === 'rush'
             ? !estado.rushCompletado && estado.rushJefe < estado.rushTotal
@@ -1932,8 +2566,16 @@
         store.volumen = Math.round(estado.volumen * 100);
         store.sonido = estado.sonido;
         store.reducirMovimiento = estado.reducirMovimiento;
+        store.efectos = estado.efectos;
+        store.nitidez = estado.nitidez;
         store.escala = ESCALA_RENDER;
         store.modo = estado.modo;
+        store.monedas = estado.monedas;
+        store.accesorio = estado.accesorio;
+        store.tutorialHecho = estado.tutorialHecho;
+        store.cuenta = tokenComunidad() ? (estado.cuenta || apodoComunidad()) : '';
+        store.nubeEstado = estado.nubeEstado;
+        store.nubeMensaje = estado.nubeMensaje;
         store.rushJefe = estado.rushJefe;
         store.rushTotal = estado.rushTotal;
         store.rushCompletado = estado.rushCompletado;
@@ -1961,8 +2603,25 @@
                 id: skin.id,
                 nombre: skin.nombre,
                 color: skin.color,
+                pelo: skin.colores.pelo,
+                piel: PIEL_GOCHITA,
+                ropa: skin.colores.top,
+                ropaClara: skin.colores.topClaro,
+                zapato: skin.colores.zapato,
+                requisito: REQUISITOS_SKIN[skin.id] || 'Disponible',
                 bloqueada: !skinDesbloqueada(skin.id),
                 activa: estado.skin === skin.id
+            }));
+            store.tienda = ACCESORIOS.map((item) => ({
+                id: item.id,
+                nombre: item.nombre,
+                desc: item.desc,
+                precio: item.precio,
+                color: item.color,
+                icono: item.icono,
+                comprado: !!estado.accesorios[item.id],
+                activo: estado.accesorio === item.id,
+                puede: estado.monedas >= item.precio
             }));
         }
         if (extra) Object.assign(store, extra);
@@ -2009,12 +2668,17 @@
         if (estado.fase !== 'jugando') return;
         const numero = estado.nivelActual;
         const gpNivel = Math.max(0, estado.gp - estado.gpNivel);
+        if (estado.modo === 'tutorial') {
+            finalizarTutorial();
+            return;
+        }
         if (estado.modo === 'mision') {
             finalizarMision(gpNivel);
             return;
         }
         const maximo = maxGpNivel(numero);
         guardarRecord(numero);
+        reclamarMonedas('nivel-' + numero, 20);
         estado.medallaActual = estado.medallas[numero - 1] || '';
         if (estado.danoRecibidoNivel === 0) desbloquearLogro('sin_dano');
         if (maximo && gpNivel >= maximo * 0.9) desbloquearLogro('todos_gp');
@@ -2133,6 +2797,7 @@
             : null;
         if (!store) return;
         store.progresoAbierto = false;
+        store.ajustesAbierto = false;
         store.rankingAbierto = true;
         store.rankingTab = tab || store.rankingTab || 'general';
         cargarRanking(store.rankingTab);
@@ -2163,13 +2828,9 @@
 
     function leerRecord(nivelNumero) {
         const numero = nivelNumero || estado.nivelActual;
-        try {
-            const datos = JSON.parse(localStorage.getItem(CLAVE_GUARDADO) || '{}');
-            const lista = datos.niveles || {};
-            return lista[numero] || (numero === 1 ? datos.nivel1 : null) || null;
-        } catch (e) {
-            return null;
-        }
+        const datos = leerDatos();
+        const lista = datos.niveles || {};
+        return lista[numero] || (numero === 1 ? datos.nivel1 : null) || null;
     }
 
     function textoRecord(nivelNumero) {
@@ -2191,21 +2852,17 @@
             gpNivel > anterior.mejorGp ||
             (gpNivel === anterior.mejorGp && estado.tiempo < anterior.mejorTiempo);
         if (!mejora) return;
-        try {
-            const datos = JSON.parse(localStorage.getItem(CLAVE_GUARDADO) || '{}');
-            datos.niveles = datos.niveles || {};
-            datos.niveles[numero] = {
-                version: 2,
-                mejorTiempo: estado.tiempo,
-                mejorGp: gpNivel,
-                haters: hatersNivel,
-                actualizado: new Date().toISOString()
-            };
-            localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(datos));
-            actualizarProgreso();
-        } catch (e) {
-            // Sin almacenamiento: la partida sigue, solo no se conserva la marca.
-        }
+        const datos = leerDatos();
+        datos.niveles = datos.niveles || {};
+        datos.niveles[numero] = {
+            version: 2,
+            mejorTiempo: estado.tiempo,
+            mejorGp: gpNivel,
+            haters: hatersNivel,
+            actualizado: new Date().toISOString()
+        };
+        guardarDatos(datos);
+        actualizarProgreso();
     }
 
     // === ACTUALIZACIÓN ===
@@ -2334,8 +2991,18 @@
             let quitar = b.vida <= 0 || b.y > nivel.alto * TILE + 20 ||
                 esSolido(nivel, Math.floor(b.x / TILE), Math.floor(b.y / TILE));
             if (!quitar && j && rectSolapa(j, { x: b.x - 7, y: b.y - 6, ancho: 14, alto: 12 })) {
-                quitar = true;
-                danar();
+                const delante = Math.sign((b.x - (j.x + j.ancho / 2)) || 1) === estado.mirando;
+                if (estado.accesorio === 'espejo' && delante && estado.espejoT <= 0) {
+                    quitar = true;
+                    estado.espejoT = 1.2;
+                    estado.espejoFlash = 0.35;
+                    avisoFlotante('ESPEJO · BLOQUEADO', j.x + j.ancho / 2, j.y - 10);
+                    generarChispas(8, b.x, b.y, '#fde047');
+                    sfx('escudo');
+                } else {
+                    quitar = true;
+                    danar();
+                }
             }
             if (quitar) estado.burbujas.splice(i, 1);
         }
@@ -2348,6 +3015,62 @@
             if (rectSolapa(j, { x: p.x - 7, y: p.y - 8, ancho: 14, alto: 14 })) {
                 recogerPowerup(p);
             }
+        }
+    }
+
+    function actualizarAccesorios(dt, moviendo, j) {
+        estado.espejoT = Math.max(0, estado.espejoT - dt);
+        estado.espejoFlash = Math.max(0, estado.espejoFlash - dt);
+        estado.oscuridad = Math.max(0, estado.oscuridad - dt);
+        estado.habAvisoT = Math.max(0, estado.habAvisoT - dt);
+
+        if (estado.vientoT > 0) {
+            estado.vientoT = Math.max(0, estado.vientoT - dt);
+            j.vx = limitar(j.vx + estado.vientoDir * 250 * dt, -VEL_CORRER * 1.2, VEL_CORRER * 1.2);
+        }
+
+        if (estado.accesorio === 'movil') {
+            if (moviendo && estado.clips < MAX_CLIPS) {
+                estado.movilT += dt;
+                if (estado.movilT >= 5) {
+                    estado.movilT -= 5;
+                    estado.clips += 1;
+                    avisoFlotante('+1 CLIP · MÓVIL', j.x + j.ancho / 2, j.y - 8);
+                    generarChispas(6, j.x + j.ancho / 2, j.y + 4, '#f0abfc');
+                    sfx('moneda');
+                    sincronizarUi();
+                }
+            }
+        } else {
+            estado.movilT = 0;
+        }
+
+        if (estado.accesorio === 'ropa') {
+            if (moviendo && estado.escudo < ESCUDO_MAX) {
+                estado.ropaT += dt;
+                if (estado.ropaT >= 5) {
+                    estado.ropaT -= 5;
+                    estado.escudo += 1;
+                    avisoFlotante('+1 ESCUDO · HOODIE', j.x + j.ancho / 2, j.y - 8);
+                    generarChispas(8, j.x + j.ancho / 2, j.y + 4, '#ff4fa3');
+                    sfx('poder');
+                    sincronizarUi();
+                }
+            }
+        } else {
+            estado.ropaT = 0;
+        }
+    }
+
+    function actualizarTutorial(j) {
+        if (estado.modo !== 'tutorial') return;
+        let paso = 0;
+        for (let i = 0; i < TUTORIAL_PASOS.length; i++) {
+            if (j.x >= TUTORIAL_PASOS[i].x) paso = i;
+        }
+        if (paso !== estado.tutorialPaso) {
+            estado.tutorialPaso = paso;
+            sfx('moneda');
         }
     }
 
@@ -2379,6 +3102,7 @@
         b.vivo = false;
         b.activado = false;
         estado.gp += b.bonus;
+        estado.gpPulso = 0.7;
         estado.avisoJefe = false;
         const cx = b.x + b.ancho / 2;
         const cy = b.y + b.alto / 2;
@@ -2393,6 +3117,7 @@
             if (estado.rushCompletado) {
                 guardarRecordRush();
                 desbloquearLogro('cazajefes');
+                reclamarMonedas('rush', 50);
             }
             estado.medallaActual = '';
             fijarFase('completo');
@@ -2412,6 +3137,7 @@
         if (estado.modo === 'reto') {
             marcarRetoCompletado();
             desbloquearLogro('reto');
+            reclamarMonedas('reto-' + fechaHoy(), 20);
             estado.medallaActual = '';
             fijarFase('completo');
             sincronizarUi({
@@ -2442,6 +3168,102 @@
         sfx('burbuja');
     }
 
+    function abrirHuecos(nivel, cantidad, duracion, j) {
+        if (!nivel || !j) return;
+        const centro = Math.floor((j.x + j.ancho / 2) / TILE);
+        const elegidos = [];
+        for (let distancia = 1; distancia <= 7 && elegidos.length < cantidad; distancia++) {
+            for (const signo of [1, -1]) {
+                const tx = centro + distancia * signo;
+                if (tx < 2 || tx >= nivel.ancho - 2) continue;
+                if (estado.huecos.some((hueco) => hueco.tx === tx)) continue;
+                const pie = Math.floor((j.y + j.alto + 4) / TILE);
+                let ty = -1;
+                for (let yy = Math.max(1, pie - 1); yy <= Math.min(nivel.alto - 2, pie + 4); yy++) {
+                    if (SOLIDOS.has(nivel.mapa[yy][tx]) && !SOLIDOS.has(nivel.mapa[yy - 1][tx])) {
+                        ty = yy;
+                        break;
+                    }
+                }
+                if (ty < 0) continue;
+                const original = nivel.mapa[ty][tx];
+                nivel.mapa[ty][tx] = '.';
+                estado.huecos.push({ tx, ty, original, restante: duracion });
+                elegidos.push(tx);
+                generarChispas(7, tx * TILE + TILE / 2, ty * TILE, '#f87171');
+                if (elegidos.length >= cantidad) break;
+            }
+        }
+        if (elegidos.length) {
+            avisoFlotante('SUELO DESTRUIDO', j.x + j.ancho / 2, j.y - 12);
+            sfx('dano');
+        }
+    }
+
+    function actualizarHuecos(dt, nivel) {
+        if (!estado.huecos.length) return;
+        for (let i = estado.huecos.length - 1; i >= 0; i--) {
+            const hueco = estado.huecos[i];
+            hueco.restante -= dt;
+            if (hueco.restante > 0) continue;
+            if (nivel && nivel.mapa[hueco.ty] && nivel.mapa[hueco.ty][hueco.tx] === '.') {
+                nivel.mapa[hueco.ty][hueco.tx] = hueco.original;
+                generarChispas(4, hueco.tx * TILE + TILE / 2, hueco.ty * TILE, '#5eead4');
+            }
+            estado.huecos.splice(i, 1);
+        }
+    }
+
+    function ejecutarHabilidadJefe(b, nivel, j) {
+        const h = b.habilidad;
+        if (!h) return;
+        const furia = b.hp <= b.hpMax / 2;
+        if (h.tipo === 'cortocircuito') {
+            abrirHuecos(nivel, furia ? 3 : 2, 3, j);
+            estado.oscuridad = Math.max(estado.oscuridad, 0.5);
+        } else if (h.tipo === 'oscuridad') {
+            estado.oscuridad = Math.max(estado.oscuridad, furia ? 5 : 4);
+        } else if (h.tipo === 'apagon') {
+            estado.oscuridad = Math.max(estado.oscuridad, furia ? 4.5 : 3.2);
+            abrirHuecos(nivel, 1, 2.8, j);
+        } else if (h.tipo === 'sobrecarga') {
+            estado.vientoT = furia ? 3.4 : 2.6;
+            estado.vientoDir = Math.sign((j.x + j.ancho / 2) - (b.x + b.ancho / 2)) || -1;
+            abrirHuecos(nivel, furia ? 3 : 2, 2.8, j);
+        } else if (h.tipo === 'colapso') {
+            estado.oscuridad = Math.max(estado.oscuridad, furia ? 5.5 : 4.2);
+            abrirHuecos(nivel, furia ? 4 : 3, 3.2, j);
+            const ondas = furia ? 6 : 4;
+            for (let i = 0; i < ondas; i++) {
+                lanzarBurbujaJefe(b, j, {
+                    vx: (i - (ondas - 1) / 2) * 46,
+                    vy: -120 + (i % 2) * 65,
+                    texto: 'COLAPSO',
+                    tipo: 'onda'
+                });
+            }
+        }
+        estado.habAvisoT = 0;
+    }
+
+    function actualizarHabilidadJefe(b, dt, nivel, j) {
+        const h = b.habilidad;
+        if (!h) return;
+        if (h.avisoT > 0) {
+            h.avisoT = Math.max(0, h.avisoT - dt);
+            if (h.avisoT === 0) ejecutarHabilidadJefe(b, nivel, j);
+            return;
+        }
+        h.t -= dt;
+        if (h.t > 0) return;
+        h.avisoT = h.aviso;
+        h.t = h.recarga * (b.hp <= b.hpMax / 2 ? 0.72 : 1);
+        estado.habAviso = h.nombre;
+        estado.habAvisoT = h.aviso;
+        avisoFlotante('¡' + h.nombre + '!', b.x + b.ancho / 2, b.y - 14);
+        sfx('dano');
+    }
+
     function actualizarJefe(dt, nivel, j) {
         const b = nivel.jefe;
         if (!b || !b.vivo) return;
@@ -2457,6 +3279,7 @@
         b.golpe = Math.max(0, b.golpe - dt);
         b.fase += dt;
         b.movT += dt;
+        actualizarHabilidadJefe(b, dt, nivel, j);
 
         const patrones = {
             tecnico: { vx: 44, vy: 36, rango: 52, bob: 1.4, dashT: 4.2, dashVel: 150, dashDur: 0.38 },
@@ -2670,13 +3493,22 @@
 
         estado.tiempo += dt;
         estado.anim += dt;
+        estado.hudEntrada = Math.min(1, estado.hudEntrada + dt * 4);
+        estado.gpPulso = Math.max(0, estado.gpPulso - dt);
         estado.invulnerable = Math.max(0, estado.invulnerable - dt);
         estado.squash = Math.max(0, estado.squash - dt);
         estado.disparoEnfriamiento = Math.max(0, estado.disparoEnfriamiento - dt);
         estado.disparoAnim = Math.max(0, estado.disparoAnim - dt);
         actualizarParpadeo(dt);
 
-        const velMax = estado.entrada.correr ? VEL_CORRER : VEL_CAMINAR;
+        const quiereMover = estado.entrada.izquierda || estado.entrada.derecha;
+        if (estado.accesorio === 'zapatillas' && quiereMover) {
+            estado.zapatillasRampa = Math.min(1, estado.zapatillasRampa + dt / 0.3);
+        } else {
+            estado.zapatillasRampa = Math.max(0, estado.zapatillasRampa - dt / 0.5);
+        }
+        const bonusZapatillas = 1 + 0.1 * estado.zapatillasRampa;
+        const velMax = (estado.entrada.correr ? VEL_CORRER : VEL_CAMINAR) * bonusZapatillas;
         let objetivo = 0;
         if (estado.entrada.izquierda) objetivo -= velMax;
         if (estado.entrada.derecha) objetivo += velMax;
@@ -2705,9 +3537,12 @@
         j.vy = Math.min(j.vy + GRAVEDAD * dt, CAIDA_MAX);
         const vyAntes = j.vy;
 
+        const xAntesMovimiento = j.x;
         moverHorizontal(j, j.vx * dt, nivel);
         moverVertical(j, j.vy * dt, nivel);
         actualizarTuneles(dt, nivel, j);
+        const moviendo = Math.abs(j.x - xAntesMovimiento) > 0.01;
+        actualizarAccesorios(dt, moviendo, j);
 
         if (j.enSuelo) {
             if (Math.abs(j.vx) > 8) {
@@ -2734,6 +3569,7 @@
         }
 
         actualizarParticulas(dt);
+        actualizarHuecos(dt, nivel);
         actualizarHaters(dt, nivel, j);
         if (estado.jugador !== j) return;
         if (estado.fase !== 'jugando') return;
@@ -2746,6 +3582,7 @@
         if (estado.jugador !== j) return;
         actualizarAvisos(dt);
         actualizarCheckpoints(nivel, j);
+        actualizarTutorial(j);
         actualizarPurga(dt, nivel, j);
         if (estado.jugador !== j) return;
         if (estado.fase !== 'jugando') return;
@@ -2766,6 +3603,7 @@
             if (rectSolapa(j, caja)) {
                 moneda.recogida = true;
                 estado.gp += 1;
+                estado.gpPulso = 0.35;
                 sfx('moneda');
                 sincronizarUi();
             }
@@ -2925,7 +3763,7 @@
         c.fillRect(0, VISTA_ALTO - 10, VISTA_ANCHO, 2);
         c.globalAlpha = 1;
 
-        if (tema === 3 || tema === 5) {
+        if (estado.efectos && (tema === 3 || tema === 5)) {
             c.fillStyle = tema === 3 ? 'rgba(255, 79, 163, 0.14)' : 'rgba(167, 139, 250, 0.12)';
             const barrido = (estado.anim * 60) % 220;
             for (let i = 0; i < 4; i++) {
@@ -3045,6 +3883,108 @@
         c.fillRect(x + 14, 0, 2, alto);
         c.fillStyle = 'rgba(255, 79, 163, 0.22)';
         c.fillRect(x + 16, 0, 5, alto);
+    }
+
+    function dibujarOscuridad(c) {
+        if (estado.oscuridad <= 0) return;
+        const j = estado.jugador;
+        const alfa = Math.min(1, estado.oscuridad / 0.45);
+        if (!j) {
+            c.fillStyle = 'rgba(2, 6, 18, ' + (0.85 * alfa) + ')';
+            c.fillRect(0, 0, VISTA_ANCHO, VISTA_ALTO);
+            return;
+        }
+        const px = j.x + j.ancho / 2 - estado.camara.x;
+        const py = j.y + j.alto / 2 - estado.camara.y;
+        const gradiente = c.createRadialGradient(px, py, 24, px, py, 185);
+        gradiente.addColorStop(0, 'rgba(2, 6, 18, 0)');
+        gradiente.addColorStop(0.45, 'rgba(2, 6, 18, ' + (0.28 * alfa) + ')');
+        gradiente.addColorStop(0.8, 'rgba(2, 6, 18, ' + (0.78 * alfa) + ')');
+        gradiente.addColorStop(1, 'rgba(2, 6, 18, ' + (0.92 * alfa) + ')');
+        c.fillStyle = gradiente;
+        c.fillRect(0, 0, VISTA_ANCHO, VISTA_ALTO);
+    }
+
+    function dibujarRadar(c) {
+        const j = estado.jugador;
+        const nivel = estado.nivelDatos;
+        if (estado.accesorio !== 'auriculares' || !j || !nivel) return;
+        const px = j.x + j.ancho / 2 - estado.camara.x;
+        const py = j.y + j.alto / 2 - estado.camara.y;
+        const pulso = 0.42 + Math.abs(Math.sin(estado.anim * 3.2)) * 0.28;
+        c.strokeStyle = 'rgba(34, 211, 238, ' + pulso + ')';
+        c.lineWidth = 1;
+        c.beginPath();
+        c.arc(px, py, 18 + Math.sin(estado.anim * 2.6) * 2, 0, Math.PI * 2);
+        c.stroke();
+
+        const objetivos = [];
+        for (const h of nivel.haters) {
+            if (h.vivo) objetivos.push({ x: h.x + h.ancho / 2, y: h.y + h.alto / 2, color: '#ff8fc4' });
+        }
+        if (nivel.jefe && nivel.jefe.vivo && nivel.jefe.activado) {
+            objetivos.push({ x: nivel.jefe.x + nivel.jefe.ancho / 2, y: nivel.jefe.y + nivel.jefe.alto / 2, color: '#fde047' });
+        }
+
+        for (const objetivo of objetivos) {
+            const ox = objetivo.x - estado.camara.x;
+            const oy = objetivo.y - estado.camara.y;
+            const dx = ox - px;
+            const dy = oy - py;
+            const distancia = Math.hypot(dx, dy);
+            if (distancia < 12 || distancia > 330) continue;
+            if (ox > 5 && ox < VISTA_ANCHO - 5 && oy > 5 && oy < VISTA_ALTO - 5) {
+                c.fillStyle = objetivo.color;
+                c.globalAlpha = 0.8;
+                c.beginPath();
+                c.moveTo(ox, oy - 13);
+                c.lineTo(ox - 3, oy - 19);
+                c.lineTo(ox + 3, oy - 19);
+                c.closePath();
+                c.fill();
+                c.globalAlpha = 1;
+                continue;
+            }
+            const angulo = Math.atan2(dy, dx);
+            const cos = Math.cos(angulo);
+            const sin = Math.sin(angulo);
+            const bordeX = (VISTA_ANCHO / 2 - 12) / Math.max(0.001, Math.abs(cos));
+            const bordeY = (VISTA_ALTO / 2 - 12) / Math.max(0.001, Math.abs(sin));
+            const t = Math.min(bordeX, bordeY);
+            const mx = VISTA_ANCHO / 2 + cos * t;
+            const my = VISTA_ALTO / 2 + sin * t;
+            c.save();
+            c.translate(mx, my);
+            c.rotate(angulo);
+            c.fillStyle = objetivo.color;
+            c.beginPath();
+            c.moveTo(5, 0);
+            c.lineTo(-3, -4);
+            c.lineTo(-3, 4);
+            c.closePath();
+            c.fill();
+            c.restore();
+        }
+    }
+
+    function dibujarAvisoHabilidad(c) {
+        if (estado.habAvisoT <= 0 || !estado.habAviso) return;
+        const alfa = Math.min(1, estado.habAvisoT / 0.35);
+        c.font = 'bold 10px monospace';
+        const texto = '¡' + estado.habAviso + '!';
+        const ancho = c.measureText(texto).width + 20;
+        const x = (VISTA_ANCHO - ancho) / 2;
+        const y = 56;
+        c.fillStyle = 'rgba(253, 224, 71, ' + (0.14 * alfa) + ')';
+        c.strokeStyle = 'rgba(253, 224, 71, ' + (0.7 * alfa) + ')';
+        c.lineWidth = 1;
+        rectRedondeado(c, x, y, ancho, 18, 5);
+        c.fill();
+        c.stroke();
+        c.fillStyle = 'rgba(253, 224, 71, ' + alfa + ')';
+        c.textAlign = 'center';
+        c.fillText(texto, VISTA_ANCHO / 2, y + 12.5);
+        c.textAlign = 'left';
     }
 
     function dibujarAlertaPurga(c) {
@@ -3171,12 +4111,27 @@
             }
 
             // Cuerpo con contorno para que se lea sobre el fondo.
+            const colorHater = h.tipo === 'sniper'
+                ? '#93c5fd'
+                : (h.tipo === 'cargador' ? '#fca5a5' : (h.tipo === 'glitch' ? '#c4b5fd' : '#9aa4b8'));
             c.fillStyle = '#20263a';
             rectRedondeado(c, cx - 7, h.y + bob, 14, 13, 5);
             c.fill();
-            c.fillStyle = '#9aa4b8';
+            c.fillStyle = colorHater;
             rectRedondeado(c, cx - 6, h.y + 1 + bob, 12, 11, 4);
             c.fill();
+            if (h.iaEstado === 'alerta' || h.aviso > 0) {
+                c.strokeStyle = h.tipo === 'cargador' ? '#f87171' : '#fde047';
+                c.lineWidth = 1.4;
+                c.beginPath();
+                c.ellipse(cx, h.y + 7 + bob, 9, 9, 0, 0, Math.PI * 2);
+                c.stroke();
+            }
+            if (h.tipo === 'glitch') {
+                c.fillStyle = 'rgba(196, 181, 253, .35)';
+                c.fillRect(cx - 8, h.y + 2 + bob, 16, 1);
+                c.fillRect(cx - 6, h.y + 10 + bob, 12, 1);
+            }
             c.fillStyle = '#6f7a90';
             if (!h.volador) {
                 c.fillRect(cx - 5, pies - 2, 4, 2);
@@ -3232,13 +4187,30 @@
 
     function dibujarClips(c) {
         for (const clip of estado.clipsActivos) {
-            c.fillStyle = 'rgba(255, 79, 163, .3)';
-            c.fillRect(clip.x - Math.sign(clip.vx) * 10, clip.y - 1, 8, 2);
-            c.fillStyle = '#ff4fa3';
-            rectRedondeado(c, clip.x - 4, clip.y - 2.5, 8, 5, 2);
-            c.fill();
-            c.fillStyle = '#ffe3f1';
-            c.fillRect(clip.x - 1.5, clip.y - 1.2, 3, 2.4);
+            if (clip.tipo === 'beso') {
+                c.fillStyle = 'rgba(255, 79, 163, .28)';
+                c.beginPath();
+                c.ellipse(clip.x - Math.sign(clip.vx) * 8, clip.y, 8, 3, 0, 0, Math.PI * 2);
+                c.fill();
+                c.fillStyle = '#ff4fa3';
+                c.beginPath();
+                c.moveTo(clip.x, clip.y + 4);
+                c.bezierCurveTo(clip.x - 7, clip.y - 1, clip.x - 4, clip.y - 6, clip.x, clip.y - 2.5);
+                c.bezierCurveTo(clip.x + 4, clip.y - 6, clip.x + 7, clip.y - 1, clip.x, clip.y + 4);
+                c.fill();
+                c.fillStyle = '#ffe3f1';
+                c.beginPath();
+                c.arc(clip.x - 1.8, clip.y - 2.2, 1.1, 0, Math.PI * 2);
+                c.fill();
+            } else {
+                c.fillStyle = 'rgba(255, 79, 163, .3)';
+                c.fillRect(clip.x - Math.sign(clip.vx) * 10, clip.y - 1, 8, 2);
+                c.fillStyle = '#ff4fa3';
+                rectRedondeado(c, clip.x - 4, clip.y - 2.5, 8, 5, 2);
+                c.fill();
+                c.fillStyle = '#ffe3f1';
+                c.fillRect(clip.x - 1.5, clip.y - 1.2, 3, 2.4);
+            }
         }
     }
 
@@ -3687,9 +4659,9 @@
     function dibujarJefeHud(c) {
         const b = estado.nivelDatos && estado.nivelDatos.jefe;
         if (!b || !b.activado || !b.vivo) return;
-        const ancho = 140;
+        const ancho = 170;
         const x = (VISTA_ANCHO - ancho) / 2;
-        const y = 29;
+        const y = 40;
         c.fillStyle = 'rgba(5, 10, 20, .8)';
         rectRedondeado(c, x, y, ancho, 10, 4);
         c.fill();
@@ -3720,8 +4692,9 @@
     }
 
     function dibujarPierna(c, lado, fase, aire, vy, colorPantalon, colorZapato) {
-        const caderaX = lado * 2.1;
+        const caderaX = lado * 2.7;
         const caderaY = -8.2;
+        const quieto = !aire && estado.jugador && Math.abs(estado.jugador.vx) < 8;
         let rodillaX;
         let rodillaY;
         let pieX;
@@ -3730,16 +4703,16 @@
         if (aire) {
             const subiendo = vy < 0;
             const recogida = subiendo ? 1 : 0.45;
-            rodillaX = lado * 2.1 + lado * 1.5 * recogida;
+            rodillaX = lado * 2.7 + lado * 1.5 * recogida;
             rodillaY = -5.4 - 1.6 * recogida;
-            pieX = lado * 2.1 + lado * 2.6 * recogida;
+            pieX = lado * 2.7 + lado * 2.6 * recogida;
             pieY = -1.4 - 2.2 * recogida;
         } else {
-            const avance = Math.sin(fase);
+            const avance = quieto ? 0 : Math.sin(fase);
             const subida = Math.max(0, -avance);
-            rodillaX = lado * 2.1 + avance * 2.2;
+            rodillaX = lado * 2.7 + avance * 2.2;
             rodillaY = -5.2 + subida * 0.9;
-            pieX = lado * 2.1 + avance * 3.6;
+            pieX = lado * 2.9 + avance * 3.6;
             pieY = -1.2 - subida * 1.6;
         }
 
@@ -3760,7 +4733,32 @@
 
         c.fillStyle = colorZapato;
         c.beginPath();
-        c.ellipse(pieX + lado * 0.7, pieY, 2.1, 1.2, 0, 0, Math.PI * 2);
+        c.ellipse(pieX + lado * 0.5, pieY, 2.2, 1.2, 0, 0, Math.PI * 2);
+        c.fill();
+    }
+
+    function dibujarLazo(c, respiracion, color) {
+        const y = -8.7 + respiracion;
+        c.fillStyle = color;
+        rectRedondeado(c, -5.2, y - 0.55, 10.4, 1.1, 0.55);
+        c.fill();
+        c.fillStyle = 'rgba(255, 255, 255, .28)';
+        c.fillRect(-4.6, y - 0.36, 9.2, 0.32);
+        c.fillStyle = color;
+        c.beginPath();
+        c.arc(0, y, 0.9, 0, Math.PI * 2);
+        c.fill();
+        c.beginPath();
+        c.moveTo(-0.2, y + 0.45);
+        c.lineTo(-1.7, y + 2.15);
+        c.lineTo(-0.45, y + 1.65);
+        c.closePath();
+        c.fill();
+        c.beginPath();
+        c.moveTo(0.2, y + 0.45);
+        c.lineTo(1.9, y + 2.35);
+        c.lineTo(0.7, y + 1.7);
+        c.closePath();
         c.fill();
     }
 
@@ -3821,7 +4819,7 @@
 
         const skin = SKINS.find((item) => item.id === estado.skin) || SKINS[0];
         const colorPelo = skin.colores.pelo;
-        const colorPiel = skin.colores.piel;
+        const colorPiel = PIEL_GOCHITA;
         const colorTop = skin.colores.top;
         const colorTopClaro = skin.colores.topClaro;
         const colorRosa = skin.colores.rosa;
@@ -3858,7 +4856,8 @@
         c.fill();
 
         dibujarPierna(c, -1, estado.paso + Math.PI, aire, j.vy, colorTop, colorZapato);
-        dibujarBrazo(c, -1, estado.paso, aire, j.vy, colorTop, colorPiel);
+        dibujarPierna(c, 1, estado.paso, aire, j.vy, colorTop, colorZapato);
+        dibujarBrazo(c, -1, estado.paso, aire, j.vy, colorTopClaro, colorPiel);
 
         // Torso.
         c.fillStyle = colorTop;
@@ -3866,11 +4865,19 @@
         c.fill();
         c.fillStyle = colorTopClaro;
         c.fillRect(-3.5, -14.2 + respiracion, 7, 1.2);
-        c.fillStyle = colorRosa;
+        c.fillStyle = 'rgba(8, 16, 30, .5)';
         rectRedondeado(c, -5.5, -8.6 + respiracion, 11, 1.6, 0.8);
         c.fill();
+        // Cuello de la sudadera: hace visible el color de cada skin.
+        c.strokeStyle = colorTopClaro;
+        c.lineWidth = 1.1;
+        c.beginPath();
+        c.arc(0, -15 + respiracion, 4.2, Math.PI * 1.1, Math.PI * 1.9);
+        c.stroke();
+        c.fillStyle = colorRosa;
+        c.fillRect(-0.5, -14.8 + respiracion, 1, 5.8);
 
-        dibujarPierna(c, 1, estado.paso, aire, j.vy, colorTop, colorZapato);
+        dibujarLazo(c, respiracion, colorRosa);
 
         // Cabeza.
         c.save();
@@ -3961,7 +4968,7 @@
 
         c.restore();
 
-        dibujarBrazo(c, 1, estado.paso + Math.PI, aire, j.vy, colorTop, colorPiel);
+        dibujarBrazo(c, 1, estado.paso + Math.PI, aire, j.vy, colorTopClaro, colorPiel);
 
         if (estado.disparoAnim > 0) {
             const f = estado.disparoAnim / 0.12;
@@ -3971,20 +4978,202 @@
             c.fill();
         }
 
+        dibujarAccesorio(c, estado.accesorio, respiracion, colorRosa);
+        if (estado.accesorio === 'espejo' && estado.espejoFlash > 0) {
+            c.globalAlpha = Math.min(1, estado.espejoFlash / 0.2);
+            c.strokeStyle = '#fde047';
+            c.lineWidth = 1.6;
+            c.beginPath();
+            c.arc(9, -12, 7, -1.15, 1.15);
+            c.stroke();
+            c.strokeStyle = '#bae6fd';
+            c.lineWidth = 0.8;
+            c.beginPath();
+            c.arc(9, -12, 4.6, -0.95, 0.95);
+            c.stroke();
+            c.globalAlpha = 1;
+        }
         c.restore();
     }
 
+    function dibujarAccesorio(c, id, respiracion, colorRosa) {
+        if (!id) return;
+        const y = respiracion;
+        if (id === 'auriculares') {
+            c.strokeStyle = '#22d3ee';
+            c.lineWidth = 2;
+            c.beginPath();
+            c.arc(0, -21 + y, 8.2, Math.PI * 1.04, Math.PI * 1.96);
+            c.stroke();
+            c.fillStyle = '#0e7490';
+            rectRedondeado(c, -10.2, -23 + y, 3.2, 6.2, 1.4);
+            c.fill();
+            rectRedondeado(c, 7, -23 + y, 3.2, 6.2, 1.4);
+            c.fill();
+            c.fillStyle = '#67e8f9';
+            c.fillRect(-9.2, -21.7 + y, 1.2, 3.4);
+            c.fillRect(8, -21.7 + y, 1.2, 3.4);
+            c.strokeStyle = '#a5f3fc';
+            c.lineWidth = 0.9;
+            c.beginPath();
+            c.moveTo(8.5, -19 + y);
+            c.quadraticCurveTo(11, -14 + y, 8.5, -12 + y);
+            c.stroke();
+            c.fillStyle = colorRosa;
+            c.beginPath();
+            c.arc(8.5, -12 + y, 1.1, 0, Math.PI * 2);
+            c.fill();
+        }
+        if (id === 'movil') {
+            c.save();
+            c.translate(8.5, -11 + y);
+            c.rotate(-0.18);
+            c.fillStyle = '#1e1b4b';
+            rectRedondeado(c, -2.2, -4.5, 5, 9, 1.2);
+            c.fill();
+            c.fillStyle = colorRosa;
+            c.fillRect(-1.4, -3.4, 3.4, 6.4);
+            c.fillStyle = '#312e81';
+            c.fillRect(-1.2, -4.2, 2.4, 0.7);
+            c.fillStyle = '#22d3ee';
+            c.fillRect(-1.2, -1.8, 2.4, 0.7);
+            c.restore();
+        }
+        if (id === 'ropa') {
+            c.fillStyle = 'rgba(255, 79, 163, .18)';
+            rectRedondeado(c, -6.2, -16 + y, 12.4, 9.5, 3);
+            c.fill();
+            c.strokeStyle = colorRosa;
+            c.lineWidth = 1.2;
+            c.beginPath();
+            c.arc(0, -15.4 + y, 4.6, Math.PI * 1.08, Math.PI * 1.92);
+            c.stroke();
+            c.fillStyle = '#ffd166';
+            c.fillRect(-1.2, -12.2 + y, 2.4, 1.2);
+        }
+        if (id === 'zapatillas') {
+            c.strokeStyle = colorRosa;
+            c.lineWidth = 1.6;
+            c.beginPath();
+            c.moveTo(-6.5, -1 + y);
+            c.lineTo(-11, -2.8 + y);
+            c.moveTo(3.5, -1 + y);
+            c.lineTo(8.5, -2.8 + y);
+            c.stroke();
+            c.fillStyle = colorRosa;
+            c.beginPath();
+            c.arc(-6.5, -1 + y, 1.2, 0, Math.PI * 2);
+            c.fill();
+            c.beginPath();
+            c.arc(3.5, -1 + y, 1.2, 0, Math.PI * 2);
+            c.fill();
+        }
+        if (id === 'labial') {
+            c.fillStyle = colorRosa;
+            c.beginPath();
+            c.arc(3.8, -19.2 + y, 1.2, 0, Math.PI * 2);
+            c.fill();
+            c.strokeStyle = colorRosa;
+            c.lineWidth = 0.8;
+            c.beginPath();
+            c.moveTo(2.8, -18.4 + y);
+            c.quadraticCurveTo(3.8, -17.8 + y, 4.8, -18.4 + y);
+            c.stroke();
+            c.save();
+            c.translate(9.5, -9 + y);
+            c.rotate(-0.35);
+            c.fillStyle = '#111827';
+            c.fillRect(-1.2, -4.5, 2.4, 5);
+            c.fillStyle = colorRosa;
+            c.fillRect(-1.2, -5.8, 2.4, 2);
+            c.restore();
+        }
+        if (id === 'espejo') {
+            c.fillStyle = '#fde047';
+            c.beginPath();
+            c.arc(-10.5, -17 + y, 4.2, 0, Math.PI * 2);
+            c.fill();
+            c.fillStyle = '#bae6fd';
+            c.beginPath();
+            c.arc(-10.5, -17 + y, 2.9, 0, Math.PI * 2);
+            c.fill();
+            c.strokeStyle = '#fde047';
+            c.lineWidth = 1.4;
+            c.beginPath();
+            c.moveTo(-10.5, -12.8 + y);
+            c.lineTo(-10.5, -9.5 + y);
+            c.stroke();
+            c.fillStyle = '#fff7d6';
+            c.fillRect(-14, -20 + y, 1, 1);
+            c.fillRect(-7.5, -14 + y, 1, 1);
+        }
+    }
+
     function dibujarHud(c) {
-        c.fillStyle = 'rgba(5, 10, 20, 0.58)';
-        c.fillRect(0, 0, VISTA_ANCHO, 24);
+        const entrada = estado.reducirMovimiento ? 1 : Math.min(1, estado.hudEntrada);
+        const suave = 1 - Math.pow(1 - entrada, 3);
+        const dy = (1 - suave) * -14;
+        const alfa = suave;
+        const pulsoVida = estado.vidas <= 1 ? 0.62 + 0.38 * Math.abs(Math.sin(estado.anim * 7)) : 1;
+        const pulsoGp = estado.gpPulso > 0;
 
-        c.font = 'bold 10px monospace';
-        c.textAlign = 'left';
+        c.save();
+        c.globalAlpha = alfa;
+        c.translate(0, dy);
+
+        const panel = (x, y, w, h) => {
+            c.fillStyle = 'rgba(8, 15, 30, .82)';
+            rectRedondeado(c, x, y, w, h, 8);
+            c.fill();
+            c.strokeStyle = 'rgba(94, 234, 212, .28)';
+            c.lineWidth = 1;
+            c.stroke();
+        };
+
+        // Marcador de GP y vidas.
+        panel(6, 5, 112, 30);
+        c.beginPath();
+        c.arc(16, 15, 5.2, 0, Math.PI * 2);
         c.fillStyle = '#ffd166';
-        c.fillText('GP × ' + estado.gp, 8, 15);
-
+        c.fill();
+        c.fillStyle = '#3b2a08';
+        c.font = 'bold 7px monospace';
         c.textAlign = 'center';
-        c.fillStyle = '#cbd5e1';
+        c.fillText('G', 16, 17.4);
+        c.textAlign = 'left';
+        c.font = pulsoGp ? 'bold 12px monospace' : 'bold 10px monospace';
+        c.fillStyle = pulsoGp ? '#fff7d6' : '#ffd166';
+        c.fillText(String(estado.gp), 26, 19);
+        c.font = '6px monospace';
+        c.fillStyle = 'rgba(255, 209, 102, .72)';
+        c.fillText('GP', 26, 26);
+
+        c.font = '10px monospace';
+        c.fillStyle = '#ff6b9d';
+        c.globalAlpha = alfa * pulsoVida;
+        for (let i = 0; i < estado.vidas; i++) c.fillText('♥', 58 + i * 11, 18);
+        c.globalAlpha = alfa;
+        if (estado.escudo > 0) {
+            c.strokeStyle = '#67e8f9';
+            c.lineWidth = 1.4;
+            c.beginPath();
+            c.moveTo(101, 11);
+            c.lineTo(104, 12.4);
+            c.lineTo(104, 16.4);
+            c.quadraticCurveTo(104, 19, 101, 21);
+            c.quadraticCurveTo(98, 19, 98, 16.4);
+            c.lineTo(98, 12.4);
+            c.closePath();
+            c.stroke();
+            c.fillStyle = '#a5f3fc';
+            c.font = 'bold 7px monospace';
+            c.textAlign = 'center';
+            c.fillText(String(estado.escudo), 101, 18);
+            c.textAlign = 'left';
+        }
+
+        // Nivel y progreso.
+        panel(124, 5, 232, 30);
         const nombreNivel = estado.nivelDatos ? estado.nivelDatos.nombre : 'El Setup';
         const etiquetaNivel = estado.modo === 'rush'
             ? 'JEFE ' + estado.rushJefe + '/' + estado.rushTotal
@@ -3992,42 +5181,73 @@
                 ? 'RETO DIARIO'
                 : (estado.modo === 'mision'
                     ? 'MISIÓN · ' + nombreNivel.toUpperCase()
-                    : 'NIVEL ' + estado.nivelActual + '/' + NIVELES.length + ' · ' + nombreNivel.toUpperCase()));
-        c.fillText(etiquetaNivel, VISTA_ANCHO / 2, 15);
+                    : (estado.modo === 'tutorial'
+                        ? 'PASO ' + (estado.tutorialPaso + 1) + '/' + TUTORIAL_PASOS.length
+                        : 'NIVEL ' + estado.nivelActual + '/' + NIVELES.length + ' · ' + nombreNivel.toUpperCase())));
+        c.font = 'bold 7px monospace';
+        c.textAlign = 'center';
+        c.fillStyle = estado.modo === 'tutorial' ? '#fde047' : '#cbd5e1';
+        c.fillText(etiquetaNivel, 240, 15);
 
+        const metaX = estado.nivelDatos && estado.nivelDatos.meta
+            ? estado.nivelDatos.meta.x
+            : (estado.nivelDatos ? estado.nivelDatos.ancho * TILE : 1);
+        const progreso = limitar(estado.jugador ? estado.jugador.x / Math.max(1, metaX) : 0, 0, 1);
+        c.fillStyle = 'rgba(148, 163, 184, .22)';
+        rectRedondeado(c, 132, 21, 216, 5, 2.5);
+        c.fill();
+        const gradiente = c.createLinearGradient(132, 0, 348, 0);
+        gradiente.addColorStop(0, '#5eead4');
+        gradiente.addColorStop(1, '#ff4fa3');
+        c.fillStyle = gradiente;
+        rectRedondeado(c, 132, 21, Math.max(5, 216 * progreso), 5, 2.5);
+        c.fill();
+        c.fillStyle = '#fff';
+        c.beginPath();
+        c.arc(132 + 216 * progreso, 23.5, 2.2, 0, Math.PI * 2);
+        c.fill();
+
+        // Tiempo y clips.
+        panel(362, 5, 112, 30);
         c.textAlign = 'right';
+        c.font = 'bold 11px monospace';
         c.fillStyle = '#5eead4';
-        c.fillText(formatearTiempo(estado.tiempo), VISTA_ANCHO - 8, 15);
-
-        c.fillStyle = '#ff8fc4';
-        c.font = 'bold 8px monospace';
-        c.fillText('CLIPS × ' + estado.clips, VISTA_ANCHO - 8, 22);
+        c.fillText(formatearTiempo(estado.tiempo), 466, 18);
+        c.font = '6px monospace';
+        c.fillStyle = 'rgba(94, 234, 212, .6)';
+        c.fillText('TIEMPO', 466, 26);
 
         c.textAlign = 'left';
-        c.fillStyle = '#ff4fa3';
-        c.font = '9px monospace';
-        for (let i = 0; i < estado.vidas; i++) c.fillText('♥', 8 + i * 10, 22);
+        c.font = 'bold 8px monospace';
+        c.fillStyle = '#ff8fc4';
+        c.fillText('CLIP × ' + estado.clips, 370, 18);
+        const carga = limitar(estado.clips / MAX_CLIPS, 0, 1);
+        c.fillStyle = 'rgba(255, 79, 163, .18)';
+        c.fillRect(370, 22, 96, 4);
+        c.fillStyle = estado.clips === MAX_CLIPS ? '#fde047' : '#ff4fa3';
+        c.fillRect(370, 22, 96 * carga, 4);
 
-        if (estado.escudo > 0) {
-            const xEscudo = 8 + estado.vidas * 10 + 7;
-            c.beginPath();
-            c.moveTo(xEscudo + 3, 15);
-            c.lineTo(xEscudo + 6, 16.4);
-            c.lineTo(xEscudo + 6, 18.6);
-            c.quadraticCurveTo(xEscudo + 6, 21, xEscudo + 3, 22.4);
-            c.quadraticCurveTo(xEscudo, 21, xEscudo, 18.6);
-            c.lineTo(xEscudo, 16.4);
-            c.closePath();
-            c.fillStyle = '#ff8fc4';
-            c.fill();
-            c.strokeStyle = 'rgba(255, 209, 230, 0.75)';
-            c.lineWidth = 0.5;
-            c.stroke();
-            c.fillStyle = '#ffd1e6';
-            c.font = '7px monospace';
-            c.fillText(estado.escudo + '/' + ESCUDO_MAX, xEscudo + 9, 22);
-        }
+        c.restore();
+        c.textAlign = 'left';
+        c.globalAlpha = 1;
+    }
 
+    function dibujarTutorial(c) {
+        if (estado.modo !== 'tutorial' || estado.fase !== 'jugando') return;
+        const paso = TUTORIAL_PASOS[estado.tutorialPaso] || TUTORIAL_PASOS[0];
+        const ancho = 292;
+        const x = (VISTA_ANCHO - ancho) / 2;
+        const y = VISTA_ALTO - 30;
+        c.fillStyle = 'rgba(5, 10, 20, .82)';
+        rectRedondeado(c, x, y, ancho, 21, 6);
+        c.fill();
+        c.strokeStyle = 'rgba(253, 224, 71, .55)';
+        c.lineWidth = 1;
+        c.stroke();
+        c.textAlign = 'center';
+        c.font = 'bold 8px monospace';
+        c.fillStyle = '#fde047';
+        c.fillText(paso.texto, VISTA_ANCHO / 2, y + 13.5);
         c.textAlign = 'left';
     }
 
@@ -4057,9 +5277,13 @@
         dibujarAvisos(ctx);
         ctx.restore();
 
+        dibujarOscuridad(ctx);
+        dibujarRadar(ctx);
         dibujarAlertaPurga(ctx);
         dibujarHud(ctx);
+        dibujarTutorial(ctx);
         dibujarJefeHud(ctx);
+        dibujarAvisoHabilidad(ctx);
     }
 
     // === BUCLE ===
@@ -4150,6 +5374,11 @@
 
         if (evento.code === 'Escape' && window.Alpine && typeof window.Alpine.store === 'function') {
             const tienda = window.Alpine.store('juego');
+            if (tienda && tienda.ajustesAbierto) {
+                ocultarAjustes();
+                evento.preventDefault();
+                return;
+            }
             if (tienda && tienda.progresoAbierto) {
                 ocultarProgreso();
                 evento.preventDefault();
@@ -4242,9 +5471,15 @@
         iniciarBossRush,
         iniciarRetoDiario,
         iniciarMision,
+        iniciarTutorial,
         nuevaCampana: () => iniciarPartida(1),
         fijarVolumen,
         alternarMovimientoReducido,
+        alternarEfectos,
+        alternarNitidez,
+        comprarAccesorio,
+        equiparAccesorio,
+        sincronizarProgreso: () => sincronizarProgresoNube(false),
         estado: () => ({
             fase: estado.fase,
             gp: estado.gp,
@@ -4258,6 +5493,11 @@
             nivel: estado.nivelActual,
             nivelNombre: estado.nivelDatos ? estado.nivelDatos.nombre : 'El Setup',
             modo: estado.modo,
+            monedas: estado.monedas,
+            accesorio: estado.accesorio,
+            tutorialHecho: estado.tutorialHecho,
+            cuenta: estado.cuenta,
+            nubeEstado: estado.nubeEstado,
             rushJefe: estado.rushJefe,
             rushTotal: estado.rushTotal,
             rushCompletado: estado.rushCompletado,
@@ -4324,7 +5564,19 @@
             misionNombre: '',
             misionDesc: '',
             misionActivaId: '',
+            monedas: 0,
+            accesorio: '',
+            cuenta: '',
+            nubeEstado: 'invitado',
+            nubeMensaje: 'Invitado: el progreso no se guarda.',
+            tienda: [],
+            tiendaMensaje: '',
+            tutorialHecho: false,
             progresoAbierto: false,
+            progresoTab: 'medallas',
+            ajustesAbierto: false,
+            efectos: true,
+            nitidez: true,
             rankingAbierto: false,
             rankingTab: 'general',
             rankingFilas: [],
@@ -4349,8 +5601,20 @@
             abrirRanking(tab) { mostrarRanking(tab); },
             cerrarRanking() { ocultarRanking(); },
             cambiarRanking(tab) { cambiarTabRanking(tab); },
-            abrirProgreso() { mostrarProgreso(); },
+            abrirProgreso(tab) { mostrarProgreso(tab); },
             cerrarProgreso() { ocultarProgreso(); },
+            abrirAjustes() { mostrarAjustes(); },
+            cerrarAjustes() { ocultarAjustes(); },
+            alternarEfectos() { alternarEfectos(); },
+            alternarNitidez() { alternarNitidez(); },
+            comprarAccesorio(id) { comprarAccesorio(id); },
+            equiparAccesorio(id) { equiparAccesorio(id); },
+            usarAccesorio(item) {
+                if (!item) return;
+                if (item.comprado) equiparAccesorio(item.id);
+                else comprarAccesorio(item.id);
+            },
+            iniciarTutorial() { iniciarTutorial(); },
             seleccionarSkin(id) { elegirSkin(id); },
             iniciarBossRush() { iniciarBossRush(); },
             iniciarRetoDiario() { iniciarRetoDiario(); },
@@ -4363,8 +5627,21 @@
 
     function iniciar() {
         leerSonido();
+        aplicarNitidez();
+        tokenNubeActual = tokenComunidad();
+        if (!tokenNubeActual) {
+            limpiarProgresoLocal();
+            estado.cuenta = '';
+            estado.nubeEstado = 'invitado';
+            estado.nubeMensaje = 'Invitado: el progreso no se guarda.';
+        } else {
+            estado.cuenta = apodoComunidad();
+            estado.nubeEstado = 'cargando';
+            estado.nubeMensaje = 'Sincronizando progreso…';
+        }
         estado.nivelDesbloqueado = leerNivelDesbloqueado();
         actualizarProgreso();
+        estado.nivelActual = nivelDeInicio();
         actualizarBotonSonido();
         const botonSonido = document.getElementById('game-sonido');
         if (botonSonido) botonSonido.addEventListener('click', alternarSonido);
@@ -4373,10 +5650,15 @@
         prepararTactil();
         window.addEventListener('keydown', alPulsarTecla);
         window.addEventListener('keyup', alSoltarTecla);
+        window.addEventListener('gocha:sesion', alCambiarSesionJuego);
+        window.addEventListener('storage', (evento) => {
+            if (evento.key === 'comunidad_session_token') alCambiarSesionJuego();
+        });
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) pausarPartida();
         });
         window.addEventListener('blur', () => pausarPartida());
+        if (tokenNubeActual) sincronizarProgresoNube(true);
         requestAnimationFrame(bucle);
     }
 

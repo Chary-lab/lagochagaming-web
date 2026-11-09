@@ -13,11 +13,12 @@ Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin b
 
 ## GochitaRunner
 
-- Canvas 2D con render interno de 960×540 (2x sobre 480×270 lógicos), paso fijo de 1/60 y cámara lateral. El estado vive en `game.js`; la UI (paneles, selector de nivel, ranking y progreso) usa Alpine.
+- Canvas 2D con render interno de 960×540 (2x sobre 480×270 lógicos), paso fijo de 1/60 y cámara lateral. El estado vive en `game.js`; la UI (menú de inicio, paneles, ranking, progreso y tienda) usa Alpine.
 - Controles: flechas o A/D para mover, Shift/X para correr, Espacio/Z/W/↑ para saltar, J/K para disparar clips, P/Esc para pausar y R para reiniciar. En móvil aparecen controles táctiles.
 - Niveles: El Setup, Raid City (túneles de raid y haters voladores), La Purga (el escenario se borra detrás de ti), Overclock (viento y pinchos) y El Núcleo (oleadas y jefe de dos fases). Cada uno termina con un jefe y se desbloquea al completar el anterior.
-- Progreso local: medallas S/A/B/C por GP y tiempo, 14 logros, 5 skins, misiones semanales con sellos, Boss Rush y reto diario. Al completar la campaña se puede empezar de nuevo desde el nivel 1. Se guarda en `lg_game_v1` y se consulta desde el panel Progreso.
-- Ranking: `game_iniciar_partida` abre una partida, `game_enviar_partida` valida y guarda la mejor marca por nivel, y `game_ranking_general` / `game_ranking_nivel` leen el top 50. Requiere sesión de comunidad (`comunidad_session_token`); los invitados juegan solo en local.
+- Progreso con cuenta de comunidad: medallas S/A/B/C por GP y tiempo, 14 logros, 5 skins, misiones semanales con sellos, Boss Rush, reto diario y tutorial corto de nivel 0. La tienda usa GC para comprar accesorios (auriculares, móvil, ropa, zapatillas, labial y espejo). Cada accesorio tiene una habilidad: radar, clips o escudo solo en movimiento, +10 % de velocidad, besos o bloqueo frontal con espejo. Al completar la campaña se puede empezar de nuevo desde el nivel 1. Se guarda en Supabase mediante `game_cargar_progreso` y `game_guardar_progreso`; sin sesión se juega como invitado y no se guarda nada. Los ajustes de sonido y gráficos siguen en `lg_game_v1`.
+- Los haters usan IA por tipo (básico, sniper, cargador y glitch) y los cinco jefes tienen habilidades ambientales: cortocircuito, oscuridad, apagón, sobrecarga y colapso.
+- Ranking: `game_iniciar_partida` abre una partida, `game_enviar_partida` valida y guarda la mejor marca por nivel, y `game_ranking_general` / `game_ranking_nivel` leen el top 50. Requiere sesión de comunidad (`comunidad_session_token`); los invitados juegan sin guardado ni marcas.
 - Puntos del juego: GochiPoints (GP), Haters y bonus por tiempo. No se mezclan con los puntos de comunidad.
 
 ## Perfiles y avatares

@@ -3,6 +3,43 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.102.0] - 2026-11-09
+
+### Accesorios con habilidad, IA de haters y jefes ambientales
+
+- **Accesorios con habilidad**: los auriculares marcan enemigos y burbujas cercanas; el móvil da +1 clip cada 5 s y el hoodie +1 escudo cada 5 s, ambos solo con movimiento real y sin pasar del máximo; las zapatillas dan hasta +10 % de velocidad con una rampa corta; el labial dispara más lento pero lanza besos; el espejo bloquea una burbuja frontal con 1,2 s de enfriamiento.
+- **Haters con IA**: básico, sniper con disparo predictivo, cargador con aviso y embestida, y glitch que se teletransporta a suelo válido. El nivel asigna tipos y la dificultad crece con la zona; el límite de burbujas evita saturar la pantalla.
+- **Habilidades de jefe**: cortocircuito abre huecos temporales; raid nocturno oscurece la escena; apagón combina oscuridad y hueco; sobrecarga empuja con viento y rompe suelo; colapso abre varios huecos, oscurece y lanza ondas. Aviso previo, enfriamiento y recarga más rápida en furia.
+- **Pausa completa**: volumen, sonido, movimiento reducido, efectos y nitidez se ajustan sin salir de la partida; los controles se organizan en dos columnas.
+- Los huecos temporales se restauran y los efectos se limpian al cargar nivel, morir o salir al menú.
+- Sin migración de Supabase: todo el combate, la IA y las habilidades se resuelven en el cliente.
+
+## [1.101.0] - 2026-11-09
+
+### Progreso en la nube y modo invitado
+
+- **Invitado sin cuenta**: se puede jugar la campaña, el tutorial, los retos y las misiones, pero el progreso no se guarda. Al recargar se vuelve al nivel 1 y no hay ranking.
+- **Cuenta de comunidad**: desbloqueos, medallas, logros, GC, skins, accesorios, sellos, misiones y récords se guardan en Supabase y se sincronizan al entrar.
+- El menú muestra el estado de la cuenta, el aviso de invitado y un acceso directo a Comunidad para entrar.
+- La fusión de progreso conserva lo mejor de cada dispositivo: niveles, logros, accesorios y récords; los datos se validan en el servidor antes de guardarse.
+- Nuevas RPC `game_cargar_progreso` y `game_guardar_progreso` con token de comunidad, tabla `game_progreso` sin acceso directo desde el cliente.
+- Al continuar una campaña guardada se abre el nivel más alto desbloqueado; si ya está completada, empieza de nuevo en El Setup.
+- Los ajustes de sonido, volumen, movimiento, efectos y nitidez siguen siendo locales y se conservan al cerrar sesión.
+- Las skins ahora cambian ropa, zapatos y acentos de accesorios, pero mantienen la misma cara y manos; cada skin bloqueada muestra su requisito.
+
+## [1.100.0] - 2026-11-09
+
+### Menú de inicio, tutorial y tienda de accesorios
+
+- Nuevo **menú de inicio** dentro del escenario: continuar campaña, nueva partida, ajustes, sonido, ranking, retos, medallas y tienda, con ruta de los cinco niveles y estado de cada uno.
+- **Tutorial corto** de nivel 0: moverse, saltar, disparar, pisar haters y llegar al GO LIVE, con pistas contextuales y 10 GC la primera vez.
+- **HUD rediseñada**: tres paneles compactos, barra de progreso del nivel, GP, corazones, escudo, clips, tiempo y entrada animada. La barra del jefe baja para no tapar el HUD.
+- **Tienda con GC**: auriculares, móvil, hoodie, zapatillas, labial y espejo. Se compran, se equipan y se dibujan sobre Gochita.
+- **Skins visibles**: el pelo, la ropa, las mangas y los zapatos cambian de color de verdad; el panel muestra una miniatura de cada skin.
+- **Ajustes gráficos y de sonido**: volumen, sonido, movimiento reducido, efectos y nitidez 2x, accesibles desde el menú y desde la pausa.
+- La pausa mantiene **Seguir / Reiniciar / Salir al menú**; ranking y progreso tienen botón **Menú** y cierran con Escape.
+- Textos de inicio y ayuda reducidos; el tutorial sustituye la lista larga de controles.
+
 ## [1.99.0] - 2026-11-09
 
 ### Campaña reiniciable y misiones semanales

@@ -478,6 +478,11 @@ window.refrescarCacheAdmin = function refrescarCacheAdmin() {
     try { canal = new BroadcastChannel('gocha_sesion'); } catch (e) { return; }
     window.avisarCambioSesion = function avisarCambioSesion(motivo) {
         try { canal.postMessage({ motivo: motivo || 'cambio', en: Date.now() }); } catch (e) { /* canal cerrado */ }
+        try {
+            window.dispatchEvent(new CustomEvent('gocha:sesion', {
+                detail: { motivo: motivo || 'cambio', en: Date.now() }
+            }));
+        } catch (e) { /* sin CustomEvent */ }
     };
     canal.onmessage = function () {
         window.refrescarCacheAdmin();
