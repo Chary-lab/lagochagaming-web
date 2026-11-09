@@ -238,6 +238,7 @@
   navHtml += '</nav>';
   body.insertAdjacentHTML('beforeend', navHtml);
   var bottomNav = document.getElementById('lg-bottomnav');
+  if (bottomNav) bottomNav.style.gridTemplateColumns = 'repeat(' + NAV.length + ', minmax(0, 1fr))';
 
   body.insertAdjacentHTML('beforeend',
     '<div id="lg-settings" class="lg-overlay" aria-hidden="true">' +
@@ -279,7 +280,7 @@
             '<button type="button" class="lg-action-btn" data-action="sugerencias">' + icon('bulb') + 'Sugerencias<small>Enviar una idea</small></button>' +
             '<button type="button" class="lg-action-btn" id="lg-admin-row" data-action="admin" hidden>' + icon('lock') + 'Acceso de administración<small>Solo creadores</small></button>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v2.0 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v2.0.0 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -1644,37 +1645,20 @@
   }
 
   var AVISO_NUEVA_APP = 'lg_aviso_nueva_app';
-  var URL_NUEVA_APP = 'https://lagochagaming.com/app/LaGochaGaming.apk';
+  // Host externo: el WebView de la 1.x abre el navegador en vez de intentar
+  // descargar el APK dentro de la propia app.
+  var URL_NUEVA_APP = 'https://raw.githubusercontent.com/Chary-lab/lagochagaming-web/main/app/LaGochaGaming.apk';
 
   function versionPrincipal(version) {
     return parseInt(String(version || '0').split('.')[0], 10) || 0;
   }
 
-  function copiarEnlaceNuevaApp() {
-    var texto = URL_NUEVA_APP;
-    function listo() { native('toast', 'Enlace copiado. Abrelo en tu navegador.'); }
-    function fallo() { native('toast', 'Abre lagochagaming.com en tu navegador.'); }
-    function copiaAntigua() {
-      try {
-        var area = document.createElement('textarea');
-        area.value = texto;
-        area.setAttribute('readonly', '');
-        area.style.position = 'fixed';
-        area.style.opacity = '0';
-        document.body.appendChild(area);
-        area.select();
-        var ok = document.execCommand('copy');
-        area.remove();
-        ok ? listo() : fallo();
-      } catch (e) {
-        fallo();
-      }
-    }
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      navigator.clipboard.writeText(texto).then(listo).catch(copiaAntigua);
+  function descargarNuevaApp() {
+    try {
+      window.location.href = URL_NUEVA_APP;
       return;
-    }
-    copiaAntigua();
+    } catch (e) {}
+    try { window.open(URL_NUEVA_APP, '_blank', 'noopener'); } catch (e) {}
   }
 
   function pintarAvisoNuevaApp() {
@@ -1699,7 +1683,7 @@
     var titulo = document.createElement('strong');
     titulo.textContent = 'Nueva app disponible';
     var sub = document.createElement('small');
-    sub.textContent = 'Desinstala e instala de nuevo';
+    sub.textContent = 'Descarga, desinstala esta e instala la nueva.';
     texto.appendChild(titulo);
     texto.appendChild(sub);
     barra.appendChild(texto);
@@ -1707,10 +1691,11 @@
     var boton = document.createElement('button');
     boton.type = 'button';
     boton.className = 'lg-update-btn';
-    boton.textContent = 'Copiar';
+    boton.textContent = 'Descargar';
+    boton.setAttribute('aria-label', 'Descargar la nueva app');
     boton.addEventListener('click', function () {
       haptic();
-      copiarEnlaceNuevaApp();
+      descargarNuevaApp();
     });
     barra.appendChild(boton);
 

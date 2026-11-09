@@ -12,8 +12,9 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 - Botón de **pantalla completa** en la barra superior: fuerza horizontal, oculta las barras del sistema, mantiene la pantalla encendida y deja un botón flotante para salir.
 - El botón atrás de Android cierra primero ajustes, progreso, ranking, pantalla completa o pausa; después vuelve al menú anterior.
 - Los modales del juego suben por encima de la barra superior e inferior de la app.
-- APK 2.0 (`versionCode` 23) firmada y publicada, con actualizador propio en `app/update.json`.
-- Aviso dentro de la app para quienes ya la tienen instalada: desinstalar e instalar la nueva desde la web.
+- Corregida la barra inferior en todas las páginas: usa siete columnas, mantiene **Juego** visible en una sola fila y ajusta tipografía e iconos a 360 px.
+- El aviso para la app 1.x permite **Descargar** el APK y abre el navegador externo; se retira “Copiar” como acción principal.
+- APK 2.0.0 (`versionCode` 24) firmada y publicada, con actualizador propio en `app/update.json`.
 - `scripts/check.js` valida `app/update.json`; se retira el manifiesto antiguo `app/version.json`.
 
 ## [1.102.1] - 2026-11-09
