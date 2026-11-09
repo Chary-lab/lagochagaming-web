@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.0] - 2026-11-09
+
+### Controles táctiles que no se cancelan
+
+- La zona de movimiento funciona como un único pad: se puede deslizar el pulgar de izquierda a derecha sin levantarlo y el personaje cambia de dirección al instante.
+- Ya no se cancelan izquierda y derecha cuando se pulsan seguidas; el personaje no se queda quieto.
+- Al saltar mientras se corre se conserva el impulso horizontal durante 0,15 s, aunque se suelte la dirección.
+- Nueva opción **Botones: Normal / Grandes** en ajustes y en la pausa, visible solo en móvil y recordada en el dispositivo.
+- Botones grandes de 70-84 px en la app, sin solapes ni desbordes a 360 px.
+- Cambio solo web: la app 2.0 lo recibe al abrir el juego, sin APK nueva.
+
 ## [2.1.0] - 2026-11-09
 
 ### Controles táctiles cómodos

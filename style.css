@@ -8295,10 +8295,13 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 .game-tactil-grupo {
     display: flex;
     align-items: flex-end;
+    flex-shrink: 0;
 }
 
 .game-tactil-grupo--movimiento {
     gap: 20px;
+    pointer-events: auto;
+    touch-action: none;
 }
 
 .game-tactil-grupo--acciones {
@@ -8306,6 +8309,9 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     display: block;
     width: 152px;
     height: 134px;
+    min-width: 0;
+    min-height: 0;
+    transition: none;
 }
 
 .game-tactil-btn {
@@ -8401,6 +8407,37 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     transform: scale(.94);
 }
 
+.game-escenario--tactil-grande .game-tactil-grupo--acciones {
+    width: 184px;
+    height: 158px;
+}
+
+.game-escenario--tactil-grande .game-tactil-btn {
+    width: 76px;
+    height: 76px;
+}
+
+.game-escenario--tactil-grande .game-tactil-btn--salto {
+    width: 92px;
+    height: 92px;
+}
+
+.game-escenario--tactil-grande .game-tactil-btn--clip {
+    width: 68px;
+    height: 68px;
+}
+
+.game-escenario--tactil-grande .game-tactil-btn--ancho {
+    bottom: 84px;
+    width: 60px;
+    height: 60px;
+}
+
+.game-escenario--tactil-grande .game-pausa {
+    width: 50px;
+    height: 50px;
+}
+
 html.lg-game-full #lg-game-exit {
     left: calc(10px + env(safe-area-inset-left));
     right: auto;
@@ -8430,6 +8467,17 @@ html.lg-page-game .game-pausa {
 }
 
 @media (max-width: 420px) {
+    .game-escenario.game-escenario--tactil-grande .game-tactil {
+        gap: 4px !important;
+        padding-right: 4px !important;
+        padding-left: 4px !important;
+    }
+
+    .game-escenario.game-escenario--tactil-grande .game-tactil-grupo--acciones {
+        width: 176px;
+        height: 150px;
+    }
+
     html.lg-page-game .game-escenario .game-tactil-grupo--movimiento {
         gap: 20px;
     }
@@ -8453,6 +8501,38 @@ html.lg-page-game .game-pausa {
         width: 52px;
         height: 52px;
         padding: 0;
+    }
+
+    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil {
+        gap: 4px;
+        padding-right: 4px;
+        padding-left: 4px;
+    }
+
+    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-grupo--acciones {
+        width: 168px;
+        height: 150px;
+    }
+
+    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-btn {
+        width: 70px;
+        height: 70px;
+    }
+
+    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-btn--salto {
+        width: 84px;
+        height: 84px;
+    }
+
+    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-btn--clip {
+        width: 62px;
+        height: 62px;
+    }
+
+    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-btn--ancho {
+        bottom: 78px;
+        width: 56px;
+        height: 56px;
     }
 }
 

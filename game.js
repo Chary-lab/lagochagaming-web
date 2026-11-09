@@ -18,6 +18,7 @@
     const SALTO_MIN = -310;
     const COYOTE = 0.1;
     const BUFFER_SALTO = 0.12;
+    const IMPULSO_SALTO = 0.15;
     const VIDAS_INICIALES = 3;
     const MAX_CLIPS = 12;
     const CLIPS_POR_DONACION = 5;
@@ -143,6 +144,7 @@
         spawn: { x: 0, y: 0 },
         entrada: { izquierda: false, derecha: false, salto: false, correr: false },
         bufferSalto: 0,
+        impulsoSalto: 0,
         coyote: 0,
         mirando: 1,
         paso: 0,
@@ -206,6 +208,7 @@
         gpPulso: 0,
         efectos: true,
         nitidez: true,
+        tactilGrande: false,
         cuenta: '',
         nubeEstado: 'invitado',
         nubeMensaje: '',
@@ -955,12 +958,14 @@
             estado.reducirMovimiento = typeof datos.reducirMovimiento === 'boolean' ? datos.reducirMovimiento : prefiere;
             estado.efectos = datos.efectos !== false;
             estado.nitidez = datos.nitidez !== false;
+            estado.tactilGrande = datos.tactilGrande === true;
         } catch (e) {
             estado.sonido = true;
             estado.volumen = VOLUMEN_INICIAL;
             estado.reducirMovimiento = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
             estado.efectos = true;
             estado.nitidez = true;
+            estado.tactilGrande = false;
         }
     }
 
@@ -972,8 +977,29 @@
             datos.reducirMovimiento = estado.reducirMovimiento;
             datos.efectos = estado.efectos;
             datos.nitidez = estado.nitidez;
+            datos.tactilGrande = estado.tactilGrande;
             localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(datos));
         } catch (e) { /* sin almacenamiento */ }
+    }
+
+    function dispositivoTactil() {
+        const porPuntero = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+        const raiz = document.documentElement;
+        const enApp = !!(raiz && raiz.classList && raiz.classList.contains('lg-app'));
+        return porPuntero || (navigator.maxTouchPoints || 0) > 0 || enApp;
+    }
+
+    function aplicarTamanoTactil() {
+        const escenario = document.querySelector ? document.querySelector('.game-escenario') : null;
+        if (escenario) escenario.classList.toggle('game-escenario--tactil-grande', estado.tactilGrande);
+    }
+
+    function alternarTamanoTactil() {
+        estado.tactilGrande = !estado.tactilGrande;
+        guardarSonido();
+        aplicarTamanoTactil();
+        sincronizarUi();
+        sfx('moneda');
     }
 
     function actualizarBotonSonido() {
@@ -1445,7 +1471,7 @@
     function limpiarProgresoLocal() {
         const crudo = leerDatosCrudo();
         const ajustes = {};
-        ['sonido', 'volumen', 'reducirMovimiento', 'efectos', 'nitidez'].forEach((clave) => {
+        ['sonido', 'volumen', 'reducirMovimiento', 'efectos', 'nitidez', 'tactilGrande'].forEach((clave) => {
             if (Object.prototype.hasOwnProperty.call(crudo, clave)) ajustes[clave] = crudo[clave];
         });
         guardarDatosCrudo(ajustes);
@@ -2444,7 +2470,13 @@
         estado.entrada.salto = false;
         estado.entrada.correr = false;
         estado.bufferSalto = 0;
+        estado.impulsoSalto = 0;
         estado.coyote = 0;
+        if (document.querySelectorAll) {
+            document.querySelectorAll('.game-tactil-btn--activo').forEach((boton) => {
+                boton.classList.remove('game-tactil-btn--activo');
+            });
+        }
     }
 
     function colocarEnSpawn() {
@@ -2568,6 +2600,8 @@
         store.reducirMovimiento = estado.reducirMovimiento;
         store.efectos = estado.efectos;
         store.nitidez = estado.nitidez;
+        store.tactil = dispositivoTactil();
+        store.tactilGrande = estado.tactilGrande;
         store.escala = ESCALA_RENDER;
         store.modo = estado.modo;
         store.monedas = estado.monedas;
@@ -3526,10 +3560,13 @@
             const aceleracion = j.enSuelo ? ACELERACION : ACELERACION * 0.8;
             j.vx = acercar(j.vx, objetivo, aceleracion * dt);
             estado.mirando = objetivo > 0 ? 1 : -1;
+        } else if (estado.impulsoSalto > 0 && !j.enSuelo) {
+            // Conserva el impulso al saltar con un solo pulgar.
         } else {
             const frenado = j.enSuelo ? FRENADO : FRENADO * 0.45;
             j.vx = acercar(j.vx, 0, frenado * dt);
         }
+        estado.impulsoSalto = Math.max(0, estado.impulsoSalto - dt);
 
         if (j.enSuelo) estado.coyote = COYOTE;
         else estado.coyote = Math.max(0, estado.coyote - dt);
@@ -3539,6 +3576,7 @@
             j.vy = SALTO;
             j.enSuelo = false;
             estado.bufferSalto = 0;
+            estado.impulsoSalto = IMPULSO_SALTO;
             estado.coyote = 0;
             sfx('salto');
         }
@@ -5427,9 +5465,56 @@
     }
 
     function prepararTactil() {
+        const pad = document.querySelector('.game-tactil-grupo--movimiento');
+        const botonIzquierda = pad ? pad.querySelector('[data-control="izquierda"]') : null;
+        const botonDerecha = pad ? pad.querySelector('[data-control="derecha"]') : null;
+        let punteroPad = null;
+
+        const pintarPad = (direccion) => {
+            if (botonIzquierda) botonIzquierda.classList.toggle('game-tactil-btn--activo', direccion < 0);
+            if (botonDerecha) botonDerecha.classList.toggle('game-tactil-btn--activo', direccion > 0);
+        };
+
+        const fijarPad = (clientX) => {
+            if (!pad) return;
+            const caja = pad.getBoundingClientRect();
+            const izquierda = clientX < caja.left + caja.width / 2;
+            estado.entrada.izquierda = izquierda;
+            estado.entrada.derecha = !izquierda;
+            pintarPad(izquierda ? -1 : 1);
+        };
+
+        const soltarPad = (evento) => {
+            if (evento && punteroPad !== null && evento.pointerId !== punteroPad) return;
+            punteroPad = null;
+            estado.entrada.izquierda = false;
+            estado.entrada.derecha = false;
+            pintarPad(0);
+        };
+
+        if (pad) {
+            pad.addEventListener('pointerdown', (evento) => {
+                if (punteroPad !== null && evento.pointerId !== punteroPad) return;
+                evento.preventDefault();
+                punteroPad = evento.pointerId;
+                if (pad.setPointerCapture) {
+                    try { pad.setPointerCapture(evento.pointerId); } catch (e) { /* puntero sintético */ }
+                }
+                fijarPad(evento.clientX);
+            });
+            pad.addEventListener('pointermove', (evento) => {
+                if (evento.pointerId !== punteroPad) return;
+                evento.preventDefault();
+                fijarPad(evento.clientX);
+            });
+            pad.addEventListener('pointerup', soltarPad);
+            pad.addEventListener('pointercancel', soltarPad);
+            pad.addEventListener('lostpointercapture', soltarPad);
+        }
+
         document.querySelectorAll('[data-control]').forEach((boton) => {
             const control = boton.dataset.control;
-            if (!control) return;
+            if (!control || control === 'izquierda' || control === 'derecha') return;
 
             if (control === 'pausa') {
                 boton.addEventListener('pointerdown', (evento) => {
@@ -5486,6 +5571,7 @@
         alternarMovimientoReducido,
         alternarEfectos,
         alternarNitidez,
+        alternarTamanoTactil,
         comprarAccesorio,
         equiparAccesorio,
         sincronizarProgreso: () => sincronizarProgresoNube(false),
@@ -5586,6 +5672,8 @@
             ajustesAbierto: false,
             efectos: true,
             nitidez: true,
+            tactil: false,
+            tactilGrande: false,
             rankingAbierto: false,
             rankingTab: 'general',
             rankingFilas: [],
@@ -5616,6 +5704,7 @@
             cerrarAjustes() { ocultarAjustes(); },
             alternarEfectos() { alternarEfectos(); },
             alternarNitidez() { alternarNitidez(); },
+            alternarTamanoTactil() { alternarTamanoTactil(); },
             comprarAccesorio(id) { comprarAccesorio(id); },
             equiparAccesorio(id) { equiparAccesorio(id); },
             usarAccesorio(item) {
@@ -5637,6 +5726,7 @@
     function iniciar() {
         leerSonido();
         aplicarNitidez();
+        aplicarTamanoTactil();
         tokenNubeActual = tokenComunidad();
         if (!tokenNubeActual) {
             limpiarProgresoLocal();
