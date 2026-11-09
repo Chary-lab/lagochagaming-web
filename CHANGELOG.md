@@ -3,6 +3,12 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.96.1] - 2026-11-09
+
+### Arreglos
+
+- Clips de Kick: vuelven a reproducirse. La CSP solo permitía `kick.com` en `connect-src`, así que hls.js no podía descargar el `playlist.m3u8` alojado en `clips.kick.com` y el `<video>` del modal quedaba en negro. Se añade `clips.kick.com` y `worker-src 'self' blob:` para que hls.js use su worker.
+
 ## [1.96.0] - 2026-11-08
 
 ### Combate: clips acumulables y escudos
