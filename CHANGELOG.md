@@ -3,6 +3,18 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.93.0] - 2026-11-08
+
+### GochitaRunner: minijuego de plataformas en /game
+
+- Nueva página `game.html` con **GochitaRunner**: 3 niveles jugables (El Setup, Raid City y La Purga), scroll lateral, física de salto con coyote time, cámara suave y controles de teclado y táctiles.
+- **Kicks** como moneda, **Regalito** que da un escudo de 3 golpes y **Donación** con 5 clips para disparar. Los **Haters** caminan, vuelan, lanzan comentarios y se pueden pisar o eliminar con clips.
+- **Raid City** añade túneles de raid, plataformas y haters voladores; **La Purga** borra el escenario detrás del jugador y obliga a correr.
+- Los niveles se desbloquean en orden: al completar uno se abre el siguiente y el progreso se guarda en local. No hay selector libre de niveles.
+- Ranking de comunidad en `/game`: general (suma de la mejor marca por nivel) y por nivel, top 50. Solo se envían partidas con sesión de comunidad; los invitados juegan en local.
+- Nuevas tablas `game_niveles`, `game_runs` y `game_records`, y RPC `game_iniciar_partida`, `game_enviar_partida`, `game_ranking_general`, `game_ranking_nivel` y `game_mis_records`. El servidor valida sesión, topes de Kicks/haters, tiempo mínimo y una partida por intento.
+- Animación procedural del personaje (piernas, brazos, parpadeo, coleta, salto y aterrizaje), sonido sintetizado con Web Audio y persistencia local del sonido y récords.
+
 ## [1.92.0] - 2026-11-08
 
 ### Fix: panel App en el móvil web

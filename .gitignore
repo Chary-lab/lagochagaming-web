@@ -21,6 +21,9 @@
 !img/avatars/
 !img/mcchary/
 !img/mcchary/*
+# Arte del minijuego
+!img/game/
+!img/game/*
 !img/avatars/*
 # Fuentes autoalojadas (woff2, subconjunto latin)
 !fonts/

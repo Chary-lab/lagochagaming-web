@@ -1339,13 +1339,14 @@ window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() 
     }
 };
 
-// === NAVBAR GLOBAL (fuente única: se inyecta en las 5 páginas) ===
+// === NAVBAR GLOBAL (fuente única: se inyecta en las 6 páginas) ===
 window.NAVBAR_ENLACES = [
     { id: 'inicio', texto: 'Inicio', href: './' },
-    { id: 'comunidad', texto: '💬 Comunidad', href: 'comunidad' },
-    { id: 'galeria', texto: '📸 Galería', href: 'galeria' },
-    { id: 'cine', texto: '🍿 GochiWatch', href: 'cine' },
-    { id: 'sorteo', texto: '🎁 Sorteo', href: 'sorteo' },
+    { id: 'comunidad', texto: 'Comunidad', emoji: '💬', href: 'comunidad' },
+    { id: 'galeria', texto: 'Galería', emoji: '📸', href: 'galeria' },
+    { id: 'cine', texto: 'GochiWatch', emoji: '🍿', href: 'cine' },
+    { id: 'sorteo', texto: 'Sorteo', emoji: '🎁', href: 'sorteo' },
+    { id: 'game', texto: 'Juego', emoji: '🎮', href: 'game' },
 ];
 
 window.paginaActualNavbar = function paginaActualNavbar() {
@@ -1364,7 +1365,8 @@ window.insertarNavbar = function insertarNavbar() {
         const clases = 'nav-link' + (activo ? ' nav-active' : '');
         const aria = activo ? ' aria-current="page"' : '';
         const id = enlace.id === 'inicio' ? ' id="nav-inicio"' : '';
-        return `<a href="${href}" class="${clases}"${aria}${id}>${enlace.texto}</a>`;
+        const emoji = enlace.emoji ? `<span class="nav-emoji" aria-hidden="true">${enlace.emoji}</span>` : '';
+        return `<a href="${href}" class="${clases}"${aria}${id}>${emoji}${enlace.texto}</a>`;
     }).join('');
 
     const appMenu = `

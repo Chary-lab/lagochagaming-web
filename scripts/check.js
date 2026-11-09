@@ -11,7 +11,7 @@ const vm = require('vm');
 const crypto = require('crypto');
 
 const ROOT = path.resolve(__dirname, '..');
-const PAGES = ['index.html', 'comunidad.html', 'galeria.html', 'sorteo.html', 'cine.html'];
+const PAGES = ['index.html', 'comunidad.html', 'galeria.html', 'sorteo.html', 'cine.html', 'game.html'];
 
 const errores = [];
 const avisos = [];

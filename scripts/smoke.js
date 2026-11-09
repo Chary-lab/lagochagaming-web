@@ -12,7 +12,7 @@ const path = require('path');
 const fs = require('fs');
 
 const RAIZ = path.resolve(__dirname, '..');
-const PAGINAS = ['index.html', 'comunidad.html', 'galeria.html', 'sorteo.html', 'cine.html', '404.html'];
+const PAGINAS = ['index.html', 'comunidad.html', 'galeria.html', 'sorteo.html', 'cine.html', 'game.html', '404.html'];
 const VIEWPORTS = [{ w: 1690, h: 900, nombre: 'escritorio' }, { w: 390, h: 844, nombre: 'movil' }];
 
 function cargarPlaywright() {
