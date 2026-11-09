@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [1.96.3] - 2026-11-09
+
+### Equilibrio y legibilidad del escudo
+
+- El escudo anti-clips de los jefes ahora avisa **0,55 s antes** con un anillo amarillo discontinuo y un aviso `ESCUDO EN CAMINO`.
+- La barra del jefe muestra una **barra fina de recarga** del escudo: cian mientras está activo, amarilla durante el aviso y azul tenue cuando se recarga.
+- El escudo dura **2,2 s** y recarga **8,5 s** (en furia, 6,1 s), en lugar de 2,6 s cada 8 s.
+- Las embestidas avisan **0,6 s** antes, para dar más margen en móvil.
+- Sonido propio para el escudo y para los clips bloqueados o absorbidos.
+- **Jefes rediseñados** con estilo de caricatura urbana de contorno grueso: cuerpo, brazos, teléfono, gorra, gafas, cadena y barba según el personaje. El Técnico lleva cable, el Raid Leader gafas y cadena, el Hater Final dientes y barba, La Turbina auriculares y aspas, y El Núcleo gafas y núcleo en el pecho. Se mantienen sus hitboxes, ataques y escudos.
+
 ## [1.96.2] - 2026-11-09
 
 ### Arreglos

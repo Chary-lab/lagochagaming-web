@@ -21,8 +21,9 @@
     const VIDAS_INICIALES = 3;
     const MAX_CLIPS = 12;
     const CLIPS_POR_DONACION = 5;
-    const ESCUDO_JEFE_TIEMPO = 2.6;
-    const ESCUDO_JEFE_ESPERA = 8;
+    const ESCUDO_JEFE_TIEMPO = 2.2;
+    const ESCUDO_JEFE_ESPERA = 8.5;
+    const AVISO_ESCUDO = 0.55;
     const VEL_CLIP = 340;
     const VEL_HATER = 30;
     const INTERVALO_TIRO = 2.6;
@@ -585,7 +586,9 @@
                 cargaDir: 1,
                 cargaT: 2.2 + Math.random() * 1.2,
                 escudo: 0,
-                escudoT: 3.5
+                escudoAviso: 0,
+                escudoEspera: 4.5,
+                escudoT: 4.5
             };
         }
 
@@ -741,6 +744,10 @@
             case 'golpe':
                 nota(240, 0, 0.12, 'square', 0.05);
                 nota(120, 0.05, 0.14, 'triangle', 0.04);
+                break;
+            case 'escudo':
+                nota(1320, 0, 0.08, 'sine', 0.035);
+                nota(1760, 0.06, 0.1, 'sine', 0.03);
                 break;
             case 'dano':
                 nota(180, 0, 0.2, 'sawtooth', 0.05);
@@ -1600,7 +1607,7 @@
                     if (b.escudo > 0) {
                         generarChispas(5, clip.x, clip.y, '#67e8f9');
                         avisoFlotante('CLIP BLOQUEADO', clip.x, clip.y - 8);
-                        sfx('golpe');
+                        sfx('escudo');
                     } else {
                         golpearJefe(b, estado.jugador, true);
                     }
@@ -1615,7 +1622,7 @@
                             h.escudo = false;
                             generarChispas(6, clip.x, clip.y, '#67e8f9');
                             avisoFlotante('ESCUDO ROTO', clip.x, clip.y - 8);
-                            sfx('golpe');
+                            sfx('escudo');
                         } else {
                             matarHater(h, false);
                         }
@@ -1747,17 +1754,27 @@
         const reducido = estado.reducirMovimiento;
         const furia = b.hp <= b.hpMax / 2;
 
-        // Escudo periódico: bloquea clips, pero no el pisotón.
+        // Escudo periódico: avisa antes de activarse y no bloquea el pisotón.
+        const avisoEscudoAntes = b.escudoAviso || 0;
+        b.escudoAviso = Math.max(0, avisoEscudoAntes - dt);
+        if (avisoEscudoAntes > 0 && b.escudoAviso === 0) {
+            b.escudo = ESCUDO_JEFE_TIEMPO;
+            generarChispas(10, b.x + b.ancho / 2, b.y + b.alto / 2, '#67e8f9');
+            sfx('poder');
+        }
         if (b.escudo > 0) {
             b.escudo = Math.max(0, b.escudo - dt);
-            if (b.escudo === 0) b.escudoT = ESCUDO_JEFE_ESPERA * (furia ? 0.72 : 1);
-        } else {
+            if (b.escudo === 0) {
+                b.escudoT = ESCUDO_JEFE_ESPERA * (furia ? 0.72 : 1);
+                b.escudoEspera = b.escudoT;
+            }
+        } else if (b.escudoAviso <= 0) {
             b.escudoT -= dt;
             if (b.escudoT <= 0) {
-                b.escudo = ESCUDO_JEFE_TIEMPO;
-                avisoFlotante('ESCUDO ANTI-CLIPS', b.x + b.ancho / 2, b.y - 12);
-                generarChispas(10, b.x + b.ancho / 2, b.y + b.alto / 2, '#67e8f9');
-                sfx('poder');
+                b.escudoAviso = AVISO_ESCUDO;
+                b.escudoT = 0.01;
+                avisoFlotante('ESCUDO EN CAMINO', b.x + b.ancho / 2, b.y - 12);
+                sfx('escudo');
             }
         }
 
@@ -1774,7 +1791,7 @@
         b.cargaT -= dt;
 
         if (!reducido && b.aviso <= 0 && b.carga <= 0 && b.cargaT <= 0) {
-            b.aviso = 0.45;
+            b.aviso = 0.6;
             b.cargaT = p.dashT * (furia ? 0.78 : 1);
             b.cargaDir = Math.sign((j.x + j.ancho / 2) - (b.x + b.ancho / 2)) || 1;
         }
@@ -2600,48 +2617,136 @@
         if (!b || !b.vivo) return;
 
         const cx = b.x + b.ancho / 2;
-        const aleteo = Math.sin(estado.anim * 9 + b.fase) * 4;
-        const colores = {
-            tecnico: '#5eead4',
-            raid: '#53fc18',
-            hater: '#ff4fa3',
-            turbina: '#ffb020',
-            nucleo: '#a78bfa'
+        const alerta = b.aviso > 0 || b.escudoAviso > 0;
+        const estilos = {
+            tecnico: { piel: '#8b5cf6', sombra: '#6d28d9', gorra: '#22d3ee', gorra2: '#0891b2', ropa: '#ef4444', ropa2: '#991b1b', pantalon: '#1e293b', gafas: false, telefono: true, cadena: false, barba: false },
+            raid: { piel: '#db2777', sombra: '#9d174d', gorra: '#2563eb', gorra2: '#1e3a8a', ropa: '#f8fafc', ropa2: '#38bdf8', pantalon: '#1e3a8a', gafas: true, telefono: true, cadena: true, barba: false },
+            hater: { piel: '#dc2626', sombra: '#991b1b', gorra: '#7c3aed', gorra2: '#4c1d95', ropa: '#16a34a', ropa2: '#14532d', pantalon: '#111827', gafas: false, telefono: true, cadena: true, barba: true },
+            turbina: { piel: '#ea580c', sombra: '#9a3412', gorra: '#facc15', gorra2: '#a16207', ropa: '#2563eb', ropa2: '#1e3a8a', pantalon: '#111827', gafas: false, telefono: false, cadena: false, barba: false },
+            nucleo: { piel: '#9f1239', sombra: '#4c0519', gorra: '#fde047', gorra2: '#a16207', ropa: '#4c1d95', ropa2: '#a21caf', pantalon: '#1e1b4b', gafas: true, telefono: false, cadena: false, barba: false }
         };
-        const color = b.aviso > 0 ? '#fde047' : (colores[b.tipo] || colores.hater);
+        const cfg = estilos[b.tipo] || estilos.hater;
+        const piel = alerta ? '#fde047' : (b.golpe > 0 ? '#fecdd3' : cfg.piel);
+        const color = alerta ? '#fde047' : cfg.gorra;
+        const negro = '#0b0b12';
+        const blanco = '#f8fafc';
 
+        const forma = (relleno, dibujar, grosor) => {
+            c.beginPath();
+            dibujar();
+            c.fillStyle = relleno;
+            c.fill();
+            c.lineWidth = grosor || 1.8;
+            c.strokeStyle = negro;
+            c.lineJoin = 'round';
+            c.stroke();
+        };
+        const linea = (colorLinea, grosor, dibujar) => {
+            c.beginPath();
+            dibujar();
+            c.strokeStyle = negro;
+            c.lineWidth = grosor + 1.8;
+            c.lineCap = 'round';
+            c.stroke();
+            c.strokeStyle = colorLinea;
+            c.lineWidth = grosor;
+            c.stroke();
+        };
+        const elipse = (x, y, rx, ry, relleno, rot) => forma(relleno, () => {
+            c.ellipse(x, y, Math.max(0.5, rx), Math.max(0.5, ry), rot || 0, 0, Math.PI * 2);
+        });
+        const caja = (x, y, ancho, alto, radio, relleno) => forma(relleno, () => {
+            rectRedondeado(c, x, y, ancho, alto, radio);
+        });
+
+        const cabezaY = b.y + b.alto * 0.33;
+        const cabezaRx = b.ancho * 0.29;
+        const cabezaRy = b.alto * 0.235;
+        const cuerpoW = b.ancho * 0.58;
+        const cuerpoH = b.alto * 0.52;
+        const cuerpoX = cx - cuerpoW / 2;
+        const cuerpoY = b.y + b.alto * 0.43;
+        const hombroY = cuerpoY + 5;
+        const telefonoX = cx - b.ancho * 0.47;
+        const telefonoY = cuerpoY + 6;
+
+        // Sombra en el suelo.
+        c.fillStyle = 'rgba(0, 0, 0, .3)';
+        c.beginPath();
+        c.ellipse(cx, b.y + b.alto + 2, b.ancho * 0.32, 2.5, 0, 0, Math.PI * 2);
+        c.fill();
+
+        // Efectos detrás de cada jefe.
         if (b.tipo === 'turbina') {
             c.save();
-            c.translate(cx, b.y + b.alto / 2);
+            c.translate(cx, b.y + b.alto * 0.5);
             if (!estado.reducirMovimiento) c.rotate(estado.anim * 3.2);
             c.fillStyle = color;
-            c.globalAlpha = 0.28;
+            c.globalAlpha = 0.22;
             for (let i = 0; i < 4; i++) {
                 c.rotate(Math.PI / 2);
                 c.beginPath();
-                c.ellipse(0, -20, 9, 20, 0.4, 0, Math.PI * 2);
+                c.ellipse(0, -19, 8, 19, 0.35, 0, Math.PI * 2);
                 c.fill();
             }
             c.globalAlpha = 1;
+            c.strokeStyle = 'rgba(255, 176, 32, .55)';
+            c.lineWidth = 1.5;
+            c.beginPath();
+            c.arc(0, 0, 22, 0, Math.PI * 2);
+            c.stroke();
             c.restore();
+        } else if (b.tipo === 'nucleo') {
+            c.strokeStyle = 'rgba(167, 139, 250, .55)';
+            c.lineWidth = 1.5;
+            c.beginPath();
+            c.ellipse(cx, b.y + b.alto * 0.5, b.ancho * 0.62, b.alto * 0.22, estado.anim, 0, Math.PI * 2);
+            c.stroke();
+            for (let i = 0; i < 4; i++) {
+                const ang = estado.anim * 1.4 + i * Math.PI / 2;
+                const ox = cx + Math.cos(ang) * b.ancho * 0.56;
+                const oy = b.y + b.alto * 0.5 + Math.sin(ang) * b.alto * 0.22;
+                c.fillStyle = 'rgba(196, 181, 253, .7)';
+                c.beginPath();
+                c.arc(ox, oy, 2, 0, Math.PI * 2);
+                c.fill();
+            }
+        } else if (b.tipo === 'tecnico') {
+            c.strokeStyle = 'rgba(34, 211, 238, .65)';
+            c.lineWidth = 1.4;
+            for (let i = 0; i < 3; i++) {
+                c.beginPath();
+                c.moveTo(cx - 12 + i * 12, b.y + b.alto * 0.55);
+                c.bezierCurveTo(cx - 20 + i * 20, b.y + b.alto * 0.8, cx + 16 - i * 10, b.y + b.alto * 0.9, cx + 22 - i * 14, b.y + b.alto * 0.7);
+                c.stroke();
+            }
+            c.fillStyle = '#22d3ee';
+            c.fillRect(cx - 24, b.y + b.alto * 0.67, 3, 4);
+        } else if (b.tipo === 'raid') {
+            c.strokeStyle = 'rgba(83, 252, 24, .45)';
+            c.lineWidth = 1.2;
+            for (let i = 0; i < 3; i++) {
+                c.beginPath();
+                c.arc(cx, b.y + b.alto * 0.5, 18 + i * 5, -0.8, 0.8);
+                c.stroke();
+            }
         } else {
-            c.fillStyle = color;
-            c.globalAlpha = 0.45;
+            c.fillStyle = 'rgba(255, 79, 163, .18)';
             c.beginPath();
-            c.moveTo(b.x + 2, b.y + 16);
-            c.lineTo(b.x - 16, b.y + 6 + aleteo);
-            c.lineTo(b.x - 10, b.y + 24);
+            c.moveTo(cx - b.ancho * 0.55, b.y + b.alto * 0.7);
+            c.lineTo(cx - b.ancho * 0.4, b.y + b.alto * 0.45);
+            c.lineTo(cx - b.ancho * 0.2, b.y + b.alto * 0.72);
             c.closePath();
             c.fill();
             c.beginPath();
-            c.moveTo(b.x + b.ancho - 2, b.y + 16);
-            c.lineTo(b.x + b.ancho + 16, b.y + 6 + aleteo);
-            c.lineTo(b.x + b.ancho + 10, b.y + 24);
+            c.moveTo(cx + b.ancho * 0.55, b.y + b.alto * 0.7);
+            c.lineTo(cx + b.ancho * 0.4, b.y + b.alto * 0.45);
+            c.lineTo(cx + b.ancho * 0.2, b.y + b.alto * 0.72);
             c.closePath();
             c.fill();
-            c.globalAlpha = 1;
         }
 
+        // Escudo y aviso.
         if (b.escudo > 0) {
             const pulso = 0.55 + Math.abs(Math.sin(estado.anim * 8)) * 0.3;
             c.strokeStyle = 'rgba(103, 232, 249, ' + pulso + ')';
@@ -2654,94 +2759,211 @@
             c.beginPath();
             c.ellipse(cx, b.y + b.alto / 2, b.ancho / 2 + 3, b.alto / 2 + 3, 0, 0, Math.PI * 2);
             c.stroke();
+        } else if (b.escudoAviso > 0) {
+            c.strokeStyle = 'rgba(253, 224, 71, .85)';
+            c.lineWidth = 2;
+            c.setLineDash([4, 3]);
+            c.beginPath();
+            c.ellipse(cx, b.y + b.alto / 2, b.ancho / 2 + 7, b.alto / 2 + 7, 0, 0, Math.PI * 2);
+            c.stroke();
+            c.setLineDash([]);
         }
 
-        c.fillStyle = '#111827';
-        rectRedondeado(c, b.x - 1, b.y - 1, b.ancho + 2, b.alto + 2, 11);
-        c.fill();
-        c.fillStyle = b.golpe > 0 ? '#fecdd3' : '#9aa4b8';
-        rectRedondeado(c, b.x, b.y, b.ancho, b.alto, 10);
-        c.fill();
+        // Piernas y torso.
+        caja(cuerpoX + 3, cuerpoY + cuerpoH * 0.74, cuerpoW * 0.34, cuerpoH * 0.26, 2, cfg.pantalon);
+        caja(cuerpoX + cuerpoW - 3 - cuerpoW * 0.34, cuerpoY + cuerpoH * 0.74, cuerpoW * 0.34, cuerpoH * 0.26, 2, cfg.pantalon);
+        caja(cuerpoX, cuerpoY, cuerpoW, cuerpoH, 6, cfg.ropa);
+        caja(cuerpoX + 2, cuerpoY + 2, cuerpoW - 4, cuerpoH * 0.36, 4, cfg.ropa2);
+        caja(cuerpoX, cuerpoY + cuerpoH * 0.6, cuerpoW, 2.5, 1, cfg.pantalon);
 
-        c.fillStyle = '#f8fafc';
-        c.beginPath();
-        c.arc(cx - 7, b.y + 13, 4.2, 0, Math.PI * 2);
-        c.arc(cx + 7, b.y + 13, 4.2, 0, Math.PI * 2);
-        c.fill();
-        c.fillStyle = '#b91c1c';
-        c.beginPath();
-        c.arc(cx - 6.4, b.y + 13.5, 2, 0, Math.PI * 2);
-        c.arc(cx + 7.6, b.y + 13.5, 2, 0, Math.PI * 2);
-        c.fill();
-        c.strokeStyle = '#1f2937';
+        // Brazos.
+        linea(piel, 4.2, () => {
+            c.moveTo(cuerpoX + 2, hombroY);
+            c.lineTo(cuerpoX - 7, hombroY + 8);
+            c.lineTo(cuerpoX - 9, telefonoY + 3);
+        });
+        elipse(cuerpoX - 9, telefonoY + 4, 3.4, 3, piel);
+        linea(piel, 4.2, () => {
+            c.moveTo(cuerpoX + cuerpoW - 2, hombroY);
+            c.lineTo(cuerpoX + cuerpoW + 8, hombroY + 4);
+            c.lineTo(cuerpoX + cuerpoW + 6, hombroY + 12);
+        });
+        elipse(cuerpoX + cuerpoW + 6, hombroY + 13, 3.4, 3.1, piel);
+
+        // Teléfono para los que lo usan.
+        if (cfg.telefono) {
+            caja(telefonoX - 4, telefonoY - 7, 8, 14, 2, '#111827');
+            c.fillStyle = b.tiro < 0.35 ? '#fde047' : '#38bdf8';
+            c.fillRect(telefonoX - 2.5, telefonoY - 5, 5, 7);
+            c.fillStyle = '#e0f2fe';
+            c.fillRect(telefonoX - 2.5, telefonoY - 5, 5, 1.2);
+            c.fillStyle = blanco;
+            c.beginPath();
+            c.arc(telefonoX, telefonoY + 5.5, 1.1, 0, Math.PI * 2);
+            c.fill();
+        } else if (b.tipo === 'turbina') {
+            caja(cuerpoX + cuerpoW + 3, hombroY + 5, 8, 5, 2, '#111827');
+            c.fillStyle = color;
+            c.fillRect(cuerpoX + cuerpoW + 5, hombroY + 6.5, 4, 2);
+        } else {
+            c.fillStyle = 'rgba(196, 181, 253, .85)';
+            c.beginPath();
+            c.arc(cuerpoX + cuerpoW + 7, hombroY + 12, 3, 0, Math.PI * 2);
+            c.fill();
+        }
+
+        // Cuello, orejas y cara.
+        caja(cx - 3, cabezaY + cabezaRy - 4, 6, 7, 2, piel);
+        elipse(cx - cabezaRx + 1.5, cabezaY + 2, 3, 4, piel);
+        elipse(cx + cabezaRx - 1.5, cabezaY + 2, 3, 4, piel);
+        elipse(cx, cabezaY, cabezaRx, cabezaRy, piel);
+
+        if (cfg.barba) {
+            c.fillStyle = '#1f2937';
+            c.beginPath();
+            c.ellipse(cx, cabezaY + cabezaRy * 0.45, cabezaRx * 0.88, cabezaRy * 0.62, 0, 0, Math.PI);
+            c.fill();
+        }
+        if (cfg.cadena) {
+            c.strokeStyle = '#facc15';
+            c.lineWidth = 1.6;
+            c.beginPath();
+            c.arc(cx, cabezaY + cabezaRy + 1, cabezaRx * 0.72, 0.2, Math.PI - 0.2);
+            c.stroke();
+            c.fillStyle = '#facc15';
+            c.beginPath();
+            c.arc(cx, cabezaY + cabezaRy + 4.5, 2, 0, Math.PI * 2);
+            c.fill();
+        }
+
+        // Gafas o mirada.
+        if (cfg.gafas) {
+            caja(cx - cabezaRx * 0.84, cabezaY - 2.5, cabezaRx * 1.68, 5.4, 2, '#0f172a');
+            c.fillStyle = 'rgba(103, 232, 249, .6)';
+            c.fillRect(cx - cabezaRx * 0.65, cabezaY - 1.6, cabezaRx * 0.52, 1.2);
+            c.fillStyle = 'rgba(248, 250, 252, .22)';
+            c.fillRect(cx + cabezaRx * 0.08, cabezaY - 1.6, cabezaRx * 0.3, 1);
+        } else {
+            elipse(cx - 4.2, cabezaY + 0.8, 3.2, 2.8, blanco);
+            elipse(cx + 4.2, cabezaY + 0.8, 3.2, 2.8, blanco);
+            c.fillStyle = negro;
+            c.beginPath();
+            c.arc(cx - 4.8, cabezaY + 1.1, 1.25, 0, Math.PI * 2);
+            c.arc(cx + 4.8, cabezaY + 1.1, 1.25, 0, Math.PI * 2);
+            c.fill();
+            c.strokeStyle = negro;
+            c.lineWidth = 1.2;
+            c.beginPath();
+            c.moveTo(cx - 7.2, cabezaY - 1.3);
+            c.lineTo(cx - 1.6, cabezaY - 0.7);
+            c.moveTo(cx + 7.2, cabezaY - 1.3);
+            c.lineTo(cx + 1.6, cabezaY - 0.7);
+            c.stroke();
+        }
+
+        // Cejas, nariz y boca.
+        c.strokeStyle = negro;
         c.lineWidth = 2;
         c.beginPath();
-        c.moveTo(cx - 12, b.y + 6);
-        c.lineTo(cx - 3, b.y + 9);
-        c.moveTo(cx + 12, b.y + 6);
-        c.lineTo(cx + 3, b.y + 9);
+        if (b.tipo === 'hater') {
+            c.moveTo(cx - 8, cabezaY - 5.2);
+            c.lineTo(cx - 2, cabezaY - 3.4);
+            c.moveTo(cx + 8, cabezaY - 5.2);
+            c.lineTo(cx + 2, cabezaY - 3.4);
+        } else {
+            c.moveTo(cx - 8, cabezaY - 4.8);
+            c.lineTo(cx - 2, cabezaY - 3.8);
+            c.moveTo(cx + 8, cabezaY - 4.8);
+            c.lineTo(cx + 2, cabezaY - 3.8);
+        }
         c.stroke();
+
+        c.strokeStyle = negro;
+        c.lineWidth = 1.2;
         c.beginPath();
-        c.arc(cx, b.y + 26, 4, Math.PI, Math.PI * 2);
+        c.moveTo(cx, cabezaY + 2.5);
+        c.lineTo(cx - 1.2, cabezaY + 5);
         c.stroke();
 
-        c.fillStyle = '#111827';
-        rectRedondeado(c, cx - 6, b.y + 21, 12, 16, 3);
-        c.fill();
-        c.fillStyle = b.tiro < 0.35 ? '#fde047' : color;
-        c.fillRect(cx - 3.5, b.y + 24, 7, 8);
-
-        if (b.tipo === 'tecnico') {
-            c.strokeStyle = color;
-            c.lineWidth = 1.5;
+        if (b.tipo === 'hater') {
+            caja(cx - 5, cabezaY + 6, 10, 3, 1, blanco);
+            c.strokeStyle = negro;
+            c.lineWidth = 0.8;
             c.beginPath();
-            c.moveTo(cx - 5, b.y + 1);
-            c.lineTo(cx - 9, b.y - 7);
-            c.moveTo(cx + 5, b.y + 1);
-            c.lineTo(cx + 9, b.y - 7);
+            c.moveTo(cx - 1.7, cabezaY + 6);
+            c.lineTo(cx - 1.7, cabezaY + 9);
+            c.moveTo(cx + 1.7, cabezaY + 6);
+            c.lineTo(cx + 1.7, cabezaY + 9);
             c.stroke();
-            c.fillStyle = color;
+        } else {
+            c.strokeStyle = negro;
+            c.lineWidth = 1.2;
             c.beginPath();
-            c.arc(cx - 9, b.y - 7, 2, 0, Math.PI * 2);
-            c.arc(cx + 9, b.y - 7, 2, 0, Math.PI * 2);
-            c.fill();
-        } else if (b.tipo === 'raid') {
-            c.fillStyle = color;
-            c.beginPath();
-            c.moveTo(b.x + 3, b.y + 6);
-            c.lineTo(b.x - 6, b.y - 8);
-            c.lineTo(b.x + 10, b.y + 2);
-            c.closePath();
-            c.fill();
-            c.beginPath();
-            c.moveTo(b.x + b.ancho - 3, b.y + 6);
-            c.lineTo(b.x + b.ancho + 6, b.y - 8);
-            c.lineTo(b.x + b.ancho - 10, b.y + 2);
-            c.closePath();
-            c.fill();
-        } else if (b.tipo === 'nucleo') {
-            c.fillStyle = color;
-            c.globalAlpha = 0.35 + Math.abs(Math.sin(estado.anim * 3)) * 0.3;
-            c.beginPath();
-            c.arc(cx, b.y + b.alto / 2, 9, 0, Math.PI * 2);
-            c.fill();
-            c.globalAlpha = 0.8;
-            c.strokeStyle = color;
-            c.lineWidth = 1.5;
-            c.beginPath();
-            c.ellipse(cx, b.y + b.alto / 2, 18, 7, estado.anim, 0, Math.PI * 2);
+            c.moveTo(cx - 4, cabezaY + 6.2);
+            c.quadraticCurveTo(cx, cabezaY + 8.4, cx + 4, cabezaY + 6);
             c.stroke();
-            c.globalAlpha = 1;
         }
 
+        // Gorra.
+        const capY = cabezaY - cabezaRy * 0.58;
+        c.beginPath();
+        c.arc(cx, capY, cabezaRx * 1.02, Math.PI, Math.PI * 2);
+        c.lineTo(cx + cabezaRx, capY + 2);
+        c.lineTo(cx - cabezaRx, capY + 2);
+        c.closePath();
+        c.fillStyle = color;
+        c.fill();
+        c.lineWidth = 1.8;
+        c.strokeStyle = negro;
+        c.lineJoin = 'round';
+        c.stroke();
+        caja(cx - cabezaRx * 1.25, capY + 1, cabezaRx * 1.9, 3, 1.4, cfg.gorra2);
+        elipse(cx, capY - cabezaRx + 1, 1.5, 1.5, cfg.gorra2);
+
+        // Accesorios finales.
+        if (b.tipo === 'turbina') {
+            c.strokeStyle = negro;
+            c.lineWidth = 2.2;
+            c.beginPath();
+            c.arc(cx, cabezaY, cabezaRx + 2, Math.PI * 1.02, Math.PI * 1.98);
+            c.stroke();
+            caja(cx - cabezaRx - 4, cabezaY - 1, 4, 7, 2, '#111827');
+            caja(cx + cabezaRx, cabezaY - 1, 4, 7, 2, '#111827');
+            c.fillStyle = color;
+            c.fillRect(cx - cabezaRx - 3, cabezaY + 1, 2, 3);
+            c.fillRect(cx + cabezaRx + 1, cabezaY + 1, 2, 3);
+        } else if (b.tipo === 'tecnico') {
+            c.strokeStyle = negro;
+            c.lineWidth = 1;
+            c.beginPath();
+            c.moveTo(cx + cabezaRx - 1, cabezaY + 2);
+            c.quadraticCurveTo(cx + cabezaRx + 6, cabezaY + 10, cx + 5, cuerpoY + 4);
+            c.stroke();
+            c.fillStyle = '#22d3ee';
+            c.beginPath();
+            c.arc(cx + cabezaRx + 1, cabezaY + 3, 1.4, 0, Math.PI * 2);
+            c.fill();
+        } else if (b.tipo === 'nucleo') {
+            c.fillStyle = 'rgba(196, 181, 253, .35)';
+            c.beginPath();
+            c.arc(cx, cuerpoY + cuerpoH * 0.3, 6, 0, Math.PI * 2);
+            c.fill();
+            c.strokeStyle = '#c4b5fd';
+            c.lineWidth = 1.5;
+            c.beginPath();
+            c.arc(cx, cuerpoY + cuerpoH * 0.3, 4, 0, Math.PI * 2);
+            c.stroke();
+        }
+
+        // Nombre y aviso.
         c.fillStyle = color;
         c.font = 'bold 7px monospace';
         c.textAlign = 'center';
-        c.fillText(b.nombre, cx, b.y - 5);
+        c.fillText(b.nombre, cx, b.y - 6);
         if (b.aviso > 0) {
             c.fillStyle = '#fde047';
             c.font = 'bold 10px monospace';
-            c.fillText('!', cx, b.y - 14);
+            c.fillText('!', cx, b.y - 15);
         }
         c.textAlign = 'left';
     }
@@ -2758,6 +2980,12 @@
         c.fillStyle = '#ff4fa3';
         rectRedondeado(c, x + 2, y + 2, (ancho - 4) * Math.max(0, b.hp) / b.hpMax, 6, 3);
         c.fill();
+        const espera = b.escudoEspera || ESCUDO_JEFE_ESPERA;
+        const carga = (b.escudo > 0 || b.escudoAviso > 0) ? 1 : Math.max(0, 1 - b.escudoT / espera);
+        c.fillStyle = 'rgba(103, 232, 249, .22)';
+        c.fillRect(x + 2, y + 11, ancho - 4, 2);
+        c.fillStyle = b.escudo > 0 ? '#67e8f9' : (b.escudoAviso > 0 ? '#fde047' : 'rgba(103, 232, 249, .78)');
+        c.fillRect(x + 2, y + 11, (ancho - 4) * carga, 2);
         c.fillStyle = '#f8fafc';
         c.font = 'bold 6px monospace';
         c.textAlign = 'center';
