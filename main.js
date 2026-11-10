@@ -2426,7 +2426,7 @@ window.actualizarHeroVivo = function actualizarHeroVivo(vivo, espectadores) {
     }
     const cta = document.getElementById('hero-cta-principal');
     if (cta) {
-        cta.textContent = vivo ? 'ENTRAR AL DIRECTO' : 'VER EL CANAL';
+        cta.textContent = vivo ? 'ENTRAR AL DIRECTO' : 'VER EL DIRECTO';
         cta.classList.toggle('btn-primary--vivo', !!vivo);
     }
     document.querySelector('.hero-section')?.classList.toggle('hero-section--vivo', !!vivo);
@@ -2437,13 +2437,31 @@ window.actualizarHeroVivo = function actualizarHeroVivo(vivo, espectadores) {
         const cont = document.getElementById('hero-stats');
         if (!cont) return;
         const fmt = (n) => Number(n || 0).toLocaleString('es-ES');
+        const reducido = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const animar = (el, valor) => {
+            const destino = Number(valor) || 0;
+            if (reducido || destino <= 0) {
+                el.textContent = fmt(destino);
+                return;
+            }
+            const inicio = performance.now();
+            const duracion = 900;
+            const paso = (ahora) => {
+                const avance = Math.min(1, (ahora - inicio) / duracion);
+                const suave = 1 - Math.pow(1 - avance, 3);
+                el.textContent = fmt(Math.round(destino * suave));
+                if (avance < 1) requestAnimationFrame(paso);
+            };
+            requestAnimationFrame(paso);
+        };
 
         window.rpc('estadisticas_home', {}, { error: false }).then((res) => {
             const datos = (res && res.data) || {};
             if (!res || !res.ok || !datos) return;
             const poner = (clave, valor) => {
                 const el = cont.querySelector('[data-hero-stat="' + clave + '"]');
-                if (el) el.textContent = fmt(valor);
+                if (el) animar(el, valor);
             };
             poner('miembros', datos.miembros);
             poner('mensajes_hoy', datos.mensajes_hoy);
@@ -2455,30 +2473,6 @@ window.actualizarHeroVivo = function actualizarHeroVivo(vivo, espectadores) {
                 ultimo.hidden = false;
             }
         }).catch(() => {});
-
-        fetch('https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/kick-clips?limit=1', { headers: { Accept: 'application/json' } })
-            .then((resp) => (resp.ok ? resp.json() : null))
-            .then((data) => {
-                const clip = data && data.ok && Array.isArray(data.clips) ? data.clips[0] : null;
-                if (!clip) return;
-                const card = document.getElementById('hero-clip');
-                if (!card) return;
-                const seguro = (valor) => {
-                    try { return new URL(valor).protocol === 'https:'; } catch (e) { return false; }
-                };
-                const img = card.querySelector('img');
-                const titulo = card.querySelector('[data-hero-clip-titulo]');
-                if (img && clip.miniatura && seguro(clip.miniatura)) {
-                    img.src = clip.miniatura;
-                    img.alt = clip.titulo ? 'Clip de La Gocha: ' + clip.titulo : 'Último clip de La Gocha';
-                }
-                if (titulo) titulo.textContent = clip.titulo || 'Último clip de La Gocha';
-                card.href = seguro(clip.url) ? clip.url : 'https://kick.com/lagochagaming/clips';
-                card.target = '_blank';
-                card.rel = 'noopener noreferrer';
-                card.hidden = false;
-            })
-            .catch(() => {});
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar, { once: true });
     else iniciar();

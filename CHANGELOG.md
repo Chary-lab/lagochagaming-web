@@ -3,6 +3,24 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.5.0] - 2026-11-10
+
+### Inicio
+
+- Hero rediseñado: vuelve la bio completa de La Gocha y se retiran la tarjeta de clip y la agenda que mandaban fuera de la web.
+- El CTA principal `VER EL DIRECTO` baja al reproductor del sitio; la comunidad sigue en la página.
+- Fondo del hero con degradado direccional y fundido al contenido, y contadores animados (respeta `prefers-reduced-motion`).
+
+### Interacción
+
+- Votos en los clips de Kick: corazón con contador, un voto por clip y persona, 3 puntos por clip (máximo 5 al día).
+- El voto se pinta al instante, se recuerda por sesión y avisa con toast; los invitados reciben un aviso para entrar a la comunidad.
+
+### Backend
+
+- Tabla `kick_clip_votos` con RLS sin políticas y acceso solo por RPC.
+- RPC `clips_votos` y `votar_clip` (`SECURITY DEFINER`, `search_path` fijo); acción `clip` en `puntos_acciones`.
+
 ## [2.4.0] - 2026-11-10
 
 ### Retención y gamificación

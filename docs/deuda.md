@@ -26,4 +26,4 @@ Extraido de AGENTS.md: deuda aceptada y riesgos conocidos.
 - No hay CI ni `package.json`: `scripts/smoke.js` necesita Playwright disponible en la máquina. Se decidió no añadir dependencias ni workflows por ahora.
 - Notificaciones push web pendientes: exigen un `sw.js` en la raíz (archivo nuevo, requiere autorización), claves VAPID y una Edge Function con cron para enviar. El canal actual de reenganche es el cofre diario, la racha, el resumen semanal y el aviso de directo dentro de la app.
 - La pregunta del día no tiene votos ni resultados: `reclamar_pregunta_dia` solo comprueba que el usuario escribió en el chat. Mostrar porcentajes exige tabla de votos, RPC y moderación de opciones.
-- Los clips se muestran sin votación ni ranking propio; votar clips requiere tabla `kick_clip_votos` con RPC y límite diario.
+- Los clips ya se pueden votar (`kick_clip_votos`, RPC `votar_clip`, 3 puntos por clip y 5 al día), pero el ranking se muestra solo como contador: no hay lista de más votados ni orden por votos.

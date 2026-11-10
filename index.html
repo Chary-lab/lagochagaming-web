@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-fkKX6KsJsKfY+uzCu1NeBSH+VINJ4q0GjgAgkvVMKFk=' 'sha256-GzwCzCx56MH5nJ8ogWDDDPIC6ApostTYYybqgCJ9mSQ=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-fkKX6KsJsKfY+uzCu1NeBSH+VINJ4q0GjgAgkvVMKFk=' 'sha256-H9VqQA5qPDk7VzXyA4F6hlAYJG8fctyr6hkIfpyW3ak=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Gocha Gaming (Gochita) Oficial | Directo en Kick</title>
     <meta name="description" content="Sitio oficial de La Gocha Gaming (Gochita), streamer venezolana en Kick. Directo, horarios, clips, galería, GochiWatch y comunidad con chat y sorteos.">
@@ -31,7 +31,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.4.0">
+    <link rel="stylesheet" href="style.css?v=2.5.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -182,10 +182,9 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         <div class="hero-content">
             <span class="hero-subtitle">— STREAMER DE KICK · CREADORA DE CONTENIDO</span>
             <h1 class="hero-title">La Gocha Gaming en Kick</h1>
-            <p class="hero-bio hero-bio-corto">Humo, risas y caos cósmico. Entra al directo, suma puntos en la comunidad y desbloquea tu rango.</p>
-            <p class="hero-bio hero-bio-extra">Soy Stefany, pero todos me dicen La Gocha. Aquí hay clips, GochiWatch, sorteos y una comunidad que no para.</p>
+            <p class="hero-bio">Me llamo Stefany pero todos o la mayoría me dicen La Gocha o Gochita, a veces parezco esquizofrénica con mis locuras pero soy muy pana. Créeme que siempre que entres a mi stream te vas a reír muchísimo. Me gusta mucho hablar, reírme y hacerlos reír, ¡y también jugar! Todo es humor, pásatela bien y ¡no se te olvide seguirme en todas mis redes sociales y unirte a la comunidad de Discord!</p>
             <div class="hero-buttons">
-                <a id="hero-cta-principal" href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer" class="btn-primary">VER EL CANAL</a>
+                <a id="hero-cta-principal" href="#stream" class="btn-primary">VER EL DIRECTO</a>
                 <a href="comunidad.html" class="btn-secondary hero-btn-secundario">ENTRAR A LA COMUNIDAD</a>
                 <div class="follower-widget">
                     <span class="kick-dot"></span>
@@ -207,21 +206,6 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 <a class="hero-social" href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-youtube"></use></svg> YouTube</a>
                 <a class="hero-social" href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-discord"></use></svg> Discord</a>
             </div>
-            <aside class="hero-lateral" aria-label="Ahora en La Gocha">
-                <a class="hero-clip" id="hero-clip" href="#clips" hidden>
-                    <img src="img/fono.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
-                    <span class="hero-clip-play" aria-hidden="true"><svg class="icon"><use href="img/icons.svg#i-solid-play"></use></svg></span>
-                    <span class="hero-clip-pie">
-                        <span class="hero-clip-etiqueta">CLIP DEL MOMENTO</span>
-                        <strong data-hero-clip-titulo>Último clip de La Gocha</strong>
-                    </span>
-                </a>
-                <div class="hero-agenda">
-                    <span class="hero-agenda-etiqueta"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-calendar-check"></use></svg> Agenda</span>
-                    <p>Los directos se anuncian en el calendario de Kick. Sígueme para que te avise.</p>
-                    <a href="https://kick.com/lagochagaming/schedule" target="_blank" rel="noopener noreferrer">Ver horarios</a>
-                </div>
-            </aside>
         </div>
     </header>
 
@@ -241,7 +225,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <section id="clips" class="content-section">
         <h2>🔥 ÚLTIMOS CLIPS 🔥</h2>
         <div id="kick-clips" class="youtube-grid"></div>
-        <p class="social-feed-nota">Se actualiza solo con los últimos clips publicados en Kick.</p>
+        <p class="social-feed-nota">Se actualiza solo con los últimos clips publicados en Kick. Dale al corazón y gana puntos por votar.</p>
     </section>
 
     <!-- 📱 SECCIÓN SOCIAL -->
@@ -508,7 +492,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.4.0" defer></script>
+    <script src="main.js?v=2.5.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>
@@ -752,9 +736,78 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 meta.textContent = partes.filter(Boolean).join(' · ');
             }
 
-            card.append(thumb, boton, meta);
+            const votos = document.createElement('div');
+            votos.className = 'clip-votos';
+            const votoBtn = document.createElement('button');
+            votoBtn.type = 'button';
+            votoBtn.className = 'clip-voto-btn';
+            votoBtn.dataset.clipVoto = clip.id;
+            votoBtn.setAttribute('aria-pressed', 'false');
+            votoBtn.setAttribute('aria-label', 'Me gusta este clip');
+            votoBtn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-heart"></use></svg><span class="clip-voto-num">0</span>';
+            votos.appendChild(votoBtn);
+
+            card.append(thumb, boton, meta, votos);
             return card;
         }
+
+        // Votos de clips: se leen una vez y se pintan sobre las tarjetas ya creadas.
+        async function cargarVotosClips(clips) {
+            if (typeof window.rpc !== 'function') return;
+            const token = window.almacen?.texto('comunidad_session_token') || null;
+            const res = await window.rpc('clips_votos', { p_token: token }, { error: false });
+            const datos = res && res.data;
+            if (!res || !res.ok || !datos || !datos.ok) return;
+            const conteo = datos.conteo || {};
+            const mios = new Set(datos.mios || []);
+            document.querySelectorAll('.clip-voto-btn').forEach((btn) => {
+                const id = btn.dataset.clipVoto;
+                const num = btn.querySelector('.clip-voto-num');
+                if (num) num.textContent = conteo[id] || 0;
+                if (mios.has(id)) marcarVotoClip(btn, true);
+            });
+        }
+
+        function marcarVotoClip(btn, votado) {
+            if (!btn) return;
+            btn.classList.toggle('clip-voto-btn--votado', !!votado);
+            btn.setAttribute('aria-pressed', votado ? 'true' : 'false');
+        }
+
+        async function votarClip(id, btn) {
+            if (!btn || btn.disabled) return;
+            const token = window.almacen?.texto('comunidad_session_token');
+            if (!token) {
+                window.mostrarToast?.('Entra a la comunidad para votar clips.', true);
+                return;
+            }
+            btn.disabled = true;
+            try {
+                const res = await window.rpc('votar_clip', { p_token: token, p_clip_id: id }, { error: false });
+                const datos = res && res.data;
+                if (!res || !res.ok || !datos || !datos.ok) {
+                    window.mostrarToast?.('No se pudo registrar el voto.', true);
+                    return;
+                }
+                const num = btn.querySelector('.clip-voto-num');
+                if (num) num.textContent = datos.votos;
+                marcarVotoClip(btn, true);
+                if (datos.nuevo && datos.ganados > 0) {
+                    window.mostrarToast?.('+' + datos.ganados + ' pts por votar el clip');
+                    window.actualizarSesionUsuarioComunidad?.({ puntos: datos.puntos });
+                    window.refrescarPuntosDia?.();
+                }
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('click', (evento) => {
+            const btn = evento.target.closest('[data-clip-voto]');
+            if (!btn) return;
+            evento.preventDefault();
+            votarClip(btn.dataset.clipVoto, btn);
+        });
 
         async function cargarClipsKick() {
             const cont = document.getElementById('kick-clips');
@@ -770,6 +823,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 data.clips.forEach((clip) => frag.appendChild(crearTarjetaClip(clip)));
                 cont.textContent = '';
                 cont.appendChild(frag);
+                cargarVotosClips(data.clips);
             } catch (e) {
                 cont.textContent = '';
                 const p = document.createElement('p');
