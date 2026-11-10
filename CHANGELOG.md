@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.6] - 2026-11-09
+
+### Accesibilidad
+
+- El panel de perfil solo declara `aria-modal="true"` cuando se abre como modal; el popover de escritorio ya no se anuncia como modal.
+- El cuadro de reporte de la galería deja de ser un diálogo anidado: el contenedor conserva el `role="dialog"` y la caja interior pasa a `role="document"`.
+- El perfil usa `dvh` con fallback a `vh` para no quedar tapado por las barras del navegador móvil.
+
 ## [2.2.5] - 2026-11-09
 
 ### Accesibilidad y correcciones

@@ -4337,7 +4337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalEl.id = 'modal-perfil';
     modalEl.className = 'modal-perfil';
     modalEl.setAttribute('role', 'dialog');
-    modalEl.setAttribute('aria-modal', 'true');
+    modalEl.setAttribute('x-bind:aria-modal', "$store.perfil.anclado ? 'false' : 'true'");
     modalEl.setAttribute('aria-labelledby', 'modal-perfil-titulo');
     modalEl.hidden = true;
     modalEl.setAttribute('x-data', '{ }');
