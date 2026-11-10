@@ -1,6 +1,6 @@
 # Operaciones: referencia
 
-Extraido de AGENTS.md (v2.2.3): despliegue, release, SEO, SemVer y pruebas.
+Extraido de AGENTS.md: despliegue, release, SEO, SemVer y pruebas.
 
 ## 7. Despliegue
 

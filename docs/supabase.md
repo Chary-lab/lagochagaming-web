@@ -1,6 +1,6 @@
 # Supabase: referencia
 
-Extraido de AGENTS.md (v2.2.3). El catalogo de tablas se consulta en vivo con el MCP supabase; no mantener copia aqui.
+Extraido de AGENTS.md. El catalogo de tablas se consulta en vivo con el MCP supabase; no mantener copia aqui.
 
 ### 5.5 Invariantes de integridad
 

@@ -1,6 +1,6 @@
 # Deuda conocida
 
-Extraido de AGENTS.md (v2.2.3).
+Extraido de AGENTS.md: deuda aceptada y riesgos conocidos.
 
 ## 12. Riesgos aceptados / deuda conocida
 

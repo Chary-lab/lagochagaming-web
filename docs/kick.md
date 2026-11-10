@@ -1,6 +1,6 @@
 # Kick: referencia
 
-Extraido de AGENTS.md (v2.2.3).
+Extraido de AGENTS.md: Kick, sesiones OAuth y clips.
 
 ### 5.7 Kick
 

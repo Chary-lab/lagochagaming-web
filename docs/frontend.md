@@ -1,6 +1,6 @@
 # Frontend: referencia
 
-Extraido de AGENTS.md (v2.2.3): mapa de archivos, convenciones JS, Alpine y paneles.
+Extraido de AGENTS.md: mapa de archivos, convenciones JS, Alpine y paneles.
 
 ## 3. Mapa de archivos
 
