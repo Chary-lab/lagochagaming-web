@@ -3,6 +3,30 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.7.0] - 2026-11-10
+
+### Clips
+
+- Tres modos sobre la misma sección: `Recientes`, `Más vistos` y `Más votados`.
+- `Más vistos` consulta la API pública de Kick (6 clips, orden por reproducciones) sin duplicar secciones.
+- El título y la nota de la sección cambian según el modo: `ÚLTIMOS CLIPS`, `CLIPS MÁS VISTOS` o `CLIPS MÁS VOTADOS`.
+
+### Comunidad
+
+- Panel de admin para crear, editar, publicar, activar/desactivar y cerrar la encuesta del día sin tocar SQL.
+- Al publicar otra encuesta se reinician los votos de hoy; una encuesta cerrada se muestra bloqueada y no acepta votos.
+- Pregunta y encuesta más compactas (opciones en dos columnas en escritorio) y chat más alto, para que el bloque del día no tape la conversación.
+
+### Avisos
+
+- `sw.js` mínimo y sin caché: registra el service worker y muestra notificaciones del navegador.
+- Botón de campana en la navbar: al activarlo, avisa cuando el directo pasa de offline a EN VIVO.
+- El aviso funciona con la web abierta o en segundo plano en ese navegador; el push real con VAPID y cron sigue pendiente.
+
+### Backend
+
+- Columna `encuesta_del_dia.cerrada` y RPC `admin_encuestas_listar`, `admin_encuesta_crear`, `admin_encuesta_editar`, `admin_encuesta_alternar`, `admin_encuesta_publicar` y `admin_encuesta_cerrar_hoy`, todas con `es_admin()`.
+
 ## [2.6.0] - 2026-11-10
 
 ### Interacción

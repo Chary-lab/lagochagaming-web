@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-Ro8zVdiB2tPEKSh6Jna6GSIFgYyDOb4QGXANYKRijjk=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-eLSm8HkQUsyS17LAmR8eEWJomhilxX8hLM3z5LwpjAI=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.6.0">
+    <link rel="stylesheet" href="style.css?v=2.7.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -214,6 +214,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 <svg class="icon chat-header-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-comments"></use></svg>
                 <span>Chat Comunitario (Offline / Online)</span>
                 <span id="typing-indicator" class="typing-indicator" hidden></span>
+                <button type="button" class="chat-poll-admin solo-admin chat-header-admin" x-data
+                        @click="$store.adminEncuestas.abrir()">Encuestas</button>
             </div>
 
             <!-- PREGUNTA DEL DÍA -->
@@ -232,7 +234,12 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     <strong class="chat-poll-eyebrow">Encuesta rápida</strong>
                     <p class="chat-poll-pregunta"
                        x-text="$store.pregunta.encuesta ? $store.pregunta.encuesta.pregunta : ''"></p>
-                    <div class="chat-poll-opciones">
+                    <p class="chat-poll-cerrada"
+                       x-show="$store.pregunta.encuesta && $store.pregunta.encuesta.cerrada">
+                        La encuesta de hoy está cerrada. Vuelve mañana.
+                    </p>
+                    <div class="chat-poll-opciones"
+                         x-show="!($store.pregunta.encuesta && $store.pregunta.encuesta.cerrada)">
                         <template x-for="(op, i) in $store.pregunta.encuestaOpciones" :key="i">
                             <button type="button" class="chat-poll-opcion"
                                     :class="{ 'chat-poll-opcion--votada': op.votada }"
@@ -687,10 +694,82 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         </div>
     </div>
 
+    <!-- ADMIN: ENCUESTAS DEL DÍA -->
+    <div id="encuestas-modal" class="recap-modal" x-data x-cloak x-show="$store.adminEncuestas.abierto"
+         x-trap.noscroll="$store.adminEncuestas.abierto"
+         @keydown.escape.window="$store.adminEncuestas.cerrar()"
+         role="dialog" aria-modal="true" aria-labelledby="encuestas-titulo">
+        <div class="recap-fondo" @click="$store.adminEncuestas.cerrar()" aria-hidden="true"></div>
+        <div class="recap-caja encuestas-caja" tabindex="-1">
+            <button type="button" class="recap-cerrar" @click="$store.adminEncuestas.cerrar()"
+                    aria-label="Cerrar la gestión de encuestas">✕</button>
+            <span class="recap-etiqueta">Solo admin</span>
+            <h2 id="encuestas-titulo" class="recap-titulo">Encuestas del día</h2>
+            <p class="encuestas-error" x-show="$store.adminEncuestas.error"
+               x-text="$store.adminEncuestas.error" role="status" aria-live="polite"></p>
+
+            <div class="encuestas-hoy" x-show="$store.adminEncuestas.hoyId" x-cloak>
+                <div>
+                    <span class="encuestas-hoy-etiqueta">Encuesta de hoy</span>
+                    <strong x-text="$store.adminEncuestas.hoyPregunta"></strong>
+                </div>
+                <button type="button" class="btn-secondary encuestas-btn"
+                        x-show="!$store.adminEncuestas.hoyCerrada"
+                        @click="$store.adminEncuestas.cerrarHoy()">Cerrar hoy</button>
+                <button type="button" class="btn-secondary encuestas-btn"
+                        x-show="$store.adminEncuestas.hoyCerrada"
+                        @click="$store.adminEncuestas.publicar($store.adminEncuestas.hoyId)">Reabrir</button>
+            </div>
+
+            <div class="encuestas-form">
+                <label class="encuestas-label" for="encuesta-pregunta">Pregunta</label>
+                <input id="encuesta-pregunta" class="encuestas-input" type="text" maxlength="160"
+                       x-model="$store.adminEncuestas.pregunta" placeholder="¿Qué queremos preguntar hoy?">
+                <label class="encuestas-label" for="encuesta-opciones">Opciones (una por línea, de 2 a 4)</label>
+                <textarea id="encuesta-opciones" class="encuestas-input encuestas-textarea" rows="4" maxlength="320"
+                          x-model="$store.adminEncuestas.opcionesTexto"
+                          placeholder="Opción 1&#10;Opción 2"></textarea>
+                <div class="encuestas-acciones">
+                    <button type="button" class="btn-primary encuestas-btn"
+                            :disabled="$store.adminEncuestas.guardando"
+                            @click="$store.adminEncuestas.guardar()"
+                            x-text="$store.adminEncuestas.editandoId ? 'Guardar cambios' : 'Crear encuesta'"></button>
+                    <button type="button" class="encuestas-btn-texto"
+                            x-show="$store.adminEncuestas.editandoId" x-cloak
+                            @click="$store.adminEncuestas.nuevo()">Cancelar edición</button>
+                </div>
+            </div>
+
+            <div class="encuestas-lista" x-show="$store.adminEncuestas.encuestas.length" x-cloak>
+                <template x-for="e in $store.adminEncuestas.encuestas" :key="e.id">
+                    <div class="encuestas-item" :class="{ 'encuestas-item--hoy': e.id === $store.adminEncuestas.hoyId }">
+                        <div class="encuestas-item-texto">
+                            <strong x-text="e.pregunta"></strong>
+                            <span x-text="e.opciones.join(' · ')"></span>
+                            <small x-text="(e.votos === 1 ? '1 voto' : e.votos + ' votos') + ' · ' + (e.usos === 1 ? '1 uso' : e.usos + ' usos') + (e.activo ? '' : ' · inactiva')"></small>
+                        </div>
+                        <div class="encuestas-item-acciones">
+                            <button type="button" class="encuestas-btn-texto" :disabled="$store.adminEncuestas.guardando"
+                                    @click="$store.adminEncuestas.publicar(e.id)">Publicar hoy</button>
+                            <button type="button" class="encuestas-btn-texto" :disabled="$store.adminEncuestas.guardando"
+                                    @click="$store.adminEncuestas.editar(e)">Editar</button>
+                            <button type="button" class="encuestas-btn-texto" :disabled="$store.adminEncuestas.guardando"
+                                    @click="$store.adminEncuestas.alternar(e)"
+                                    x-text="e.activo ? 'Desactivar' : 'Activar'"></button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <p class="encuestas-vacio" x-show="!$store.adminEncuestas.cargando && !$store.adminEncuestas.encuestas.length" x-cloak>
+                No hay encuestas todavía. Crea la primera arriba.
+            </p>
+        </div>
+    </div>
+
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.6.0" defer></script>
+    <script src="main.js?v=2.7.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -809,6 +888,174 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         window.mostrarToast?.('+' + datos.ganados + ' puntos por la pregunta del día');
                         window.refrescarPuntosDia?.();
                         window.Alpine?.store('misiones')?.cargar();
+                    }
+                }
+            });
+
+            // Gestión de encuestas: solo admin/owner (el servidor vuelve a comprobarlo).
+            window.Alpine.store('adminEncuestas', {
+                abierto: false,
+                cargando: false,
+                guardando: false,
+                error: '',
+                encuestas: [],
+                hoyId: null,
+                hoyCerrada: false,
+                hoyPregunta: '',
+                pregunta: '',
+                opcionesTexto: '',
+                editandoId: null,
+                async abrir() {
+                    this.abierto = true;
+                    this.error = '';
+                    await this.cargar();
+                },
+                cerrar() {
+                    this.abierto = false;
+                },
+                nuevo() {
+                    this.editandoId = null;
+                    this.pregunta = '';
+                    this.opcionesTexto = '';
+                    this.error = '';
+                },
+                editar(e) {
+                    this.editandoId = e.id;
+                    this.pregunta = e.pregunta || '';
+                    this.opcionesTexto = (e.opciones || []).join('\n');
+                    this.error = '';
+                },
+                opciones() {
+                    return String(this.opcionesTexto || '')
+                        .split('\n')
+                        .map((linea) => linea.trim())
+                        .filter(Boolean);
+                },
+                textoError(datos) {
+                    const motivos = {
+                        no_admin: 'Solo admin puede gestionar encuestas.',
+                        pregunta_invalida: 'La pregunta debe tener entre 8 y 160 caracteres.',
+                        opciones_invalidas: 'Escribe entre 2 y 4 opciones.',
+                        opcion_invalida: 'Cada opción debe tener entre 1 y 80 caracteres.',
+                        opcion_duplicada: 'Hay opciones repetidas.',
+                        no_existe: 'Esa encuesta ya no existe.'
+                    };
+                    return motivos[datos && datos.motivo] || 'No se pudo guardar la encuesta.';
+                },
+                async cargar() {
+                    this.cargando = true;
+                    try {
+                        const res = await window.rpc('admin_encuestas_listar', {}, { error: false });
+                        const datos = res && res.data;
+                        if (!res || !res.ok || !datos || !datos.ok) {
+                            this.error = this.textoError(datos);
+                            return;
+                        }
+                        this.encuestas = Array.isArray(datos.encuestas) ? datos.encuestas : [];
+                        this.hoyId = datos.hoy && datos.hoy.encuesta_id ? datos.hoy.encuesta_id : null;
+                        this.hoyCerrada = !!(datos.hoy && datos.hoy.cerrada);
+                        const hoy = this.encuestas.find((e) => e.id === this.hoyId);
+                        this.hoyPregunta = hoy ? hoy.pregunta : '';
+                    } finally {
+                        this.cargando = false;
+                    }
+                },
+                async guardar() {
+                    if (this.guardando) return;
+                    const opciones = this.opciones();
+                    if (this.pregunta.trim().length < 8) {
+                        this.error = 'La pregunta necesita al menos 8 caracteres.';
+                        return;
+                    }
+                    if (opciones.length < 2 || opciones.length > 4) {
+                        this.error = 'Escribe entre 2 y 4 opciones, una por línea.';
+                        return;
+                    }
+                    this.guardando = true;
+                    this.error = '';
+                    try {
+                        const editando = !!this.editandoId;
+                        const nombre = editando ? 'admin_encuesta_editar' : 'admin_encuesta_crear';
+                        const params = editando
+                            ? { p_id: this.editandoId, p_pregunta: this.pregunta.trim(), p_opciones: opciones }
+                            : { p_pregunta: this.pregunta.trim(), p_opciones: opciones };
+                        const res = await window.rpc(nombre, params, { error: false });
+                        const datos = res && res.data;
+                        if (!res || !res.ok || !datos || !datos.ok) {
+                            this.error = this.textoError(datos);
+                            return;
+                        }
+                        window.mostrarToast?.(editando ? 'Encuesta actualizada' : 'Encuesta creada');
+                        this.nuevo();
+                        await this.cargar();
+                        window.Alpine?.store('pregunta')?.cargarEncuesta?.();
+                    } finally {
+                        this.guardando = false;
+                    }
+                },
+                async publicar(id) {
+                    if (!id || this.guardando) return;
+                    this.guardando = true;
+                    this.error = '';
+                    try {
+                        const res = await window.rpc('admin_encuesta_publicar', { p_id: id }, { error: false });
+                        const datos = res && res.data;
+                        if (!res || !res.ok || !datos || !datos.ok) {
+                            this.error = this.textoError(datos);
+                            return;
+                        }
+                        window.mostrarToast?.('Encuesta publicada para hoy');
+                        await this.cargar();
+                        window.Alpine?.store('pregunta')?.cargarEncuesta?.();
+                    } finally {
+                        this.guardando = false;
+                    }
+                },
+                async alternar(e) {
+                    if (!e || this.guardando) return;
+                    this.guardando = true;
+                    this.error = '';
+                    try {
+                        const res = await window.rpc('admin_encuesta_alternar', {
+                            p_id: e.id,
+                            p_activo: !e.activo
+                        }, { error: false });
+                        const datos = res && res.data;
+                        if (!res || !res.ok || !datos || !datos.ok) {
+                            this.error = this.textoError(datos);
+                            return;
+                        }
+                        window.mostrarToast?.(datos.activo ? 'Encuesta activada' : 'Encuesta desactivada');
+                        await this.cargar();
+                    } finally {
+                        this.guardando = false;
+                    }
+                },
+                async cerrarHoy() {
+                    if (this.guardando) return;
+                    this.guardando = true;
+                    this.error = '';
+                    try {
+                        if (typeof window.confirmarAccion === 'function') {
+                            const ok = await window.confirmarAccion({
+                                titulo: 'Cerrar la encuesta de hoy',
+                                mensaje: 'Se ocultará para todos hasta que la reabras o publiques otra. Los votos se conservan.',
+                                textoConfirmar: 'Cerrar hoy',
+                                tono: 'aviso'
+                            });
+                            if (!ok) return;
+                        }
+                        const res = await window.rpc('admin_encuesta_cerrar_hoy', {}, { error: false });
+                        const datos = res && res.data;
+                        if (!res || !res.ok || !datos || !datos.ok) {
+                            this.error = this.textoError(datos);
+                            return;
+                        }
+                        window.mostrarToast?.('Encuesta de hoy cerrada');
+                        await this.cargar();
+                        window.Alpine?.store('pregunta')?.cargarEncuesta?.();
+                    } finally {
+                        this.guardando = false;
                     }
                 }
             });

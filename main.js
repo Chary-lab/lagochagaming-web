@@ -668,6 +668,108 @@ window.initTema = function initTema() {
     };
 };
 
+// === AVISOS DEL NAVEGADOR ===
+// El service worker solo muestra notificaciones (no cachea nada). El aviso de
+// directo se dispara cuando el estado pasa de offline a EN VIVO con la web abierta.
+window.avisos = {
+    get soportado() {
+        return typeof window.Notification === 'function' && 'serviceWorker' in navigator;
+    },
+    get permiso() {
+        return this.soportado ? Notification.permission : 'unsupported';
+    },
+    get activo() {
+        return this.soportado && this.permiso === 'granted' && almacen.texto('gochi_avisos') === '1';
+    },
+    opciones(titulo, cuerpo, url) {
+        return {
+            body: cuerpo,
+            icon: 'img/android-chrome-192x192.png',
+            badge: 'img/favicon-32x32.png',
+            tag: 'gochi-live',
+            renotify: true,
+            data: { url }
+        };
+    },
+    // `serviceWorker.ready` no rechaza si el registro nunca llega a activarse.
+    // Con un timeout se evita dejar la campana bloqueada y la preferencia a medias.
+    async registroListo() {
+        if (!('serviceWorker' in navigator)) return null;
+        try {
+            const actual = await navigator.serviceWorker.getRegistration();
+            if (actual && actual.active) return actual;
+        } catch (e) { /* sin registro accesible */ }
+        let temporizador;
+        try {
+            return await Promise.race([
+                navigator.serviceWorker.ready,
+                new Promise((_, rechazar) => {
+                    temporizador = setTimeout(() => rechazar(new Error('sw_timeout')), 4000);
+                })
+            ]);
+        } catch (e) {
+            return null;
+        } finally {
+            clearTimeout(temporizador);
+        }
+    },
+    async activar() {
+        if (!this.soportado) return false;
+        let permiso = Notification.permission;
+        if (permiso !== 'granted') permiso = await Notification.requestPermission();
+        if (permiso !== 'granted') return false;
+        const registro = await this.registroListo();
+        if (!registro) return false;
+        almacen.guardarTexto('gochi_avisos', '1');
+        try {
+            await registro.showNotification('Avisos activados',
+                this.opciones('Avisos activados', 'Te avisaremos cuando La Gocha entre en directo.', '/'));
+        } catch (e) { /* el sistema puede rechazar la notificación de prueba */ }
+        return true;
+    },
+    desactivar() {
+        almacen.borrar('gochi_avisos');
+    },
+    async notificar(titulo, cuerpo, url = '/') {
+        if (!this.activo) return false;
+        const registro = await this.registroListo();
+        if (!registro) return false;
+        try {
+            await registro.showNotification(titulo, this.opciones(titulo, cuerpo, url));
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+};
+
+window.initAvisos = function initAvisos() {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.register('sw.js').catch(() => { /* sin SW: la web sigue igual */ });
+    const btn = document.getElementById('btn-avisos-nav');
+    if (!btn || !window.avisos.soportado) return;
+    btn.hidden = false;
+    const pintar = () => {
+        const activo = window.avisos.activo;
+        btn.classList.toggle('btn-avisos--activo', activo);
+        btn.setAttribute('aria-pressed', activo ? 'true' : 'false');
+        btn.setAttribute('aria-label', activo ? 'Desactivar avisos del directo' : 'Activar avisos del directo');
+        btn.title = activo ? 'Avisos activados' : 'Avisarme del directo';
+    };
+    pintar();
+    btn.onclick = async () => {
+        if (window.avisos.activo) {
+            window.avisos.desactivar();
+            window.mostrarToast?.('Avisos desactivados');
+        } else {
+            const ok = await window.avisos.activar();
+            window.mostrarToast?.(ok ? 'Avisos activados: te avisaremos del directo' :
+                'El navegador bloqueó los avisos. Actívalos en los ajustes del sitio.');
+        }
+        pintar();
+    };
+};
+
 // === SESIÓN DE COMUNIDAD ===
 
 // Cachés locales que pertenecen a la cuenta de comunidad. Se limpian al cerrar
@@ -1496,6 +1598,8 @@ window.insertarNavbar = function insertarNavbar() {
                 <span class="nav-live-dot" aria-hidden="true"></span>EN VIVO
             </span>
             ${loginMenu}
+            <button type="button" id="btn-avisos-nav" class="btn-tema-nav" data-tooltip="Avisarme del directo"
+                    aria-label="Activar avisos del directo" aria-pressed="false" hidden><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-tower-broadcast"></use></svg></button>
             <button type="button" id="btn-toggle-tema" class="btn-tema-nav" data-tooltip="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-sun"></use></svg></button>
             <button type="button" id="nav-puntos-dia" class="nav-puntos-dia" hidden
                     title="Puntos que llevas hoy" aria-label="Puntos de hoy">
@@ -1588,6 +1692,10 @@ window.pintarEstadoNav = function pintarEstadoNav(vivo, espectadores) {
     if (navbar) navbar.classList.toggle('live-glow', !!vivo);
     if (liveTag) liveTag.hidden = !vivo;
     window.actualizarHeroVivo?.(!!vivo, espectadores);
+    if (window.__gochiVivoAnterior === false && vivo) {
+        window.avisos?.notificar('La Gocha está en vivo', 'El directo acaba de empezar. Entra a verlo.', '/#stream');
+    }
+    window.__gochiVivoAnterior = !!vivo;
     try { almacen.guardarTexto('gochi_en_vivo_ultimo', vivo ? '1' : '0'); } catch (e) { /* modo privado */ }
 };
 
@@ -4448,6 +4556,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try { iniciarPollingStreamGlobal(); } catch (e) { console.error('iniciarPollingStreamGlobal:', e); }
     try { insertarComponentesUIGlobales(); } catch (e) { console.error('insertarComponentesUIGlobales:', e); }
     try { initTema(); } catch (e) { console.error('initTema:', e); }
+    try { initAvisos(); } catch (e) { console.error('initAvisos:', e); }
     try { inicializarMenuMovil(); } catch (e) { console.error('inicializarMenuMovil:', e); }
     try { inicializarNavLinks(); } catch (e) { console.error('inicializarNavLinks:', e); }
     try { actualizarUsuarioNavComunidad(); } catch (e) { console.error('actualizarUsuarioNavComunidad:', e); }
