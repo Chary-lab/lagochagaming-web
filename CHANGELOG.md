@@ -3,6 +3,20 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.6.0] - 2026-11-10
+
+### Interacción
+
+- Encuesta rápida del día en Comunidad: 2–4 opciones, barras de porcentaje, total de votos y voto propio marcado.
+- Un voto por cuenta y día con opción de cambiarlo; el primer voto da 3 puntos (máximo 1 al día) y el cambio no vuelve a premiar.
+- Los invitados ven los resultados y reciben aviso para entrar a la comunidad.
+- Clips: orden `Recientes` / `Más votados` y etiquetas `TOP 1–3` sobre los clips con votos.
+
+### Backend
+
+- Tablas `encuestas`, `encuesta_del_dia` y `encuesta_votos` con RLS sin políticas; 9 encuestas semilla.
+- RPC `encuesta_actual` y `votar_encuesta` (`SECURITY DEFINER`, `search_path` fijo); acción `encuesta` en `puntos_acciones` (3 puntos, 1 al día).
+
 ## [2.5.0] - 2026-11-10
 
 ### Inicio

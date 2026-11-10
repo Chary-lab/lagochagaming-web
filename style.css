@@ -2925,6 +2925,50 @@ body.light-mode {
             color: #fb7185;
         }
         .clip-voto-btn--votado .icon { fill: currentColor; }
+        .clips-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .clips-head h2 { margin: 0; }
+        .clips-orden {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: var(--card-bg-subtle);
+        }
+        .clips-orden-btn {
+            border: 0;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: transparent;
+            color: var(--text-muted);
+            font: inherit;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .clips-orden-btn:hover, .clips-orden-btn:focus-visible { color: var(--text-main); }
+        .clips-orden-btn--activo { background: var(--accent-color); color: var(--bg-color); }
+        .clip-top {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 3;
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: var(--accent-color);
+            color: var(--bg-color);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
         .muro-feedback {
             text-align: center;
             margin-top: 10px;
@@ -7897,7 +7941,7 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 
 /* === Comunidad: misiones, pregunta del día y reto de galería === */
 
-.chat-pregunta { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--card-bg-subtle); border-bottom: 1px solid var(--border-color); }
+.chat-pregunta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; background: var(--card-bg-subtle); border-bottom: 1px solid var(--border-color); }
 .chat-pregunta-icono { font-size: 1.1rem; }
 .chat-pregunta-texto { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
 .chat-pregunta-texto strong { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-color); }
@@ -10340,6 +10384,61 @@ html.lg-embed-chat #chat-form .chat-emote-btn {
 .btn-resumen-semana:hover, .btn-resumen-semana:focus-visible { border-color: var(--accent-color); color: var(--accent-color); }
 .btn-resumen-semana .icon { width: 14px; height: 14px; }
 .chat-pregunta-hint { font-size: 0.68rem; color: var(--text-muted); }
+.chat-poll {
+    flex: 1 0 100%;
+    display: grid;
+    gap: 8px;
+    margin-top: 2px;
+    padding-top: 9px;
+    border-top: 1px dashed var(--border-color);
+}
+.chat-poll-eyebrow {
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-color);
+}
+.chat-poll-pregunta { margin: 0; font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+.chat-poll-opciones { display: grid; gap: 6px; }
+.chat-poll-opcion {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 36px;
+    padding: 7px 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.8rem;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.chat-poll-opcion:hover, .chat-poll-opcion:focus-visible { border-color: var(--accent-color); }
+.chat-poll-opcion:disabled { cursor: progress; opacity: 0.8; }
+.chat-poll-barra {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 0;
+    width: 0;
+    background: var(--accent-color);
+    opacity: 0.24;
+    transition: width 0.35s ease;
+}
+.chat-poll-texto, .chat-poll-pct { position: relative; z-index: 1; }
+.chat-poll-pct { color: var(--text-muted); font-weight: 700; font-variant-numeric: tabular-nums; }
+.chat-poll-opcion--votada { border-color: var(--accent-color); }
+.chat-poll-opcion--votada .chat-poll-pct { color: var(--accent-color); }
+.chat-poll-meta { margin: 0; font-size: 0.68rem; color: var(--text-muted); }
+@media (prefers-reduced-motion: reduce) {
+    .chat-poll-barra { transition: none; }
+}
 .recap-modal {
     position: fixed;
     inset: 0;

@@ -23,6 +23,8 @@ Extraido de AGENTS.md. El catalogo de tablas se consulta en vivo con el MCP supa
 - Baneo: `baneado_hasta` bloquea login, chat, muro, puntos, likes, reacciones, galería, tienda y perfil. Al banear se borran las sesiones de comunidad. `shadowban` solo oculta los mensajes de chat a terceros (no es un límite de seguridad fuerte).
 - Moderación: `admin_*` exige `es_admin()`; toda acción de ban/shadowban se registra en `admin_audit_log`. No exponer `baneado_hasta`, `baneado_motivo` ni `shadowban` a `anon`.
 - Sugerencias: `enviar_sugerencia` valida 5–500 caracteres y limita a **2 por día por IP** (`md5` de `x-forwarded-for`). La tabla no tiene acceso `anon`; el admin la lee por política. No prometer lectura/respuesta inmediata.
+- Encuesta del día (2.6.0): `encuesta_actual(token)` publica la encuesta diaria por offset del día del año sobre `encuestas` activas, y devuelve pregunta, opciones con votos, total y `mi_voto`. `encuesta_votos` tiene PK `(fecha, usuario_id)`: un voto por cuenta y día, se puede cambiar de opción sin volver a cobrar puntos. `votar_encuesta` valida sesión y rango de opción, y solo en el primer voto llama a `registrar_puntos(usuario,'encuesta',fecha)`, 3 puntos y 1 al día. Las tablas `encuestas`, `encuesta_del_dia` y `encuesta_votos` tienen RLS sin políticas: solo se leen y escriben por RPC.
+- Votos de clips (2.5.0): `kick_clip_votos` guarda un voto por `(clip_id, usuario_id)`; `votar_clip` valida el id (`clip_...`), exige sesión y llama a `registrar_puntos(usuario,'clip',clip_id)`, 3 puntos y máximo 5 al día. `clips_votos` devuelve conteo y votos propios. El orden por más votados y las etiquetas TOP 1–3 se calculan en el cliente sobre los clips cargados, no hay ranking global todavía.
 
 ### 5.6 Realtime
 

@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-fkKX6KsJsKfY+uzCu1NeBSH+VINJ4q0GjgAgkvVMKFk=' 'sha256-H9VqQA5qPDk7VzXyA4F6hlAYJG8fctyr6hkIfpyW3ak=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-fkKX6KsJsKfY+uzCu1NeBSH+VINJ4q0GjgAgkvVMKFk=' 'sha256-yWcXOyytZcD83uOXoum3xPmvln0YzSu3ErSJmXkwsW0=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Gocha Gaming (Gochita) Oficial | Directo en Kick</title>
     <meta name="description" content="Sitio oficial de La Gocha Gaming (Gochita), streamer venezolana en Kick. Directo, horarios, clips, galería, GochiWatch y comunidad con chat y sorteos.">
@@ -31,7 +31,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.5.0">
+    <link rel="stylesheet" href="style.css?v=2.6.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -223,7 +223,13 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
     <!-- 🔥 SECCIÓN ÚLTIMOS CLIPS DE KICK -->
     <section id="clips" class="content-section">
-        <h2>🔥 ÚLTIMOS CLIPS 🔥</h2>
+        <div class="clips-head">
+            <h2>🔥 ÚLTIMOS CLIPS 🔥</h2>
+            <div class="clips-orden" role="group" aria-label="Ordenar clips">
+                <button type="button" class="clips-orden-btn clips-orden-btn--activo" data-clips-orden="recientes" aria-pressed="true">Recientes</button>
+                <button type="button" class="clips-orden-btn" data-clips-orden="votados" aria-pressed="false">Más votados</button>
+            </div>
+        </div>
         <div id="kick-clips" class="youtube-grid"></div>
         <p class="social-feed-nota">Se actualiza solo con los últimos clips publicados en Kick. Dale al corazón y gana puntos por votar.</p>
     </section>
@@ -492,7 +498,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.5.0" defer></script>
+    <script src="main.js?v=2.6.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>
@@ -678,6 +684,9 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         }
 
         // === ÚLTIMOS CLIPS DE KICK (Edge Function con caché) ===
+        let clipsVotos = {};
+        let clipsOrden = 'recientes';
+
         function crearTarjetaClip(clip) {
             const card = document.createElement('div');
             card.className = 'video-card gochi-card gochi-card--media';
@@ -706,7 +715,10 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             play.className = 'clip-play';
             play.innerHTML = '<svg class="icon clip-play-icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>';
             enlace.appendChild(play);
-            thumb.appendChild(enlace);
+            const top = document.createElement('span');
+            top.className = 'clip-top';
+            top.hidden = true;
+            thumb.append(enlace, top);
 
             const boton = document.createElement('a');
             boton.className = 'watch-btn';
@@ -742,6 +754,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             votoBtn.type = 'button';
             votoBtn.className = 'clip-voto-btn';
             votoBtn.dataset.clipVoto = clip.id;
+            card.dataset.clipId = clip.id;
             votoBtn.setAttribute('aria-pressed', 'false');
             votoBtn.setAttribute('aria-label', 'Me gusta este clip');
             votoBtn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-heart"></use></svg><span class="clip-voto-num">0</span>';
@@ -759,12 +772,54 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             const datos = res && res.data;
             if (!res || !res.ok || !datos || !datos.ok) return;
             const conteo = datos.conteo || {};
+            clipsVotos = conteo;
             const mios = new Set(datos.mios || []);
             document.querySelectorAll('.clip-voto-btn').forEach((btn) => {
                 const id = btn.dataset.clipVoto;
                 const num = btn.querySelector('.clip-voto-num');
                 if (num) num.textContent = conteo[id] || 0;
                 if (mios.has(id)) marcarVotoClip(btn, true);
+            });
+            aplicarTopClips();
+            if (clipsOrden === 'votados') ordenarClips('votados');
+        }
+
+        function aplicarTopClips() {
+            const cont = document.getElementById('kick-clips');
+            if (!cont) return;
+            const cards = Array.from(cont.querySelectorAll('.video-card'));
+            const ordenados = cards
+                .map((card) => ({ card, votos: clipsVotos[card.dataset.clipId] || 0 }))
+                .sort((a, b) => b.votos - a.votos
+                    || Number(a.card.dataset.orden || 0) - Number(b.card.dataset.orden || 0));
+            ordenados.forEach((item, i) => {
+                const top = item.card.querySelector('.clip-top');
+                if (!top) return;
+                const visible = i < 3 && item.votos > 0;
+                top.hidden = !visible;
+                if (visible) top.textContent = 'TOP ' + (i + 1);
+            });
+        }
+
+        function ordenarClips(modo) {
+            clipsOrden = modo === 'votados' ? 'votados' : 'recientes';
+            const cont = document.getElementById('kick-clips');
+            if (cont) {
+                const cards = Array.from(cont.querySelectorAll('.video-card'));
+                cards.sort((a, b) => {
+                    if (clipsOrden === 'votados') {
+                        const va = clipsVotos[a.dataset.clipId] || 0;
+                        const vb = clipsVotos[b.dataset.clipId] || 0;
+                        if (va !== vb) return vb - va;
+                    }
+                    return Number(a.dataset.orden || 0) - Number(b.dataset.orden || 0);
+                });
+                cards.forEach((card) => cont.appendChild(card));
+            }
+            document.querySelectorAll('[data-clips-orden]').forEach((btn) => {
+                const activo = btn.dataset.clipsOrden === clipsOrden;
+                btn.classList.toggle('clips-orden-btn--activo', activo);
+                btn.setAttribute('aria-pressed', activo ? 'true' : 'false');
             });
         }
 
@@ -792,6 +847,9 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 const num = btn.querySelector('.clip-voto-num');
                 if (num) num.textContent = datos.votos;
                 marcarVotoClip(btn, true);
+                clipsVotos[id] = datos.votos;
+                aplicarTopClips();
+                if (clipsOrden === 'votados') ordenarClips('votados');
                 if (datos.nuevo && datos.ganados > 0) {
                     window.mostrarToast?.('+' + datos.ganados + ' pts por votar el clip');
                     window.actualizarSesionUsuarioComunidad?.({ puntos: datos.puntos });
@@ -804,9 +862,13 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
         document.addEventListener('click', (evento) => {
             const btn = evento.target.closest('[data-clip-voto]');
-            if (!btn) return;
-            evento.preventDefault();
-            votarClip(btn.dataset.clipVoto, btn);
+            if (btn) {
+                evento.preventDefault();
+                votarClip(btn.dataset.clipVoto, btn);
+                return;
+            }
+            const orden = evento.target.closest('[data-clips-orden]');
+            if (orden) ordenarClips(orden.dataset.clipsOrden);
         });
 
         async function cargarClipsKick() {
@@ -820,7 +882,11 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     throw new Error('sin_clips');
                 }
                 const frag = document.createDocumentFragment();
-                data.clips.forEach((clip) => frag.appendChild(crearTarjetaClip(clip)));
+                data.clips.forEach((clip, i) => {
+                    const card = crearTarjetaClip(clip);
+                    card.dataset.orden = i;
+                    frag.appendChild(card);
+                });
                 cont.textContent = '';
                 cont.appendChild(frag);
                 cargarVotosClips(data.clips);

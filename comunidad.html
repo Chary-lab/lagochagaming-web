@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-77wHXz0gSMNmplLtNdL6HmQz95JawNkRxVHKP3VaghI=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-Ro8zVdiB2tPEKSh6Jna6GSIFgYyDOb4QGXANYKRijjk=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.5.0">
+    <link rel="stylesheet" href="style.css?v=2.6.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -218,7 +218,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
             <!-- PREGUNTA DEL DÍA -->
             <div class="chat-pregunta" x-data x-cloak x-init="$store.pregunta.cargar()"
-                 :hidden="!$store.pregunta.texto">
+                 :hidden="!$store.pregunta.texto && !$store.pregunta.encuesta">
                 <span class="chat-pregunta-icono" aria-hidden="true">💬</span>
                 <div class="chat-pregunta-texto">
                     <strong>Pregunta del día</strong>
@@ -227,6 +227,29 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 </div>
                 <button type="button" class="chat-pregunta-btn"
                         @click="window.document.getElementById('chat-mensaje')?.focus()">Responder</button>
+                <div class="chat-poll" x-show="$store.pregunta.encuesta" x-cloak
+                     role="group" aria-label="Encuesta del día">
+                    <strong class="chat-poll-eyebrow">Encuesta rápida</strong>
+                    <p class="chat-poll-pregunta"
+                       x-text="$store.pregunta.encuesta ? $store.pregunta.encuesta.pregunta : ''"></p>
+                    <div class="chat-poll-opciones">
+                        <template x-for="(op, i) in $store.pregunta.encuestaOpciones" :key="i">
+                            <button type="button" class="chat-poll-opcion"
+                                    :class="{ 'chat-poll-opcion--votada': op.votada }"
+                                    :aria-pressed="op.votada ? 'true' : 'false'"
+                                    :disabled="$store.pregunta.enviando"
+                                    @click="$store.pregunta.votar(i)">
+                                <span class="chat-poll-barra" :style="'width:' + op.pct + '%'" aria-hidden="true"></span>
+                                <span class="chat-poll-texto" x-text="op.texto"></span>
+                                <span class="chat-poll-pct" x-text="op.pct + '%'"></span>
+                            </button>
+                        </template>
+                    </div>
+                    <p class="chat-poll-meta">
+                        <span x-text="($store.pregunta.encuesta ? $store.pregunta.encuesta.total : 0) + ($store.pregunta.encuesta && $store.pregunta.encuesta.total === 1 ? ' voto' : ' votos')"></span>
+                        · Vota y gana 3 pts (una vez al día)
+                    </p>
+                </div>
             </div>
 
             <button type="button" id="btn-scroll-nuevos" class="btn-scroll-nuevos" hidden>Nuevos mensajes ↓</button>
@@ -667,7 +690,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.5.0" defer></script>
+    <script src="main.js?v=2.6.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -726,11 +749,55 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             window.Alpine.store('pregunta', {
                 texto: '',
                 publicadaEn: '',
+                encuesta: null,
+                enviando: false,
+                get encuestaOpciones() {
+                    if (!this.encuesta || !Array.isArray(this.encuesta.opciones)) return [];
+                    const total = this.encuesta.total || 0;
+                    return this.encuesta.opciones.map((op, i) => ({
+                        texto: op.texto,
+                        votos: op.votos || 0,
+                        pct: total > 0 ? Math.round(((op.votos || 0) * 100) / total) : 0,
+                        votada: this.encuesta.mi_voto === i
+                    }));
+                },
                 async cargar() {
                     const res = await window.rpc('pregunta_del_dia_actual', {}, { error: false });
                     if (res.ok && res.data && res.data.ok) {
                         this.texto = res.data.pregunta || '';
                         this.publicadaEn = res.data.publicada_en || '';
+                    }
+                    await this.cargarEncuesta();
+                },
+                async cargarEncuesta() {
+                    const token = localStorage.getItem('comunidad_session_token');
+                    const res = await window.rpc('encuesta_actual', { p_token: token }, { error: false });
+                    this.encuesta = res.ok && res.data && res.data.ok ? res.data : null;
+                },
+                async votar(indice) {
+                    if (this.enviando || !this.encuesta) return;
+                    const token = localStorage.getItem('comunidad_session_token');
+                    if (!token) {
+                        window.mostrarToast?.('Entra a la comunidad para votar la encuesta.', true);
+                        return;
+                    }
+                    this.enviando = true;
+                    try {
+                        const res = await window.rpc('votar_encuesta', { p_token: token, p_opcion: indice }, { error: false });
+                        const datos = res && res.data;
+                        if (!res || !res.ok || !datos || !datos.ok) {
+                            const sinSesion = datos && datos.motivo === 'sin_sesion';
+                            window.mostrarToast?.(sinSesion ? 'Entra a la comunidad para votar.' : 'No se pudo registrar el voto.', true);
+                            return;
+                        }
+                        this.encuesta = { ...this.encuesta, ...datos };
+                        if (datos.nuevo && datos.ganados > 0) {
+                            window.mostrarToast?.('+' + datos.ganados + ' pts por votar la encuesta');
+                            window.actualizarSesionUsuarioComunidad?.({ puntos: datos.puntos });
+                            window.refrescarPuntosDia?.();
+                        }
+                    } finally {
+                        this.enviando = false;
                     }
                 },
                 async reclamarSilencioso() {
@@ -1109,6 +1176,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             document.addEventListener('gocha:sesion', () => {
                 window.Alpine?.store('misiones')?.cargar();
                 window.Alpine?.store('pregunta')?.reclamarSilencioso();
+                window.Alpine?.store('pregunta')?.cargarEncuesta();
                 window.Alpine?.store('sorteoSemanal')?.cargar();
                 window.Alpine?.store('invitar')?.cargar();
             });

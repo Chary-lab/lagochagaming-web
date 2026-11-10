@@ -25,5 +25,5 @@ Extraido de AGENTS.md: deuda aceptada y riesgos conocidos.
 - `comunidad_chat` no tiene retención automática: se conserva el historial. Solo se limpian `puntos_eventos` (365 días), `auth_rate_limit` (1 día), sesiones y `game_runs` (7 días tras expirar).
 - No hay CI ni `package.json`: `scripts/smoke.js` necesita Playwright disponible en la máquina. Se decidió no añadir dependencias ni workflows por ahora.
 - Notificaciones push web pendientes: exigen un `sw.js` en la raíz (archivo nuevo, requiere autorización), claves VAPID y una Edge Function con cron para enviar. El canal actual de reenganche es el cofre diario, la racha, el resumen semanal y el aviso de directo dentro de la app.
-- La pregunta del día no tiene votos ni resultados: `reclamar_pregunta_dia` solo comprueba que el usuario escribió en el chat. Mostrar porcentajes exige tabla de votos, RPC y moderación de opciones.
-- Los clips ya se pueden votar (`kick_clip_votos`, RPC `votar_clip`, 3 puntos por clip y 5 al día), pero el ranking se muestra solo como contador: no hay lista de más votados ni orden por votos.
+- La pregunta abierta del día sigue premiando la respuesta en el chat (5 pts). La encuesta rápida con opciones y porcentajes ya existe, pero las encuestas se cargan por SQL: no hay panel para crearlas ni para moderar resultados.
+- Los clips se pueden votar (`kick_clip_votos`, RPC `votar_clip`, 3 puntos por clip y 5 al día) y la home ordena por votos con etiquetas TOP 1–3, pero solo sobre los 6 clips cargados: no hay ranking histórico ni página de clips.
