@@ -8283,13 +8283,12 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 
 .game-tactil {
     position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     z-index: 3;
     display: none;
     align-items: flex-end;
     justify-content: space-between;
+    gap: 10px;
     padding: 10px 12px calc(14px + env(safe-area-inset-bottom));
     pointer-events: none;
 }
@@ -8298,80 +8297,167 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     display: flex;
     align-items: flex-end;
     flex-shrink: 0;
+    min-width: 0;
 }
 
 .game-tactil-grupo--movimiento {
-    gap: 20px;
+    position: relative;
+    flex: 1 1 auto;
+    max-width: 210px;
+    height: 154px;
     pointer-events: auto;
     touch-action: none;
+}
+
+.game-joystick-pista {
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    display: grid;
+    place-items: center;
+    width: 116px;
+    height: 116px;
+    border: 2px dashed rgba(94, 234, 212, .26);
+    border-radius: 50%;
+    color: rgba(191, 252, 243, .55);
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .22em;
+    transform: translateX(-50%);
+    pointer-events: none;
+    transition: opacity 150ms ease;
+}
+
+.game-joystick {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    width: 134px;
+    height: 134px;
+    margin: -67px 0 0 -67px;
+    border: 2px solid rgba(94, 234, 212, .42);
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(11, 32, 42, .72), rgba(5, 12, 22, .42));
+    box-shadow: 0 0 0 8px rgba(94, 234, 212, .05), inset 0 0 24px rgba(94, 234, 212, .08);
+    opacity: 0;
+    transform: scale(.88);
+    pointer-events: none;
+    transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.game-joystick--on {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.game-joystick-carga {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: conic-gradient(#ffcf4a calc(var(--run, 0) * 1turn), transparent 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+    pointer-events: none;
+}
+
+.game-joystick-knob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 58px;
+    height: 58px;
+    margin: -29px 0 0 -29px;
+    border: 1px solid rgba(255, 255, 255, .38);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f2fffc, #9fe7dd);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, .28);
+    pointer-events: none;
 }
 
 .game-tactil-grupo--acciones {
     position: relative;
     display: block;
-    width: 152px;
-    height: 134px;
+    width: 198px;
+    height: 206px;
     min-width: 0;
     min-height: 0;
     transition: none;
 }
 
 .game-tactil-btn {
-    width: 64px;
-    height: 64px;
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    padding: 0;
     border: 1px solid rgba(94, 234, 212, .28);
     border-radius: 50%;
-    background: rgba(7, 16, 30, .38);
+    background: rgba(7, 16, 30, .5);
     color: #e6fffb;
     font-family: inherit;
-    font-size: 1.05rem;
+    font-size: .68rem;
     font-weight: 700;
+    line-height: 1.1;
+    text-align: center;
+    letter-spacing: .06em;
     pointer-events: auto;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
+    transition: transform 80ms ease, background 120ms ease, border-color 120ms ease;
 }
 
-.game-tactil-grupo--acciones .game-tactil-btn {
-    position: absolute;
+.game-tactil-btn--disparo {
+    right: 0;
+    bottom: 0;
+    width: 98px;
+    height: 98px;
+    border-color: rgba(255, 79, 163, .55);
+    background: rgba(255, 79, 163, .18);
+    box-shadow: inset 0 0 26px rgba(255, 79, 163, .12);
+    color: #ffe3f1;
+    font-size: .72rem;
+    letter-spacing: .08em;
 }
 
 .game-tactil-btn--salto {
-    right: 0;
-    bottom: 0;
-    width: 78px;
-    height: 78px;
+    right: 88px;
+    bottom: 112px;
+    width: 82px;
+    height: 82px;
     border-color: rgba(255, 79, 163, .5);
     background: rgba(255, 79, 163, .16);
     color: #ffe3f1;
-    font-size: .68rem;
-    letter-spacing: .06em;
 }
 
-.game-tactil-btn--clip {
-    left: 0;
-    bottom: 0;
-    width: 60px;
-    height: 60px;
-    border-color: rgba(255, 79, 163, .38);
-    background: rgba(255, 79, 163, .1);
-    color: #ffe3f1;
-    font-size: .62rem;
-    letter-spacing: .06em;
-}
-
-.game-tactil-btn--ancho {
-    left: 4px;
-    bottom: 72px;
-    width: 52px;
-    height: 52px;
-    padding: 0;
-    border-radius: 50%;
-    border-color: rgba(94, 234, 212, .24);
-    color: #bffcf3;
+.game-tactil-btn--correr {
+    right: 0;
+    bottom: 106px;
+    width: 72px;
+    height: 72px;
+    border-color: rgba(255, 207, 74, .5);
+    background: rgba(255, 207, 74, .14);
+    color: #fff3c4;
     font-size: .56rem;
-    letter-spacing: .05em;
+    letter-spacing: .04em;
+}
+
+.game-tactil-btn--fijo {
+    border-color: #ffcf4a;
+    background: rgba(255, 207, 74, .32);
+}
+
+.game-tactil-carga {
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    background: conic-gradient(#ffcf4a calc(var(--run, 0) * 1turn), transparent 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+    pointer-events: none;
 }
 
 .game-tactil-btn--activo {
@@ -8379,20 +8465,24 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
     transform: scale(.94);
 }
 
+.game-tactil-btn--correr.game-tactil-btn--activo {
+    background: rgba(255, 207, 74, .38);
+}
+
 .game-pausa {
     position: absolute;
-    top: 64px;
-    right: 12px;
+    top: 48px;
+    right: 10px;
     z-index: 4;
     display: none;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     padding: 0;
-    border: 1px solid rgba(94, 234, 212, .28);
+    border: 1px solid rgba(94, 234, 212, .3);
     border-radius: 50%;
-    background: rgba(7, 16, 30, .48);
+    background: rgba(7, 16, 30, .58);
     color: #e6fffb;
     font-family: inherit;
     font-size: .95rem;
@@ -8410,29 +8500,48 @@ html.densidad-compacta .chat-kick-mensaje-cabeza { margin-bottom: 1px; }
 }
 
 .game-escenario--tactil-grande .game-tactil-grupo--acciones {
-    width: 184px;
-    height: 158px;
+    width: 220px;
+    height: 224px;
 }
 
 .game-escenario--tactil-grande .game-tactil-btn {
-    width: 76px;
-    height: 76px;
+    width: 84px;
+    height: 84px;
+}
+
+.game-escenario--tactil-grande .game-tactil-btn--disparo {
+    width: 108px;
+    height: 108px;
 }
 
 .game-escenario--tactil-grande .game-tactil-btn--salto {
-    width: 92px;
-    height: 92px;
+    right: 96px;
+    bottom: 124px;
+    width: 90px;
+    height: 90px;
 }
 
-.game-escenario--tactil-grande .game-tactil-btn--clip {
-    width: 68px;
-    height: 68px;
+.game-escenario--tactil-grande .game-tactil-btn--correr {
+    bottom: 118px;
+    width: 80px;
+    height: 80px;
 }
 
-.game-escenario--tactil-grande .game-tactil-btn--ancho {
-    bottom: 84px;
-    width: 60px;
-    height: 60px;
+.game-escenario--tactil-grande .game-joystick {
+    width: 150px;
+    height: 150px;
+    margin: -75px 0 0 -75px;
+}
+
+.game-escenario--tactil-grande .game-joystick-pista {
+    width: 128px;
+    height: 128px;
+}
+
+.game-escenario--tactil-grande .game-joystick-knob {
+    width: 64px;
+    height: 64px;
+    margin: -32px 0 0 -32px;
 }
 
 .game-escenario--tactil-grande .game-pausa {
@@ -8450,7 +8559,7 @@ html.lg-game-full .game-escenario .game-tactil {
 }
 
 html.lg-game-full .game-pausa {
-    top: calc(64px + env(safe-area-inset-top));
+    top: calc(48px + env(safe-area-inset-top));
     right: calc(12px + env(safe-area-inset-right));
 }
 
@@ -8469,72 +8578,101 @@ html.lg-page-game .game-pausa {
 }
 
 @media (max-width: 420px) {
-    .game-escenario.game-escenario--tactil-grande .game-tactil {
-        gap: 4px !important;
-        padding-right: 4px !important;
-        padding-left: 4px !important;
+    .game-tactil {
+        gap: 6px;
+        padding-right: 8px;
+        padding-left: 8px;
     }
 
-    .game-escenario.game-escenario--tactil-grande .game-tactil-grupo--acciones {
-        width: 176px;
-        height: 150px;
+    .game-tactil-grupo--movimiento {
+        height: 136px;
     }
 
-    html.lg-page-game .game-escenario .game-tactil-grupo--movimiento {
-        gap: 20px;
+    .game-pausa {
+        top: 38px;
+        right: 8px;
+        width: 44px;
+        height: 44px;
     }
 
-    html.lg-page-game .game-escenario .game-tactil-btn {
-        width: 64px;
-        height: 64px;
+    .game-joystick-pista {
+        width: 104px;
+        height: 104px;
     }
 
-    html.lg-page-game .game-escenario .game-tactil-btn--salto {
-        width: 78px;
-        height: 78px;
+    .game-joystick {
+        width: 118px;
+        height: 118px;
+        margin: -59px 0 0 -59px;
     }
 
-    html.lg-page-game .game-escenario .game-tactil-btn--clip {
-        width: 60px;
-        height: 60px;
-    }
-
-    html.lg-page-game .game-escenario .game-tactil-btn--ancho {
+    .game-joystick-knob {
         width: 52px;
         height: 52px;
-        padding: 0;
+        margin: -26px 0 0 -26px;
     }
 
-    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil {
-        gap: 4px;
-        padding-right: 4px;
-        padding-left: 4px;
+    .game-tactil-grupo--acciones {
+        width: 174px;
+        height: 168px;
     }
 
-    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-grupo--acciones {
-        width: 168px;
-        height: 150px;
-    }
-
-    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-btn {
+    .game-tactil-btn {
         width: 70px;
         height: 70px;
     }
 
-    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-btn--salto {
-        width: 84px;
-        height: 84px;
+    .game-tactil-btn--disparo {
+        width: 88px;
+        height: 88px;
     }
 
-    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-btn--clip {
-        width: 62px;
-        height: 62px;
+    .game-tactil-btn--salto {
+        right: auto;
+        left: 0;
+        bottom: 0;
+        width: 76px;
+        height: 76px;
     }
 
-    html.lg-page-game .game-escenario.game-escenario--tactil-grande .game-tactil-btn--ancho {
-        bottom: 78px;
-        width: 56px;
-        height: 56px;
+    .game-tactil-btn--correr {
+        right: auto;
+        left: 0;
+        bottom: 92px;
+        width: 66px;
+        height: 66px;
+    }
+
+    .game-escenario--tactil-grande .game-tactil-grupo--acciones {
+        width: 184px;
+        height: 176px;
+    }
+
+    .game-escenario--tactil-grande .game-tactil-btn--disparo {
+        width: 92px;
+        height: 92px;
+    }
+
+    .game-escenario--tactil-grande .game-tactil-btn--salto {
+        right: auto;
+        left: 0;
+        bottom: 0;
+        width: 80px;
+        height: 80px;
+    }
+
+    .game-escenario--tactil-grande .game-tactil-btn--correr {
+        right: auto;
+        left: 0;
+        bottom: 96px;
+        width: 70px;
+        height: 70px;
+    }
+
+    .game-escenario--tactil-grande .game-pausa {
+        top: 38px;
+        width: 44px;
+        height: 44px;
     }
 }
 
@@ -8563,8 +8701,8 @@ html.lg-page-game .game-pausa {
     }
 
     .game-tactil {
-        position: static;
-        background: rgba(5, 10, 20, .55);
+        position: absolute;
+        background: transparent;
     }
 
     .game-controles {

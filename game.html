@@ -30,7 +30,7 @@
     <meta name="twitter:image:alt" content="La Gocha Gaming, streamer de Kick">
 
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.2.9">
+    <link rel="stylesheet" href="style.css?v=2.3.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -178,6 +178,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                             <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarEfectos()" :aria-pressed="$store.juego.efectos" x-text="$store.juego.efectos ? 'Efectos: ON' : 'Efectos: OFF'"></button>
                             <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarNitidez()" :aria-pressed="$store.juego.nitidez" x-text="$store.juego.nitidez ? 'Nitidez: ON' : 'Nitidez: OFF'"></button>
                             <button type="button" class="game-ajuste-btn" x-cloak :hidden="!$store.juego.tactil" @click="$store.juego.alternarTamanoTactil()" :aria-pressed="$store.juego.tactilGrande" x-text="$store.juego.tactilGrande ? 'Botones: Grandes' : 'Botones: Normal'"></button>
+                            <button type="button" class="game-ajuste-btn" x-cloak :hidden="!$store.juego.tactil" @click="$store.juego.alternarAutoCorrer()" :aria-pressed="$store.juego.autoCorrer" x-text="$store.juego.autoCorrer ? 'Auto correr: ON' : 'Auto correr: OFF'"></button>
                         </div>
                         <p class="game-progreso-nota">Sonido, movimiento, efectos y nitidez se aplican al instante. La nitidez usa render 2x.</p>
                         <div class="game-panel-acciones">
@@ -418,19 +419,26 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarEfectos()" :aria-pressed="$store.juego.efectos" x-text="$store.juego.efectos ? 'Efectos: ON' : 'Efectos: OFF'"></button>
                         <button type="button" class="game-ajuste-btn" @click="$store.juego.alternarNitidez()" :aria-pressed="$store.juego.nitidez" x-text="$store.juego.nitidez ? 'Nitidez: ON' : 'Nitidez: OFF'"></button>
                         <button type="button" class="game-ajuste-btn" x-cloak :hidden="!$store.juego.tactil" @click="$store.juego.alternarTamanoTactil()" :aria-pressed="$store.juego.tactilGrande" x-text="$store.juego.tactilGrande ? 'Botones: Grandes' : 'Botones: Normal'"></button>
+                        <button type="button" class="game-ajuste-btn" x-cloak :hidden="!$store.juego.tactil" @click="$store.juego.alternarAutoCorrer()" :aria-pressed="$store.juego.autoCorrer" x-text="$store.juego.autoCorrer ? 'Auto correr: ON' : 'Auto correr: OFF'"></button>
                         <p class="game-progreso-nota">La nitidez usa render 2x. Desactívala si notas tirones en un equipo lento.</p>
                     </div>
                 </div>
 
                 <div class="game-tactil" :hidden="$store.juego.fase !== 'jugando'">
                     <div class="game-tactil-grupo game-tactil-grupo--movimiento">
-                        <button type="button" class="game-tactil-btn" data-control="izquierda" aria-label="Mover a la izquierda">◀</button>
-                        <button type="button" class="game-tactil-btn" data-control="derecha" aria-label="Mover a la derecha">▶</button>
+                        <span class="game-joystick-pista" aria-hidden="true">MUEVE</span>
+                        <div class="game-joystick" data-joystick aria-hidden="true">
+                            <span class="game-joystick-carga" data-joystick-carga></span>
+                            <span class="game-joystick-knob" data-joystick-knob></span>
+                        </div>
                     </div>
                     <div class="game-tactil-grupo game-tactil-grupo--acciones">
-                        <button type="button" class="game-tactil-btn game-tactil-btn--clip" data-control="disparar" aria-label="Disparar clip">CLIP</button>
-                        <button type="button" class="game-tactil-btn game-tactil-btn--ancho" data-control="correr" aria-label="Correr">CORRER</button>
+                        <button type="button" class="game-tactil-btn game-tactil-btn--correr" data-control="correr" x-show="$store.juego.tactil && !$store.juego.autoCorrer" x-cloak aria-label="Correr. Mantén 1,5 s para fijar la carrera." aria-pressed="false">
+                            <span class="game-tactil-carga" data-run-carga aria-hidden="true"></span>
+                            <span data-run-label>CORRER</span>
+                        </button>
                         <button type="button" class="game-tactil-btn game-tactil-btn--salto" data-control="salto" aria-label="Saltar">SALTAR</button>
+                        <button type="button" class="game-tactil-btn game-tactil-btn--disparo" data-control="disparar" aria-label="Disparar clip">CLIP</button>
                     </div>
                 </div>
                 <button type="button" class="game-pausa" data-control="pausa" aria-label="Pausar partida" :hidden="$store.juego.fase !== 'jugando'">Ⅱ</button>
@@ -475,8 +483,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-<script src="main.js?v=2.2.9" defer></script>
-<script src="game.js?v=2.2.9" defer></script>
+<script src="main.js?v=2.3.0" defer></script>
+<script src="game.js?v=2.3.0" defer></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
 </body>

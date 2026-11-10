@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.3.0] - 2026-11-10
+
+### Juego
+
+- HUD táctil nuevo con joystick flotante: la base aparece bajo el dedo y el eje analógico mueve a Gochita con zona muerta. El aviso `MUEVE` desaparece al tocar.
+- Auto correr activado por defecto: inclinar el joystick a fondo durante 1,5 s activa la velocidad de carrera, con un anillo dorado de progreso. La carga no se reinicia al saltar.
+- El ajuste `Auto correr: ON/OFF` está en Ajustes y en la pausa. Al desactivarlo aparece el botón `CORRER`: una pulsación corre al instante y mantenerlo 1,5 s fija la carrera (`FIJO`) sin tener que sujetar el botón.
+- La carrera fija se suelta al dejar el joystick neutro 0,45 s, al pausar, al morir, al reiniciar, al cambiar el ajuste o al perder el foco de la ventana.
+- Disparo sostenido: mantener `CLIP` o `J`/`K` dispara en cuanto el enfriamiento lo permite. El botón de pausa se mueve bajo el HUD para no tapar el marcador.
+
 ## [2.2.9] - 2026-11-09
 
 ### Seguridad

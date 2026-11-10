@@ -12,6 +12,12 @@
     const CAIDA_MAX = 900;
     const VEL_CAMINAR = 145;
     const VEL_CORRER = 220;
+    const AUTO_RUN_DELAY = 1.5;
+    const AUTO_RUN_UMBRAL = 0.72;
+    const RUN_HOLD_DELAY = 1.5;
+    const RUN_IDLE_RESET = 0.45;
+    const JOY_R = 54;
+    const JOY_DEAD = 0.12;
     const ACELERACION = 1500;
     const FRENADO = 1900;
     const SALTO = -455;
@@ -142,7 +148,15 @@
         nivelDatos: null,
         jugador: null,
         spawn: { x: 0, y: 0 },
-        entrada: { izquierda: false, derecha: false, salto: false, correr: false },
+        entrada: { izquierda: false, derecha: false, salto: false, correr: false, eje: 0, disparando: false },
+        correrTactil: false,
+        autoCorrer: true,
+        autoCarga: 0,
+        autoDireccion: 0,
+        runFijo: false,
+        runSostenido: false,
+        runHold: 0,
+        runIdle: 0,
         bufferSalto: 0,
         impulsoSalto: 0,
         coyote: 0,
@@ -209,6 +223,7 @@
         efectos: true,
         nitidez: true,
         tactilGrande: false,
+        tactil: false,
         cuenta: '',
         nubeEstado: 'invitado',
         nubeMensaje: '',
@@ -959,6 +974,7 @@
             estado.efectos = datos.efectos !== false;
             estado.nitidez = datos.nitidez !== false;
             estado.tactilGrande = datos.tactilGrande === true;
+            estado.autoCorrer = datos.autoCorrer !== false;
         } catch (e) {
             estado.sonido = true;
             estado.volumen = VOLUMEN_INICIAL;
@@ -966,6 +982,7 @@
             estado.efectos = true;
             estado.nitidez = true;
             estado.tactilGrande = false;
+            estado.autoCorrer = true;
         }
     }
 
@@ -978,6 +995,7 @@
             datos.efectos = estado.efectos;
             datos.nitidez = estado.nitidez;
             datos.tactilGrande = estado.tactilGrande;
+            datos.autoCorrer = estado.autoCorrer;
             localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(datos));
         } catch (e) { /* sin almacenamiento */ }
     }
@@ -1000,6 +1018,122 @@
         aplicarTamanoTactil();
         sincronizarUi();
         sfx('moneda');
+    }
+
+    let joystickEl = null;
+    let joystickKnob = null;
+    let joystickCarga = null;
+    let joystickPista = null;
+    let botonCorrerEl = null;
+    let etiquetaCorrerEl = null;
+    let cargaCorrerEl = null;
+
+    function anunciarJuego(texto) {
+        const aviso = document.getElementById('game-aviso');
+        if (aviso) aviso.textContent = texto;
+    }
+
+    function actualizarBotonCorrer() {
+        if (!botonCorrerEl) return;
+        botonCorrerEl.classList.toggle('game-tactil-btn--fijo', estado.runFijo);
+        botonCorrerEl.classList.toggle('game-tactil-btn--activo', estado.runSostenido || estado.runFijo);
+        botonCorrerEl.setAttribute('aria-pressed', estado.runFijo ? 'true' : 'false');
+        botonCorrerEl.setAttribute('aria-label', estado.runFijo
+            ? 'Carrera fija. Toca para parar.'
+            : 'Correr. Mantén 1,5 s para fijar la carrera.');
+        if (etiquetaCorrerEl) etiquetaCorrerEl.textContent = estado.runFijo ? 'FIJO' : 'CORRER';
+    }
+
+    function pintarCargaCorrer(valor) {
+        if (cargaCorrerEl) cargaCorrerEl.style.setProperty('--run', String(Math.max(0, Math.min(1, valor))));
+    }
+
+    function pintarCargaJoystick(valor) {
+        if (joystickCarga) joystickCarga.style.setProperty('--run', String(Math.max(0, Math.min(1, valor))));
+    }
+
+    function resetRunFijo(anunciar) {
+        const estabaFijo = estado.runFijo;
+        estado.runFijo = false;
+        estado.runSostenido = false;
+        estado.runHold = 0;
+        estado.runIdle = 0;
+        pintarCargaCorrer(0);
+        actualizarBotonCorrer();
+        if (anunciar && estabaFijo) anunciarJuego('Carrera fija desactivada.');
+    }
+
+    function alternarAutoCorrer() {
+        estado.autoCorrer = !estado.autoCorrer;
+        resetRunFijo(false);
+        estado.autoCarga = 0;
+        estado.autoDireccion = 0;
+        pintarCargaJoystick(0);
+        guardarSonido();
+        sincronizarUi();
+        sfx('moneda');
+        anunciarJuego(estado.autoCorrer
+            ? 'Auto correr activado. Inclina el joystick a fondo durante 1,5 segundos.'
+            : 'Auto correr desactivado. Usa el botón CORRER.');
+    }
+
+    function actualizarCorrerTactil(dt, eje) {
+        if (!estado.tactil) {
+            estado.correrTactil = false;
+            estado.autoCarga = 0;
+            estado.autoDireccion = 0;
+            pintarCargaJoystick(0);
+            return;
+        }
+
+        if (estado.autoCorrer) {
+            if (estado.runFijo || estado.runSostenido) resetRunFijo(false);
+            if (eje !== 0 && Math.abs(eje) > AUTO_RUN_UMBRAL) {
+                const direccion = Math.sign(eje);
+                if (direccion !== estado.autoDireccion) {
+                    estado.autoDireccion = direccion;
+                    estado.autoCarga = 0;
+                }
+                estado.autoCarga = Math.min(AUTO_RUN_DELAY, estado.autoCarga + dt);
+            } else {
+                estado.autoDireccion = 0;
+                estado.autoCarga = 0;
+            }
+            estado.correrTactil = estado.autoCarga >= AUTO_RUN_DELAY;
+            pintarCargaJoystick(estado.autoCarga / AUTO_RUN_DELAY);
+            return;
+        }
+
+        estado.autoCarga = 0;
+        estado.autoDireccion = 0;
+        pintarCargaJoystick(0);
+        if (estado.runSostenido) {
+            estado.runHold = Math.min(RUN_HOLD_DELAY, estado.runHold + dt);
+            if (estado.runHold >= RUN_HOLD_DELAY) {
+                estado.runFijo = true;
+                estado.runSostenido = false;
+                estado.runHold = 0;
+                estado.runIdle = 0;
+                actualizarBotonCorrer();
+                anunciarJuego('Carrera fija. Toca CORRER para parar.');
+            }
+            pintarCargaCorrer(estado.runHold / RUN_HOLD_DELAY);
+        } else if (!estado.runFijo) {
+            estado.runHold = 0;
+            pintarCargaCorrer(0);
+        }
+
+        if (estado.runFijo) {
+            if (eje === 0) {
+                estado.runIdle += dt;
+                if (estado.runIdle >= RUN_IDLE_RESET) resetRunFijo(false);
+            } else {
+                estado.runIdle = 0;
+            }
+        } else {
+            estado.runIdle = 0;
+        }
+        estado.correrTactil = estado.runSostenido || estado.runFijo;
     }
 
     function actualizarBotonSonido() {
@@ -1471,7 +1605,7 @@
     function limpiarProgresoLocal() {
         const crudo = leerDatosCrudo();
         const ajustes = {};
-        ['sonido', 'volumen', 'reducirMovimiento', 'efectos', 'nitidez', 'tactilGrande'].forEach((clave) => {
+        ['sonido', 'volumen', 'reducirMovimiento', 'efectos', 'nitidez', 'tactilGrande', 'autoCorrer'].forEach((clave) => {
             if (Object.prototype.hasOwnProperty.call(crudo, clave)) ajustes[clave] = crudo[clave];
         });
         guardarDatosCrudo(ajustes);
@@ -2003,6 +2137,7 @@
     }
 
     function cargarNivel(nivelNumero, mantenerCheckpoint) {
+        limpiarEntrada();
         const maximo = (estado.modo === 'rush' || estado.modo === 'reto' || estado.modo === 'mision')
             ? NIVELES.length
             : Math.max(1, Math.min(NIVELES.length, estado.nivelDesbloqueado || 1));
@@ -2469,9 +2604,25 @@
         estado.entrada.derecha = false;
         estado.entrada.salto = false;
         estado.entrada.correr = false;
+        estado.entrada.eje = 0;
+        estado.entrada.disparando = false;
+        estado.correrTactil = false;
+        resetRunFijo(false);
+        estado.autoCarga = 0;
+        estado.autoDireccion = 0;
+        pintarCargaJoystick(0);
         estado.bufferSalto = 0;
         estado.impulsoSalto = 0;
         estado.coyote = 0;
+        if (joystickEl) {
+            joystickEl.classList.remove('game-joystick--on');
+            joystickEl.style.left = '0px';
+            joystickEl.style.top = '0px';
+        }
+        if (joystickKnob) joystickKnob.style.transform = 'translate(0, 0)';
+        const zona = document.querySelector('.game-tactil-grupo--movimiento');
+        if (zona) zona.classList.remove('game-tactil-zona--activa');
+        if (joystickPista) joystickPista.style.opacity = '';
         if (document.querySelectorAll) {
             document.querySelectorAll('.game-tactil-btn--activo').forEach((boton) => {
                 boton.classList.remove('game-tactil-btn--activo');
@@ -2600,8 +2751,9 @@
         store.reducirMovimiento = estado.reducirMovimiento;
         store.efectos = estado.efectos;
         store.nitidez = estado.nitidez;
-        store.tactil = dispositivoTactil();
+        store.tactil = estado.tactil;
         store.tactilGrande = estado.tactilGrande;
+        store.autoCorrer = estado.autoCorrer;
         store.escala = ESCALA_RENDER;
         store.modo = estado.modo;
         store.monedas = estado.monedas;
@@ -3544,17 +3696,19 @@
         estado.disparoAnim = Math.max(0, estado.disparoAnim - dt);
         actualizarParpadeo(dt);
 
-        const quiereMover = estado.entrada.izquierda || estado.entrada.derecha;
+        const ejeTeclado = (estado.entrada.derecha ? 1 : 0) - (estado.entrada.izquierda ? 1 : 0);
+        const eje = ejeTeclado || estado.entrada.eje || 0;
+        actualizarCorrerTactil(dt, eje);
+        const quiereMover = eje !== 0;
         if (estado.accesorio === 'zapatillas' && quiereMover) {
             estado.zapatillasRampa = Math.min(1, estado.zapatillasRampa + dt / 0.3);
         } else {
             estado.zapatillasRampa = Math.max(0, estado.zapatillasRampa - dt / 0.5);
         }
         const bonusZapatillas = 1 + 0.1 * estado.zapatillasRampa;
-        const velMax = (estado.entrada.correr ? VEL_CORRER : VEL_CAMINAR) * bonusZapatillas;
-        let objetivo = 0;
-        if (estado.entrada.izquierda) objetivo -= velMax;
-        if (estado.entrada.derecha) objetivo += velMax;
+        const velMax = ((estado.entrada.correr || estado.correrTactil) ? VEL_CORRER : VEL_CAMINAR) * bonusZapatillas;
+        const objetivo = eje * velMax;
+        if (estado.entrada.disparando) disparar();
 
         if (objetivo !== 0) {
             const aceleracion = j.enSuelo ? ACELERACION : ACELERACION * 0.8;
@@ -5408,7 +5562,8 @@
         }
 
         if (evento.code === 'KeyJ' || evento.code === 'KeyK') {
-            disparar();
+            estado.entrada.disparando = true;
+            if (!evento.repeat) disparar();
             evento.preventDefault();
             return;
         }
@@ -5462,55 +5617,89 @@
             cortarSalto();
             estado.entrada.salto = false;
         }
+        if (evento.code === 'KeyJ' || evento.code === 'KeyK') {
+            estado.entrada.disparando = false;
+        }
     }
 
     function prepararTactil() {
-        const pad = document.querySelector('.game-tactil-grupo--movimiento');
-        const botonIzquierda = pad ? pad.querySelector('[data-control="izquierda"]') : null;
-        const botonDerecha = pad ? pad.querySelector('[data-control="derecha"]') : null;
-        let punteroPad = null;
+        const zona = document.querySelector('.game-tactil-grupo--movimiento');
+        joystickEl = document.querySelector('[data-joystick]');
+        joystickKnob = document.querySelector('[data-joystick-knob]');
+        joystickCarga = document.querySelector('[data-joystick-carga]');
+        joystickPista = document.querySelector('.game-joystick-pista');
+        botonCorrerEl = document.querySelector('[data-control="correr"]');
+        etiquetaCorrerEl = document.querySelector('[data-run-label]');
+        cargaCorrerEl = document.querySelector('[data-run-carga]');
+        let punteroJoy = null;
+        const origenJoy = { x: 0, y: 0 };
 
-        const pintarPad = (direccion) => {
-            if (botonIzquierda) botonIzquierda.classList.toggle('game-tactil-btn--activo', direccion < 0);
-            if (botonDerecha) botonDerecha.classList.toggle('game-tactil-btn--activo', direccion > 0);
+        const colocarJoystick = (x, y) => {
+            if (!zona || !joystickEl) return;
+            const caja = zona.getBoundingClientRect();
+            joystickEl.style.left = (x - caja.left) + 'px';
+            joystickEl.style.top = (y - caja.top) + 'px';
         };
 
-        const fijarPad = (clientX) => {
-            if (!pad) return;
-            const caja = pad.getBoundingClientRect();
-            const izquierda = clientX < caja.left + caja.width / 2;
-            estado.entrada.izquierda = izquierda;
-            estado.entrada.derecha = !izquierda;
-            pintarPad(izquierda ? -1 : 1);
+        const moverJoystick = (dx, dy) => {
+            const distancia = Math.hypot(dx, dy);
+            const escala = distancia > JOY_R ? JOY_R / distancia : 1;
+            const kx = dx * escala;
+            const ky = dy * escala;
+            if (joystickKnob) joystickKnob.style.transform = 'translate(' + kx + 'px, ' + ky + 'px)';
+            let eje = Math.max(-1, Math.min(1, dx / JOY_R));
+            if (Math.abs(eje) < JOY_DEAD) eje = 0;
+            estado.entrada.eje = eje;
         };
 
-        const soltarPad = (evento) => {
-            if (evento && punteroPad !== null && evento.pointerId !== punteroPad) return;
-            punteroPad = null;
-            estado.entrada.izquierda = false;
-            estado.entrada.derecha = false;
-            pintarPad(0);
+        const soltarJoystick = (evento) => {
+            if (evento && punteroJoy !== null && evento.pointerId !== punteroJoy) return;
+            punteroJoy = null;
+            estado.entrada.eje = 0;
+            if (joystickEl) joystickEl.classList.remove('game-joystick--on');
+            if (joystickKnob) joystickKnob.style.transform = 'translate(0, 0)';
+            if (joystickPista) joystickPista.style.opacity = '';
+            if (zona) zona.classList.remove('game-tactil-zona--activa');
         };
 
-        if (pad) {
-            pad.addEventListener('pointerdown', (evento) => {
-                if (punteroPad !== null && evento.pointerId !== punteroPad) return;
+        if (zona && joystickEl) {
+            zona.addEventListener('pointerdown', (evento) => {
+                if (punteroJoy !== null && evento.pointerId !== punteroJoy) return;
                 evento.preventDefault();
-                punteroPad = evento.pointerId;
-                if (pad.setPointerCapture) {
-                    try { pad.setPointerCapture(evento.pointerId); } catch (e) { /* puntero sintético */ }
+                punteroJoy = evento.pointerId;
+                origenJoy.x = evento.clientX;
+                origenJoy.y = evento.clientY;
+                colocarJoystick(evento.clientX, evento.clientY);
+                joystickEl.classList.add('game-joystick--on');
+                zona.classList.add('game-tactil-zona--activa');
+                if (joystickPista) joystickPista.style.opacity = '0';
+                if (zona.setPointerCapture) {
+                    try { zona.setPointerCapture(evento.pointerId); } catch (e) { /* puntero sintético */ }
                 }
-                fijarPad(evento.clientX);
+                moverJoystick(0, 0);
             });
-            pad.addEventListener('pointermove', (evento) => {
-                if (evento.pointerId !== punteroPad) return;
+            zona.addEventListener('pointermove', (evento) => {
+                if (evento.pointerId !== punteroJoy) return;
                 evento.preventDefault();
-                fijarPad(evento.clientX);
+                moverJoystick(evento.clientX - origenJoy.x, evento.clientY - origenJoy.y);
             });
-            pad.addEventListener('pointerup', soltarPad);
-            pad.addEventListener('pointercancel', soltarPad);
-            pad.addEventListener('lostpointercapture', soltarPad);
+            zona.addEventListener('pointerup', soltarJoystick);
+            zona.addEventListener('pointercancel', soltarJoystick);
+            zona.addEventListener('lostpointercapture', soltarJoystick);
         }
+
+        const soltarCorrer = (evento) => {
+            if (evento && botonCorrerEl && evento.pointerId !== undefined) {
+                try { botonCorrerEl.releasePointerCapture(evento.pointerId); } catch (e) { /* sin captura */ }
+            }
+            if (!estado.runSostenido) return;
+            estado.runSostenido = false;
+            estado.runHold = 0;
+            pintarCargaCorrer(0);
+            actualizarBotonCorrer();
+        };
+
+        actualizarBotonCorrer();
 
         document.querySelectorAll('[data-control]').forEach((boton) => {
             const control = boton.dataset.control;
@@ -5524,8 +5713,32 @@
                 return;
             }
 
+            if (control === 'correr') {
+                boton.addEventListener('pointerdown', (evento) => {
+                    evento.preventDefault();
+                    if (estado.autoCorrer) return;
+                    if (estado.runFijo) {
+                        resetRunFijo(true);
+                        return;
+                    }
+                    estado.runSostenido = true;
+                    estado.runHold = 0;
+                    boton.classList.add('game-tactil-btn--activo');
+                    pintarCargaCorrer(0);
+                    if (boton.setPointerCapture) {
+                        try { boton.setPointerCapture(evento.pointerId); } catch (e) { /* puntero sintético */ }
+                    }
+                    actualizarBotonCorrer();
+                });
+                boton.addEventListener('pointerup', soltarCorrer);
+                boton.addEventListener('pointercancel', soltarCorrer);
+                boton.addEventListener('lostpointercapture', soltarCorrer);
+                return;
+            }
+
             const cambiar = (activo) => {
                 if (control === 'disparar') {
+                    estado.entrada.disparando = activo;
                     if (activo) disparar();
                     boton.classList.toggle('game-tactil-btn--activo', activo);
                     return;
@@ -5572,6 +5785,7 @@
         alternarEfectos,
         alternarNitidez,
         alternarTamanoTactil,
+        alternarAutoCorrer,
         comprarAccesorio,
         equiparAccesorio,
         sincronizarProgreso: () => sincronizarProgresoNube(false),
@@ -5605,6 +5819,14 @@
             enemigos: estado.nivelDatos ? estado.nivelDatos.haters.filter((h) => h.vivo).length : 0,
             purga: estado.purga ? Math.round(estado.purga.x) : null,
             sonido: estado.sonido,
+            tactil: estado.tactil,
+            autoCorrer: estado.autoCorrer,
+            correrTactil: estado.correrTactil,
+            autoCarga: estado.autoCarga,
+            runFijo: estado.runFijo,
+            runSostenido: estado.runSostenido,
+            eje: estado.entrada.eje,
+            disparando: estado.entrada.disparando,
             burbujas: estado.burbujas.length,
             jugador: estado.jugador ? {
                 x: estado.jugador.x,
@@ -5674,6 +5896,7 @@
             nitidez: true,
             tactil: false,
             tactilGrande: false,
+            autoCorrer: true,
             rankingAbierto: false,
             rankingTab: 'general',
             rankingFilas: [],
@@ -5705,6 +5928,7 @@
             alternarEfectos() { alternarEfectos(); },
             alternarNitidez() { alternarNitidez(); },
             alternarTamanoTactil() { alternarTamanoTactil(); },
+            alternarAutoCorrer() { alternarAutoCorrer(); },
             comprarAccesorio(id) { comprarAccesorio(id); },
             equiparAccesorio(id) { equiparAccesorio(id); },
             usarAccesorio(item) {
@@ -5725,6 +5949,7 @@
 
     function iniciar() {
         leerSonido();
+        estado.tactil = dispositivoTactil();
         aplicarNitidez();
         aplicarTamanoTactil();
         tokenNubeActual = tokenComunidad();
