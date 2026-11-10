@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-eLSm8HkQUsyS17LAmR8eEWJomhilxX8hLM3z5LwpjAI=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-Et4ob+J8+VGlhV877gupF5AeML4pLKkA0fU+IE+fXlc=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.7.0">
+    <link rel="stylesheet" href="style.css?v=2.8.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -220,7 +220,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
             <!-- PREGUNTA DEL DÍA -->
             <div class="chat-pregunta" x-data x-cloak x-init="$store.pregunta.cargar()"
-                 :hidden="!$store.pregunta.texto && !$store.pregunta.encuesta">
+                 :hidden="!$store.pregunta.texto && (!$store.pregunta.encuesta || $store.pregunta.yaVotada)">
                 <span class="chat-pregunta-icono" aria-hidden="true">💬</span>
                 <div class="chat-pregunta-texto">
                     <strong>Pregunta del día</strong>
@@ -229,7 +229,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 </div>
                 <button type="button" class="chat-pregunta-btn"
                         @click="window.document.getElementById('chat-mensaje')?.focus()">Responder</button>
-                <div class="chat-poll" x-show="$store.pregunta.encuesta" x-cloak
+                <div class="chat-poll" x-show="$store.pregunta.encuesta && !$store.pregunta.yaVotada" x-cloak
                      role="group" aria-label="Encuesta del día">
                     <strong class="chat-poll-eyebrow">Encuesta rápida</strong>
                     <p class="chat-poll-pregunta"
@@ -246,15 +246,20 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                                     :aria-pressed="op.votada ? 'true' : 'false'"
                                     :disabled="$store.pregunta.enviando"
                                     @click="$store.pregunta.votar(i)">
-                                <span class="chat-poll-barra" :style="'width:' + op.pct + '%'" aria-hidden="true"></span>
+                                <span class="chat-poll-barra" x-show="$store.pregunta.verResultados"
+                                      :style="'width:' + (op.pct || 0) + '%'" aria-hidden="true"></span>
                                 <span class="chat-poll-texto" x-text="op.texto"></span>
-                                <span class="chat-poll-pct" x-text="op.pct + '%'"></span>
+                                <span class="chat-poll-pct" x-show="$store.pregunta.verResultados"
+                                      x-text="(op.pct || 0) + '%'"></span>
                             </button>
                         </template>
                     </div>
-                    <p class="chat-poll-meta">
+                    <p class="chat-poll-meta" x-show="$store.pregunta.verResultados && !($store.pregunta.encuesta && $store.pregunta.encuesta.cerrada)">
                         <span x-text="($store.pregunta.encuesta ? $store.pregunta.encuesta.total : 0) + ($store.pregunta.encuesta && $store.pregunta.encuesta.total === 1 ? ' voto' : ' votos')"></span>
-                        · Vota y gana 3 pts (una vez al día)
+                        · Solo el equipo ve los resultados
+                    </p>
+                    <p class="chat-poll-meta" x-show="!$store.pregunta.verResultados && !($store.pregunta.encuesta && $store.pregunta.encuesta.cerrada)">
+                        Vota y gana 3 pts (una vez al día). Los resultados los ve el equipo.
                     </p>
                 </div>
             </div>
@@ -710,16 +715,31 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
 
             <div class="encuestas-hoy" x-show="$store.adminEncuestas.hoyId" x-cloak>
                 <div>
-                    <span class="encuestas-hoy-etiqueta">Encuesta de hoy</span>
+                    <span class="encuestas-hoy-etiqueta">Encuesta de hoy
+                        <em class="encuestas-hoy-badge"
+                            x-text="$store.adminEncuestas.hoyAutomatica ? 'Automática' : 'Fijada a mano'"></em>
+                    </span>
                     <strong x-text="$store.adminEncuestas.hoyPregunta"></strong>
                 </div>
-                <button type="button" class="btn-secondary encuestas-btn"
-                        x-show="!$store.adminEncuestas.hoyCerrada"
-                        @click="$store.adminEncuestas.cerrarHoy()">Cerrar hoy</button>
-                <button type="button" class="btn-secondary encuestas-btn"
-                        x-show="$store.adminEncuestas.hoyCerrada"
-                        @click="$store.adminEncuestas.publicar($store.adminEncuestas.hoyId)">Reabrir</button>
+                <div class="encuestas-hoy-acciones">
+                    <button type="button" class="btn-secondary encuestas-btn"
+                            x-show="!$store.adminEncuestas.hoyCerrada"
+                            @click="$store.adminEncuestas.cerrarHoy()">Cerrar hoy</button>
+                    <button type="button" class="btn-secondary encuestas-btn"
+                            x-show="$store.adminEncuestas.hoyCerrada"
+                            @click="$store.adminEncuestas.publicar($store.adminEncuestas.hoyId)">Reabrir</button>
+                    <button type="button" class="btn-secondary encuestas-btn"
+                            x-show="!$store.adminEncuestas.hoyAutomatica"
+                            @click="$store.adminEncuestas.automatica()">Usar automática</button>
+                </div>
             </div>
+            <p class="encuestas-hint" x-show="!$store.adminEncuestas.hoyId && !$store.adminEncuestas.cargando" x-cloak>
+                Hoy todavía no hay encuesta publicada: se abrirá sola con la siguiente de la rotación.
+            </p>
+            <p class="encuestas-hint">
+                La encuesta rota sola cada día entre las activas. Publicar una la fija para hoy;
+                «Usar automática» vuelve a la rotación y borra los votos de hoy.
+            </p>
 
             <div class="encuestas-form">
                 <label class="encuestas-label" for="encuesta-pregunta">Pregunta</label>
@@ -769,7 +789,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.7.0" defer></script>
+    <script src="main.js?v=2.8.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -830,15 +850,27 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 publicadaEn: '',
                 encuesta: null,
                 enviando: false,
+                get verResultados() {
+                    return !!(this.encuesta && this.encuesta.es_admin);
+                },
+                // Para la comunidad la encuesta desaparece en cuanto vota.
+                // El admin sigue viéndola para leer los resultados.
+                get yaVotada() {
+                    if (!this.encuesta || this.verResultados) return false;
+                    return this.encuesta.mi_voto !== null && this.encuesta.mi_voto !== undefined;
+                },
                 get encuestaOpciones() {
                     if (!this.encuesta || !Array.isArray(this.encuesta.opciones)) return [];
-                    const total = this.encuesta.total || 0;
-                    return this.encuesta.opciones.map((op, i) => ({
-                        texto: op.texto,
-                        votos: op.votos || 0,
-                        pct: total > 0 ? Math.round(((op.votos || 0) * 100) / total) : 0,
-                        votada: this.encuesta.mi_voto === i
-                    }));
+                    const total = Number(this.encuesta.total) || 0;
+                    return this.encuesta.opciones.map((op, i) => {
+                        const votos = Number(op.votos) || 0;
+                        return {
+                            texto: op.texto,
+                            votos,
+                            pct: this.verResultados && total > 0 ? Math.round((votos * 100) / total) : null,
+                            votada: this.encuesta.mi_voto === i
+                        };
+                    });
                 },
                 async cargar() {
                     const res = await window.rpc('pregunta_del_dia_actual', {}, { error: false });
@@ -869,11 +901,22 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                             window.mostrarToast?.(sinSesion ? 'Entra a la comunidad para votar.' : 'No se pudo registrar el voto.', true);
                             return;
                         }
-                        this.encuesta = { ...this.encuesta, ...datos };
-                        if (datos.nuevo && datos.ganados > 0) {
-                            window.mostrarToast?.('+' + datos.ganados + ' pts por votar la encuesta');
-                            window.actualizarSesionUsuarioComunidad?.({ puntos: datos.puntos });
-                            window.refrescarPuntosDia?.();
+                        if (this.verResultados) {
+                            this.encuesta = { ...this.encuesta, ...datos };
+                        } else {
+                            // Sin resultados en la respuesta: solo se guarda el voto propio.
+                            this.encuesta = { ...this.encuesta, mi_voto: indice };
+                        }
+                        if (datos.nuevo) {
+                            window.mostrarToast?.(datos.ganados > 0
+                                ? '¡Gracias por votar! +' + datos.ganados + ' pts'
+                                : '¡Gracias por votar!');
+                            if (datos.ganados > 0) {
+                                window.actualizarSesionUsuarioComunidad?.({ puntos: datos.puntos });
+                                window.refrescarPuntosDia?.();
+                            }
+                        } else {
+                            window.mostrarToast?.('Voto actualizado');
                         }
                     } finally {
                         this.enviando = false;
@@ -901,6 +944,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 encuestas: [],
                 hoyId: null,
                 hoyCerrada: false,
+                hoyAutomatica: true,
                 hoyPregunta: '',
                 pregunta: '',
                 opcionesTexto: '',
@@ -938,7 +982,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         opciones_invalidas: 'Escribe entre 2 y 4 opciones.',
                         opcion_invalida: 'Cada opción debe tener entre 1 y 80 caracteres.',
                         opcion_duplicada: 'Hay opciones repetidas.',
-                        no_existe: 'Esa encuesta ya no existe.'
+                        no_existe: 'Esa encuesta ya no existe.',
+                        sin_encuestas: 'No hay encuestas activas para la rotación.'
                     };
                     return motivos[datos && datos.motivo] || 'No se pudo guardar la encuesta.';
                 },
@@ -954,6 +999,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         this.encuestas = Array.isArray(datos.encuestas) ? datos.encuestas : [];
                         this.hoyId = datos.hoy && datos.hoy.encuesta_id ? datos.hoy.encuesta_id : null;
                         this.hoyCerrada = !!(datos.hoy && datos.hoy.cerrada);
+                        this.hoyAutomatica = !datos.hoy || datos.hoy.automatica !== false;
                         const hoy = this.encuestas.find((e) => e.id === this.hoyId);
                         this.hoyPregunta = hoy ? hoy.pregunta : '';
                     } finally {
@@ -1052,6 +1098,33 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                             return;
                         }
                         window.mostrarToast?.('Encuesta de hoy cerrada');
+                        await this.cargar();
+                        window.Alpine?.store('pregunta')?.cargarEncuesta?.();
+                    } finally {
+                        this.guardando = false;
+                    }
+                },
+                async automatica() {
+                    if (this.guardando) return;
+                    this.guardando = true;
+                    this.error = '';
+                    try {
+                        if (typeof window.confirmarAccion === 'function') {
+                            const ok = await window.confirmarAccion({
+                                titulo: 'Volver a la rotación automática',
+                                mensaje: 'La encuesta de hoy pasará a la que toca por rotación y se borrarán los votos de hoy. Úsalo solo si nadie ha votado o quieres reiniciar el día.',
+                                textoConfirmar: 'Usar automática',
+                                tono: 'aviso'
+                            });
+                            if (!ok) return;
+                        }
+                        const res = await window.rpc('admin_encuesta_automatica_hoy', {}, { error: false });
+                        const datos = res && res.data;
+                        if (!res || !res.ok || !datos || !datos.ok) {
+                            this.error = this.textoError(datos);
+                            return;
+                        }
+                        window.mostrarToast?.('Encuesta de hoy: rotación automática');
                         await this.cargar();
                         window.Alpine?.store('pregunta')?.cargarEncuesta?.();
                     } finally {

@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.8.0] - 2026-11-10
+
+### Encuestas
+
+- La encuesta del día se publica sola: rotación diaria entre las encuestas activas, sin intervención del admin.
+- La encuesta desaparece para el usuario en cuanto vota (`mi_voto` persistido en servidor); al recargar sigue oculta.
+- Los resultados (votos por opción, porcentaje y total) solo los ve el equipo: `encuesta_actual` y `votar_encuesta` ocultan conteos a quien no es admin.
+- El panel admin muestra si la encuesta de hoy es `Automática` o `Fijada a mano` y permite volver a la rotación con `Usar automática` (borra los votos del día).
+- Nuevas RPC `admin_encuesta_automatica_hoy` y helper interno `encuesta_sugerida`; `admin_encuestas_listar` informa `hoy.automatica`.
+
 ## [2.7.0] - 2026-11-10
 
 ### Clips

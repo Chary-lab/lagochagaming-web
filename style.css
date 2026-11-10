@@ -10488,6 +10488,21 @@ body.admin-mode-active .solo-admin { display: inline-flex !important; }
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
+.encuestas-hoy-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--card-bg);
+    color: var(--accent-color);
+    font-size: 0.6rem;
+    font-style: normal;
+    letter-spacing: 0.04em;
+    text-transform: none;
+}
+.encuestas-hoy-acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.encuestas-hint { margin: 8px 0 0; color: var(--text-muted); font-size: 0.72rem; line-height: 1.45; }
 .encuestas-error { margin: 10px 0 0; color: #fb7185; font-size: 0.78rem; }
 .encuestas-form { margin-top: 16px; }
 .encuestas-label {
