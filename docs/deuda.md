@@ -14,6 +14,6 @@ Extraido de AGENTS.md: deuda aceptada y riesgos conocidos.
 - GitHub Pages no aplica `_headers`: no hay HSTS ni las demás cabeceras. Lo único que sí protege en producción es la **meta CSP** del HTML (ver §6); no hay defensa anti-clickjacking (`frame-ancestors` no funciona en meta).
 - Los CDNs de jsDelivr (Supabase JS, Alpine, `@alpinejs/focus` y hls.js) **ya llevan SRI** (`integrity` + `crossorigin`): al subir la versión de una librería hay que recalcular el hash o el navegador la bloquea. Las fuentes ya no vienen de Google: `fonts/` sirve Inter y Space Grotesk (woff2 variable, latin) con `@font-face` en `style.css`.
 - Advisors de Supabase marcan RPCs `SECURITY DEFINER` ejecutables por `anon`; es intencional para usuarios de comunidad sin Supabase Auth. Revisar cada nueva RPC con el mismo criterio.
-- Índices marcados como "unused" son de bajo volumen; no eliminarlos sin medir.
+- Referidos: el pago exige cuenta de al menos 1 día, 100 puntos y actividad en 2 días distintos; desde 2.2.8 hay un tope de 20 referidos pagados por padrino. Sigue siendo posible crear cuentas con esfuerzo sostenido, pero el retorno está acotado.
 - El contador de descargas no ve las actualizaciones internas de la app ni las descargas directas del `.apk` fuera de `app-descarga`. La pestaña Descargas estima las actualizaciones con telemetría anónima cuando la app se abre, así que pueden tardar hasta que el usuario vuelva a entrar.
 - Los espectadores del chat se refrescan con el sondeo de 30 s; pueden ir 30–60 s por detrás del número del iframe.
