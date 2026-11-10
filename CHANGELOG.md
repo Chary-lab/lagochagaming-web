@@ -13,6 +13,7 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 ### Base de datos
 
 - `pagar_referidos` limita a 20 los referidos pagados por padrino (máximo 2.000 puntos por esa vía). Los pendientes por encima del tope dejan de procesarse.
+- El reto semanal de galería solo cuenta likes de cuentas creadas antes de abrir el reto; los likes de cuentas nuevas no alteran el ganador.
 
 ## [2.2.7] - 2026-11-09
 

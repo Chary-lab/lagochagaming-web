@@ -39,9 +39,9 @@ Extraido de AGENTS.md: despliegue, release, SEO, SemVer y pruebas.
 - Search Console verificado; `sitemap.xml` enviado y `robots.txt` coherente con las páginas públicas.
 - JSON-LD: `Person` + `WebSite` en la home; `BreadcrumbList` en comunidad, galería, sorteo y cine; `FAQPage` en la home. La FAQ debe seguir siendo visible y coincidir con el schema.
 - `llms.txt` en la raíz y `404.html` con `noindex`.
-- Open Graph/Twitter por página: `img/3.jpg` en todas (home, comunidad, cine, galería y sorteo), con `og:image:alt`.
-- Analítica: Umami (`cloud.umami.is`) en las 6 páginas, `404.html` incluida; no instalar Plausible a la vez.
-- No cambiar `<title>`, meta description ni H1 sin revisar canibalización: una intención por página (home = marca/streamer; comunidad = chat; galería = fotos; sorteo = sorteos; cine = GochiWatch).
+- Open Graph/Twitter por página: `img/3.jpg` en todas (home, comunidad, cine, galería, sorteo y game), con `og:image:alt`.
+- Analítica: Umami (`cloud.umami.is`) en las 7 páginas, `404.html` incluida; no instalar Plausible a la vez.
+- No cambiar `<title>`, meta description ni H1 sin revisar canibalización: una intención por página (home = marca/streamer; comunidad = chat; galería = fotos; sorteo = sorteos; cine = GochiWatch; game = minijuego).
 - Al cambiar contenido público, actualizar `lastmod` del sitemap y pedir indexación en GSC.
 - IndexNow: la clave vive en `f7d530743fabe8d2351dd9d026536f44.txt` (raíz, pública, se sirve tal cual). No borrarla ni renombrarla; si se rota, sustituir el archivo y volver a enviar las URLs a `api.indexnow.org`.
 
