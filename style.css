@@ -9886,3 +9886,99 @@ html.lg-page-game .game-pausa {
         font-size: 1.4rem;
     }
 }
+
+/* === Chat embebido en la app (?embed=chat) ===
+   La app carga comunidad.html dentro de un iframe. Este modo elimina la
+   navegación y las columnas laterales sin depender de CSS inyectado. */
+html.lg-embed-chat,
+html.lg-embed-chat body {
+    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #060b0a !important;
+}
+
+html.lg-embed-chat .navbar,
+html.lg-embed-chat .site-navbar,
+html.lg-embed-chat .skip-link,
+html.lg-embed-chat footer,
+html.lg-embed-chat .main-footer,
+html.lg-embed-chat .gochi-breadcrumb-nav,
+html.lg-embed-chat #nav-misiones-panel {
+    display: none !important;
+}
+
+html.lg-embed-chat .page-shell {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+html.lg-embed-chat main.comunidad-layout {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+html.lg-embed-chat main > *:not(.chat-box-container) {
+    display: none !important;
+}
+
+html.lg-embed-chat .chat-box-container {
+    display: flex;
+    flex-direction: column;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+html.lg-embed-chat .chat-header,
+html.lg-embed-chat #chat-autor,
+html.lg-embed-chat #streak-badge-chat {
+    display: none !important;
+}
+
+html.lg-embed-chat #chat-form.chat-form.is-visible {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 6px;
+    align-items: end;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+}
+
+html.lg-embed-chat #chat-form .chat-campo-wrap {
+    grid-column: 1;
+    min-width: 0;
+}
+
+html.lg-embed-chat #chat-form .chat-submit-btn {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 42px;
+    padding: 0 !important;
+    border-radius: 10px !important;
+    font-size: 0 !important;
+    text-transform: none !important;
+}
+
+html.lg-embed-chat #chat-form .chat-submit-btn::after {
+    content: "➤";
+    font-size: 16px;
+    line-height: 1;
+}
+
+html.lg-embed-chat #chat-form .chat-emote-btn {
+    height: 42px;
+}

@@ -1,5 +1,14 @@
 // --- LÓGICA GLOBAL COMPARTIDA (URLs, Supabase, Menú y Tema) ---
 
+// Modo embed para el chat de la app: la propia página oculta cabecera, navbar
+// y columnas laterales antes de que el WebView termine de cargar.
+(function modoEmbedChat() {
+    try {
+        if (new URLSearchParams(window.location.search).get('embed') !== 'chat') return;
+        document.documentElement.classList.add('lg-embed-chat');
+    } catch (e) { /* sin URLSearchParams se ignora */ }
+})();
+
 try {
     if (window.location.pathname.endsWith('/index.html')) {
         const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname.replace('/index.html', '/') + window.location.search + window.location.hash;

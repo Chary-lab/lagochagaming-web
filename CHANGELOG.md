@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.7] - 2026-11-09
+
+### App
+
+- `comunidad.html?embed=chat` activa un modo embebido nativo: oculta navbar, footer, migas y columnas laterales, y deja el chat a pantalla completa usando `dvh` y el área segura inferior.
+- La app deja de depender del CSS que inyectaba en el iframe; se mantiene como respaldo para versiones antiguas.
+- Sin cambios en el APK: la app carga esta página remota.
+
 ## [2.2.6] - 2026-11-09
 
 ### Accesibilidad
