@@ -3,6 +3,12 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.3.1] - 2026-11-10
+
+### Juego
+
+- La pausa del HUD táctil se mantiene separada del botón `CLIP` en pantallas de 360 px y en el modo de pantalla completa de la app.
+
 ## [2.3.0] - 2026-11-10
 
 ### Juego
