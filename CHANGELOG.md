@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.1] - 2026-11-09
+
+### Seguridad
+
+- Corregido un bypass en `login_comunidad` que permitía iniciar sesión con cualquier apodo enviando `p_pin` nulo. Ahora el PIN debe ser exactamente de 4 dígitos y la comparación usa `IS DISTINCT FROM`.
+- Se invalidaron todas las sesiones de comunidad existentes; hay que volver a iniciar sesión.
+- Verificado con una prueba de regresión SQL: PIN nulo rechazado, PIN incorrecto rechazado y PIN correcto aceptado.
+
 ## [2.2.0] - 2026-11-09
 
 ### Controles táctiles que no se cancelan
