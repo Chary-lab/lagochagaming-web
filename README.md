@@ -2,6 +2,8 @@
 
 Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin build ni dependencias npm de runtime.
 
+La guía operativa vive en `AGENTS.md` y `docs/` (arquitectura, Supabase, despliegue, SEO y deuda). Son la fuente de verdad del proyecto.
+
 ## Páginas
 
 - `index.html` — inicio, player de Kick, clips, feed social, YouTube y muro de saludos.
