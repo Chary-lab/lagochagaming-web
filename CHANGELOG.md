@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.2] - 2026-11-09
+
+### Seguridad
+
+- Revocados los permisos de escritura directa sobre `usuarios_comunidad` y las tablas internas; las escrituras quedan solo por RPC.
+- Las tareas programadas (`cerrar_sorteo_semanal`, `pagar_referidos`, `publicar_pregunta_del_dia`, etc.) ya no son ejecutables por `anon` ni `authenticated`.
+- `eliminar_mi_cuenta` limita los intentos de PIN y se corrigió el borrado, que fallaba por columnas generadas.
+- Eliminado el fallback antiguo del sorteo; la participación usa solo `sortear_entrar`.
+
 ## [2.2.1] - 2026-11-09
 
 ### Seguridad
