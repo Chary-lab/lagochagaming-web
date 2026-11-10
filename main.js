@@ -1407,10 +1407,10 @@ window.insertarNavbar = function insertarNavbar() {
                         <span class="nav-app-gratis">Gratis · Android 7+</span>
                     </div>
                 </div>
-                <a class="nav-app-descargar" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=2.0.0&o=web" rel="noopener" data-umami-event="descarga-apk">
+                <a class="nav-app-descargar" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=2.0.0&o=web" rel="noopener" data-umami-event="descarga-apk" data-app-descarga>
                     <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
                     <span>Descargar APK</span>
-                    <em>4,2 MB</em>
+                    <em data-app-tamano>4,2 MB</em>
                 </a>
                 <p class="nav-app-bono">🎁 100 puntos al entrar con tu cuenta</p>
                 <ul class="nav-app-ventajas">
@@ -1433,7 +1433,7 @@ window.insertarNavbar = function insertarNavbar() {
                     <summary>¿Sale aviso de Play Protect? <span>es normal</span></summary>
                     <p>Avisa de cualquier app que no venga de Play Store. La nuestra está firmada y se descarga del dominio oficial.</p>
                 </details>
-                <p class="nav-app-nota">Versión 2.0.0 · iPhone / iPad: aún no disponible.</p>
+                <p class="nav-app-nota">Versión <span data-app-version>2.0.0</span> · iPhone / iPad: aún no disponible.</p>
             </div>
         </div>`;
 
@@ -1577,6 +1577,34 @@ window.pintarEstadoNav = function pintarEstadoNav(vivo) {
 
 window.insertarNavbar();
 window.cargarColoresApodo?.();
+
+// La versión y el tamaño del APK salen de app/update.json, no del HTML.
+// Así un release de la app no deja la web anunciando una versión vieja.
+function actualizarInfoApp() {
+    fetch('app/update.json', { cache: 'no-store' })
+        .then((respuesta) => (respuesta.ok ? respuesta.json() : null))
+        .then((info) => {
+            if (!info) return;
+            const version = String(info.versionName || '').trim();
+            if (version) {
+                document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = version; });
+                document.querySelectorAll('[data-app-descarga]').forEach((el) => {
+                    try {
+                        const url = new URL(el.href);
+                        url.searchParams.set('v', version);
+                        el.href = url.toString();
+                    } catch (e) { /* href inválido: se deja el actual */ }
+                });
+            }
+            const bytes = Number(info.size);
+            if (Number.isFinite(bytes) && bytes > 0) {
+                const mb = (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
+                document.querySelectorAll('[data-app-tamano]').forEach((el) => { el.textContent = mb; });
+            }
+        })
+        .catch(() => { /* sin red se mantienen los valores del HTML */ });
+}
+actualizarInfoApp();
 
 // Arrancar con el último estado conocido: el tag no aparece ni empuja la navbar.
 try {

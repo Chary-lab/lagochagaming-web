@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.8] - 2026-11-09
+
+### Web
+
+- La navbar lee la versión y el tamaño del APK desde `app/update.json`; el botón de descarga actualiza su parámetro `v` y la nota de versión sin tocar el HTML.
+- Si la petición falla, se mantienen los valores estáticos como respaldo.
+
 ## [2.2.7] - 2026-11-09
 
 ### App
