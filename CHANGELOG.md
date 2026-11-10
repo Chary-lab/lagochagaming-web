@@ -3,6 +3,12 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.3.3] - 2026-11-10
+
+### Juego
+
+- En pantalla completa, el HUD reserva margen lateral y deja de cortar el botón `CLIP` en el borde derecho.
+
 ## [2.3.2] - 2026-11-10
 
 ### Juego

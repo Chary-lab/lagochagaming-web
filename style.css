@@ -8558,6 +8558,11 @@ html.lg-game-full .game-escenario .game-tactil {
     padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
 }
 
+html.lg-game-full .game-escenario .game-tactil {
+    padding-right: calc(24px + env(safe-area-inset-right));
+    padding-left: calc(20px + env(safe-area-inset-left));
+}
+
 html.lg-game-full .game-pausa {
     top: calc(48px + env(safe-area-inset-top));
     right: calc(12px + env(safe-area-inset-right));
