@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.3.4">
+    <link rel="stylesheet" href="style.css?v=2.4.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -145,6 +145,39 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 </div>
             </div>
 
+            <!-- COFRE DIARIO -->
+            <div class="chat-sidebar-section cofre-card" x-data x-cloak x-init="$store.cofre.cargar()"
+                 aria-label="Cofre diario">
+                <h3 class="chat-sidebar-subtitle">
+                    <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-gift"></use></svg>
+                    Cofre diario
+                    <span class="cofre-racha" x-show="$store.cofre.racha > 1" x-text="'🔥' + $store.cofre.racha"></span>
+                </h3>
+                <p class="cofre-texto" x-show="!$store.cofre.logueado">
+                    Entra cada día y abre el cofre. Cuanta más racha, más puntos.
+                </p>
+                <template x-if="$store.cofre.logueado">
+                    <div>
+                        <div class="cofre-caja" :class="{ 'cofre-caja--listo': $store.cofre.disponible }">
+                            <span class="cofre-icono" aria-hidden="true">🎁</span>
+                            <div class="cofre-caja-texto">
+                                <strong x-text="$store.cofre.tituloRacha"></strong>
+                                <span x-show="$store.cofre.disponible" x-text="'+' + $store.cofre.recompensa + ' pts disponibles'"></span>
+                                <span x-show="!$store.cofre.disponible">Vuelve mañana para seguir la racha.</span>
+                            </div>
+                        </div>
+                        <button type="button" class="cofre-btn"
+                                :disabled="!$store.cofre.disponible || $store.cofre.reclamando"
+                                @click="$store.cofre.reclamar()">
+                            <span x-show="!$store.cofre.reclamando" x-text="$store.cofre.disponible ? 'Abrir cofre' : 'Cofre abierto'"></span>
+                            <span x-show="$store.cofre.reclamando">Abriendo…</span>
+                        </button>
+                    </div>
+                </template>
+                <a class="cofre-login" x-show="!$store.cofre.logueado" href="#"
+                   @click.prevent="window.abrirLoginMenu?.('login')">Entrar o crear cuenta</a>
+            </div>
+
             <!-- SORTEO SEMANAL -->
             <div class="chat-sidebar-section sorteo-semanal-card" x-data x-cloak x-init="$store.sorteoSemanal.cargar()"
                  aria-label="Sorteo semanal">
@@ -190,6 +223,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 <div class="chat-pregunta-texto">
                     <strong>Pregunta del día</strong>
                     <span x-text="$store.pregunta.texto"></span>
+                    <small class="chat-pregunta-hint">Responde en el chat y gana 5 pts (una vez al día).</small>
                 </div>
                 <button type="button" class="chat-pregunta-btn"
                         @click="window.document.getElementById('chat-mensaje')?.focus()">Responder</button>
@@ -363,6 +397,11 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         <div id="user-rango-progreso" class="rango-progreso-fill gochi-progress-fill"></div>
                     </div>
                     <p id="user-rango-meta" class="rango-meta">Próximo rango: Protoestrella (100 pts)</p>
+                    <button type="button" class="btn-resumen-semana" x-data
+                            @click="$store.resumenSemanal.abrir()">
+                        <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-calendar-check"></use></svg>
+                        Ver mi semana
+                    </button>
 
                     <!-- Bio y enlaces (se muestran si existen) -->
                     <div id="user-bio" class="user-bio" hidden></div>
@@ -595,10 +634,40 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         </div>
     </div>
 
+    <!-- RESUMEN SEMANAL -->
+    <div id="recap-modal" class="recap-modal" x-data x-cloak x-show="$store.resumenSemanal.abierto"
+         x-trap.noscroll="$store.resumenSemanal.abierto"
+         @keydown.escape.window="$store.resumenSemanal.cerrar()"
+         role="dialog" aria-modal="true" aria-labelledby="recap-titulo">
+        <div class="recap-fondo" @click="$store.resumenSemanal.cerrar()" aria-hidden="true"></div>
+        <div class="recap-caja" tabindex="-1">
+            <button type="button" class="recap-cerrar" @click="$store.resumenSemanal.cerrar()"
+                    aria-label="Cerrar el resumen semanal">✕</button>
+            <span class="recap-etiqueta">Tu semana en La Gocha</span>
+            <h2 id="recap-titulo" class="recap-titulo"
+                x-text="$store.resumenSemanal.apodo ? '¡Buen trabajo, ' + $store.resumenSemanal.apodo + '!' : 'Tu resumen semanal'"></h2>
+            <p class="recap-error" x-show="$store.resumenSemanal.error" x-text="$store.resumenSemanal.error"></p>
+            <div class="recap-grid" x-show="$store.resumenSemanal.datos">
+                <div class="recap-item"><strong x-text="$store.resumenSemanal.semana.puntos || 0"></strong><span>puntos</span></div>
+                <div class="recap-item"><strong x-text="$store.resumenSemanal.semana.mensajes || 0"></strong><span>mensajes</span></div>
+                <div class="recap-item"><strong x-text="$store.resumenSemanal.semana.votos || 0"></strong><span>votos y reacciones</span></div>
+                <div class="recap-item"><strong x-text="$store.resumenSemanal.semana.logros || 0"></strong><span>logros y misiones</span></div>
+                <div class="recap-item"><strong x-text="'#' + $store.resumenSemanal.posicion"></strong><span>de <span x-text="$store.resumenSemanal.total"></span></span></div>
+                <div class="recap-item recap-item--racha"><strong x-text="'🔥 ' + $store.resumenSemanal.racha"></strong><span>días de racha</span></div>
+            </div>
+            <p class="recap-meta" x-show="$store.resumenSemanal.datos"
+               x-text="'Mejor día: +' + ($store.resumenSemanal.semana.mejor_dia || 0) + ' pts'"></p>
+            <div class="recap-acciones">
+                <a class="btn-primary" href="game.html">Jugar GochitaRunner</a>
+                <button type="button" class="btn-secondary" @click="$store.resumenSemanal.cerrar()">Seguir en el chat</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.3.4" defer></script>
+    <script src="main.js?v=2.4.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"

@@ -31,7 +31,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.3.4">
+    <link rel="stylesheet" href="style.css?v=2.4.0">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -182,15 +182,24 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
         <div class="hero-content">
             <span class="hero-subtitle">— STREAMER DE KICK · CREADORA DE CONTENIDO</span>
             <h1 class="hero-title">La Gocha Gaming en Kick</h1>
-            <p class="hero-bio">Me llamo Stefany pero todos o la mayoría me dicen La Gocha o Gochita, a veces parezco esquizofrénica con mis locuras pero soy muy pana. Créeme que siempre que entres a mi stream te vas a reír muchísimo. Me gusta mucho hablar, reírme y hacerlos reír, ¡y también jugar! Todo es humor, pásatela bien y ¡no se te olvide seguirme en todas mis redes sociales y unirte a la comunidad de Discord!</p>
-            <p class="hero-bio hero-bio-extra">Streamer en Kick y creadora de contenido: TikTok shorts, reels de IG, directos, clips, comunidad y GochiWatch.</p>
+            <p class="hero-bio hero-bio-corto">Humo, risas y caos cósmico. Entra al directo, suma puntos en la comunidad y desbloquea tu rango.</p>
+            <p class="hero-bio hero-bio-extra">Soy Stefany, pero todos me dicen La Gocha. Aquí hay clips, GochiWatch, sorteos y una comunidad que no para.</p>
             <div class="hero-buttons">
-                <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer" class="btn-primary">ÚNETE AL STREAM</a>
+                <a id="hero-cta-principal" href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer" class="btn-primary">VER EL CANAL</a>
+                <a href="comunidad.html" class="btn-secondary hero-btn-secundario">ENTRAR A LA COMUNIDAD</a>
                 <div class="follower-widget">
                     <span class="kick-dot"></span>
                     <span id="kick-followers-count">10K</span> followers
                 </div>
             </div>
+            <p class="hero-en-vivo" id="hero-en-vivo" hidden><span class="kick-dot"></span> EN VIVO <span id="hero-espectadores"></span></p>
+            <div class="hero-stats" id="hero-stats" aria-label="La comunidad en números">
+                <div class="hero-stat"><strong data-hero-stat="miembros">—</strong><span>miembros</span></div>
+                <div class="hero-stat"><strong data-hero-stat="mensajes_hoy">—</strong><span>mensajes hoy</span></div>
+                <div class="hero-stat"><strong data-hero-stat="puntos_hoy">—</strong><span>puntos hoy</span></div>
+                <div class="hero-stat"><strong data-hero-stat="clips">—</strong><span>clips</span></div>
+            </div>
+            <p class="hero-ultimo" id="hero-ultimo-miembro" hidden></p>
             <div class="hero-socials" aria-label="Redes de La Gocha">
                 <a class="hero-social" href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer"><span class="hero-social-k">K</span> Kick</a>
                 <a class="hero-social" href="https://www.tiktok.com/@lagochagaming11" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-tiktok"></use></svg> TikTok</a>
@@ -198,6 +207,21 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 <a class="hero-social" href="https://www.youtube.com/@lagochagaming" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-youtube"></use></svg> YouTube</a>
                 <a class="hero-social" href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-discord"></use></svg> Discord</a>
             </div>
+            <aside class="hero-lateral" aria-label="Ahora en La Gocha">
+                <a class="hero-clip" id="hero-clip" href="#clips" hidden>
+                    <img src="img/fono.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
+                    <span class="hero-clip-play" aria-hidden="true"><svg class="icon"><use href="img/icons.svg#i-solid-play"></use></svg></span>
+                    <span class="hero-clip-pie">
+                        <span class="hero-clip-etiqueta">CLIP DEL MOMENTO</span>
+                        <strong data-hero-clip-titulo>Último clip de La Gocha</strong>
+                    </span>
+                </a>
+                <div class="hero-agenda">
+                    <span class="hero-agenda-etiqueta"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-calendar-check"></use></svg> Agenda</span>
+                    <p>Los directos se anuncian en el calendario de Kick. Sígueme para que te avise.</p>
+                    <a href="https://kick.com/lagochagaming/schedule" target="_blank" rel="noopener noreferrer">Ver horarios</a>
+                </div>
+            </aside>
         </div>
     </header>
 
@@ -484,7 +508,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.3.4" defer></script>
+    <script src="main.js?v=2.4.0" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>

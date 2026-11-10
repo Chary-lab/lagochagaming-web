@@ -3,6 +3,25 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.4.0] - 2026-11-10
+
+### Retención y gamificación
+
+- Cofre diario en Comunidad: de 15 a 45 puntos según la racha, un cobro al día, confeti y estado persistente.
+- Resumen semanal personal: modal automático una vez por semana con puntos, mensajes, votos, logros, posición y racha, y botón `Ver mi semana` en el perfil.
+- Estantería de logros en el perfil público: catálogo completo con los bloqueados en gris y contador de desbloqueados.
+- Pregunta del día con pista de recompensa y botón directo al chat.
+
+### Inicio
+
+- Hero con prueba social real: miembros, mensajes de hoy, puntos de hoy y clips.
+- Tarjeta del último clip y agenda de directos; el CTA cambia a `ENTRAR AL DIRECTO`, pulsa y muestra espectadores cuando hay stream.
+- Bio principal acortada y botón `ENTRAR A LA COMUNIDAD`.
+
+### Backend
+
+- RPC nuevas `cofre_estado`, `reclamar_cofre`, `resumen_semanal`, `logros_catalogo` y `estadisticas_home`; acción `cofre` en `puntos_acciones`.
+
 ## [2.3.4] - 2026-11-10
 
 ### Accesibilidad

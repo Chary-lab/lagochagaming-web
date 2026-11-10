@@ -1582,11 +1582,12 @@ document.addEventListener('click', (evento) => {
 
 // Pinta el estado EN VIVO sin consultar la red. Se usa al construir la navbar
 // con el último estado guardado y cuando responde Kick.
-window.pintarEstadoNav = function pintarEstadoNav(vivo) {
+window.pintarEstadoNav = function pintarEstadoNav(vivo, espectadores) {
     const navbar = document.querySelector('.navbar');
     const liveTag = document.getElementById('nav-live-tag');
     if (navbar) navbar.classList.toggle('live-glow', !!vivo);
     if (liveTag) liveTag.hidden = !vivo;
+    window.actualizarHeroVivo?.(!!vivo, espectadores);
     try { almacen.guardarTexto('gochi_en_vivo_ultimo', vivo ? '1' : '0'); } catch (e) { /* modo privado */ }
 };
 
@@ -2254,6 +2255,235 @@ window.addEventListener('resize', () => {
     if (panelMisionesAbierto) colocarPanelMisiones();
 });
 
+// === Ritual diario: cofre con racha ===
+document.addEventListener('alpine:init', () => {
+    window.Alpine.store('cofre', {
+        disponible: false,
+        recompensa: 0,
+        racha: 0,
+        cargando: false,
+        reclamando: false,
+        logueado: false,
+        get tituloRacha() {
+            if (this.racha >= 1) return 'Racha de ' + this.racha + (this.racha === 1 ? ' día' : ' días');
+            return 'Empieza tu racha';
+        },
+        async cargar() {
+            if (!document.querySelector('.cofre-card')) return;
+            const token = window.almacen.texto('comunidad_session_token');
+            this.logueado = !!token;
+            if (!token) {
+                this.disponible = false;
+                return;
+            }
+            if (this.cargando) return;
+            this.cargando = true;
+            try {
+                const res = await window.rpc('cofre_estado', { p_token: token }, { error: false });
+                const datos = res.data || {};
+                if (res.ok && datos.ok) {
+                    this.disponible = datos.disponible === true;
+                    this.recompensa = Number(datos.recompensa) || 0;
+                    this.racha = Number(datos.racha) || 0;
+                }
+            } finally {
+                this.cargando = false;
+            }
+        },
+        async reclamar() {
+            if (this.reclamando || !this.disponible) return;
+            const token = window.almacen.texto('comunidad_session_token');
+            if (!token) return;
+            this.reclamando = true;
+            try {
+                const res = await window.rpc('reclamar_cofre', { p_token: token }, { error: false });
+                const datos = res.data || {};
+                if (!res.ok || !datos.ok) {
+                    window.mostrarToast?.('No se pudo abrir el cofre. Inténtalo de nuevo.', true);
+                    return;
+                }
+                if (datos.ganados > 0) {
+                    this.disponible = false;
+                    window.mostrarToast?.('+' + datos.ganados + ' puntos del cofre diario');
+                    window.lanzarConfetti?.();
+                    window.actualizarSesionUsuarioComunidad?.({ puntos: datos.puntos });
+                    window.actualizarUsuarioNavComunidad?.();
+                    window.refrescarPuntosDia?.();
+                    window.Alpine?.store('misiones')?.cargar();
+                } else if (datos.motivo === 'tope_diario') {
+                    this.disponible = false;
+                    window.mostrarToast?.('Ya alcanzaste el tope de puntos de hoy. El cofre se abre mañana.', true);
+                } else if (datos.motivo === 'duplicado') {
+                    this.disponible = false;
+                } else {
+                    window.mostrarToast?.('El cofre no estaba listo. Vuelve a intentarlo.', true);
+                }
+                await this.cargar();
+            } finally {
+                this.reclamando = false;
+            }
+        }
+    });
+});
+
+// === Resumen semanal personal ===
+function claveSemanaActual() {
+    const ahora = new Date();
+    const jueves = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 3 - ((ahora.getDay() + 6) % 7));
+    const inicioAnio = new Date(jueves.getFullYear(), 0, 4);
+    const semana = 1 + Math.round(((jueves - inicioAnio) / 86400000 - 3 + ((inicioAnio.getDay() + 6) % 7)) / 7);
+    return jueves.getFullYear() + '-S' + String(semana).padStart(2, '0');
+}
+
+document.addEventListener('alpine:init', () => {
+    window.Alpine.store('resumenSemanal', {
+        abierto: false,
+        cargando: false,
+        error: '',
+        datos: null,
+        get logueado() {
+            return !!window.almacen.texto('comunidad_session_token');
+        },
+        get semana() {
+            return (this.datos && this.datos.semana) || {};
+        },
+        get apodo() {
+            return (this.datos && this.datos.apodo) || '';
+        },
+        get posicion() {
+            return (this.datos && this.datos.posicion) || 0;
+        },
+        get total() {
+            return (this.datos && this.datos.total) || 0;
+        },
+        get racha() {
+            return (this.datos && this.datos.racha) || 0;
+        },
+        async cargar(abrirAlTerminar) {
+            const token = window.almacen.texto('comunidad_session_token');
+            if (!token) {
+                if (abrirAlTerminar) {
+                    this.error = 'Entra con tu cuenta para ver tu resumen.';
+                    this.abierto = true;
+                }
+                return;
+            }
+            if (this.cargando) return;
+            this.cargando = true;
+            this.error = '';
+            try {
+                const res = await window.rpc('resumen_semanal', { p_token: token }, { error: false });
+                const datos = res.data || {};
+                if (res.ok && datos.ok) {
+                    this.datos = datos;
+                    if (abrirAlTerminar) this.abierto = true;
+                } else {
+                    this.error = 'No se pudo cargar tu resumen.';
+                    if (abrirAlTerminar) this.abierto = true;
+                }
+            } finally {
+                this.cargando = false;
+            }
+        },
+        abrir() {
+            this.cargar(true);
+        },
+        cerrar() {
+            this.abierto = false;
+            try { window.almacen.guardarTexto('gochi_recap_semana', claveSemanaActual()); } catch (e) {}
+        }
+    });
+});
+
+document.addEventListener('gocha:sesion', () => {
+    window.Alpine?.store('cofre')?.cargar();
+});
+
+// El resumen aparece una vez por semana al entrar a Comunidad.
+function abrirRecapSiToca() {
+    if (!document.body.classList.contains('comunidad-page')) return;
+    if (!window.almacen.texto('comunidad_session_token')) return;
+    if (window.almacen.texto('gochi_recap_semana') === claveSemanaActual()) return;
+    const store = window.Alpine?.store('resumenSemanal');
+    if (!store) return;
+    setTimeout(() => {
+        if (window.almacen.texto('gochi_recap_semana') === claveSemanaActual()) return;
+        if (store.abierto || store.datos) return;
+        store.cargar(true);
+    }, 1600);
+}
+document.addEventListener('alpine:initialized', abrirRecapSiToca);
+
+// === Hero dinámico (solo index) ===
+window.actualizarHeroVivo = function actualizarHeroVivo(vivo, espectadores) {
+    const enVivo = document.getElementById('hero-en-vivo');
+    if (!enVivo) return;
+    enVivo.hidden = !vivo;
+    const numero = document.getElementById('hero-espectadores');
+    if (numero) {
+        const total = Number(espectadores) || 0;
+        numero.textContent = vivo && total > 0 ? formatNumber(total) + ' viendo' : '';
+    }
+    const cta = document.getElementById('hero-cta-principal');
+    if (cta) {
+        cta.textContent = vivo ? 'ENTRAR AL DIRECTO' : 'VER EL CANAL';
+        cta.classList.toggle('btn-primary--vivo', !!vivo);
+    }
+    document.querySelector('.hero-section')?.classList.toggle('hero-section--vivo', !!vivo);
+};
+
+(function iniciarHeroDinamico() {
+    function iniciar() {
+        const cont = document.getElementById('hero-stats');
+        if (!cont) return;
+        const fmt = (n) => Number(n || 0).toLocaleString('es-ES');
+
+        window.rpc('estadisticas_home', {}, { error: false }).then((res) => {
+            const datos = (res && res.data) || {};
+            if (!res || !res.ok || !datos) return;
+            const poner = (clave, valor) => {
+                const el = cont.querySelector('[data-hero-stat="' + clave + '"]');
+                if (el) el.textContent = fmt(valor);
+            };
+            poner('miembros', datos.miembros);
+            poner('mensajes_hoy', datos.mensajes_hoy);
+            poner('puntos_hoy', datos.puntos_hoy);
+            poner('clips', datos.clips);
+            const ultimo = document.getElementById('hero-ultimo-miembro');
+            if (ultimo && datos.ultimo_miembro) {
+                ultimo.textContent = 'Último en entrar: ' + datos.ultimo_miembro;
+                ultimo.hidden = false;
+            }
+        }).catch(() => {});
+
+        fetch('https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/kick-clips?limit=1', { headers: { Accept: 'application/json' } })
+            .then((resp) => (resp.ok ? resp.json() : null))
+            .then((data) => {
+                const clip = data && data.ok && Array.isArray(data.clips) ? data.clips[0] : null;
+                if (!clip) return;
+                const card = document.getElementById('hero-clip');
+                if (!card) return;
+                const seguro = (valor) => {
+                    try { return new URL(valor).protocol === 'https:'; } catch (e) { return false; }
+                };
+                const img = card.querySelector('img');
+                const titulo = card.querySelector('[data-hero-clip-titulo]');
+                if (img && clip.miniatura && seguro(clip.miniatura)) {
+                    img.src = clip.miniatura;
+                    img.alt = clip.titulo ? 'Clip de La Gocha: ' + clip.titulo : 'Último clip de La Gocha';
+                }
+                if (titulo) titulo.textContent = clip.titulo || 'Último clip de La Gocha';
+                card.href = seguro(clip.url) ? clip.url : 'https://kick.com/lagochagaming/clips';
+                card.target = '_blank';
+                card.rel = 'noopener noreferrer';
+                card.hidden = false;
+            })
+            .catch(() => {});
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar, { once: true });
+    else iniciar();
+})();
+
 // === Panel App: en móvil se ancla a la pantalla, no al menú ===
 window.portalPanelApp = function portalPanelApp(el, abierto) {
     if (!el) return;
@@ -2484,7 +2714,7 @@ window.verificarEstadoStream = async function verificarEstadoStream() {
         followersEl.title = followersCount.toLocaleString('es-ES') + ' seguidores';
     }
 
-    window.pintarEstadoNav(enVivo);
+    window.pintarEstadoNav(enVivo, data?.livestream?.viewer_count);
 
     if (typeof window.actualizarEspectadoresKick === 'function') {
         window.actualizarEspectadoresKick(enVivo ? data?.livestream?.viewer_count : 0, enVivo);
@@ -4479,9 +4709,23 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             </section>
 
-            <section class="mp-seccion" x-show="$store.perfil.logros.length">
-              <h5 class="mp-seccion-titulo">Logros</h5>
-              <div class="mp-logros">
+            <section class="mp-seccion" x-show="$store.perfil.logros.length || $store.perfil.catalogo.length">
+              <h5 class="mp-seccion-titulo">
+                Logros
+                <small class="mp-logros-cuenta" x-show="$store.perfil.catalogo.length"
+                       x-text="$store.perfil.logros.length + ' / ' + $store.perfil.catalogo.length"></small>
+              </h5>
+              <div class="mp-logros" x-show="$store.perfil.catalogo.length">
+                <template x-for="l in $store.perfil.catalogo" :key="'cat-' + l.clave">
+                  <span class="mp-logro" x-bind:class="{ 'mp-logro--bloqueado': !$store.perfil.tieneLogro(l.clave) }"
+                        x-bind:title="l.descripcion">
+                    <span class="mp-logro-emoji" aria-hidden="true" x-text="l.emoji"></span>
+                    <span x-text="l.nombre"></span>
+                    <small class="mp-logro-puntos" x-show="l.puntos" x-text="'+' + l.puntos"></small>
+                  </span>
+                </template>
+              </div>
+              <div class="mp-logros" x-show="!$store.perfil.catalogo.length">
                 <template x-for="l in $store.perfil.logros" :key="l.clave">
                   <span class="mp-logro" x-bind:title="l.descripcion">
                     <span class="mp-logro-emoji" aria-hidden="true" x-text="l.emoji"></span>
@@ -4888,6 +5132,7 @@ document.addEventListener('DOMContentLoaded', () => {
       usuario: {},
       estadisticas: {},
       logros: [],
+      catalogo: [],
       historial: [],
       historialEstado: 'inicial',
       canjes: [],
@@ -5310,6 +5555,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.usuario = {};
         this.estadisticas = {};
         this.logros = [];
+        this.cargarCatalogo();
         // El historial es del token, no del perfil que se mira: se limpia para
         // que no se muestre el del visitante bajo el perfil de otra persona.
         this.historial = [];
@@ -5359,6 +5605,16 @@ document.addEventListener('DOMContentLoaded', () => {
         setNavExpanded(false);
       },
 
+      tieneLogro(clave) {
+        return this.logros.some((l) => l.clave === clave);
+      },
+
+      async cargarCatalogo() {
+        if (this.catalogo.length) return;
+        const res = await window.rpc('logros_catalogo', {}, { error: false });
+        if (res.ok && res.data && res.data.ok) this.catalogo = res.data.logros || [];
+      },
+
       aplicarPerfil(u) {
         if (!u || !u.apodo) return;
         this.usuario = u;
@@ -5387,6 +5643,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let u = window.obtenerSesionUsuarioComunidad() || {};
         this.aplicarPerfil(u);
         this.logros = [];
+        this.cargarCatalogo();
         if (u.apodo) {
           window.rpc('mis_logros', { p_token: token }, { error: false }).then((res) => {
             if (!res.ok || !res.data || !res.data.ok) return;

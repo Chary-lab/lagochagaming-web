@@ -24,3 +24,6 @@ Extraido de AGENTS.md: deuda aceptada y riesgos conocidos.
 - La verificación de MIME real y contenido de las fotos sigue siendo del cliente. Storage aplica límite de tamaño y la lista de MIME del bucket, pero no inspecciona los bytes; haría falta una Edge Function o un antivirus/procesador de imágenes.
 - `comunidad_chat` no tiene retención automática: se conserva el historial. Solo se limpian `puntos_eventos` (365 días), `auth_rate_limit` (1 día), sesiones y `game_runs` (7 días tras expirar).
 - No hay CI ni `package.json`: `scripts/smoke.js` necesita Playwright disponible en la máquina. Se decidió no añadir dependencias ni workflows por ahora.
+- Notificaciones push web pendientes: exigen un `sw.js` en la raíz (archivo nuevo, requiere autorización), claves VAPID y una Edge Function con cron para enviar. El canal actual de reenganche es el cofre diario, la racha, el resumen semanal y el aviso de directo dentro de la app.
+- La pregunta del día no tiene votos ni resultados: `reclamar_pregunta_dia` solo comprueba que el usuario escribió en el chat. Mostrar porcentajes exige tabla de votos, RPC y moderación de opciones.
+- Los clips se muestran sin votación ni ranking propio; votar clips requiere tabla `kick_clip_votos` con RPC y límite diario.
