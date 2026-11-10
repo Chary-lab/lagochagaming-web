@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.3.4] - 2026-11-10
+
+### Accesibilidad
+
+- Las pestañas del perfil (`Perfil`, `Mi cuenta`, `Ajustes`) exponen `aria-controls`, `aria-labelledby`, `tabindex` y navegación con flechas, Inicio y Fin.
+
+### Mantenimiento
+
+- Limpieza diaria de sesiones expiradas, `auth_rate_limit`, `game_runs` y `puntos_eventos` antiguos.
+- `sitemap.xml` actualizado y deuda conocida documentada en `docs/deuda.md`.
+
 ## [2.3.3] - 2026-11-10
 
 ### Juego

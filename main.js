@@ -440,6 +440,21 @@ window.llamarEdge = async function llamarEdge(nombre, cuerpo, opciones = {}) {
     return { ok: res.ok, status: res.status, datos };
 };
 
+// Navegación por teclado de las pestañas del perfil (flechas, Inicio y Fin).
+window.moverTabPerfil = function moverTabPerfil(paso) {
+    const tabs = Array.from(document.querySelectorAll('#modal-perfil-tabs [role="tab"]'));
+    if (!tabs.length) return;
+    const actual = Math.max(0, tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true'));
+    let destino;
+    if (paso === 'first') destino = 0;
+    else if (paso === 'last') destino = tabs.length - 1;
+    else destino = (actual + Number(paso) + tabs.length) % tabs.length;
+    const tab = tabs[destino];
+    if (!tab) return;
+    tab.click();
+    tab.focus();
+};
+
 window.esAdminActual = async function esAdminActual() {
     if (!window.supabase) return false;
     const token = almacen.texto('comunidad_session_token') || '';
@@ -4387,18 +4402,28 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="modal-perfil-card" role="document" x-trap.noscroll="$store.perfil.abierto && !$store.perfil.anclado">
         <button type="button" class="modal-perfil-close" x-on:click="$store.perfil.cerrar()" aria-label="Cerrar" data-tooltip="Cerrar">&times;</button>
         <h3 id="modal-perfil-titulo" x-text="$store.perfil.titulo">Mi perfil</h3>
-        <nav class="modal-perfil-tabs" role="tablist" aria-label="Perfil, cuenta y ajustes" x-bind:hidden="$store.perfil.publico">
-          <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'perfil' }"
+        <nav class="modal-perfil-tabs" id="modal-perfil-tabs" role="tablist" aria-label="Perfil, cuenta y ajustes" x-bind:hidden="$store.perfil.publico"
+             x-on:keydown.right.prevent="window.moverTabPerfil(1)"
+             x-on:keydown.left.prevent="window.moverTabPerfil(-1)"
+             x-on:keydown.home.prevent="window.moverTabPerfil('first')"
+             x-on:keydown.end.prevent="window.moverTabPerfil('last')">
+          <button type="button" role="tab" id="mp-tab-perfil" aria-controls="mp-panel-perfil"
+                  x-bind:tabindex="$store.perfil.vista === 'perfil' ? 0 : -1"
+                  x-bind:class="{ active: $store.perfil.vista === 'perfil' }"
                   x-bind:aria-selected="$store.perfil.vista === 'perfil'"
                   x-on:click="$store.perfil.vista = 'perfil'">Perfil</button>
-          <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'cuenta' }"
+          <button type="button" role="tab" id="mp-tab-cuenta" aria-controls="mp-panel-cuenta"
+                  x-bind:tabindex="$store.perfil.vista === 'cuenta' ? 0 : -1"
+                  x-bind:class="{ active: $store.perfil.vista === 'cuenta' }"
                   x-bind:aria-selected="$store.perfil.vista === 'cuenta'"
                   x-on:click="$store.perfil.vista = 'cuenta'; $store.perfil.cargarCompras()">Mi cuenta</button>
-          <button type="button" role="tab" x-bind:class="{ active: $store.perfil.vista === 'ajustes' }"
+          <button type="button" role="tab" id="mp-tab-ajustes" aria-controls="mp-panel-ajustes"
+                  x-bind:tabindex="$store.perfil.vista === 'ajustes' ? 0 : -1"
+                  x-bind:class="{ active: $store.perfil.vista === 'ajustes' }"
                   x-bind:aria-selected="$store.perfil.vista === 'ajustes'"
                   x-on:click="$store.perfil.vista = 'ajustes'">Ajustes</button>
         </nav>
-        <div class="modal-perfil-body" role="tabpanel" aria-label="Perfil"
+        <div class="modal-perfil-body" role="tabpanel" id="mp-panel-perfil" aria-labelledby="mp-tab-perfil"
              x-bind:hidden="$store.perfil.vista !== 'perfil'">
           <div class="mp-cargando" x-bind:hidden="!$store.perfil.cargando" aria-hidden="true">
             <span class="gochi-skeleton gochi-skeleton--avatar"></span>
@@ -4531,7 +4556,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </section>
           </div>
         </div>
-        <div class="modal-perfil-body" role="tabpanel" aria-label="Mi cuenta"
+        <div class="modal-perfil-body" role="tabpanel" id="mp-panel-cuenta" aria-labelledby="mp-tab-cuenta"
              x-bind:hidden="$store.perfil.publico || $store.perfil.vista !== 'cuenta'">
           <p class="mp-pendiente" role="status"
              x-bind:hidden="$store.perfil.genero !== 'no_definido' && !!$store.perfil.usuario.avatar_url">
@@ -4670,7 +4695,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     x-on:click="$store.perfil.guardar()">Guardar cambios</button>
           </div>
         </div>
-        <div class="modal-perfil-body" role="tabpanel" aria-label="Ajustes"
+        <div class="modal-perfil-body" role="tabpanel" id="mp-panel-ajustes" aria-labelledby="mp-tab-ajustes"
              x-bind:hidden="$store.perfil.publico || $store.perfil.vista !== 'ajustes'">
           <p class="mp-desde" x-bind:hidden="!window.enModoApp()">En la app, el tamaño de texto, las animaciones y el ahorro de datos se cambian desde el botón Ajustes. Aquí quedan el resto de preferencias.</p>
           <section class="mp-seccion" x-bind:hidden="window.enModoApp()">
