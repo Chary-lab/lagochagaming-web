@@ -3544,11 +3544,41 @@ window.CHAT_KICK = {
 
     const miApodoKick = () => String(window.obtenerSesionUsuarioComunidad?.()?.apodo || '').toLowerCase();
 
-    const resaltarMenciones = (html) => {
+    const resaltarMenciones = (raiz) => {
         const apodo = miApodoKick();
-        if (!apodo) return html;
+        if (!apodo) return;
         const seguro = apodo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        return html.replace(new RegExp('@' + seguro + '(?![\\w])', 'gi'), (m) => '<span class="chat-kick-mencion">' + m + '</span>');
+        const patron = new RegExp('@' + seguro + '(?![\\w])', 'gi');
+        const recorrer = (nodo) => {
+            if (nodo.nodeType === Node.TEXT_NODE) {
+                const valor = nodo.nodeValue || '';
+                patron.lastIndex = 0;
+                if (!patron.test(valor)) return;
+                patron.lastIndex = 0;
+                const fragmento = document.createDocumentFragment();
+                let ultimo = 0;
+                let coincidencia;
+                while ((coincidencia = patron.exec(valor))) {
+                    if (coincidencia.index > ultimo) {
+                        fragmento.appendChild(document.createTextNode(valor.slice(ultimo, coincidencia.index)));
+                    }
+                    const marca = document.createElement('span');
+                    marca.className = 'chat-kick-mencion';
+                    marca.textContent = coincidencia[0];
+                    fragmento.appendChild(marca);
+                    ultimo = coincidencia.index + coincidencia[0].length;
+                }
+                if (ultimo < valor.length) {
+                    fragmento.appendChild(document.createTextNode(valor.slice(ultimo)));
+                }
+                nodo.parentNode.replaceChild(fragmento, nodo);
+                return;
+            }
+            if (nodo.nodeType !== Node.ELEMENT_NODE) return;
+            if (nodo.nodeName === 'SCRIPT' || nodo.nodeName === 'STYLE') return;
+            for (const hijo of Array.from(nodo.childNodes)) recorrer(hijo);
+        };
+        recorrer(raiz);
     };
 
     const pintarMensaje = (m) => {
@@ -3652,7 +3682,8 @@ window.CHAT_KICK = {
 
         const texto = document.createElement('span');
         texto.className = 'chat-kick-texto';
-        texto.innerHTML = resaltarMenciones(conEmotes(String(m.content ?? '')));
+        texto.innerHTML = conEmotes(String(m.content ?? ''));
+        resaltarMenciones(texto);
         fila.appendChild(texto);
         return fila;
     };

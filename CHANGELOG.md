@@ -3,6 +3,12 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.4] - 2026-11-09
+
+### Corrección
+
+- El resaltado de menciones del chat ahora recorre nodos de texto en lugar de reemplazar sobre el HTML ya generado: ya no puede insertar `<span>` dentro de los atributos `alt`/`title` de un emote ni romper el markup.
+
 ## [2.2.3] - 2026-11-09
 
 ### Documentación y tooling
