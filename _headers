@@ -1,6 +1,10 @@
 # GitHub Pages ignora este archivo. Solo aplica en hosts que soportan _headers
 # (Cloudflare Pages, Netlify, etc.). No asumir que la CSP esta activa en produccion.
 #
+# La CSP real es la <meta> de cada HTML e incluye los hashes SHA-256 de sus
+# scripts inline. Esta cabecera es solo una base para migrar de host: sin esos
+# hashes, los scripts inline se bloquean. Genera la lista con `node scripts/check.js`.
+#
 # Pendiente al migrar de host:
 # - Alpine 3 evalua expresiones con new Function, asi que script-src necesita
 #   'unsafe-eval' o cambiar a la build CSP de Alpine. Sin eso, la UI no arranca.
@@ -9,7 +13,7 @@
 #   el hash o la carga se bloquea.
 # - manifest-src y worker-src cubren el manifest y el worker de hls.js (blob).
 /*
- Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-eval' https://cloud.umami.is https://cdn.jsdelivr.net https://www.youtube.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self' https://cloud.umami.is https://*.supabase.co wss://*.supabase.co https://kick.com https://api.kick.com https://www.youtube.com https://player.kick.com https://7tv.io; frame-src https://player.kick.com https://kick.com https://www.youtube.com https://www.instagram.com https://www.tiktok.com; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests
+ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https://cloud.umami.is https://*.supabase.co wss://*.supabase.co https://kick.com https://clips.kick.com https://www.youtube.com https://player.kick.com https://7tv.io https://cdn.7tv.app; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests
  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
  X-Content-Type-Options: nosniff
  X-Frame-Options: DENY

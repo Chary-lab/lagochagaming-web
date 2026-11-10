@@ -150,7 +150,11 @@ for (const pagina of PAGES.concat(['404.html'])) {
 
 // main.js
 const mainJs = leer('main.js');
-comprobarSintaxis('main.js', mainJs);if (/service_role|serviceRole/i.test(mainJs)) {
+comprobarSintaxis('main.js', mainJs);
+for (const archivo of ['game.js', 'mobile/mobile.js']) {
+    if (existe(archivo)) comprobarSintaxis(archivo, leer(archivo));
+}
+if (/service_role|serviceRole/i.test(mainJs)) {
     error('main.js parece contener una clave service_role (nunca debe estar en el cliente)');
 }
 if (/Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|Ãƒ|Ã‚|ðŸ|â€/.test(mainJs)) {
@@ -202,7 +206,7 @@ if (existe('mobile/mobile.js') && /\.rpc\s*\(/.test(leer('mobile/mobile.js'))) {
 
 // BOM: un archivo publicado con BOM (EF BB BF) rompe parsers estrictos. Pasó con
 // el manifiesto de la app: JSON.parse fallaba y el actualizador no lo leía.
-const EXT_TEXTO = new Set(['.html', '.js', '.css', '.json', '.xml', '.txt', '.webmanifest', '.svg']);
+const EXT_TEXTO = new Set(['.html', '.js', '.css', '.json', '.xml', '.txt', '.webmanifest', '.svg', '.md']);
 const IGNORADOS = new Set(['.git', 'node_modules', 'supabase', 'scripts', '.playwright-cli', '.playwright-mcp', '.tmp-navegador', '.opencode']);
 function archivosPublicados(dir, salida = []) {
     for (const entrada of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -512,6 +516,19 @@ if (!existe('app/update.json')) {
         }
         if (typeof manifiesto.size !== 'number' || manifiesto.size <= 0) {
             error('app/update.json: size debe ser un número positivo');
+        }
+        const rutaApk = 'app/LaGochaGaming.apk';
+        if (existe(rutaApk)) {
+            const datosApk = fs.readFileSync(path.join(ROOT, rutaApk));
+            if (manifiesto.sha256) {
+                const hashApk = crypto.createHash('sha256').update(datosApk).digest('hex');
+                if (hashApk !== manifiesto.sha256) {
+                    error(`app/update.json: sha256 no coincide con el APK (${hashApk})`);
+                }
+            }
+            if (manifiesto.size !== datosApk.length) {
+                error(`app/update.json: size ${manifiesto.size} no coincide con el APK (${datosApk.length})`);
+            }
         }
     }
 }

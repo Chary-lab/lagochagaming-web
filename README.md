@@ -1,4 +1,4 @@
-﻿# LaGochaGaming
+# LaGochaGaming
 
 Sitio oficial de la comunidad de LaGocha: HTML, CSS y JavaScript clásico, sin build ni dependencias npm de runtime.
 

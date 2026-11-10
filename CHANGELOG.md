@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.3] - 2026-11-09
+
+### Documentación y tooling
+
+- `scripts/check.js` valida también la sintaxis de `game.js` y `mobile/mobile.js`, el BOM en archivos `.md` y que `app/update.json` coincida con el SHA-256 y el tamaño reales del APK.
+- Corregidas las rutas del keystore, el hash del certificado de firma y las referencias a `app/update.json` en la documentación.
+- `README.md` guardado sin BOM.
+- Retirado `allowfullscreen` redundante de los iframes de YouTube para limpiar el aviso de consola.
+
 ## [2.2.2] - 2026-11-09
 
 ### Seguridad
