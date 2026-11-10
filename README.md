@@ -78,7 +78,7 @@ node --check main.js
 
 El APK se distribuye desde este repo:
 
-- `app/LaGochaGaming.apk` — APK firmado actual (versión 2.0.0, versionCode 24).
+- `app/LaGochaGaming.apk` - APK firmado actual (versión 2.1.0, versionCode 25).
 - `app/update.json` — manifiesto del actualizador (`versionCode`, `versionName`, `sha256`, `size`, `notes`).
 - `mobile/mobile.css` y `mobile/mobile.js` — interfaz móvil que la app descarga por encima del APK (caché de 6 h, válida 7 días).
 

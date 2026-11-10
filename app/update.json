@@ -1,8 +1,8 @@
 {
-  "versionCode": 24,
-  "versionName": "2.0.0",
-  "apkUrl": "https://lagochagaming.com/app/LaGochaGaming.apk",
-  "sha256": "b56bb721395af3016d0283b6462fa5af2e643d35b682e701faf637e522b410fb",
-  "size": 4372055,
-  "notes": "Pestaña Juego visible en toda la app y descarga directa del APK."
+    "versionCode":  25,
+    "versionName":  "2.1.0",
+    "apkUrl":  "https://lagochagaming.com/app/LaGochaGaming.apk",
+    "sha256":  "cb1748f138d72c79c26084e960fa591581d577ab1ca98218c929aae3eacb842b",
+    "size":  4372607,
+    "notes":  "Hojas con foco, Escape y foco atrapado; toggles y navegacion con estado accesible; altura adaptable en la app."
 }

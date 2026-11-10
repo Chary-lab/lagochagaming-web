@@ -1407,7 +1407,7 @@ window.insertarNavbar = function insertarNavbar() {
                         <span class="nav-app-gratis">Gratis · Android 7+</span>
                     </div>
                 </div>
-                <a class="nav-app-descargar" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=2.0.0&o=web" rel="noopener" data-umami-event="descarga-apk" data-app-descarga>
+                <a class="nav-app-descargar" href="https://cydiyaacnyydprgffmkq.supabase.co/functions/v1/app-descarga?v=2.1.0&o=web" rel="noopener" data-umami-event="descarga-apk" data-app-descarga>
                     <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-android"></use></svg>
                     <span>Descargar APK</span>
                     <em data-app-tamano>4,2 MB</em>
@@ -1433,7 +1433,7 @@ window.insertarNavbar = function insertarNavbar() {
                     <summary>¿Sale aviso de Play Protect? <span>es normal</span></summary>
                     <p>Avisa de cualquier app que no venga de Play Store. La nuestra está firmada y se descarga del dominio oficial.</p>
                 </details>
-                <p class="nav-app-nota">Versión <span data-app-version>2.0.0</span> · iPhone / iPad: aún no disponible.</p>
+                <p class="nav-app-nota">Versión <span data-app-version>2.1.0</span> · iPhone / iPad: aún no disponible.</p>
             </div>
         </div>`;
 

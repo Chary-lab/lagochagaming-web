@@ -280,7 +280,7 @@
             '<button type="button" class="lg-action-btn" data-action="sugerencias">' + icon('bulb') + 'Sugerencias<small>Enviar una idea</small></button>' +
             '<button type="button" class="lg-action-btn" id="lg-admin-row" data-action="admin" hidden>' + icon('lock') + 'Acceso de administración<small>Solo creadores</small></button>' +
           '</div></div>' +
-          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v2.0.0 · Hecha para la comunidad</span></div>' +
+          '<div class="lg-about"><img src="img/android-chrome-192x192.png" alt=""><strong>LaGochaGaming</strong><span>App móvil · v2.1.0 · Hecha para la comunidad</span></div>' +
         '</div>' +
       '</section>' +
     '</div>' +
@@ -308,6 +308,7 @@
   var accountBusy = false;
   var accountPoll = null;
   var accountDraft = { apodo: '', pin: '', genero: '' };
+  var lastFocused = null;
 
   var chatSource = null;
   var chatOverlay = null;
@@ -472,7 +473,21 @@
     if (destino === 'comunidad') cargarChatComunidad();
   }
 
-  function closeAllOverlays() {
+  function focusables(el) {
+    var lista = el.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])');
+    return Array.prototype.filter.call(lista, function (n) {
+      return !n.hidden && n.getClientRects().length > 0;
+    });
+  }
+
+  function overlayAbierto() {
+    if (settingsOverlay && settingsOverlay.classList.contains('lg-open')) return settingsOverlay;
+    if (chatOverlay && chatOverlay.classList.contains('lg-open')) return chatOverlay;
+    if (accountOverlay && accountOverlay.classList.contains('lg-open')) return accountOverlay;
+    return null;
+  }
+
+  function closeAllOverlays(restaurarFoco) {
     if (settingsOverlay) {
       settingsOverlay.classList.remove('lg-open');
       settingsOverlay.setAttribute('aria-hidden', 'true');
@@ -492,18 +507,51 @@
       chatFab.setAttribute('aria-expanded', 'false');
       chatFab.innerHTML = icon('chat') + '<i></i><span>' + (page === 'cine' ? 'Chat de la sala' : 'Chat en vivo') + '</span>';
     }
+    if (restaurarFoco !== false && lastFocused && lastFocused.isConnected) {
+      try { lastFocused.focus(); } catch (e) {}
+    }
+    lastFocused = null;
     native('setPullRefresh', page !== 'game');
   }
 
   function openOverlay(el) {
     if (!el) return;
-    closeAllOverlays();
+    closeAllOverlays(false);
+    lastFocused = document.activeElement;
     el.classList.add('lg-open');
     el.setAttribute('aria-hidden', 'false');
     body.classList.add('lg-sheet-open');
     native('setPullRefresh', false);
     haptic();
+    setTimeout(function () {
+      var primero = el.querySelector('[data-autofocus]') || focusables(el)[0];
+      if (primero) {
+        try { primero.focus(); } catch (e) {}
+      }
+    }, 60);
   }
+
+  document.addEventListener('keydown', function (evento) {
+    var abierto = overlayAbierto();
+    if (!abierto) return;
+    if (evento.key === 'Escape' || evento.key === 'Esc') {
+      evento.preventDefault();
+      closeAllOverlays();
+      return;
+    }
+    if (evento.key !== 'Tab') return;
+    var lista = focusables(abierto);
+    if (!lista.length) return;
+    var primero = lista[0];
+    var ultimo = lista[lista.length - 1];
+    if (evento.shiftKey && document.activeElement === primero) {
+      evento.preventDefault();
+      ultimo.focus();
+    } else if (!evento.shiftKey && document.activeElement === ultimo) {
+      evento.preventDefault();
+      primero.focus();
+    }
+  });
 
   function openSettings() {
     openOverlay(settingsOverlay);
@@ -1183,12 +1231,16 @@
       var name = segments[i].getAttribute('data-segment');
       var buttons = segments[i].querySelectorAll('button');
       for (var b = 0; b < buttons.length; b++) {
-        buttons[b].classList.toggle('lg-on', settings[name] === buttons[b].getAttribute('data-value'));
+        var activo = settings[name] === buttons[b].getAttribute('data-value');
+        buttons[b].classList.toggle('lg-on', activo);
+        buttons[b].setAttribute('aria-pressed', activo ? 'true' : 'false');
       }
     }
     var toggles = settingsOverlay.querySelectorAll('[data-toggle]');
     for (var t = 0; t < toggles.length; t++) {
-      toggles[t].classList.toggle('lg-on', !!settings[toggles[t].getAttribute('data-toggle')]);
+      var encendido = !!settings[toggles[t].getAttribute('data-toggle')];
+      toggles[t].classList.toggle('lg-on', encendido);
+      toggles[t].setAttribute('aria-pressed', encendido ? 'true' : 'false');
     }
   }
 
@@ -1196,7 +1248,10 @@
     var active = page === 'home' ? (body.classList.contains('lg-tab-muro') ? 'muro' : 'inicio') : page;
     var items = bottomNav.querySelectorAll('[data-lg-nav]');
     for (var i = 0; i < items.length; i++) {
-      items[i].classList.toggle('lg-active', items[i].getAttribute('data-lg-nav') === active);
+      var activo = items[i].getAttribute('data-lg-nav') === active;
+      items[i].classList.toggle('lg-active', activo);
+      if (activo) items[i].setAttribute('aria-current', 'page');
+      else items[i].removeAttribute('aria-current');
     }
   }
 

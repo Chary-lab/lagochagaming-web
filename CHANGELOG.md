@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.9] - 2026-11-09
+
+### Seguridad
+
+- Subir fotos a `fotos-galeria` exige una sesión de comunidad válida o admin: el cliente envía `x-comunidad-token` y la política de Storage valida el token, la expiración, el baneo y el prefijo `gallery/`. La subida anónima queda bloqueada.
+- El `ip_hash` del muro sale de `muro_saludos` y pasa a `muro_saludos_ip`, una tabla interna sin grants ni Realtime; las lecturas públicas y los avisos en tiempo real ya no exponen el hash de la IP.
+- `incrementar_likes` bloquea el autolike y limita a 30 los likes por cuenta y día. El reto semanal sigue contando solo cuentas creadas antes de abrir el reto.
+
 ## [2.2.8] - 2026-11-09
 
 ### Web
