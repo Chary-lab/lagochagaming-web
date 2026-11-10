@@ -48,13 +48,13 @@ if (!/^\d+\.\d+\.\d+$/.test(version)) {
     error(`VERSION no es SemVer: "${version}"`);
 }
 
-// Cache busters: todo ?v= de style.css/main.js debe coincidir con VERSION.
+// Cache busters: todo ?v= de style.css/main.js/game.js debe coincidir con VERSION.
 // Con --fix se reescribe el valor en vez de fallar.
 const FIX = process.argv.includes('--fix');
 for (const pagina of [...PAGES, '404.html']) {
     if (!existe(pagina)) continue;
     const html = leer(pagina);
-    const nuevo = html.replace(/((?:style\.css|main\.js))\?v=[^"']+/g, `$1?v=${version}`);
+    const nuevo = html.replace(/((?:style\.css|main\.js|game\.js))\?v=[^"']+/g, `$1?v=${version}`);
     if (nuevo !== html) {
         if (FIX) {
             fs.writeFileSync(path.join(ROOT, pagina), nuevo, 'utf8');

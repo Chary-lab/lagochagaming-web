@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.2.5] - 2026-11-09
+
+### Accesibilidad y correcciones
+
+- La ruleta del sorteo ya no anuncia cada nombre cada 50 ms: el marcador queda `aria-live="off"` durante el giro y solo se anuncia el ganador en una región oculta.
+- `404.html` incluye enlace para saltar al contenido y el foco en el bloque principal.
+- El tooltip de la barra superior ya no parpadea al mover el puntero entre el botón y sus elementos internos.
+- `cine.html` rechaza las URLs entrantes que no sean `http:` o `https:` antes de asignarlas al reproductor.
+- `scripts/check.js` vigila también el cache buster de `game.js`.
+
 ## [2.2.4] - 2026-11-09
 
 ### Corrección

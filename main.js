@@ -1781,7 +1781,10 @@ document.addEventListener('keydown', (evento) => {
         tMostrar = setTimeout(() => { if (actual === el) colocar(el); }, 220);
     });
     document.addEventListener('pointerout', (evento) => {
-        if (conTooltip(evento)) ocultar();
+        const el = conTooltip(evento);
+        if (!el) return;
+        if (evento.relatedTarget && el.contains(evento.relatedTarget)) return;
+        ocultar();
     });
     window.addEventListener('scroll', ocultar, { passive: true });
     window.addEventListener('resize', ocultar);
