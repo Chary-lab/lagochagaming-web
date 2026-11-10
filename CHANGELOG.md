@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.8.1] - 2026-11-10
+
+### Inicio
+
+- El titular del hero se divide en dos niveles: `La Gocha Gaming` grande y `en Kick` debajo, en acento y con espaciado propio.
+- Ajuste móvil del subtítulo para que no compita con el titular.
+
 ## [2.8.0] - 2026-11-10
 
 ### Encuestas

@@ -252,11 +252,28 @@ body.light-mode .hero-bio {
 .hero-content { max-width: 1200px; width: 100%; z-index: 2; }
 .hero-subtitle { font-size: 0.9rem; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; display: block; margin-bottom: 15px; text-shadow: var(--glow); }
 .hero-title { font-size: clamp(2.2rem, 7vw, 5.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--text-main); line-height: 1.1; margin-bottom: 20px; overflow-wrap: anywhere; }
+.hero-title-main { display: block; }
+.hero-title-sub {
+    display: block;
+    margin-top: 8px;
+    font-size: clamp(0.95rem, 1.8vw, 1.5rem);
+    font-weight: 700;
+    letter-spacing: 0.46em;
+    line-height: 1.2;
+    color: var(--accent-color);
+    text-shadow: var(--glow);
+}
+body.light-mode .hero-title-sub { color: var(--accent-color); text-shadow: none; }
 
 @media (max-width: 600px) {
     .hero-title {
         letter-spacing: 1px;
         font-size: clamp(2rem, 8vw, 3rem);
+    }
+    .hero-title-sub {
+        margin-top: 6px;
+        font-size: 0.82rem;
+        letter-spacing: 0.34em;
     }
 }
 .hero-bio { font-size: 1.05rem; line-height: 1.7; color: var(--text-muted); max-width: 850px; margin-bottom: 30px; }
