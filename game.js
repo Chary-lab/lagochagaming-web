@@ -157,6 +157,7 @@
         runSostenido: false,
         runHold: 0,
         runIdle: 0,
+        runMovio: false,
         bufferSalto: 0,
         impulsoSalto: 0,
         coyote: 0,
@@ -1058,6 +1059,7 @@
         estado.runSostenido = false;
         estado.runHold = 0;
         estado.runIdle = 0;
+        estado.runMovio = false;
         pintarCargaCorrer(0);
         actualizarBotonCorrer();
         if (anunciar && estabaFijo) anunciarJuego('Carrera fija desactivada.');
@@ -1114,6 +1116,7 @@
                 estado.runSostenido = false;
                 estado.runHold = 0;
                 estado.runIdle = 0;
+                estado.runMovio = false;
                 actualizarBotonCorrer();
                 anunciarJuego('Carrera fija. Toca CORRER para parar.');
             }
@@ -1124,14 +1127,16 @@
         }
 
         if (estado.runFijo) {
-            if (eje === 0) {
+            if (eje !== 0) {
+                estado.runMovio = true;
+                estado.runIdle = 0;
+            } else if (estado.runMovio) {
                 estado.runIdle += dt;
                 if (estado.runIdle >= RUN_IDLE_RESET) resetRunFijo(false);
-            } else {
-                estado.runIdle = 0;
             }
         } else {
             estado.runIdle = 0;
+            estado.runMovio = false;
         }
         estado.correrTactil = estado.runSostenido || estado.runFijo;
     }

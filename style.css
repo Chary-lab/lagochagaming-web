@@ -8577,7 +8577,7 @@ html.lg-page-game .game-pausa {
     display: flex;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 520px) {
     .game-tactil {
         gap: 6px;
         padding-right: 8px;

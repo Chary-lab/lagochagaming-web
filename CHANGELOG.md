@@ -3,6 +3,13 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.3.2] - 2026-11-10
+
+### Juego
+
+- El HUD táctil compacto se aplica hasta 520 px de ancho para cubrir teléfonos de 440 px: el botón `CORRER` ya no queda debajo de la pausa.
+- La carrera fija ya no se desactiva sola por estar quieto: se mantiene hasta mover el joystick y dejarlo neutro 0,45 s, o hasta tocar `CORRER`.
+
 ## [2.3.1] - 2026-11-10
 
 ### Juego
