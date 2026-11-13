@@ -3,6 +3,20 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.6] - 2026-11-13
+
+### Comunidad
+
+- La paleta de comandos (Ctrl+K) busca apodos: con dos letras lista los perfiles que coinciden y abre la ficha al pulsar. Placeholder y etiquetas actualizados.
+- El mapa de adornos se guarda 10 minutos en `sessionStorage`. Antes cada carga de página pedía hasta 2.000 filas de `usuarios_comunidad`; ahora solo se refresca al comprar o equipar algo.
+
+### Operación
+
+- `errores_web`: el sitio reporta cada RPC fallida (rpc, mensaje, url, versión y un id de dispositivo que el servidor guarda hasheado). Máximo 10 reportes por sesión y 30 por IP cada 10 minutos; se borran a los 30 días con el cron diario.
+- `admin_errores_web(token, horas)` devuelve el resumen agrupado con versiones afectadas; la consulta para mirarlo a mano está en `docs/operaciones.md`.
+- `scripts/backup.js`: copia de esquema (55 tablas, 131 funciones, 42 políticas, triggers, índices, grants y 13 jobs de cron) más todas las filas en `datos.json` y un manifiesto con sha256. `--archivos` descarga además las fotos del bucket. No necesita `pg_dump` ni Docker.
+- `scripts/smoke.js` comprueba geometría: que la encuesta no se estire ni tape el campo del chat y que el hero mida lo suyo. Se validó en rojo reintroduciendo el fallo de la 2.9.4.
+
 ## [2.9.5] - 2026-11-13
 
 ### Comunidad

@@ -76,7 +76,8 @@ El catálogo de tablas y RPC se eliminó de esta guía: usa el MCP `supabase` (`
 8. Usar las skills cuando encajen (`web-ui`, `web-backend`) y el MCP `supabase` para esquema, SQL y logs; `web-research` para docs y versiones. Nunca escribir tokens o secretos en archivos, commits ni prompts; usarlos en memoria y recomendar revocarlos.
 9. Mantener el repo limpio y barato de leer: borrar archivos temporales (`_test-*`, probes), VERSION/CHANGELOG/AGENTS sincronizados, caché `?v=X.Y.Z` al día, y usar `grep` o lecturas por rangos en vez de volcar archivos enteros.
 
-10. Tras tocar cualquier `<script>` inline de una página hay que correr `node scripts/check.js --fix`: la meta CSP fija el SHA-256 de cada bloque inline y, si no se recalcula, el navegador bloquea el script entero y la página se queda sin Alpine ni datos (pasó con el chat en la 2.9.1).
+10. Antes de cualquier cambio de esquema o de RPC, `node scripts/backup.js`. El respaldo tarda un par de minutos y deja `esquema.sql` y `datos.json` en `backups/` (ignorada por git).
+11. Tras tocar cualquier `<script>` inline de una página hay que correr `node scripts/check.js --fix`: la meta CSP fija el SHA-256 de cada bloque inline y, si no se recalcula, el navegador bloquea el script entero y la página se queda sin Alpine ni datos (pasó con el chat en la 2.9.1).
 
 ## Skills del proyecto
 

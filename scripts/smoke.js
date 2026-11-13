@@ -282,7 +282,48 @@ async function servidor(puerto) {
             if (!galeria.titulos) fallos.push('galería: ninguna tarjeta con título');
             if (galeria.ratio !== null && galeria.ratio < 4.5) {
                 fallos.push('galería: el filtro activo no llega a 4.5:1 (' + galeria.ratio + ')');
-            }        } finally {
+            }
+            // Geometría: que los bloques del chat no se estiren ni tapen el campo de
+            // texto. Este tipo de fallo no da error de consola ni desborde horizontal
+            // (pasó con la encuesta en la 2.9.4 y solo se vio en una captura).
+            await pag.goto(base + '/comunidad.html?smoke=geometria', { waitUntil: 'domcontentloaded', timeout: 30000 });
+            await pag.waitForTimeout(3000);
+            const geo = await pag.evaluate(() => {
+                const visible = (el) => !!el && getComputedStyle(el).display !== 'none';
+                const poll = document.querySelector('.chat-poll--suelto');
+                const caja = document.getElementById('chat-mensaje');
+                const salida = { hayPoll: visible(poll), hayCaja: visible(caja) };
+                if (salida.hayPoll) {
+                    const rp = poll.getBoundingClientRect();
+                    const opciones = [...poll.querySelectorAll('.chat-poll-opciones button')];
+                    salida.alto = Math.round(rp.height);
+                    salida.flex = getComputedStyle(poll).flex;
+                    salida.ultimaDentro = opciones.length
+                        ? opciones[opciones.length - 1].getBoundingClientRect().bottom <= rp.bottom + 1
+                        : null;
+                    if (salida.hayCaja) {
+                        const rc = caja.getBoundingClientRect();
+                        salida.seSolapan = rp.bottom > rc.top && rp.top < rc.bottom;
+                    }
+                }
+                const hero = document.querySelector('.hero-section');
+                salida.heroAlto = hero ? Math.round(hero.getBoundingClientRect().height) : null;
+                return salida;
+            });
+            if (geo.hayPoll) {
+                if (/^1\s/.test(geo.flex)) fallos.push('geometría: la encuesta se estira (flex ' + geo.flex + ')');
+                if (geo.alto > 320) fallos.push('geometría: la encuesta mide ' + geo.alto + ' px de alto');
+                if (geo.ultimaDentro === false) fallos.push('geometría: la última opción de la encuesta queda cortada');
+                if (geo.seSolapan) fallos.push('geometría: la encuesta se solapa con el campo del chat');
+            }
+
+            await pag.goto(base + '/index.html?smoke=hero', { waitUntil: 'domcontentloaded', timeout: 30000 });
+            await pag.waitForTimeout(2500);
+            const hero = await pag.evaluate(() => {
+                const el = document.querySelector('.hero-section');
+                return el ? Math.round(el.getBoundingClientRect().height) : 0;
+            });
+            if (hero < 200) fallos.push('geometría: el hero mide ' + hero + ' px');        } finally {
             await ctxInt.close();
         }
     } finally {

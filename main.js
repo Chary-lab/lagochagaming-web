@@ -397,12 +397,54 @@ let _adminCache = null;
 // aviso de error. Devuelve { ok, data, error }.
 // Variante de bajo nivel: misma forma que supabase.rpc ({ data, error }) para
 // poder migrar las llamadas existentes sin reescribir cada bloque.
+// Errores de RPC al servidor (tabla `errores_web`): una fila por fallo, agrupada
+// después por RPC y mensaje. Sin datos personales: el dispositivo va hasheado en
+// el servidor y solo se envía un id aleatorio del navegador.
+const _erroresReportados = new Set();
+window.reportarErrorWeb = function reportarErrorWeb(rpc, error) {
+    try {
+        if (!navigator.onLine) return;
+        const mensaje = String((error && (error.message || error.hint || error.code)) || 'desconocido').slice(0, 200);
+        if (/sin_supabase|AbortError|NetworkError|Failed to fetch|Load failed/i.test(mensaje)) return;
+        const clave = rpc + '|' + mensaje;
+        if (_erroresReportados.has(clave) || _erroresReportados.size >= 10) return;
+        _erroresReportados.add(clave);
+        let dispositivo = '';
+        try {
+            dispositivo = almacen.texto('lg_dispositivo_id') || '';
+            if (!dispositivo) {
+                dispositivo = (window.crypto && crypto.randomUUID)
+                    ? crypto.randomUUID()
+                    : String(Date.now()) + Math.random().toString(16).slice(2);
+                almacen.guardarTexto('lg_dispositivo_id', dispositivo);
+            }
+        } catch (e) { /* modo privado */ }
+        const version = ((document.querySelector('script[src*="main.js"]') || {}).src || '').match(/\?v=([\d.]+)/);
+        // fetch directo a PostgREST: pasar por rpcRaw volvería a entrar aquí.
+        fetch(SUPABASE_URL + '/rest/v1/rpc/reportar_error_web', {
+            method: 'POST',
+            headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                p_rpc: rpc,
+                p_mensaje: mensaje,
+                p_url: (location.pathname + location.search).slice(0, 200),
+                p_version: version ? version[1] : '',
+                p_dispositivo: dispositivo
+            })
+        }).catch(() => { /* el reporte nunca rompe la página */ });
+    } catch (e) { /* idem */ }
+};
+
 window.rpcRaw = async function rpcRaw(nombre, params) {
     if (!window.supabase) return { data: null, error: { message: 'sin_supabase' } };
     try {
-        return await window.supabase.rpc(nombre, params);
+        const res = await window.supabase.rpc(nombre, params);
+        if (res && res.error) window.reportarErrorWeb(nombre, res.error);
+        return res;
     } catch (e) {
-        return { data: null, error: { message: (e && e.message) || 'excepcion' } };
+        const mensaje = (e && e.message) || 'excepcion';
+        window.reportarErrorWeb(nombre, { message: mensaje });
+        return { data: null, error: { message: mensaje } };
     }
 };
 
@@ -2681,8 +2723,52 @@ window.portalPanelApp = function portalPanelApp(el, abierto) {
 // === Color de apodo (tienda) ===// Mapa apodo normalizado -> hex. Se carga una vez por página y las vistas se
 // repintan al recibir 'gocha:colores'.
 const _perfilesApodo = new Map();
-window.cargarColoresApodo = async function cargarColoresApodo() {
+// El mapa se pedía en cada carga de página: hasta 2.000 filas por visita. Se
+// guarda 10 minutos en sessionStorage y se refresca al equipar o comprar.
+const CACHE_COLORES = 'gochi_colores_cache';
+const CACHE_COLORES_MS = 10 * 60 * 1000;
+
+function leerCacheColores() {
+    try {
+        const crudo = sessionStorage.getItem(CACHE_COLORES);
+        if (!crudo) return null;
+        const datos = JSON.parse(crudo);
+        if (!datos || !Array.isArray(datos.filas)) return null;
+        if (!datos.ts || Date.now() - datos.ts > CACHE_COLORES_MS) return null;
+        return datos.filas;
+    } catch (e) {
+        return null;
+    }
+}
+
+function guardarCacheColores(filas) {
+    try {
+        sessionStorage.setItem(CACHE_COLORES, JSON.stringify({ ts: Date.now(), filas: filas }));
+    } catch (e) { /* modo privado o sin espacio: se ignora */ }
+}
+
+function rellenarPerfilesApodo(filas) {
+    _perfilesApodo.clear();
+    (filas || []).forEach((u) => {
+        if (!u || !u.apodo) return;
+        _perfilesApodo.set(String(u.apodo).trim().toLowerCase(), {
+            color: u.color_apodo || '',
+            titulo: u.titulo_equipado || '',
+            marco: !!u.marco_equipado
+        });
+    });
+    document.dispatchEvent(new CustomEvent('gocha:colores'));
+}
+
+window.cargarColoresApodo = async function cargarColoresApodo(forzar) {
     if (!window.supabase) return;
+    if (!forzar) {
+        const cache = leerCacheColores();
+        if (cache) {
+            rellenarPerfilesApodo(cache);
+            return;
+        }
+    }
     try {
         const { data, error } = await window.supabase
             .from('usuarios_comunidad')
@@ -2692,16 +2778,8 @@ window.cargarColoresApodo = async function cargarColoresApodo() {
             // siendo una sola petición pequeña en vez de la tabla completa.
             .limit(2000);
         if (error) return;
-        _perfilesApodo.clear();
-        (data || []).forEach((u) => {
-            if (!u || !u.apodo) return;
-            _perfilesApodo.set(String(u.apodo).trim().toLowerCase(), {
-                color: u.color_apodo || '',
-                titulo: u.titulo_equipado || '',
-                marco: !!u.marco_equipado
-            });
-        });
-        document.dispatchEvent(new CustomEvent('gocha:colores'));
+        guardarCacheColores(data || []);
+        rellenarPerfilesApodo(data || []);
     } catch (e) { /* sin adornos */ }
 };
 window.colorApodoDe = function colorApodoDe(apodo) {
@@ -2717,7 +2795,8 @@ window.marcoApodoDe = function marcoApodoDe(apodo) {
     return !!(p && p.marco);
 };
 window.aplicarColoresApodo = function aplicarColoresApodo() {
-    window.cargarColoresApodo();
+    // Tras comprar o equipar hay que ignorar la caché.
+    window.cargarColoresApodo(true);
 };
 
 // Carga inicial del mapa de adornos. Va después de definir la función y en
@@ -6037,6 +6116,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let visibles = TODOS.slice();
     let seleccion = 0;
     let focoPrevio = null;
+    let perfiles = [];
+    let busquedaSeq = 0;
+    let temporizadorBusqueda = 0;
 
     function normaliza(texto) {
         return String(texto || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -6099,9 +6181,42 @@ document.addEventListener('DOMContentLoaded', () => {
         visibles = (q
             ? base.filter((i) => normaliza(i.titulo).includes(q) || normaliza(i.detalle).includes(q))
             : base.slice())
-            .concat(accionesApodo(campo.value));
+            .concat(accionesApodo(campo.value))
+            .concat(perfiles);
         seleccion = 0;
         pintar();
+    }
+
+    // Buscar personas: con 2 letras se consultan los apodos y se ofrecen como
+    // resultados. Es de solo lectura y usa la columna pública `apodo`.
+    function buscarPerfiles(valor) {
+        const texto = String(valor || '').trim();
+        const seq = ++busquedaSeq;
+        clearTimeout(temporizadorBusqueda);
+        if (texto.length < 2 || texto.startsWith('@') || !window.supabase) {
+            if (perfiles.length) { perfiles = []; filtrar(); }
+            return;
+        }
+        temporizadorBusqueda = setTimeout(async () => {
+            try {
+                const patron = texto.replace(/[%_]/g, '');
+                const { data } = await window.supabase
+                    .from('usuarios_comunidad')
+                    .select('apodo, rango')
+                    .ilike('apodo', '%' + patron + '%')
+                    .limit(6);
+                if (seq !== busquedaSeq) return;
+                perfiles = (data || []).map((u) => ({
+                    titulo: u.apodo,
+                    detalle: 'Ver perfil' + (u.rango ? ' · ' + String(u.rango).replace(/_/g, ' ') : ''),
+                    accion: () => window.abrirPerfilUsuario?.(u.apodo)
+                }));
+            } catch (e) {
+                perfiles = [];
+            }
+            if (seq !== busquedaSeq) return;
+            filtrar();
+        }, 250);
     }
 
     function mover(delta) {
@@ -6159,10 +6274,13 @@ document.addEventListener('DOMContentLoaded', () => {
         campo = document.createElement('input');
         campo.type = 'text';
         campo.className = 'gochi-paleta-input';
-        campo.placeholder = 'Buscar página o acción...';
+        campo.placeholder = 'Buscar página, acción o apodo...';
         campo.setAttribute('aria-label', 'Buscar en la paleta de comandos');
         campo.autocomplete = 'off';
-        campo.addEventListener('input', filtrar);
+        campo.addEventListener('input', () => {
+            filtrar();
+            buscarPerfiles(campo.value);
+        });
         campo.addEventListener('keydown', (evento) => {
             if (evento.key === 'ArrowDown') { evento.preventDefault(); mover(1); }
             else if (evento.key === 'ArrowUp') { evento.preventDefault(); mover(-1); }

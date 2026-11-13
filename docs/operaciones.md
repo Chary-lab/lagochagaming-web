@@ -95,3 +95,19 @@ Extraido de AGENTS.md: despliegue, release, SEO, SemVer y pruebas.
    - Aplicarlo contra el proyecto `cydiyaacnyydprgffmkq` con `supabase db query --remote=... --yes` y revisar los advisors.
    - La carpeta `supabase/` local está permitida para desplegar funciones, pero no se commitea (`.gitignore`). La base es Supabase: el SQL va con `db query --remote` y cada cambio se documenta en `CHANGELOG.md`.
 7. Revisar `git diff` y `git status`; no commitear archivos temporales, secretos ni datos de prueba.
+
+## 10. Copias de seguridad
+
+- `node scripts/backup.js` genera `backups/AAAA-MM-DD-HH-mm/` (ignorada por git) con `esquema.sql`, `datos.json` y `manifest.json`.
+- Qué lleva el esquema: extensiones, 55 `create table`, constraints, índices, las 131 funciones con sus grants, triggers, 42 políticas RLS, el estado de RLS y los 13 jobs de `pg_cron`. Los datos son todas las filas de las tablas de `public`.
+- `--archivos` descarga además las fotos del bucket público `fotos-galeria` a `backups/<fecha>/fotos/`.
+- No usa `pg_dump` ni Docker: pasa por la Management API del CLI de Supabase, así que no hace falta la contraseña de la base.
+- Restaurar (sin probar todavía en un proyecto limpio, hazlo una vez y apúntalo aquí): crear un proyecto nuevo, ejecutar `esquema.sql` (crea tablas, funciones y políticas), insertar las filas de `datos.json` tabla por tabla respetando el orden de las claves foráneas, volver a crear los secretos de las Edge Functions (`VAPID_KEYS`, `PUSH_CRON_SECRET`) y desplegar las funciones.
+- Esto no sustituye al backup de Supabase (Dashboard → Database → Backups): es la copia que controlas tú. Programa uno semanal, sobre todo antes de cualquier cambio de esquema.
+
+## 11. Errores de cliente
+
+- El sitio reporta cada RPC fallida a `errores_web` (tabla con RLS y sin políticas; se toca solo por RPC). No guarda IPs ni apodos: el id del navegador se guarda como hash SHA-256 y como máximo se envían 10 reportes por sesión.
+- Para mirar qué está fallando: `select rpc, mensaje, count(*), max(creado_en) from errores_web where creado_en > now() - interval '24 hours' group by 1,2 order by 3 desc limit 20;`
+- También hay `select public.admin_errores_web('<token admin>', 24);`, que devuelve el mismo resumen agrupado (incluye versiones afectadas).
+- Se borran solos a los 30 días: el cron diario `limpiar_datos_antiguos` los limpia junto al resto.
