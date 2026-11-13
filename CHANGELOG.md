@@ -3,6 +3,19 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.4] - 2026-11-13
+
+### Comunidad
+
+- Fuera la tarjeta fija que ocupaba la cabecera del chat. La pregunta del día pasa a un aviso flotante abajo a la izquierda (en móvil, encima del campo de texto), con botón Responder y una X para cerrarlo.
+- El aviso sale una sola vez al día por usuario, solo con sesión de comunidad y nunca si ya respondió la pregunta. Se cierra con la X o solo a los 30 segundos.
+- La encuesta rápida se queda sola: opciones mientras no votas y, al votar, una sola línea con los tres primeros resultados y un "Ver" que despliega las barras con "tu voto" marcado.
+- Los resultados de la encuesta son públicos en cuanto votas; el equipo los sigue viendo antes de votar. Antes de votar no se muestra ningún porcentaje.
+
+### Supabase
+
+- `encuesta_actual` y `votar_encuesta` devuelven `votos`, `total` y porcentajes a quien ya votó (antes solo a `es_admin()`).
+
 ## [2.9.3] - 2026-11-13
 
 ### Tienda

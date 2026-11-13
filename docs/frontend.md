@@ -124,3 +124,10 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - Se carga en `DOMContentLoaded`, **no** al ejecutar el archivo: si se llama antes de definir la función no ocurre nada y los colores quedan invisibles en toda la sesión (fue el bug de la 2.9.1). El `?v=` no salva de esto.
 - Dónde se aplica: navbar (color propio desde la sesión), chat, muro de saludos, ranking, tarjetas de Galería y ficha de perfil. Al añadir un sitio nuevo con apodos hay que pasar por `colorApodoDe` y escuchar `gocha:colores`, o el adorno no aparecerá.
 - El historial del chat y las cachés de sesión deben pasar por `mapearMensajeChat`: traen solo `id`, `autor`, `mensaje` y `created_at`, así que sin normalizar se pierden color, título y hora.
+
+### 4.8 Encuesta rápida y pregunta del día
+
+- Viven en el store `pregunta` de `comunidad.html` y son dos cosas distintas: la encuesta (votación con puntos) y la pregunta abierta que se responde en el chat (5 pts).
+- La pregunta del día ya no ocupa sitio en el chat: es el aviso flotante `.aviso-pregunta`, abajo a la izquierda (en móvil, encima del campo de texto). Solo se muestra con sesión de comunidad, una vez al día (`gochi_pregunta_vista`) y nunca si ya respondió (`gochi_pregunta_respondida`, que se marca cuando `reclamar_pregunta_dia` paga). Se cierra con la X o solo a los 30 s.
+- La encuesta se queda sola en el chat: opciones mientras no votas y, al votar, una línea de resumen (`resumen`) con los tres primeros porcentajes; el botón "Ver" despliega las barras y marca "tu voto". Sin la tarjeta vieja no hay bloque fijo encima de la conversación.
+- No volver a fusionar los dos bloques ni a mostrar la pregunta como tarjeta permanente: era justo lo que saturaba el chat.

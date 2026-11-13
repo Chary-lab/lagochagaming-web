@@ -10664,3 +10664,110 @@ body.admin-mode-active .solo-admin { display: inline-flex !important; }
     .recap-caja { padding: 22px 18px; }
     .recap-titulo { font-size: 1.25rem; }
 }
+
+/* === Encuesta rápida suelta y aviso de la pregunta del día (2.9.4) ===
+   La tarjeta fija que vivía encima del chat se parte en dos: la encuesta se
+   queda mientras no votas y después baja a una sola línea con los resultados;
+   la pregunta del día pasa a un aviso flotante, una vez al día y con sesión. */
+.chat-poll--suelto {
+    margin: 0 0 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--card-bg-subtle);
+}
+.chat-poll-cabeza {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.chat-poll-ver {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: var(--accent-color);
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.chat-poll-resumen {
+    margin: 0;
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+}
+.chat-poll-opcion--resultado {
+    cursor: default;
+    grid-template-columns: 1fr auto;
+}
+.chat-poll-opcion--resultado:hover,
+.chat-poll-opcion--resultado:focus-visible { border-color: var(--border-color); }
+.chat-poll-opcion--mia { border-color: var(--accent-color); }
+.chat-poll-opcion--mia .chat-poll-texto::after {
+    content: ' · tu voto';
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.aviso-pregunta {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    z-index: 70;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 330px;
+    padding: 12px 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--accent-color);
+    border-radius: 12px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+}
+.aviso-pregunta__icono { font-size: 1.05rem; line-height: 1.2; }
+.aviso-pregunta__cuerpo { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.aviso-pregunta__eyebrow {
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-color);
+    font-weight: 800;
+}
+.aviso-pregunta__texto { font-size: 0.88rem; line-height: 1.35; color: var(--text-main); }
+.aviso-pregunta__hint { font-size: 0.7rem; color: var(--text-muted); }
+.aviso-pregunta__acciones { display: flex; gap: 8px; margin-top: 5px; }
+.aviso-pregunta__btn {
+    border: 1px solid var(--accent-color);
+    background: transparent;
+    color: var(--accent-color);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+.aviso-pregunta__btn:hover,
+.aviso-pregunta__btn:focus-visible { background: var(--accent-color); color: var(--accent-texto); }
+.aviso-pregunta__cerrar {
+    background: none;
+    border: 0;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 2px;
+    cursor: pointer;
+}
+.aviso-pregunta__cerrar:hover,
+.aviso-pregunta__cerrar:focus-visible { color: var(--text-main); }
+@media (max-width: 760px) {
+    .aviso-pregunta {
+        left: 12px;
+        right: 12px;
+        bottom: 86px;
+        max-width: none;
+    }
+}
