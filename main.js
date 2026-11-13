@@ -1498,6 +1498,7 @@ window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() 
         const avatar = window.avatarUsuarioComunidad(usuario);
         const inicial = apodo.charAt(0).toUpperCase();
         const icono = usuario.icono || '';
+        const colorNav = usuario.color_apodo || window.colorApodoDe?.(apodo) || '';
         const claseRango = window.claseRangoTexto(usuario.rango, usuario.puntos);
         const rangoInfo = window.datosRangoComunidad(usuario.rango, usuario.puntos);
         const puntosNav = Number(usuario.puntos || 0);
@@ -1509,7 +1510,7 @@ window.actualizarUsuarioNavComunidad = function actualizarUsuarioNavComunidad() 
         navUserInfo.innerHTML = `
             <button type="button" class="nav-user-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="Abrir mi perfil y ajustes, ${puntosNav} puntos">
                 ${avatarHtml}
-                <span id="nav-username" class="nav-user-name ${claseRango}">${apodoSeguro}</span>
+                <span id="nav-username" class="nav-user-name ${claseRango}"${colorNav ? ' style="color:' + window.escapeAttr(colorNav) + '"' : ''}>${apodoSeguro}</span>
                 <span class="nav-user-puntos" title="${window.escapeAttr(rangoInfo.nombre + ' · ' + puntosNav + ' pts')}">
                     <span class="nav-user-rango" aria-hidden="true">${rangoInfo.emoji}</span>
                     <span>${puntosNav}</span>
@@ -1777,7 +1778,6 @@ window.pintarEstadoNav = function pintarEstadoNav(vivo, espectadores) {
 };
 
 window.insertarNavbar();
-window.cargarColoresApodo?.();
 
 // La versión y el tamaño del APK salen de app/update.json, no del HTML.
 // Así un release de la app no deja la web anunciando una versión vieja.
@@ -2687,7 +2687,10 @@ window.cargarColoresApodo = async function cargarColoresApodo() {
         const { data, error } = await window.supabase
             .from('usuarios_comunidad')
             .select('apodo, color_apodo, titulo_equipado, marco_equipado')
-            .or('color_apodo.not.is.null,titulo_equipado.not.is.null,marco_equipado.is.true');
+            .or('color_apodo.not.is.null,titulo_equipado.not.is.null,marco_equipado.is.true')
+            // Tope de seguridad: con cientos de perfiles con adorno esto sigue
+            // siendo una sola petición pequeña en vez de la tabla completa.
+            .limit(2000);
         if (error) return;
         _perfilesApodo.clear();
         (data || []).forEach((u) => {
@@ -2716,6 +2719,17 @@ window.marcoApodoDe = function marcoApodoDe(apodo) {
 window.aplicarColoresApodo = function aplicarColoresApodo() {
     window.cargarColoresApodo();
 };
+
+// Carga inicial del mapa de adornos. Va después de definir la función y en
+// DOMContentLoaded: así las vistas ya registraron su listener de
+// 'gocha:colores' y se repintan al llegar los datos. El intento anterior vivía
+// junto a insertarNavbar(), donde la función todavía era undefined, así que los
+// colores de la tienda no se pintaban en ninguna vista hasta equipar algo.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => window.cargarColoresApodo(), { once: true });
+} else {
+    window.cargarColoresApodo();
+}
 
 // === MENÚ MÓVIL ===
 

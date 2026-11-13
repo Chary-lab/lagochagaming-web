@@ -116,3 +116,11 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 - `CLAVE_PUSH` (repetida en `main.js` y `sw.js`) es la clave pública VAPID: pública por diseño, igual que la anon key. La privada vive en los secretos de Supabase y no entra al repo.
 - `sw.js` no cachea nada y solo muestra notificaciones: `push`, `notificationclick` y `pushsubscriptionchange` (renueva el endpoint; la fila del servidor se refresca en la siguiente visita).
 - No añadir otra campana ni otro interruptor: el estado vive en `gochi_avisos` y en `push_suscripciones`.
+
+### 4.7 Adornos del apodo (color, título y marco)
+
+- El mapa vive en `main.js`: `cargarColoresApodo()` pide una vez `apodo, color_apodo, titulo_equipado, marco_equipado` de los perfiles con adorno y lo guarda en `_perfilesApodo` (clave: apodo en minúsculas). Al terminar dispara `gocha:colores`; las vistas lo escuchan y repintan.
+- Lectores: `colorApodoDe(apodo)`, `tituloApodoDe(apodo)` y `marcoApodoDe(apodo)`. `aplicarColoresApodo()` fuerza una recarga (se llama al equipar o comprar en la tienda).
+- Se carga en `DOMContentLoaded`, **no** al ejecutar el archivo: si se llama antes de definir la función no ocurre nada y los colores quedan invisibles en toda la sesión (fue el bug de la 2.9.1). El `?v=` no salva de esto.
+- Dónde se aplica: navbar (color propio desde la sesión), chat, muro de saludos, ranking, tarjetas de Galería y ficha de perfil. Al añadir un sitio nuevo con apodos hay que pasar por `colorApodoDe` y escuchar `gocha:colores`, o el adorno no aparecerá.
+- El historial del chat y las cachés de sesión deben pasar por `mapearMensajeChat`: traen solo `id`, `autor`, `mensaje` y `created_at`, así que sin normalizar se pierden color, título y hora.

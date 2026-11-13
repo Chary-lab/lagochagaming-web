@@ -31,7 +31,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.9.0">
+    <link rel="stylesheet" href="style.css?v=2.9.1">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -177,7 +177,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- TOAST Y ALERTA DE STREAM EN VIVO se insertan dinámicamente desde main.js -->
 
     <!-- SECCIÓN HERO -->
-    <header class="hero-section" id="inicio">
+    <!-- El hero es una sección: como <header> de nivel superior duplicaba el banner -->
+    <section class="hero-section" id="inicio">
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <span class="hero-subtitle">— STREAMER DE KICK · CREADORA DE CONTENIDO</span>
@@ -207,7 +208,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 <a class="hero-social" href="https://discord.com/invite/svrteKBbeh" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-brands-discord"></use></svg> Discord</a>
             </div>
         </div>
-    </header>
+    </section>
 
     <main class="main-container" id="stream" tabindex="-1">
         <div class="video-container">
@@ -315,7 +316,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     <div class="muro-card-header">
                         <span class="muro-autor"
                               x-bind:class="[msg.autorLink ? 'muro-autor-link' : '', msg.rangoClave ? 'rango-texto-' + msg.rangoClave : '']"
-                              x-bind:style="msg.color ? 'color:' + msg.color : null"
+                              x-bind:style="msg.color ? { color: msg.color } : {}"
                               x-bind:role="msg.autorLink ? 'button' : null"
                               x-bind:tabindex="msg.autorLink ? 0 : null"
                               x-bind:title="msg.autorLink ? 'Ver perfil de ' + msg.autor : null"
@@ -437,7 +438,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             <div class="media-modal-pie">
                 <span class="media-modal-titulo" id="media-modal-titulo" x-text="$store.media.titulo"></span>
                 <a class="media-modal-enlace" :href="$store.media.enlace" target="_blank" rel="noopener noreferrer"
-                   x-text="$store.media.textoEnlace"></a>
+                   x-show="$store.media.enlace" x-text="$store.media.textoEnlace"></a>
             </div>
         </div>
     </div>
@@ -499,7 +500,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.9.0" defer></script>
+    <script src="main.js?v=2.9.1" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>

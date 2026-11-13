@@ -33,6 +33,7 @@
     --card-bg: #1f2937;
     --card-bg-subtle: #0f172a;
     --accent-color: #5eead4;
+    --accent-texto: #04211c; /* texto legible sobre el acento claro */
     --accent-tiktok: #67e8f9;
     --text-main: #d1d5db;
     --text-muted: #cbd5e1;
@@ -68,6 +69,7 @@ body.oled-mode {
     --card-bg: #0d0d0d;
     --card-bg-subtle: #000000;
     --accent-color: #00ffd5;
+    --accent-texto: #002018;
     --accent-tiktok: #00ffff;
     --text-main: #e0ffe8;
     --text-muted: #8fffdb;
@@ -92,6 +94,7 @@ body.light-mode {
     --card-bg: #ffffff;
     --card-bg-subtle: #e8f7ef;
     --accent-color: #047857;
+    --accent-texto: #ffffff;
     --accent-tiktok: #0e7490;
     --text-main: #064e3b;
     --text-muted: #1e4d3d; /* mejorado de #2f5d52 para ratio 4.5:1 */
@@ -1049,7 +1052,7 @@ button.gallery-card-autor {
 }
 
 .badge-top3 {
-    background: linear-gradient(135deg, #ff66b2, #9b59b6);
+    background: linear-gradient(135deg, #be1a6b, #5b21a8);
     color: #fff;
     border: 1px solid var(--accent-color);
 }
@@ -2370,7 +2373,7 @@ body.light-mode .reporte-foto-box {
       display: inline-flex;
       align-items: center;
       gap: 3px;
-      background: linear-gradient(135deg, var(--accent-color), #9b59b6);
+      background: linear-gradient(135deg, #0f766e, #6d28d9);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.35);
       border-radius: 10px;
@@ -3285,7 +3288,7 @@ body.light-mode {
 
         .tab-filter-btn.active {
             background: var(--accent-color);
-            color: #fff;
+            color: var(--accent-texto);
             border-color: var(--accent-color);
             box-shadow: var(--glow);
         }
@@ -3405,7 +3408,7 @@ body.light-mode {
             align-items: center;
             justify-content: center;
             font-size: 0.8rem !important;
-            color: #fff;
+            color: var(--accent-texto);
             font-weight: bold;
         }
         #online-users-list .user-name {
@@ -4695,7 +4698,7 @@ body.light-mode {
             background: var(--accent-color);
             padding: 1px 4px;
             border-radius: 4px;
-            color: #fff;
+            color: var(--accent-texto);
         }
 
         @media (max-width: 1240px) {
@@ -6103,9 +6106,9 @@ body.light-mode {
     background: rgba(83, 252, 24, 0.22);
 }
 .chat-kick-badge.kick-badge-moderator { --badge: #4ade80; border-color: rgba(74, 222, 128, 0.45); background: rgba(74, 222, 128, 0.14); }
-.chat-kick-badge.kick-badge-vip { --badge: #f472b6; border-color: rgba(244, 114, 182, 0.45); background: rgba(244, 114, 182, 0.14); }
+.chat-kick-badge.kick-badge-vip { --badge: #f9a8d4; border-color: rgba(244, 114, 182, 0.45); background: rgba(244, 114, 182, 0.14); }
 .chat-kick-badge.kick-badge-subscriber { --badge: #fbbf24; border-color: rgba(251, 191, 36, 0.45); background: rgba(251, 191, 36, 0.14); }
-.chat-kick-badge.kick-badge-founder { --badge: #a78bfa; border-color: rgba(167, 139, 250, 0.45); background: rgba(167, 139, 250, 0.14); }
+.chat-kick-badge.kick-badge-founder { --badge: #c4b5fd; border-color: rgba(167, 139, 250, 0.45); background: rgba(167, 139, 250, 0.14); }
 .chat-kick-badge.kick-badge-sub_gifter { --badge: #38bdf8; border-color: rgba(56, 189, 248, 0.45); background: rgba(56, 189, 248, 0.14); }
 .chat-kick-badge.kick-badge-og { --badge: #fb923c; border-color: rgba(251, 146, 60, 0.45); background: rgba(251, 146, 60, 0.14); }
 .chat-kick-badge.kick-badge-verified { --badge: #e2e8f0; border-color: rgba(226, 232, 240, 0.4); background: rgba(226, 232, 240, 0.12); }

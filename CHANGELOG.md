@@ -3,6 +3,36 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.1] - 2026-11-13
+
+### Adornos del apodo (tienda)
+
+- El color del apodo no se pintaba en ninguna vista al cargar la página: el mapa de adornos se pedía antes de que existiera `window.cargarColoresApodo` (la llamada vivía junto a `insertarNavbar()`), así que solo aparecía después de equipar algo en la tienda y se perdía al recargar.
+- La carga del mapa pasa a `DOMContentLoaded`, cuando las vistas ya escuchan `gocha:colores`, y se repinta el chat, el muro, el ranking y la galería al llegar los datos.
+- El apodo del navbar no aplicaba nunca el color comprado; ahora lo toma de la sesión con el mapa como respaldo.
+- En Galería el autor de cada tarjeta no tenía color; ahora lo recibe y se repinta con el mapa.
+- El historial del chat llegaba crudo desde `obtener_chat_historial` y se saltaba `mapearMensajeChat`: salía sin color, sin título y **sin hora**. Ahora se normaliza como los mensajes en vivo, y la caché de sesión se repinta al leerla.
+- `login_comunidad` devuelve `color_apodo`, `titulo_equipado` y `marco_equipado`, así que la sesión (y con ella la tienda y el perfil) conoce los adornos desde el primer momento y no solo tras abrir el perfil.
+
+### Accesibilidad
+
+- Nuevo `--accent-texto` por tema (`#04211c` en oscuro, `#002018` en OLED, `#fff` en claro) para el texto que va sobre `--accent-color`. El acento es un turquesa claro en los temas oscuros, así que usar blanco encima dejaba el texto por debajo de 4.5:1: el filtro activo de Galería ("Más Populares") medía **1.47:1**, y lo mismo pasaba con el icono del ranking y la etiqueta de peso del sorteo.
+- Badges VIP y FOUNDER del chat: el texto sube de 4.14:1 y 3.95:1 a más de 6:1 (el borde y el fondo mantienen el tono original).
+- Los gradientes de `TOP 3` y del multiplicador de rango dejan de ir de un color claro a púrpura con blanco encima: se oscurecen los extremos para pasar 4.5:1.
+- `index.html`: el hero deja de ser un segundo `<header>` de nivel superior, así que ya no hay dos landmarks "banner" duplicados. El enlace del modal de media solo existe cuando hay URL.
+
+### Tienda
+
+- Al comprar un color habiendo otro puesto, el aviso dice que lo reemplaza y recuerda que el anterior se puede volver a equipar desde Mis compras.
+- El mapa de adornos lleva tope de 2.000 filas: sigue siendo una sola petición pequeña aunque la comunidad crezca.
+
+### Supabase
+
+- `registrar_comunidad` devuelve también `color_apodo`, `titulo_equipado` y `marco_equipado` (en null), igual que `login_comunidad`.
+- Se retira `EXECUTE` a `anon` y `authenticated` de `equipar_titulo` y `game_mis_records`: no las llamaba nadie (`equipar_canje` cubre el título).
+- Limpieza de Storage: 11 archivos huérfanos de `fotos-galeria` (entradas `gallery/` de pruebas y fotos que nunca llegaron a publicarse). El bucket queda con 14 archivos y las 11 fotos publicadas intactas.
+
+
 ## [2.9.0] - 2026-11-13
 
 ### Avisos
