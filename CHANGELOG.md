@@ -3,6 +3,12 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.5] - 2026-11-13
+
+### Comunidad
+
+- Arreglo de maquetación de la encuesta: al sacarla de la tarjeta vieja heredaba `flex: 1 0 100%`, así que crecía hasta llenar la columna y dejaba un hueco enorme entre la pregunta y las opciones, con la última cortada. Ahora ocupa solo su alto.
+
 ## [2.9.4] - 2026-11-13
 
 ### Comunidad

@@ -10670,6 +10670,7 @@ body.admin-mode-active .solo-admin { display: inline-flex !important; }
    queda mientras no votas y después baja a una sola línea con los resultados;
    la pregunta del día pasa a un aviso flotante, una vez al día y con sesión. */
 .chat-poll--suelto {
+    flex: 0 0 auto;
     margin: 0 0 8px;
     padding: 8px 10px;
     border: 1px solid var(--border-color);
