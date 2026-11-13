@@ -108,3 +108,11 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 ### 4.5 RPC: una sola puerta
 
 - Toda llamada a Supabase pasa por `window.rpcRaw(nombre, params)` (misma forma que `supabase.rpc`: `{ data, error }`, con `try/catch` y error normalizado) o por `window.rpc(nombre, params, opciones)` (`{ ok, data, error }`, con aviso de error silenciable). **`scripts/check.js` lo hace cumplir**: falla si una página llama a `supabase.rpc` y permite una sola llamada directa en `main.js` (la implementación de `rpcRaw`).
+
+### 4.6 Avisos del directo (Web Push)
+
+- `window.avisos` es la única puerta: `activar()`, `desactivar()`, `sincronizar()`, `notificar(titulo, cuerpo, url)` y `registroListo()` (con carrera de 4 s, porque `serviceWorker.ready` no rechaza nunca). `initAvisos()` registra `sw.js`, pinta la campana de la navbar y refresca la suscripción a los 3 s sin pedir permiso.
+- `activar()` pide permiso, suscribe con `pushManager.subscribe({ userVisibleOnly: true, applicationServerKey })` y guarda `{ endpoint, p256dh, auth }` por `window.rpc('push_guardar_suscripcion', …)`. `desactivar()` borra la fila y hace `unsubscribe()`. Sin soporte de push, el botón se queda en avisos locales como antes.
+- `CLAVE_PUSH` (repetida en `main.js` y `sw.js`) es la clave pública VAPID: pública por diseño, igual que la anon key. La privada vive en los secretos de Supabase y no entra al repo.
+- `sw.js` no cachea nada y solo muestra notificaciones: `push`, `notificationclick` y `pushsubscriptionchange` (renueva el endpoint; la fila del servidor se refresca en la siguiente visita).
+- No añadir otra campana ni otro interruptor: el estado vive en `gochi_avisos` y en `push_suscripciones`.

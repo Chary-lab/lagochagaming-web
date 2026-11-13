@@ -3,6 +3,22 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.0] - 2026-11-13
+
+### Avisos
+
+- Web Push real: la campana de la navbar guarda ahora una suscripción VAPID, así que el aviso del directo llega con la pestaña cerrada y el móvil bloqueado, sin depender de tener la web abierta.
+- La suscripción se refresca sola en cada visita (`avisos.sincronizar`, sin pedir permiso) y `sw.js` la renueva cuando el navegador rota el endpoint (`pushsubscriptionchange`).
+- Al desactivar los avisos se borra la suscripción del navegador y su fila en el servidor.
+- Si el navegador no soporta push, el botón sigue funcionando como antes: aviso local con la web abierta.
+
+### Supabase
+
+- Tabla `push_suscripciones` (RLS activo, sin políticas) y RPC `push_guardar_suscripcion` / `push_borrar_suscripcion`: validan el host del endpoint y el tamaño de las claves (65 y 16 bytes) y limitan por IP.
+- Tabla `push_estado` de una fila: el aviso se envía solo en la transición offline → EN VIVO, sin repetirse en cada pasada del cron.
+- Edge Function `avisar-directo` (`verify_jwt=false`, cabecera `x-cron-secret` leída de Vault) y job `avisar-directo` de `pg_cron` cada 5 minutos. Las suscripciones que responden 404/410 se marcan inactivas y no se reintentan.
+- Secretos `VAPID_KEYS` y `PUSH_CRON_SECRET` en Supabase; la clave pública VAPID vive en `main.js` y `sw.js` porque es pública por diseño.
+
 ## [2.8.1] - 2026-11-10
 
 ### Inicio

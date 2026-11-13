@@ -6,6 +6,19 @@
 const ICONO = 'img/android-chrome-192x192.png';
 const INSIGNIA = 'img/favicon-32x32.png';
 
+// Clave pública VAPID, la misma que main.js. Es pública: solo sirve para
+// suscribirse a los avisos. La privada vive en los secretos de Supabase.
+const CLAVE_PUSH = 'BHbepRkacpclELRUIY7nONvxrRHsCehbtjBy6aX1KK32uBkT2m-mwwUCTxsue5npJhJ_bLBcRDlx5_adtq6hBsc';
+
+function bytesClavePush(base64url) {
+    const relleno = '='.repeat((4 - (base64url.length % 4)) % 4);
+    const base64 = (base64url + relleno).replace(/-/g, '+').replace(/_/g, '/');
+    const binario = atob(base64);
+    const bytes = new Uint8Array(binario.length);
+    for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
+    return bytes;
+}
+
 self.addEventListener('install', () => {
     self.skipWaiting();
 });
@@ -30,6 +43,19 @@ self.addEventListener('push', (evento) => {
         tag: datos.tag || 'gochi',
         data: { url: datos.url || '/#stream' }
     }));
+});
+
+// Chrome rota el endpoint de vez en cuando: se vuelve a suscribir solo. La fila
+// del servidor se refresca en la siguiente visita (main.js, avisos.sincronizar).
+self.addEventListener('pushsubscriptionchange', (evento) => {
+    evento.waitUntil((async () => {
+        try {
+            await self.registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: bytesClavePush(CLAVE_PUSH)
+            });
+        } catch (e) { /* sin permiso o sin soporte: se reintenta al volver */ }
+    })());
 });
 
 self.addEventListener('notificationclick', (evento) => {

@@ -671,6 +671,21 @@ window.initTema = function initTema() {
 // === AVISOS DEL NAVEGADOR ===
 // El service worker solo muestra notificaciones (no cachea nada). El aviso de
 // directo se dispara cuando el estado pasa de offline a EN VIVO con la web abierta.
+// Además hay Web Push real (VAPID): con la suscripción guardada, el cron del
+// servidor avisa aunque la pestaña esté cerrada. La clave pública es pública por
+// diseño (igual que la anon key); la privada vive en los secretos de Supabase.
+const CLAVE_PUSH = 'BHbepRkacpclELRUIY7nONvxrRHsCehbtjBy6aX1KK32uBkT2m-mwwUCTxsue5npJhJ_bLBcRDlx5_adtq6hBsc';
+
+// base64url -> Uint8Array (applicationServerKey de pushManager).
+function bytesClavePush(base64url) {
+    const relleno = '='.repeat((4 - (base64url.length % 4)) % 4);
+    const base64 = (base64url + relleno).replace(/-/g, '+').replace(/_/g, '/');
+    const binario = atob(base64);
+    const bytes = new Uint8Array(binario.length);
+    for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
+    return bytes;
+}
+
 window.avisos = {
     get soportado() {
         return typeof window.Notification === 'function' && 'serviceWorker' in navigator;
@@ -713,6 +728,48 @@ window.avisos = {
             clearTimeout(temporizador);
         }
     },
+    // Suscripción push real (Web Push + VAPID). null si el navegador no la da.
+    async suscripcionPush(registro) {
+        if (!registro || !registro.pushManager) return null;
+        try {
+            return await registro.pushManager.getSubscription();
+        } catch (e) {
+            return null;
+        }
+    },
+    async suscribir(registro) {
+        if (!registro || !registro.pushManager) return null;
+        const existente = await this.suscripcionPush(registro);
+        if (existente) return existente;
+        try {
+            // userVisibleOnly es obligatorio en Chromium.
+            return await registro.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: bytesClavePush(CLAVE_PUSH)
+            });
+        } catch (e) {
+            return null;
+        }
+    },
+    // Idempotente por endpoint: el servidor hace upsert y reactiva la fila.
+    async registrarEnServidor(suscripcion) {
+        if (!suscripcion || typeof window.rpc !== 'function') return false;
+        const json = typeof suscripcion.toJSON === 'function' ? suscripcion.toJSON() : suscripcion;
+        const claves = json.keys || {};
+        if (!json.endpoint || !claves.p256dh || !claves.auth) return false;
+        const { ok } = await window.rpc('push_guardar_suscripcion', {
+            p_endpoint: json.endpoint,
+            p_p256dh: claves.p256dh,
+            p_auth: claves.auth
+        }, { error: false });
+        return ok;
+    },
+    async olvidarEnServidor(suscripcion) {
+        if (!suscripcion || typeof window.rpc !== 'function') return;
+        const json = typeof suscripcion.toJSON === 'function' ? suscripcion.toJSON() : suscripcion;
+        if (!json.endpoint) return;
+        await window.rpc('push_borrar_suscripcion', { p_endpoint: json.endpoint }, { error: false });
+    },
     async activar() {
         if (!this.soportado) return false;
         let permiso = Notification.permission;
@@ -721,14 +778,32 @@ window.avisos = {
         const registro = await this.registroListo();
         if (!registro) return false;
         almacen.guardarTexto('gochi_avisos', '1');
+        // Push real: si el navegador no lo permite, quedan los avisos con la web abierta.
+        await this.registrarEnServidor(await this.suscribir(registro));
         try {
             await registro.showNotification('Avisos activados',
                 this.opciones('Avisos activados', 'Te avisaremos cuando La Gocha entre en directo.', '/'));
         } catch (e) { /* el sistema puede rechazar la notificación de prueba */ }
         return true;
     },
-    desactivar() {
+    async desactivar() {
         almacen.borrar('gochi_avisos');
+        const registro = await this.registroListo();
+        const suscripcion = await this.suscripcionPush(registro);
+        if (!suscripcion) return;
+        await this.olvidarEnServidor(suscripcion);
+        try {
+            await suscripcion.unsubscribe();
+        } catch (e) { /* el navegador ya la había borrado */ }
+    },
+    // Al cargar: si los avisos estaban activos, refresca la fila del servidor.
+    // Chrome rota los endpoints; esto no pide permiso ni muestra nada.
+    async sincronizar() {
+        if (!this.soportado || Notification.permission !== 'granted') return;
+        if (almacen.texto('gochi_avisos') !== '1') return;
+        const registro = await this.registroListo();
+        if (!registro) return;
+        await this.registrarEnServidor(await this.suscribir(registro));
     },
     async notificar(titulo, cuerpo, url = '/') {
         if (!this.activo) return false;
@@ -749,6 +824,8 @@ window.initAvisos = function initAvisos() {
     const btn = document.getElementById('btn-avisos-nav');
     if (!btn || !window.avisos.soportado) return;
     btn.hidden = false;
+    // Refresco silencioso de la suscripción push: no pide permiso ni muestra nada.
+    setTimeout(() => { window.avisos.sincronizar(); }, 3000);
     const pintar = () => {
         const activo = window.avisos.activo;
         btn.classList.toggle('btn-avisos--activo', activo);
@@ -759,7 +836,7 @@ window.initAvisos = function initAvisos() {
     pintar();
     btn.onclick = async () => {
         if (window.avisos.activo) {
-            window.avisos.desactivar();
+            await window.avisos.desactivar();
             window.mostrarToast?.('Avisos desactivados');
         } else {
             const ok = await window.avisos.activar();
