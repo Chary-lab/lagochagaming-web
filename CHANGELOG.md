@@ -3,6 +3,17 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.2] - 2026-11-13
+
+### Pruebas
+
+- `scripts/smoke.js` comprueba tres flujos que hasta ahora solo se miraban a ojo: el mapa de adornos de la tienda está cargado al abrir la página y aplica el color en el chat, el historial del chat trae hora, y el filtro activo de Galería pasa 4.5:1 de contraste.
+- Las tres comprobaciones se validaron en rojo contra la 2.9.0 (que sí tenía los bugs) y en verde contra la 2.9.1, así que cubren de verdad la regresión y no pasan por vacío.
+
+### Documentación
+
+- `docs/operaciones.md` corregía de más: prohibía tener `supabase/` en local. El CLI la necesita para `functions deploy`, así que la regla pasa a "puede existir en local, nunca se versiona" (`.gitignore`) y se añade cómo recuperar el código con `supabase functions download`.
+
 ## [2.9.1] - 2026-11-13
 
 ### Adornos del apodo (tienda)

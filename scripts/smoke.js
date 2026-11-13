@@ -198,7 +198,91 @@ async function servidor(puerto) {
                 if (likeSinSesion.lightbox) fallos.push('interacción: el like sin sesión abre el lightbox');
                 if (!/sesi[oó]n/i.test(likeSinSesion.aviso)) fallos.push('interacción: el like sin sesión no pide iniciar sesión');
             }
-        } finally {
+
+            // Adornos del apodo (2.9.1): el mapa de la tienda tiene que estar cargado
+            // al abrir la página y el historial del chat tiene que traer hora. Antes el
+            // mapa se pedía antes de existir la función y el historial se saltaba el
+            // normalizador, así que los colores no se veían en ningún sitio.
+            await pag.goto(base + '/comunidad.html?smoke=adornos', { waitUntil: 'domcontentloaded', timeout: 30000 });
+            await pag.waitForTimeout(4000);
+            const adornos = await pag.evaluate(async () => {
+                const aRgb = (hex) => {
+                    const h = String(hex || '').replace('#', '');
+                    if (h.length < 6) return '';
+                    return 'rgb(' + [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)).join(', ') + ')';
+                };
+                const salida = { conDatos: false, mapa: null, mensajes: 0, sinHora: 0, colorAplicado: null };
+                if (!window.supabase || typeof window.colorApodoDe !== 'function') return salida;
+                const { data } = await window.supabase
+                    .from('usuarios_comunidad')
+                    .select('apodo, color_apodo')
+                    .not('color_apodo', 'is', null)
+                    .limit(1);
+                const perfil = data && data[0];
+                if (!perfil) return salida;
+                salida.conDatos = true;
+                salida.mapa = window.colorApodoDe(perfil.apodo) || '';
+                const contenedores = [...document.querySelectorAll('.chat-msg-container')];
+                salida.mensajes = contenedores.length;
+                contenedores.forEach((c) => {
+                    const f = c.querySelector('.chat-msg-fecha');
+                    if (!f || !f.textContent.trim()) salida.sinHora++;
+                });
+                const suyo = [...document.querySelectorAll('.chat-msg-autor')]
+                    .find((a) => a.textContent.trim().toLowerCase() === String(perfil.apodo).toLowerCase());
+                if (suyo) salida.colorAplicado = getComputedStyle(suyo).color === aRgb(perfil.color_apodo);
+                return salida;
+            });
+            if (!adornos.conDatos) {
+                console.log('aviso: ningún perfil con color_apodo; se omite la comprobación de adornos');
+            } else {
+                if (!adornos.mapa) fallos.push('adornos: el mapa de colores no se cargó al abrir la página');
+                if (adornos.mensajes > 0 && adornos.sinHora > 0) {
+                    fallos.push('adornos: ' + adornos.sinHora + '/' + adornos.mensajes + ' mensajes del historial sin hora');
+                }
+                if (adornos.colorAplicado === false) fallos.push('adornos: el color del apodo no se aplica en el chat');
+            }
+
+            // Galería: tarjetas con autor y título, y el filtro activo legible
+            // (el texto blanco sobre el acento claro medía 1.47:1).
+            await pag.goto(base + '/galeria.html?smoke=contraste', { waitUntil: 'domcontentloaded', timeout: 30000 });
+            await pag.waitForTimeout(3000);
+            const galeria = await pag.evaluate(() => {
+                const luminancia = (color) => {
+                    const n = (color.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+                    if (n.length < 3) return null;
+                    const canales = n.map((v) => {
+                        const c = v / 255;
+                        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+                    });
+                    return 0.2126 * canales[0] + 0.7152 * canales[1] + 0.0722 * canales[2];
+                };
+                const contraste = (a, b) => {
+                    const la = luminancia(a), lb = luminancia(b);
+                    if (la === null || lb === null) return null;
+                    const mayor = Math.max(la, lb), menor = Math.min(la, lb);
+                    return (mayor + 0.05) / (menor + 0.05);
+                };
+                const autores = [...document.querySelectorAll('.gallery-card-autor')].filter((a) => a.textContent.trim());
+                const titulos = [...document.querySelectorAll('.gallery-card-title')].filter((t) => t.textContent.trim());
+                const filtro = document.querySelector('.tab-filter-btn.active');
+                let ratio = null;
+                if (filtro) {
+                    let fondo = getComputedStyle(filtro).backgroundColor;
+                    let nodo = filtro;
+                    while (nodo && /rgba\(0, 0, 0, 0\)|transparent/.test(fondo) && nodo.parentElement) {
+                        nodo = nodo.parentElement;
+                        fondo = getComputedStyle(nodo).backgroundColor;
+                    }
+                    ratio = contraste(getComputedStyle(filtro).color, fondo || 'rgb(0, 0, 0)');
+                }
+                return { autores: autores.length, titulos: titulos.length, ratio: ratio === null ? null : Number(ratio.toFixed(2)) };
+            });
+            if (!galeria.autores) fallos.push('galería: ninguna tarjeta con autor');
+            if (!galeria.titulos) fallos.push('galería: ninguna tarjeta con título');
+            if (galeria.ratio !== null && galeria.ratio < 4.5) {
+                fallos.push('galería: el filtro activo no llega a 4.5:1 (' + galeria.ratio + ')');
+            }        } finally {
             await ctxInt.close();
         }
     } finally {
