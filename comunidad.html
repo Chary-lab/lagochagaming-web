@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-+Xj5APLAHhGrniZpY8DJyzopxP8WWDnn/U80TaL2/Io=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-LYovZ+BGwbxQjUFNhhLHrcydndbOdtNnh7POIsTro2k=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <title>LaGochaGaming | Comunidad y Chat</title>
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.9.2">
+    <link rel="stylesheet" href="style.css?v=2.9.3">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -488,21 +488,21 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 <div class="tienda-colores" x-bind:hidden="!$store.tienda.colores.length">
                     <div class="tienda-colores-cabeza">
                         <strong>Colores de apodo</strong>
-                        <span x-text="$store.tienda.coloresMios.length + ' de ' + $store.tienda.colores.length"></span>
+                        <span>se paga cada vez</span>
                     </div>
                     <div class="tienda-paleta">
                         <template x-for="c in $store.tienda.colores" :key="c.id">
                             <button type="button" class="tienda-color"
-                                    :class="{ 'tienda-color--activo': c.valor === $store.tienda.colorActual, 'tienda-color--bloqueado': !$store.tienda.tieneColor(c) }"
+                                    :class="{ 'tienda-color--activo': c.valor === $store.tienda.colorActual }"
                                     :style="'--c:' + c.valor"
                                     :aria-label="c.nombre"
                                     @click="$store.tienda.tocarColor(c)">
                                 <span class="tienda-color-bola" aria-hidden="true"></span>
-                                <small x-text="c.valor === $store.tienda.colorActual ? 'Puesto' : ($store.tienda.tieneColor(c) ? 'Tuyo' : c.costo_puntos + ' pts')"></small>
+                                <small x-text="c.valor === $store.tienda.colorActual ? 'Puesto' : c.costo_puntos + ' pts'"></small>
                             </button>
                         </template>
                     </div>
-                    <p class="tienda-colores-nota">Los que ya tienes se equipan al tocarlos. Los bloqueados se compran y quedan para siempre.</p>
+                    <p class="tienda-colores-nota">El color se aplica al comprarlo y no se guarda: si cambias a otro, el anterior se pierde y para volver tendrás que comprarlo otra vez.</p>
                 </div>
 
                 <div class="tienda-bloque" x-bind:hidden="!$store.tienda.alcanza.length">
@@ -789,7 +789,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.9.2" defer></script>
+    <script src="main.js?v=2.9.3" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"
             integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI"
@@ -1285,9 +1285,6 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 get colores() {
                     return this.premios.filter((p) => p.tipo === 'color');
                 },
-                get coloresMios() {
-                    return this.colores.filter((p) => this.yaObtenido(p));
-                },
                 get otros() {
                     return this.premios.filter((p) => p.tipo !== 'color');
                 },
@@ -1311,9 +1308,6 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     if (p.stock !== null && p.stock <= 0) return false;
                     return !this.yaObtenido(p) && this.puedePagar(p);
                 },
-                tieneColor(p) {
-                    return this.yaObtenido(p);
-                },
                 yaObtenido(premio) {
                     if (!premio || !Array.isArray(this.misCanjes)) return false;
                     return this.misCanjes.some((c) => {
@@ -1328,6 +1322,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         return false;
                     });
                 },
+                // El color es consumible: cada cambio se paga. No hay colores
+                // "tuyos" que equipar, así que aquí siempre se compra.
                 async tocarColor(p) {
                     if (!p || this.procesando) return;
                     const token = localStorage.getItem('comunidad_session_token');
@@ -1335,28 +1331,15 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                         window.mostrarToast?.('Inicia sesión para elegir color', true);
                         return;
                     }
-                    if (!this.tieneColor(p)) {
-                        if (!this.puedePagar(p)) {
-                            window.mostrarToast?.('Te faltan ' + this.faltan(p) + ' pts', true);
-                            return;
-                        }
-                        await window.tiendaCanjear(p.id);
+                    if (p.valor === this.colorActual) {
+                        window.mostrarToast?.('Ya llevas ese color.');
                         return;
                     }
-                    this.procesando = p.id;
-                    try {
-                        const res = await window.rpc('equipar_color_apodo', { p_token: token, p_premio_id: p.id }, { error: false });
-                        if (!res.ok || !res.data || !res.data.ok) {
-                            window.mostrarToast?.('No se pudo equipar el color.', true);
-                            return;
-                        }
-                        this.colorActual = res.data.color_apodo;
-                        window.actualizarSesionUsuarioComunidad?.({ color_apodo: res.data.color_apodo });
-                        window.aplicarColoresApodo?.();
-                        window.mostrarToast?.('Color actualizado.');
-                    } finally {
-                        this.procesando = 0;
+                    if (!this.puedePagar(p)) {
+                        window.mostrarToast?.('Te faltan ' + this.faltan(p) + ' pts', true);
+                        return;
                     }
+                    await window.tiendaCanjear(p.id);
                 }
             });
 
@@ -3539,7 +3522,7 @@ if (chatForm) {
                     // que estuviera puesto. El anterior no se pierde, se puede volver
                     // a equipar desde Mis compras.
                     if (colorAnterior && colorAnterior !== data.color_apodo) {
-                        window.mostrarToast?.('Color cambiado: reemplaza al anterior. Puedes volver a equiparlo en Mis compras.');
+                        window.mostrarToast?.('Color aplicado. El anterior se pierde: para volver a él tendrás que comprarlo otra vez.');
                     }
                 }
                 if (data.titulo_equipado) {

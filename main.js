@@ -5089,6 +5089,7 @@ document.addEventListener('DOMContentLoaded', () => {
                           x-bind:hidden="!$store.perfil.ponible(c)"
                           x-on:click="$store.perfil.equiparCompra(c)"
                           x-text="$store.perfil.estaPuesto(c) ? 'Quitar' : 'Equipar'"></button>
+                  <span class="mp-compra-puesto" x-bind:hidden="c.tipo !== 'color'">gastado</span>
                   <span class="mp-compra-puesto" x-bind:hidden="!$store.perfil.estaPuesto(c) || c.tipo !== 'avatar'">Puesto</span>
                 </li>
               </template>
@@ -5486,7 +5487,8 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       ponible(c) {
         if (!c) return false;
-        return ['color', 'titulo', 'marco', 'icono', 'avatar'].includes(c.tipo);
+        // El color se consume al comprarlo: no se equipa ni se quita.
+        return ['titulo', 'marco', 'icono', 'avatar'].includes(c.tipo);
       },
       estaPuesto(c) {
         if (!c) return false;
@@ -5501,6 +5503,10 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       async equiparCompra(c) {
         if (!c) return;
+        if (c.tipo === 'color') {
+          window.mostrarToast?.('El color se aplica al comprarlo; después no se puede equipar.', true);
+          return;
+        }
         const token = almacen.texto('comunidad_session_token');
         if (!token) { window.mostrarToast?.('Inicia sesión para equipar.', true); return; }
         const quitar = c.tipo !== 'avatar' && this.estaPuesto(c);

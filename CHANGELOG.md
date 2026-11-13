@@ -3,6 +3,24 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.3] - 2026-11-13
+
+### Tienda
+
+- El color del apodo pasa a ser consumible: se paga cada vez que se aplica. Ya no existen colores "tuyos" que equipar y quitar gratis.
+- Volver a un color anterior cuesta otra compra; volver a comprar el mismo color también (antes devolvía `ya_lo_tiene`).
+- Título, marco, icono y avatar no cambian: siguen siendo compra única y se pueden equipar y quitar cuando quieras.
+- Quien ya tenía un color lo conserva; en cuanto cambie a otro, el anterior se pierde.
+- La tarjeta de color muestra "se paga cada vez", el precio siempre visible y "Puesto" en el que llevas. Tocar el color actual no cobra nada.
+- El aviso al aplicarlo lo dice sin rodeos: "Color aplicado. El anterior se pierde: para volver a él tendrás que comprarlo otra vez".
+- En Mis compras el color aparece como gasto y sin botón Equipar/Quitar.
+
+### Supabase
+
+- `tienda_canjear_premio` solo bloquea la repetición de título y marco; el color se puede recomprar.
+- `equipar_canje` devuelve `color_consumible` si el premio es un color.
+- `equipar_color_apodo` queda sin `EXECUTE` para `anon` y `authenticated`: no hay nada que equipar.
+
 ## [2.9.2] - 2026-11-13
 
 ### Pruebas
