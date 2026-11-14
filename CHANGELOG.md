@@ -3,6 +3,15 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.7] - 2026-11-13
+
+### Web
+
+- La sección de YouTube ya no muestra Shorts. La playlist de subidas del canal (`UU...`) los incluye, así que el embed acababa enseñando un short cuando era lo último publicado; ahora cada tarjeta pide el último vídeo de la pestaña `/videos`, que sí los excluye, y pinta `embed/<id>`.
+- Edge Function `youtube-ultimo` (`verify_jwt=false`): lee `@canal/videos`, saca el primer vídeo de `ytInitialData` y lo devuelve con título y antigüedad. Caché de 15 minutos en memoria por isolate, `Cache-Control: public, max-age=300` y, si YouTube falla, devuelve el último bueno conocido. Solo acepta los canales `OscuroStefany` y `lagochagaming`.
+- El HTML trae fijado el último vídeo conocido como red: sin JavaScript, sin red o con la función caída, la tarjeta sigue mostrando un vídeo entero y no un short.
+- La petición respeta el ahorro de datos: entra en el mismo paquete que los feeds de Instagram, TikTok y Kick y espera a que el visitante los pida.
+
 ## [2.9.6] - 2026-11-13
 
 ### Comunidad

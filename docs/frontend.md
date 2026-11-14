@@ -8,7 +8,7 @@ Extraido de AGENTS.md: mapa de archivos, convenciones JS, Alpine y paneles.
 |---|---|
 | `main.js` | Navbar compartida (`NAVBAR_ENLACES` → `#navbar-root`), utilidades globales, tema, toasts, sesión comunidad, admin Supabase, confeti, fachada del chat de Kick; stores Alpine `perfil`, `ui`, `toast`, `adminPanel`, `ajustes`, `sugerencias` y `misiones` (botón del navbar con panel) |
 | `style.css` | Estilos compartidos, variables, componentes, responsive, modo claro |
-| `index.html` | Home, player Kick, últimos clips de Kick (Edge Function `kick-clips`), feed social, YouTube, muro de saludos (store `muro`) y modal de feeds (store `media`) |
+| `index.html` | Home, player Kick, últimos clips de Kick (Edge Function `kick-clips`), feed social, YouTube (último vídeo no-short vía Edge Function `youtube-ultimo`), muro de saludos (store `muro`) y modal de feeds (store `media`) |
 | `comunidad.html` | Presencia, chat, reacciones, ranking (Total/Mes), rangos, login/registro comunidad, sorteo semanal, código de invitación (stores `chat`, `ranking`, `rangosChat`, `reacciones`, `tienda`, `pregunta`, `sorteoSemanal`, `invitar`) |
 | `galeria.html` | Subida (store `subida`), galería pública y lightbox (store `galeria`), moderación de fotos pendientes, reto semanal (store `reto`) |
 | `sorteo.html` | Modo manual, modo streamer, tómbola online, ganadores (store `sorteo` con `participantes`, `manual` y `ganadores`) |

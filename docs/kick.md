@@ -4,7 +4,7 @@ Extraido de AGENTS.md: Kick, sesiones OAuth y clips.
 
 ### 5.7 Kick
 
-- Edge Functions: `kick-oauth-callback` (intercambio OAuth), `kick-oauth-exchange`, `kick-comunidad` (acciones `entrar` y `vincular`), `kick-clips` (caché de clips), `kick-chat`, `kick-chat-setup`, `kick-chat-webhook`, `instagram-feed`, `tiktok-feed` y `app-telemetria`. Todas con `verify_jwt=false`: validan por su cuenta. `kick-setup-temp` no es un resto: es una lápida que responde `410 Gone` a una URL antigua de Kick, y se deja tal cual.
+- Edge Functions: `kick-oauth-callback` (intercambio OAuth), `kick-oauth-exchange`, `kick-comunidad` (acciones `entrar` y `vincular`), `kick-clips` (caché de clips), `kick-chat`, `kick-chat-setup`, `kick-chat-webhook`, `instagram-feed`, `tiktok-feed`, `youtube-ultimo` (último vídeo no-short de un canal, lee su pestaña `/videos`) y `app-telemetria`. Todas con `verify_jwt=false`: validan por su cuenta. `kick-setup-temp` no es un resto: es una lápida que responde `410 Gone` a una URL antigua de Kick, y se deja tal cual.
 - Tablas: `kick_config`, `kick_sessions`, `kick_oauth_pendientes` (RLS sin políticas, solo `service_role` y RPC) y `kick_clips`.
 - Cliente: `window.KICK_COMUNIDAD` en `main.js` (`vinculado`, `vincular`, `abrirOAuth`, `volverDelHash`). El objetivo del OAuth viaja en `sessionStorage` (`gocha_kick_objetivo`): `entrar` o `vincular`.
 - Registro con Kick: `#btn-registro-kick` del modal de registro usa el mismo OAuth que "Conectar con Kick" y deja `gocha_kick_intencion=registro`. Al volver, `entrarConKickComunidad()` lo convierte en `gocha_ajustes_pendientes=1` y la página abre `Alpine.store('perfil').abrir('ajustes')` para completar género y avatar.
