@@ -184,6 +184,12 @@ for (const api of ['gochiDropdown', 'gochiChip', 'cerrarGochiMenus']) {
         error(`main.js: falta window.${api} (API de componentes Gochi)`);
     }
 }
+// gochiSkeleton se retiró: ningún archivo publicado debe seguir llamándolo.
+for (const archivo of PAGES.concat(['main.js', 'game.js', 'mobile/mobile.js', 'sw.js'])) {
+    if (existe(archivo) && /gochiSkeleton/.test(leer(archivo))) {
+        error(`${archivo}: referencia a gochiSkeleton, que fue retirado`);
+    }
+}
 
 // RPC: una sola puerta. Toda llamada pasa por window.rpcRaw / window.rpc, que
 // normalizan el error. Se permite exactamente UNA llamada directa a
@@ -412,11 +418,14 @@ const ORIGEN_ADSENSE = 'https://pagead2.googlesyndication.com';
 if (!CSP_DIRECTIVAS([]).includes(ORIGEN_ADSENSE)) {
     error('scripts/check.js: falta el origen de AdSense en script-src');
 }
-if (!headers.includes(ORIGEN_ADSENSE)) {
+const cspHeader = headers.split(/\r?\n/).find((linea) => /^\s*Content-Security-Policy:/i.test(linea)) || '';
+if (!cspHeader.includes(ORIGEN_ADSENSE)) {
     error('_headers: falta el origen de AdSense en script-src');
 }
 for (const pagina of PAGES.concat(['404.html'])) {
-    if (existe(pagina) && !leer(pagina).includes(ORIGEN_ADSENSE)) {
+    if (!existe(pagina)) continue;
+    const meta = leer(pagina).match(RE_META_CSP);
+    if (!meta || !meta[1].includes(ORIGEN_ADSENSE)) {
         error(`${pagina}: falta el origen de AdSense en la meta CSP`);
     }
 }
@@ -562,10 +571,12 @@ if (!existe('app/update.json')) {
 for (const css of ['style.css', 'mobile/mobile.css']) {
     if (!existe(css)) continue;
     for (const m of leer(css).matchAll(/url\(\s*['"]?([^)'"]+)['"]?\s*\)/gi)) {
-        const destino = m[1].trim();
-        if (/^(data:|blob:|https?:|\/\/|#)/i.test(destino)) continue;
-        if (!existe(destino.split('?')[0].replace(/^\//, ''))) {
-            error(`${css}: url(${destino}) no existe en el repo`);
+        const original = m[1].trim();
+        if (/^(data:|blob:|https?:|\/\/|#)/i.test(original)) continue;
+        const destino = original.split('#')[0].split('?')[0].replace(/^\.?\//, '');
+        if (!destino) continue;
+        if (!existe(destino)) {
+            error(`${css}: url(${original}) no existe en el repo`);
         }
     }
 }

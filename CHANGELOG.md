@@ -5,6 +5,8 @@ El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
 ## [2.9.8] - 2026-11-20
 
+Los cambios de AdSense y contenido original de esta release se commitearon antes en `b73abf8` y `16a3fc0`; el commit de esta entrada solo cierra versión, documentación y limpieza.
+
 ### Web
 
 - Loader de Google AdSense (`adsbygoogle.js` con `ca-pub-6376663186558090`) en el `<head>` de las 7 páginas. Todavía no hay unidades de anuncio: esto cubre la verificación de propiedad y la solicitud de revisión del sitio.
