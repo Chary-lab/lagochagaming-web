@@ -155,7 +155,7 @@ for (const pagina of PAGES.concat(['404.html'])) {
 // main.js
 const mainJs = leer('main.js');
 comprobarSintaxis('main.js', mainJs);
-for (const archivo of ['game.js', 'mobile/mobile.js']) {
+for (const archivo of ['game.js', 'mobile/mobile.js', 'sw.js', 'scripts/smoke.js', 'scripts/backup.js']) {
     if (existe(archivo)) comprobarSintaxis(archivo, leer(archivo));
 }
 if (/service_role|serviceRole/i.test(mainJs)) {
@@ -179,7 +179,7 @@ if (!/navigator\.clipboard\s*\.\s*writeText/.test(mainJs)) {
 if (/cdn\.tailwindcss\.com/.test(mainJs)) {
     error('main.js: no debe cargar el CDN de Tailwind (rompe los bordes al inyectarse)');
 }
-for (const api of ['gochiDropdown', 'gochiSkeleton', 'gochiChip', 'cerrarGochiMenus']) {
+for (const api of ['gochiDropdown', 'gochiChip', 'cerrarGochiMenus']) {
     if (!new RegExp('window\\.' + api + '\\s*=').test(mainJs)) {
         error(`main.js: falta window.${api} (API de componentes Gochi)`);
     }
@@ -407,6 +407,26 @@ if (!headers.includes('wss://*.supabase.co')) {
 if (!headers.includes('https://www.youtube.com')) {
     error('_headers: falta https://www.youtube.com en script-src (YouTube IFrame API)');
 }
+// Origen de AdSense: mismo valor en el generador, las metas y la cabecera.
+const ORIGEN_ADSENSE = 'https://pagead2.googlesyndication.com';
+if (!CSP_DIRECTIVAS([]).includes(ORIGEN_ADSENSE)) {
+    error('scripts/check.js: falta el origen de AdSense en script-src');
+}
+if (!headers.includes(ORIGEN_ADSENSE)) {
+    error('_headers: falta el origen de AdSense en script-src');
+}
+for (const pagina of PAGES.concat(['404.html'])) {
+    if (existe(pagina) && !leer(pagina).includes(ORIGEN_ADSENSE)) {
+        error(`${pagina}: falta el origen de AdSense en la meta CSP`);
+    }
+}
+// Recursos publicados que Google y los rastreadores esperan en la raíz.
+for (const archivo of ['ads.txt', 'robots.txt', 'sitemap.xml', 'llms.txt', 'f7d530743fabe8d2351dd9d026536f44.txt']) {
+    if (!existe(archivo)) error(`Falta el archivo publicado ${archivo}`);
+}
+if (existe('ads.txt') && !/pub-6376663186558090/.test(leer('ads.txt'))) {
+    error('ads.txt: falta el pub-id de AdSense');
+}
 
 for (const pagina of PAGES) {
     if (!existe(pagina)) { error(`Falta la página ${pagina}`); continue; }
@@ -512,7 +532,7 @@ if (!existe('app/update.json')) {
         error('app/update.json: no es JSON válido (' + e.message + ')');
     }
     if (manifiesto) {
-        for (const clave of ['versionCode', 'versionName', 'apkUrl', 'sha256', 'size']) {
+        for (const clave of ['versionCode', 'versionName', 'apkUrl', 'sha256', 'size', 'notes']) {
             if (manifiesto[clave] === undefined) error('app/update.json: falta ' + clave);
         }
         if (manifiesto.sha256 && !/^[a-f0-9]{64}$/.test(manifiesto.sha256)) {
@@ -535,6 +555,54 @@ if (!existe('app/update.json')) {
             }
         }
     }
+}
+
+// CSS: las url() públicas se resuelven contra la raíz del sitio, también en
+// mobile/mobile.css (la app inyecta esa hoja sobre la página).
+for (const css of ['style.css', 'mobile/mobile.css']) {
+    if (!existe(css)) continue;
+    for (const m of leer(css).matchAll(/url\(\s*['"]?([^)'"]+)['"]?\s*\)/gi)) {
+        const destino = m[1].trim();
+        if (/^(data:|blob:|https?:|\/\/|#)/i.test(destino)) continue;
+        if (!existe(destino.split('?')[0].replace(/^\//, ''))) {
+            error(`${css}: url(${destino}) no existe en el repo`);
+        }
+    }
+}
+
+// Manifiesto de la PWA.
+if (!existe('manifest.webmanifest')) {
+    error('manifest.webmanifest: falta el manifiesto');
+} else {
+    let manifiesto = null;
+    try {
+        manifiesto = JSON.parse(leer('manifest.webmanifest'));
+    } catch (e) {
+        error('manifest.webmanifest: no es JSON válido (' + e.message + ')');
+    }
+    if (manifiesto) {
+        for (const clave of ['name', 'short_name', 'start_url', 'display']) {
+            if (!manifiesto[clave]) error('manifest.webmanifest: falta ' + clave);
+        }
+        if (!Array.isArray(manifiesto.icons) || !manifiesto.icons.length) {
+            error('manifest.webmanifest: falta la lista de icons');
+        } else {
+            for (const icono of manifiesto.icons) {
+                if (!icono.src || !existe(String(icono.src).replace(/^\//, ''))) {
+                    error(`manifest.webmanifest: icono inexistente ${icono.src}`);
+                }
+            }
+        }
+    }
+}
+
+// 404.html queda fuera del bucle de páginas; al menos debe tener lo esencial.
+if (existe('404.html')) {
+    const html404 = leer('404.html');
+    if (!/<html[^>]*\blang="es"/i.test(html404)) error('404.html: falta lang="es"');
+    if (!/<meta[^>]+charset="UTF-8"/i.test(html404)) error('404.html: falta meta charset UTF-8');
+    if (!/<meta[^>]+name="robots"[^>]+noindex/i.test(html404)) error('404.html: falta robots noindex');
+    if (!/<title>[^<]+<\/title>/i.test(html404)) error('404.html: falta <title>');
 }
 
 // Sitemap: todas las páginas públicas

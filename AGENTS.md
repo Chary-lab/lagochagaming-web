@@ -6,7 +6,7 @@ Guía operativa breve. Los detalles viven en `docs/` y se leen solo cuando la ta
 
 - Sitio estático de La Gocha Gaming: HTML + CSS + JavaScript clásico, sin build, sin bundler y sin dependencias instaladas localmente.
 - Páginas: `index.html` (inicio), `comunidad.html` (chat/puntos), `galeria.html` (fotos/likes), `sorteo.html` (sorteo), `cine.html` (GochiWatch), `game.html` (GochitaRunner) y `404.html` (página no encontrada).
-- Código compartido: `main.js` (navbar inyectada, tema, toasts, sesión de comunidad, admin, confeti, fachada del chat de Kick) y `style.css`.
+- Código compartido: `main.js` (navbar inyectada, tema, toasts, sesión de comunidad, admin, confeti, fachada del chat de Kick) y `style.css`. `sw.js` es un service worker solo de push, sin caché.
 - Backend: Supabase (Postgres + RLS + RPC + Realtime + Storage). Proyecto `cydiyaacnyydprgffmkq`.
 - Hosting actual: GitHub Pages del repo `Chary-lab/lagochagaming-web` (rama `main`, build legacy), dominio `lagochagaming.com` (archivo `CNAME`). El repo anterior `Chary-lab/LaGochaGaming` se borró por un deployment atascado en Pages; no volver a usarlo.
 - Versión actual: ver `VERSION` (SemVer). Changelog: `CHANGELOG.md`.
@@ -54,7 +54,7 @@ El catálogo de tablas y RPC se eliminó de esta guía: usa el MCP `supabase` (`
 
 ## 6. Seguridad
 
-- **CSP activa por `<meta http-equiv="Content-Security-Policy">`** en las 6 páginas públicas y `404.html`: GitHub Pages no aplica `_headers`, pero la meta sí funciona. `scripts/check.js` es la fuente única: calcula el SHA-256 de cada `<script>` inline y de cada bloque `speculationrules` (con los saltos de línea normalizados a LF, igual que el parser) y **falla si la meta no coincide con el HTML**; `--fix` la reescribe. `script-src` incluye `'unsafe-eval'` porque Alpine evalúa `x-data`/`x-on:` en runtime, así que la CSP limita orígenes y bloquea `object-src`, pero no protege frente a script inline (para eso están los hashes). `frame-ancestors` y `report-uri` **no funcionan en meta**: no fingir que existen. HSTS y el resto de cabeceras siguen sin existir en producción.
+- **CSP activa por `<meta http-equiv="Content-Security-Policy">`** en las 6 páginas públicas y `404.html`: GitHub Pages no aplica `_headers`, pero la meta sí funciona. `scripts/check.js` es la fuente única: calcula el SHA-256 de cada `<script>` inline y de cada bloque `speculationrules` (con los saltos de línea normalizados a LF, igual que el parser) y **falla si la meta no coincide con el HTML**; `--fix` la reescribe. `script-src` incluye `'unsafe-eval'` porque Alpine evalúa `x-data`/`x-on:` en runtime, y `https://pagead2.googlesyndication.com` para el loader de AdSense, así que la CSP limita orígenes y bloquea `object-src`, pero no protege frente a script inline (para eso están los hashes). El origen de AdSense debe coincidir en las 7 metas, en `_headers` y en el generador `scripts/check.js`. `frame-ancestors` y `report-uri` **no funcionan en meta**: no fingir que existen. HSTS y el resto de cabeceras siguen sin existir en producción.
 - Nunca confiar en el cliente para autorización. La UI puede ocultar botones, pero el servidor debe rechazar.
 - Escapar todo HTML dinámico. Los emojis de reacción están limitados a una whitelist en el servidor.
 - No registrar tokens, PINs ni datos personales en consola.
@@ -71,9 +71,9 @@ El catálogo de tablas y RPC se eliminó de esta guía: usa el MCP `supabase` (`
 3. Implementar el cambio mínimo y coherente.
 4. Ejecutar checks + pruebas.
 5. Actualizar `VERSION`, `CHANGELOG.md` y `sitemap.xml` si corresponde.
-6. Commit con `vX.Y.Z - resumen` y push solo si la versión es estable (el usuario lo autoriza).
+6. Commit con Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`...) y push solo si la versión es estable (el usuario lo autoriza).
 7. Reportar hallazgos, cambios, pruebas y riesgos pendientes.
-8. Usar las skills cuando encajen (`web-ui`, `web-backend`) y el MCP `supabase` para esquema, SQL y logs; `web-research` para docs y versiones. Nunca escribir tokens o secretos en archivos, commits ni prompts; usarlos en memoria y recomendar revocarlos.
+8. Usar las skills instaladas cuando encajen (`engineering-playbook`, `cognitive-doc-design`, `work-unit-commits`, `chained-pr`, `go-testing`, `judgment-day`) y el MCP `supabase` para esquema, SQL y logs; `context7` para docs y versiones. Nunca escribir tokens o secretos en archivos, commits ni prompts; usarlos en memoria y recomendar revocarlos.
 9. Mantener el repo limpio y barato de leer: borrar archivos temporales (`_test-*`, probes), VERSION/CHANGELOG/AGENTS sincronizados, caché `?v=X.Y.Z` al día, y usar `grep` o lecturas por rangos en vez de volcar archivos enteros.
 
 10. Antes de cualquier cambio de esquema o de RPC, `node scripts/backup.js`. El respaldo tarda un par de minutos y deja `esquema.sql` y `datos.json` en `backups/` (ignorada por git).
@@ -83,9 +83,13 @@ El catálogo de tablas y RPC se eliminó de esta guía: usa el MCP `supabase` (`
 
 | Tarea | Skill |
 |---|---|
-| UI, componentes, estilos, responsive, accesibilidad | `web-ui` |
-| Esquema, SQL, migraciones, RLS | `web-backend` + MCP `supabase` |
-| Documentación de librerías, comparativas, versiones | `web-research` |
+| Evaluar herramientas o decisiones de repo | `engineering-playbook` |
+| Redactar o reordenar documentación | `cognitive-doc-design` |
+| Planificar commits y PRs revisables | `work-unit-commits`, `chained-pr` |
+| Pruebas Go / patrones de testing | `go-testing` |
+| Revisión adversaria con doble lectura | `judgment-day` |
+| Esquema, SQL, migraciones, RLS | MCP `supabase` |
+| Documentación de librerías y versiones | `context7` |
 
 - Carga la skill antes de empezar la tarea, no a mitad.
 - No cargues ninguna si el cambio es mecánico: renombrar, mover archivos, arreglar un typo o cambiar un texto.

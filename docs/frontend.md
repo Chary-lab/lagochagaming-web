@@ -16,7 +16,7 @@ Extraido de AGENTS.md: mapa de archivos, convenciones JS, Alpine y paneles.
 | `game.html` | GochitaRunner: canvas 2D, HUD, menús, tienda y controles táctiles |
 | `game.js` | Motor y estado de GochitaRunner (sin HTML dinámico; usa `rpcRaw` para progreso y partidas) |
 | `_headers` | Referencia de cabeceras para un host que las soporte. **No se aplican en GitHub Pages** |
-| `ads.txt` | Verificación de propiedad de Google AdSense. Se sirve tal cual y no se borra. No implica anuncios integrados (0 scripts de AdSense) |
+| `ads.txt` | Verificación de propiedad de Google AdSense. Se sirve tal cual y no se borra. El loader `adsbygoogle.js` está en el `<head>` de las 7 páginas; todavía no hay unidades de anuncio (`<ins class="adsbygoogle">`) |
 | `VERSION` | Versión SemVer de la release |
 | `404.html` | Página no encontrada (`noindex`) |
 | `llms.txt` | Resumen del sitio y URLs para motores de IA |
@@ -29,9 +29,9 @@ Extraido de AGENTS.md: mapa de archivos, convenciones JS, Alpine y paneles.
 | `app/update.json` | Manifiesto del actualizador de la app (`versionCode`, `versionName`, `sha256`, `size`, `notes`) |
 | `mobile/mobile.css`, `mobile/mobile.js` | Interfaz móvil que la app descarga encima del APK; única carpeta que la app consume en remoto |
 
-La base de datos vive **solo en Supabase**. No se mantiene carpeta `supabase/` con contenido: ni migraciones, ni copias de Edge Functions. El CLI puede recrear `supabase/.temp/` como caché (ignorada por git); eso no es fuente de verdad ni respaldo. El esquema, las RPC, las políticas y las funciones se leen y se cambian contra el proyecto `cydiyaacnyydprgffmkq`.
+La base de datos vive **solo en Supabase**. Puede existir una carpeta local `supabase/functions/` con copias de las Edge Functions para desplegarlas o editarlas; está ignorada por git y **no es fuente de verdad**. El CLI puede recrear `supabase/.temp/` como caché (también ignorada). El esquema, las RPC, las políticas y las funciones se leen y se cambian contra el proyecto `cydiyaacnyydprgffmkq`.
 
-La navbar vive en `main.js` (`window.NAVBAR_ENLACES`): cada página solo tiene un `<nav id="navbar-root">` vacío y `insertarNavbar()` pinta enlaces, orden y estado activo. Para cambiar el menú, editar solo `main.js`. El estado EN VIVO (`#nav-live-tag` + `.navbar.live-glow`) lo alterna `verificarEstadoStream()`. El desplegable `#nav-app` también se genera ahí: su versión y tamaño del APK están escritos a mano y deben coincidir con `app/update.json` en cada release.
+La navbar vive en `main.js` (`window.NAVBAR_ENLACES`): cada página solo tiene un `<nav id="navbar-root">` vacío y `insertarNavbar()` pinta enlaces, orden y estado activo. Para cambiar el menú, editar solo `main.js`. El estado EN VIVO (`#nav-live-tag` + `.navbar.live-glow`) lo alterna `verificarEstadoStream()`. El desplegable `#nav-app` también se genera ahí: versión y tamaño del APK se leen de `app/update.json` (`main.js:1824-1831`), no se escriben a mano en el HTML.
 
 El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de las cinco páginas para que los rastreadores encuentren las subpáginas sin ejecutar JavaScript. No moverlo a `main.js`.
 
@@ -86,7 +86,7 @@ El `nav.footer-nav` del footer es la excepción: va en HTML estático dentro de 
 
 - La capa de componentes vive al final de `style.css` (`.gochi-*`) y usa solo las variables del tema. Es la única fuente de estilo: no hay CDN de Tailwind desde 1.61.15.
 - Catálogo: `gochi-chip` (`data-tono` acento/éxito/aviso/peligro/info, `--sm`), `gochi-campo` (label, ayuda, error, contador, `data-estado="error"`), `gochi-alerta` (`data-tono` éxito/error/aviso/info), `gochi-skeleton` (`--texto`, `--titulo`, `--avatar`, `--media`, `--chip`), `gochi-card` (`data-estado` cargando/error/vacío, `--media` para imagen a sangre), `gochi-switch`, `gochi-progress`, `gochi-accordion` (item, trigger, panel, icono), `gochi-breadcrumb`, `gochi-paginacion`, `gochi-tabla-wrap` + `gochi-tabla` (responsive ≤760 px), `gochi-vacio`, `gochi-menu` + `gochi-menu-panel` y los ya existentes `gochi-toast-*`, `gochi-modal-*`, `gochi-confirm-*` y `gochi-tooltip`.
-- API en `main.js`: los ayudantes sueltos `gochiChip(texto, tono)`, `gochiSkeleton(tipo, cantidad)`, `gochiDropdown(id, abrir)` y `cerrarGochiMenus(devolverFoco)`; los avisos van por `mostrarToast()` y las confirmaciones por `confirmarAccion()`. Escapan el texto antes de pintar. El antiguo agregador `window.gochiUI` se retiró en la 1.82.2: no tenía ningún consumidor.
+- API en `main.js`: los ayudantes sueltos `gochiChip(texto, tono)`, `gochiDropdown(id, abrir)` y `cerrarGochiMenus(devolverFoco)`; los avisos van por `mostrarToast()` y las confirmaciones por `confirmarAccion()`. Escapan el texto antes de pintar. Los agregadores `window.gochiUI` (1.82.2) y `window.gochiSkeleton` (2.9.8) se retiraron: no tenían ningún consumidor.
 - Los desplegables de página usan `gochiDropdown` y el store `ui.menus`; un único listener de `pointerdown` y Escape cierra el menú abierto y devuelve el foco. No añadir listeners por elemento.
 - Tooltip (`data-tooltip`): un solo nodo global que solo aparece con hover (220 ms), se recoloca con `ResizeObserver` si el botón o su tarjeta cambian de tamaño y se limita al recuadro del modal; no se dispara con el foco, así que no aparece al abrir un perfil. Los botones mantienen su `aria-label`.
 - Patrón de carga: un flag `cargando` en el store de la página pinta `gochi-skeleton` con `x-for`; al terminar se limpia y entra la lista real o `gochi-vacio`.

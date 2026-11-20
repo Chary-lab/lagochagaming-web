@@ -68,9 +68,10 @@ node --check main.js
 
 ## Edge Functions
 
-- `kick-clips`, `instagram-feed` y `tiktok-feed`: caché de 40 min en Supabase y proxy de imágenes con host permitido y tope de 6 MB.
+- `kick-clips`, `instagram-feed`, `tiktok-feed` e `youtube-ultimo`: caché en Supabase y proxy de imágenes con host permitido y tope de 6 MB. `youtube-ultimo` devuelve el último vídeo (no short) del canal y cae al último bueno conocido si YouTube falla.
 - `kick-chat`, `kick-comunidad` y `kick-oauth-callback`: sesión OAuth de Kick, CORS cerrado a `lagochagaming.com` y `state` de un solo uso que caduca a los 10 min.
 - `kick-chat-webhook` valida la firma RSA de Kick; `kick-chat-setup` exige la cabecera `x-setup-secret`.
+- `avisar-directo` envía el aviso de directo por Web Push (VAPID) con un cron cada 5 min; limitado a las suscripciones guardadas.
 - `app-descarga` cuenta la descarga y redirige al APK (25 por IP y hora); `app-telemetria` registra instalaciones y saltos de versión.
 - Todas usan `verify_jwt=false` y validan por su cuenta.
 

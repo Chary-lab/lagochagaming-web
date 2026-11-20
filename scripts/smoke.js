@@ -1,4 +1,4 @@
-/* Smoke test del sitio: 5 páginas, consola limpia, sin desborde horizontal.
+/* Smoke test del sitio: 7 páginas, consola limpia, sin desborde horizontal.
  *
  * Uso:
  *   node scripts/smoke.js            (levanta un servidor propio en 8788)

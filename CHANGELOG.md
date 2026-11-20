@@ -3,6 +3,24 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.8] - 2026-11-20
+
+### Web
+
+- Loader de Google AdSense (`adsbygoogle.js` con `ca-pub-6376663186558090`) en el `<head>` de las 7 páginas. Todavía no hay unidades de anuncio: esto cubre la verificación de propiedad y la solicitud de revisión del sitio.
+- El origen `https://pagead2.googlesyndication.com` se habilitó en la meta CSP de cada página, en `_headers` y en el generador `scripts/check.js`. Sin ese origen el navegador bloqueaba el loader.
+- Contenido original nuevo en Galería, Comunidad, GochitaRunner, GochiWatch y GochiSorteo, usando las secciones `seo-texto` ya existentes. La revisión anterior de AdSense señalaba contenido insuficiente.
+
+### Código muerto y limpieza
+
+- `main.js`: fuera `window.gochiSkeleton`; no tenía ningún consumidor y `scripts/check.js` lo seguía exigiendo.
+- `scripts/smoke.js`: el comentario decía 5 páginas cuando la lista tiene 7.
+
+### Documentación
+
+- `AGENTS.md`, `README.md`, `docs/frontend.md` y `docs/operaciones.md` actualizados: AdSense, service worker de push, lectura de `app/update.json` desde la navbar, Edge Functions `youtube-ultimo` y `avisar-directo`, skills realmente instalados y Conventional Commits.
+- Fuera la entrada obsoleta de `@web-test` en las pruebas: ese paquete no está instalado.
+
 ## [2.9.7] - 2026-11-13
 
 ### Web
@@ -840,7 +858,7 @@ Nuevas acciones: `mision` (override por misión), `pregunta` (5 pts · 1/día) y
 
 ### Código muerto fuera
 
-- `main.js`: se retira `window.gochiUI`, un agregador de 8 métodos con **cero consumidores** en las 6 páginas, `main.js` y `mobile.js`. Los ayudantes que envolvía (`gochiChip`, `gochiSkeleton`, `gochiDropdown`, `cerrarGochiMenus`) siguen igual porque sí se usan.
+- `main.js`: se retira `window.gochiUI`, un agregador de 8 métodos con **cero consumidores** en las 6 páginas, `main.js` y `mobile.js`. Los ayudantes que envolvía (`gochiChip`, `gochiSkeleton`, `gochiDropdown`, `cerrarGochiMenus`) siguen igual en esta versión; `gochiSkeleton` se retiró después en 2.9.8 por el mismo motivo.
 - `main.js`: fuera `btn.onclick = null` del menú móvil; nadie asignaba nunca ese `onclick` (el botón lo gobierna Alpine).
 - `style.css`: fuera `html.densidad-compacta .ranking-item` (la clase no existe en el sitio) y la referencia a `.nav-app-dropdown` en `html.sin-transparencias`, otro selector que nunca casa.
 - `mobile/mobile.css`: fuera 4 variables sin un solo `var()`: `--lg-bg-soft`, `--lg-pink-soft`, `--lg-purple` y `--lg-radius`.

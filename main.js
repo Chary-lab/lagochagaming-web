@@ -1922,20 +1922,6 @@ window.gochiChip = function gochiChip(texto, tono = 'neutro') {
     return chip;
 };
 
-window.gochiSkeleton = function gochiSkeleton(tipo = 'texto', cantidad = 1) {
-    const total = Math.max(1, Math.min(12, Number(cantidad) || 1));
-    const permitidos = new Set(['texto', 'titulo', 'media', 'avatar', 'chip']);
-    const clase = permitidos.has(tipo) ? tipo : 'texto';
-    const fragmento = document.createDocumentFragment();
-    for (let i = 0; i < total; i++) {
-        const bloque = document.createElement('span');
-        bloque.className = 'gochi-skeleton gochi-skeleton--' + clase;
-        bloque.setAttribute('aria-hidden', 'true');
-        fragmento.appendChild(bloque);
-    }
-    return fragmento;
-};
-
 window.gochiDropdown = function gochiDropdown(id, abrir) {
     const store = window.Alpine?.store('ui');
     if (!store || !id) return false;
