@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.10] - 2026-11-20
+
+### Web
+
+- El modal de TikTok ya no monta el player al abrirse: muestra la portada cacheada por la Edge Function `tiktok-feed` y un botón "Reproducir aquí". El iframe `player/v1/<id>` se crea solo al pulsar, así recorrer el feed no agota el límite de cargas por IP que aplica TikTok.
+- Si TikTok corta el player por ese límite, el modal detecta los mensajes `onError`/`onPlayerError` que envía el iframe por `postMessage` y vuelve a la portada con un botón "Reintentar" y el enlace "Abrir en TikTok": nunca se muestra el cartel "Unable to load player".
+- Bump a 2.9.10 para renovar los cache busters de `style.css` y `main.js`.
+
 ## [2.9.9] - 2026-11-20
 
 ### SEO

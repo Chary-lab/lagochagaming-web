@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-fkKX6KsJsKfY+uzCu1NeBSH+VINJ4q0GjgAgkvVMKFk=' 'sha256-4cBPljpR/ylgksT/L3unRHAhhhDd6kJfDl6RhaGYU4U=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-fkKX6KsJsKfY+uzCu1NeBSH+VINJ4q0GjgAgkvVMKFk=' 'sha256-TR0YEuuqVdHnSy1hhbMefFMNFdU2XIsGCREROth2MWM=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Gocha Gaming (Gochita) Oficial | Directo en Kick</title>
     <meta name="description" content="Sitio oficial de La Gocha Gaming (Gochita), streamer venezolana en Kick. Directo, horarios, clips, galería, GochiWatch y comunidad con chat y sorteos.">
@@ -31,7 +31,7 @@
 
     <link rel="preload" as="image" href="img/fono.webp" fetchpriority="high">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?v=2.9.9">
+    <link rel="stylesheet" href="style.css?v=2.9.10">
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-grotesk-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -424,7 +424,17 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     <video class="kick-video" controls playsinline
                            x-init="window.iniciarClipKick($el, $store.media.video)"></video>
                 </template>
-                <template x-if="$store.media.tipo === 'tiktok'">
+                <template x-if="$store.media.tipo === 'tiktok' && (!$store.media.src || $store.media.errorTikTok)">
+                    <div class="tiktok-poster">
+                        <img :src="$store.media.imagen" :alt="$store.media.titulo || 'Portada de video de TikTok'">
+                        <p class="tiktok-error" x-show="$store.media.errorTikTok">No se pudo cargar el reproductor.</p>
+                        <button type="button" class="tiktok-play" @click="$store.media.reproducirTikTok()">
+                            <svg class="icon" aria-hidden="true"><use href="img/icons.svg#i-solid-play"></use></svg>
+                            <span x-text="$store.media.errorTikTok ? 'Reintentar' : 'Reproducir aquí'"></span>
+                        </button>
+                    </div>
+                </template>
+                <template x-if="$store.media.tipo === 'tiktok' && $store.media.src && !$store.media.errorTikTok">
                     <iframe :src="$store.media.src" title="Video de TikTok"
                             allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
                 </template>
@@ -503,7 +513,7 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" defer></script>
 
-    <script src="main.js?v=2.9.9" defer></script>
+    <script src="main.js?v=2.9.10" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.5/dist/cdn.min.js" integrity="sha384-ysJcnHb6oCzqAGKdoTm+IqKqmPKgxHT+ApZCawkyWOJfMq15WvzW3RRmHl7tWpEY" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
     <script>
@@ -1059,6 +1069,8 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                 src: '',
                 video: '',
                 imagen: '',
+                videoId: '',
+                errorTikTok: false,
                 enlace: '#',
                 textoEnlace: 'Abrir',
                 get marcoClase() {
@@ -1074,8 +1086,10 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     this.src = '';
                     this.video = '';
                     this.imagen = '';
+                    this.errorTikTok = false;
                     if (tipo === 'tiktok') {
-                        this.src = 'https://www.tiktok.com/player/v1/' + encodeURIComponent(datos.mediaId) + '?autoplay=1';
+                        this.videoId = datos.mediaId || '';
+                        this.imagen = datos.mediaImagen || '';
                         this.enlace = datos.mediaUrl || 'https://www.tiktok.com/@lagochagaming11';
                         this.textoEnlace = 'Abrir en TikTok';
                     } else if (tipo === 'kick') {
@@ -1097,18 +1111,40 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
                     }
                     this.abierto = true;
                 },
+                reproducirTikTok() {
+                    if (this.tipo !== 'tiktok' || !this.videoId) return;
+                    this.errorTikTok = false;
+                    if (this.src) return;
+                    this.src = 'https://www.tiktok.com/player/v1/' + encodeURIComponent(this.videoId) + '?autoplay=1';
+                },
                 cerrar() {
                     this.abierto = false;
                     this.tipo = '';
                     this.src = '';
                     this.video = '';
                     this.imagen = '';
+                    this.videoId = '';
+                    this.errorTikTok = false;
                     const v = document.querySelector('.kick-video');
                     if (v) {
                         if (v._hls) { v._hls.destroy(); v._hls = null; }
                         v.pause();
                     }
                 }
+            });
+
+            // El player de TikTok informa de fallos por postMessage. Sin esto,
+            // un embed bloqueado deja su propio cartel de error en el modal.
+            window.addEventListener('message', (evento) => {
+                if (evento.origin !== 'https://www.tiktok.com') return;
+                let datos = evento.data;
+                if (typeof datos === 'string') {
+                    try { datos = JSON.parse(datos); } catch { return; }
+                }
+                if (!datos || typeof datos !== 'object' || !datos['x-tiktok-player']) return;
+                if (datos.type !== 'onError' && datos.type !== 'onPlayerError') return;
+                const media = window.Alpine?.store('media');
+                if (media && media.tipo === 'tiktok' && media.src) media.errorTikTok = true;
             });
         });
 
