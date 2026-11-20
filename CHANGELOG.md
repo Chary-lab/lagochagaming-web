@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.9] - 2026-11-20
+
+### SEO
+
+- Títulos y metadescriptions de Comunidad, Galería, Sorteo y GochiWatch reescritos con intención de búsqueda y nombre de marca; también se alinearon sus `og:title`/`og:description`.
+- Galería pasa a mencionar los retos semanales para cubrir la consulta `gocharetos` (21 impresiones, posición 5,14 y 0 clics en el export de Search Console del 20/11).
+- Bump a 2.9.9 para renovar los cache busters y que los cambios se vean sin esperar la caché de 10 minutos de Pages.
+
 ## [2.9.8] - 2026-11-20
 
 Los cambios de AdSense y contenido original de esta release se commitearon antes en `b73abf8` y `16a3fc0`; el commit de esta entrada solo cierra versión, documentación y limpieza.
