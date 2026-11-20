@@ -1441,7 +1441,9 @@ body.light-mode .btn-reportar-foto {
 .footer-nav a:hover, .footer-nav a:focus-visible { color: var(--accent-color); }
 
 /* Texto de apoyo con contenido real (home, GochiWatch, GochiSorteo) */
-.seo-texto { max-width: 900px; margin: 45px auto; padding: 0 20px; }
+/* En layouts de rejilla (Comunidad, Cine, Sorteo) el bloque debe ocupar todo
+   el ancho; si no, cae en la primera columna y el texto queda en ~240px. */
+.seo-texto { grid-column: 1 / -1; width: 100%; box-sizing: border-box; max-width: 900px; margin: 45px auto; padding: 0 20px; }
 .seo-texto h2 { font-size: 1.25rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); border-left: 4px solid var(--accent-color); padding-left: 10px; margin: 0 0 12px; }
 .seo-texto h2 + p { margin-top: 0; }
 .seo-texto p { font-size: 0.95rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 12px; }
