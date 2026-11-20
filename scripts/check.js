@@ -75,7 +75,11 @@ const CSP_DIRECTIVAS = (hashes) => [
     "default-src 'self'",
     // 'unsafe-eval' es obligatorio: Alpine evalúa las expresiones de x-data /
     // x-on: en runtime (su build CDN no tiene variante CSP sin compilar).
-    `script-src 'self' 'unsafe-eval' ${hashes.join(' ')} https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com`,
+    // AdSense loader: Google only officially supports nonce-based strict CSP,
+    // which a static GitHub Pages site cannot issue. This origin allowlist is
+    // the practical equivalent and must be kept in sync across HTML, this
+    // generator and _headers.
+    `script-src 'self' 'unsafe-eval' ${hashes.join(' ')} https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com https://pagead2.googlesyndication.com`,
     "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",

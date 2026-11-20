@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-8VE+vch3k2kvwdm47zYLLGbcbt0Xnu3554STW9rARDA=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-n59b+41A7m0NkbV2Z1SPUsz1QKIcFxe0qBE/HYa05dI=' 'sha256-FeansdXX9nwGKCZYMLLygOo8uz3dSLH211+g1gA0S5w=' 'sha256-8VE+vch3k2kvwdm47zYLLGbcbt0Xnu3554STW9rARDA=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galería | LaGochaGaming</title>
     <meta name="description" content="Galería de fotos de la comunidad de LaGochaGaming. Sube tus imágenes, vota las más populares y forma parte del top.">
@@ -58,6 +58,9 @@
 <script type="speculationrules">
 {"prefetch":[{"source":"document","where":{"or":[{"href_matches":"/*.html"},{"href_matches":"/"}]},"eagerness":"conservative"}]}
 </script>
+    <!-- AdSense: loader de verificacion de propiedad, requerido en cada pagina -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6376663186558090"
+            crossorigin="anonymous"></script>
 </head>
 <body>
 <script>
@@ -264,6 +267,12 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             <p class="gallery-empty gochi-vacio" x-bind:hidden="$store.galeria.cargando || $store.galeria.fotos.length" x-cloak><img class="empty-illustration" src="img/mcchary/empty.webp" alt="" width="150" height="101" loading="lazy" decoding="async">No hay imágenes públicas aprobadas aún. ¡Sé el primero en subir una! 📸</p>
         </div>
         <p id="galeria-no-disponible" class="gallery-empty" hidden>Galería no disponible. Recarga la página.</p>
+    <section class="seo-texto" aria-labelledby="galeria-texto">
+        <h2 id="galeria-texto">Galería de la comunidad de La Gocha</h2>
+        <p>La galería es el archivo visual de la comunidad: fotos subidas por los propios usuarios que pasan por una revisión antes de hacerse públicas. Puedes subir imágenes desde esta página, recorrer las publicaciones aprobadas y dejar un "me gusta" en las que te gusten.</p>
+        <p>Las fotos se ordenan por fecha, así que las más recientes aparecen primero. Si encuentras una imagen que no cumple las normas, usa el botón de reporte: el equipo de moderación la revisa y puede retirarla. Las imágenes pendientes no se muestran en la galería pública hasta que se aprueban.</p>
+        <p>Cada semana se publica un reto con un tema distinto. Participar es una forma sencilla de compartir capturas del directo, del roleplay de GTA V o de los minijuegos del sitio. Para enterarte de los retos y de los sorteos, sigue el <a href="https://kick.com/lagochagaming" target="_blank" rel="noopener noreferrer">directo de La Gocha en Kick</a> o pasa por la <a href="comunidad">comunidad</a>.</p>
+    </section>
     </main>
 
     <!-- FOOTER -->

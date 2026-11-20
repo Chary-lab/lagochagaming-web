@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="img/android-chrome-512x512.png">
     <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-HdAy/0/WGdB4i4Uu9wpOStjP99BTEwCRi50Q7YuHbnE=' 'sha256-C52SLWoSpju1vdOnry7Jga7RhfIx164yj4k4XZH47d4=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-HdAy/0/WGdB4i4Uu9wpOStjP99BTEwCRi50Q7YuHbnE=' 'sha256-C52SLWoSpju1vdOnry7Jga7RhfIx164yj4k4XZH47d4=' https://cdn.jsdelivr.net https://cloud.umami.is https://www.youtube.com https://s.ytimg.com https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://7tv.io https://cdn.7tv.app https://kick.com https://clips.kick.com https://cloud.umami.is https://www.youtube.com; frame-src 'self' https://player.kick.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.tiktok.com https://*.supabase.co; media-src 'self' blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GochitaRunner | Minijuego de La Gocha Gaming</title>
     <meta name="description" content="GochitaRunner: recorre cinco zonas de un PC gaming, junta GochiPoints (GP), esquiva haters, derrota jefes y llega al GO LIVE.">
@@ -62,6 +62,9 @@
     <script type="speculationrules">
 {"prefetch":[{"source":"document","where":{"or":[{"href_matches":"/*.html"},{"href_matches":"/"}]},"eagerness":"conservative"}]}
     </script>
+    <!-- AdSense: loader de verificacion de propiedad, requerido en cada pagina -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6376663186558090"
+            crossorigin="anonymous"></script>
 </head>
 <body id="top">
 <script>
@@ -447,6 +450,12 @@ try{var aj=JSON.parse(localStorage.getItem('gochi_ajustes')||'{}');var rr=docume
             <p class="game-ayuda"><kbd>J</kbd>/<kbd>K</kbd> dispara · <kbd>Shift</kbd> corre · <kbd>P</kbd>/<kbd>Esc</kbd> pausa · <kbd>R</kbd> reinicia · <strong>GP</strong> puntos · <strong>GC</strong> tienda. <button type="button" class="game-sonido" id="game-sonido" aria-pressed="true">Sonido: ON</button></p>
             <p class="visually-hidden" aria-live="polite" id="game-aviso"></p>
         </section>
+    <section class="seo-texto" aria-labelledby="runner-texto">
+        <h2 id="runner-texto">GochitaRunner: el minijuego de La Gocha</h2>
+        <p>GochitaRunner es un juego de plataformas que corre directamente en el navegador, sin descargas. Recorre cinco zonas —El Setup, Raid City, La Purga, Overclock y El Núcleo—, esquiva a los haters y derrota a un jefe al final de cada una. Cada zona se desbloquea al completar la anterior.</p>
+        <p>Durante la partida reúnes GochiPoints (GP), esquivas haters y consigues clips. Al terminar se guardan medallas según puntos y tiempo, y se desbloquean logros, skins y misiones semanales. Con los GC de la tienda puedes comprar accesorios —auriculares, móvil, ropa, zapatillas, labial y espejo—, cada uno con una habilidad distinta.</p>
+        <p>Con la sesión de comunidad iniciada, tus mejores marcas se guardan en el ranking general y por nivel. Sin sesión puedes jugar como invitado, pero la partida no se guarda. Los controles son flechas o A/D para mover, Espacio para saltar y J/K para disparar; en móvil aparece un joystick y un botón de clip. Si quieres ver cómo va el directo mientras juegas, pasa por la <a href="comunidad">comunidad</a>.</p>
+    </section>
     </main>
 </div>
 
