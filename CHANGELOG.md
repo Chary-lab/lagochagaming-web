@@ -3,6 +3,14 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.12] - 2026-11-21
+
+### Web
+
+- Los vídeos de YouTube del inicio vuelven a mostrar su miniatura (`i.ytimg.com/vi/<id>/hqdefault.jpg`) mientras el iframe sigue diferido: el botón de reproducción se superpone a la portada en vez de dejar un recuadro vacío.
+- La Edge Function `youtube-ultimo` actualiza también la miniatura al traer el vídeo más reciente, y la portada se oculta al pulsar "Reproducir".
+- Bump a 2.9.12 para renovar los cache busters de `style.css` y `main.js`.
+
 ## [2.9.11] - 2026-11-21
 
 ### Web

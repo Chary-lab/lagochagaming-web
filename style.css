@@ -936,10 +936,12 @@ body.light-mode .hero-stat, body.light-mode .hero-btn-secundario { background: r
 .yt-video { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .yt-video-caja { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: var(--card-bg-subtle); border: 1px solid var(--border-color); }
 .yt-video-iframe { display: block; width: 100%; height: 100%; border: none; }
-.yt-video-play { position: absolute; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: rgba(0, 0, 0, 0.35); color: #ffffff; cursor: pointer; }
-.yt-video-play .icon { width: 64px; height: 64px; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8)); }
+.yt-video-poster { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+.yt-video-play { position: absolute; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: rgba(0, 0, 0, 0.12); color: #ffffff; cursor: pointer; transition: background 0.2s ease; }
+.yt-video-play:hover { background: rgba(0, 0, 0, 0.28); }
+.yt-video-play .icon { box-sizing: content-box; width: 42px; height: 42px; padding: 15px; border-radius: 50%; background: rgba(0, 0, 0, 0.62); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55); transition: transform 0.2s ease, background 0.2s ease; }
 .yt-video-play:hover .icon,
-.yt-video-play:focus-visible .icon { color: var(--accent-color); }
+.yt-video-play:focus-visible .icon { transform: scale(1.08); background: var(--accent-color); color: var(--accent-texto); }
 .yt-video-pie { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .yt-video-canal { font-size: 0.85rem; font-weight: 700; color: var(--accent-color); }
 .yt-video-enlace { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-decoration: none; }
