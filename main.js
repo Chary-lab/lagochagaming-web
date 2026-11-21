@@ -4078,6 +4078,33 @@ window.CHAT_KICK = {
         }).join('');
     };
 
+    // Kick envía colores de usuario arbitrarios. Se aclaran u oscurecen hasta
+    // alcanzar 4.5:1 contra el fondo real del chat (axe/Lighthouse y lectura).
+    const luminanciaKick = (r, g, b) => {
+        const canal = (v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+        return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+    };
+    const contrasteKick = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    const colorLegibleKick = (color, fondo) => {
+        const m = /^#?([0-9a-f]{6})$/i.exec(String(color || '').trim());
+        const f = /^#?([0-9a-f]{6})$/i.exec(String(fondo || '').trim());
+        if (!m || !f) return null;
+        const rgb = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16));
+        const bg = [0, 2, 4].map((i) => parseInt(f[1].slice(i, i + 2), 16));
+        const lb = luminanciaKick(...bg);
+        const objetivo = lb < 0.18 ? 255 : 0;
+        for (let paso = 0; paso <= 20; paso++) {
+            const t = paso / 20;
+            const c = rgb.map((v) => Math.round(v + (objetivo - v) * t));
+            if (contrasteKick(luminanciaKick(...c), lb) >= 4.5) return 'rgb(' + c.join(',') + ')';
+        }
+        return objetivo ? '#ffffff' : '#000000';
+    };
+    const fondoChatKick = () => {
+        const valor = getComputedStyle(document.body).getPropertyValue('--card-bg').trim();
+        return /^#?[0-9a-f]{6}$/i.test(valor) ? valor : '#1f2937';
+    };
+
     const SIMBOLO_BADGE = { moderator: '🛡', founder: '👑', subscriber: '⭐', vip: '💎', verified: '✓' };
 
     let campoKick = null;
@@ -4158,7 +4185,10 @@ window.CHAT_KICK = {
         autor.rel = 'noopener noreferrer';
         autor.textContent = usuario;
         autor.title = 'Abrir el perfil de ' + usuario + ' en Kick';
-        if (m.sender_color) autor.style.color = m.sender_color;
+        if (m.sender_color) {
+            const legible = colorLegibleKick(m.sender_color, fondoChatKick());
+            if (legible) autor.style.color = legible;
+        }
         cabeza.appendChild(autor);
 
         if (Array.isArray(m.badges)) {

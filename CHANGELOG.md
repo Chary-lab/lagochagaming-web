@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.11] - 2026-11-21
+
+### Web
+
+- Rendimiento móvil: `hls.js` ya no se descarga en cada visita al inicio (415 KB sin comprimir); se carga bajo demanda al abrir un clip de Kick, conservando SRI y el fallback HLS nativo de Safari.
+- Los dos vídeos de YouTube del inicio son ahora una portada con botón de reproducción: el iframe se crea solo al pulsar, lo que evita cargar el player de YouTube en la primera visita.
+- Ajuste del contraste de los nombres del chat de Kick: los colores arbitrarios del streamer se aclaran u oscurecen hasta 4.5:1 contra el fondo activo del chat.
+- Se retira el `preconnect` a `player.kick.com` del inicio (eran 5 pistas de conexión y el iframe es diferido).
+- Bump a 2.9.11 para renovar los cache busters de `style.css` y `main.js`.
+
 ## [2.9.10] - 2026-11-20
 
 ### Web
