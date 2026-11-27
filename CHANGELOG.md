@@ -3,6 +3,16 @@
 Formato basado en Keep a Changelog. Versionado SemVer (`MAJOR.MINOR.PATCH`).
 El historial anterior a 1.5.0 está en los commits `v1.4.x`.
 
+## [2.9.13] - 2026-11-27
+
+### SEO
+
+- Inicio: el título y la descripción mencionan ahora **La Gocha TV**, alias con el que la buscan (`la gocha tv`, `lagochatvoficial`: 36 impresiones en posiciones 15,7 y 18,9 en Search Console). Se añade una pregunta frecuente que aclara que La Gocha TV y La Gocha Gaming son el mismo canal.
+- El `Person` y el `WebSite` del JSON-LD declaran `alternateName` con los alias (`La Gocha TV`, `LaGochaTV`, `Lagochatvoficial`).
+- Galería: el título y el texto usan la palabra **gocharetos** de forma literal (`gocharetos`: 21 impresiones, 0 clics, posición 5,1). El reto semanal se explica en el bloque de texto y en el `h2`.
+- `sitemap.xml`: `lastmod` al día en las páginas modificadas.
+- Bump a 2.9.13 para renovar los cache busters.
+
 ## [2.9.12] - 2026-11-21
 
 ### Web
